@@ -5,7 +5,7 @@ clean:
 
 report.dvi: report.tex report.bib
 	cd out &&\
-	latex ../report.tex &&\
+	pdflatex ../report.tex &&\
 	bibtex report &&\
-	latex ../report.tex &&\
-	latex ../report.tex
+	pdflatex ../report.tex &&\
+	pdflatex ../report.tex

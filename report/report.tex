@@ -1,15 +1,5 @@
-\title{A Very Simple \LaTeXe{} Template}
-\author{
-        Vitaly Surazhsky \\
-                Department of Computer Science\\
-        Technion---Israel Institute of Technology\\
-        Technion City, Haifa 32000, \underline{Israel}
-            \and
-        Yossi Gil\\
-        Department of Computer Science\\
-        Technion---Israel Institute of Technology\\
-        Technion City, Haifa 32000, \underline{Israel}
-}
+\title{Applying the Roofline Model}
+\author{Ruedi Steinmann}
 \date{\today}
 
 \documentclass[12pt]{article}
@@ -22,25 +12,87 @@ This is the paper's abstract \ldots
 \end{abstract}
 
 \section{Introduction}
-This is time for all good men to come to the aid of their party!
+In this thesis, we would like to analyze a substantial amount of diverse code using the roofline model presented in \cite{Roofline}. The code can come either in the form of a relatively isolated routine, typically containing a single kernel, or in the form of a larger program, containing multiple different kernels.
 
-\paragraph{Outline}
-The remainder of this article is organized as follows.
-Section~\ref{previous work} gives account of previous work.
-Our new and exciting results are described in Section~\ref{results}.
-Finally, Section~\ref{conclusions} gives the conclusions.
+While routines are typically treated as atomic unit, it is desireable to split the larger program into it's different algorithms and do the analysis for each algorithm separately. In the rest of this paper, we will use the term kernel for a routine or part of a program which is analyzed on it's own.
 
-\section{Previous work}\label{previous work}
-A much longer \LaTeXe{} example was written by Gil~\cite{Gil:02}.
+To obtain the peak performance lines for the roofline model, we need to run various micro benchmarks. To get the data points for a kernel, we need to measure the performance and the operational intensity. 
 
-\section{Results}\label{results}
-In this section we describe the results.
+Performance is defined as amount of work per unit of time. The amount of work and how it is defined is determined by the actual kernel and does not need to be measured directly by the measurement tool. The time required to do the work has to be measured.
 
-\section{Conclusions}\label{conclusions}
-We worked hard, and achieved very little.
+Operational intensity is defined as operations per byte of data traffic. Since the operational intensity cannot be measured directly, we have to measure the operation count and the data traffic. Depending on the problem, different definitions of operation and data traffic make sense.
+
+An operation could be a floating point operation, resulting int the well known "flops" unit, either single or double precision. But an operation could as well be defined as machine instruction, integer operation or others.
+
+The point where data traffic is measured is typically between the last level of the processor cache and the DRAM, but it could be measured as well between the different cache levels or between L1 cache and processor.
+
+The microbenchmarks are typically designed to either transfer as much data per unit of time or to execute as may operations per unit of time. Thus the measurement capabilities needed to evaluate the actual problems can be reused for the benchmarks. 
+
+In summary, we need to measure the following quantities:
+\begin{itemize}
+\item execution time
+\item memory traffic
+\item operation count
+\end{itemize}
+
+On current processors, measuring these quantities should be possible. For the execution time either the cycle counter or the system timer can be used. The memory traffic can be determined using the performance counters for counting cach misses and write back operations. (what about not temporal stores?) Measuring the operation count depends heavily on the definition of operation, but is typically measurable with the performance counters, too.
+
+While each of the measurements above has it's own subtleties, there are some effects affecting all of the above measurements, which we will discuss in the following sections.
+
+\subsection{Context Switches}
+
+Unless a special operating system is used, we have to deal with context switches during measurement. On current operating systems, a context switch typically occurs every 10ms due to the timer interrupt. Following the lines of \cite{ComSysProgPersp}, there are two ways to deal with them:
+
+If the execution time of the kernel is small, the operating system will eventually execute the whole kernel without interruption. This can be exploited using the best k measurement scheme. The kernel is repeatedly executed until the k measurements with the smallest execution times show a variation below a certain threshold. These executions were apparently not affected by a context switch, since a context switch would have increased exection time. The HW\_INT\_RCV performance counter could possibly be used as well to detect context switches.
+
+If a single execution of the kernel takes longer than the period of time between two timer interrupts, it will always be affected by a context switch. In this case, the proposed solution is to execute the kernel in a loop until many context switches occurred. The effect of the context switches can be compensated for by reducing the measured time be a certain factor. The factor depends on the actual system.
+
+\subsection{Cache}
+Specially for short running kernels, the inital state of the cache can have a big impact on the memory traffic and execution time. [?] The impact can be controlled by making sure the caches are either warm or cold.
+
+To get a cold cache, a memory block with a larger size than the last level cache should be accessed directly before executing the kernel. This causes all cache lines containig data of the working set to be evicted. In a similar manner, enough code should be executed to clear the L1 code cache.
+
+To get a warm cache, the kernel is usually executed once before starting the measurement. This causes the working set to be loaded in the caches, if it fits, and the code to be in the cache as well.
+
+\subsection{System Load}
+Specially if the measurement includes context switches, the system load has a big impact on the measurement result. But due to caching effects, even the k best measurement scheme might be affected by the system load. Since we can controll the system the measurements are perfomed on, we can control system load. But none the less, it should be recorded along with the measurement, in case something goes wrong with the measurement system setup.
+
+\section{Measuring Execution Time}
+
+\subsection{Frequency Scaling}
+The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core freqency, a lower core freqency will generally cause a higher percentage of the peak performance to be reached by the kernel.
+
+It is difficult to control the core frequency. But the frequency should at least be recorded along with the measurement. If the frequency changes during the measurement, this should be recored as well.
+
+\section{Measuring Memory Traffic}
+
+
+\section{Mesuring Operation Count}
+
+
+Options:
+**********
+- execution time
+-- realtime
+-- cycle counter
+-- k best
+-- loop
+-- detect context switches
+-- investigate variance
+-- reproduce variance plots from [ComSysProgPersp.pdf]
+-- detect frequency changes
+-- control governor
+
+- cache
+-- core-l1
+-- l1-l2
+-- l2-l3
+-- ll-memory
+-- TLB
+
+- operations
 
 \bibliographystyle{abbrv}
 \bibliography{../report.bib}
 
 \end{document}
-This is never printed
