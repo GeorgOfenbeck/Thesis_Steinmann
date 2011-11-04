@@ -11,6 +11,8 @@
 This is the paper's abstract \ldots
 \end{abstract}
 
+\tableofcontents
+
 \section{Introduction}
 In this thesis, we would like to analyze a substantial amount of diverse code using the roofline model presented in \cite{Roofline}. The code can come either in the form of a relatively isolated routine, typically containing a single kernel, or in the form of a larger program, containing multiple different kernels.
 
@@ -56,6 +58,15 @@ To get a warm cache, the kernel is usually executed once before starting the mea
 
 \subsection{System Load}
 Specially if the measurement includes context switches, the system load has a big impact on the measurement result. But due to caching effects, even the k best measurement scheme might be affected by the system load. Since we can controll the system the measurements are perfomed on, we can control system load. But none the less, it should be recorded along with the measurement, in case something goes wrong with the measurement system setup.
+
+\subsection{Multi Threading}
+Our kernels and benchmarks may use multi threading. This has to be supported by the measurement tool. Since some caches as well as part of the memory bandwith might be shared among different cores, multithreading can have various effects on the amount of transferred memory and the available bandwith.
+
+In case of hyper threading, some functional units of a processor core are shared among two threads. This influences the peak performance of the core.
+
+It is possible that the operating system moves a thread from one processor to the other. Special care has to be taken to deal with this event. At least it has to be detected.
+
+\section{Measurement Tool Architecture}
 
 \section{Measuring Execution Time}
 
