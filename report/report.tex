@@ -60,11 +60,11 @@ To get a warm cache, the kernel is usually executed once before starting the mea
 Specially if the measurement includes context switches, the system load has a big impact on the measurement result. But due to caching effects, even the k best measurement scheme might be affected by the system load. Since we can controll the system the measurements are perfomed on, we can control system load. But none the less, it should be recorded along with the measurement, in case something goes wrong with the measurement system setup.
 
 \subsection{Multi Threading}
-Our kernels and benchmarks may use multi threading. This has to be supported by the measurement tool. Since some caches as well as part of the memory bandwith might be shared among different cores, multithreading can have various effects on the amount of transferred memory and the available bandwith.
+Our kernels and benchmarks will use multi threading. This has to be supported by the measurement tool. Since some caches as well as part of the memory bandwith might be shared among different cores, multithreading can have various effects on the amount of transferred memory and the available bandwith.
 
 In case of hyper threading, some functional units of a processor core are shared among two threads. This influences the peak performance of the core.
 
-It is possible that the operating system moves a thread from one processor to the other. Special care has to be taken to deal with this event. At least it has to be detected.
+It is possible that the operating system moves a thread from one core to another. Since the overhead of a switching the core is large, it is generally avoided by the scheduler of the operating system. But it can occur, and we have to be prepared for it. 
 
 \section{Measurement Tool Architecture}
 
