@@ -2,7 +2,7 @@
 \author{Ruedi Steinmann}
 \date{\today}
 
-\documentclass[12pt]{article}
+\documentclass[a4paper,12pt]{article}
 
 \begin{document}
 \maketitle
@@ -69,39 +69,38 @@ It is possible that the operating system moves a thread from one core to another
 \section{Measurement Tool Architecture}
 
 \section{Measuring Execution Time}
-
+\begin{itemize}
+\item 0x40000000   UNHALTED_CORE_CYCLES 30Ah CPU_CLK_UNHALTED.CORE
+\item 0x40000025   UNHALTED_REFERENCE_CYCLES 30Bh CPU_CLK_UNHALTED.REF
+\item 0x400000ad   THERMAL_TRIP 3Bh C0h 
+\item 0x400000ae   CPU_CLK_UNHALTED
+\item 0x400001a9   ix86arch::UNHALTED_CORE_CYCLES
+\item 0x400001aa   ix86arch::INSTRUCTION_RETIRED
+\item 0x400001ab   ix86arch::UNHALTED_REFERENCE_CYCLES 
+\end{itemize}
 \subsection{Frequency Scaling}
 The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core freqency, a lower core freqency will generally cause a higher percentage of the peak performance to be reached by the kernel.
 
 It is difficult to control the core frequency. But the frequency should at least be recorded along with the measurement. If the frequency changes during the measurement, this should be recored as well.
 
 \section{Measuring Memory Traffic}
+\begin{itemize}
+\item 0x40000027   LLC_MISSES
+\item 0x40000040   SSE_PRE_EXEC 07h03h SSE_PRE_EXEC.L2
+\item 0x40000059   L2_DBUS_BUSY_RD
+\item 0x4000005c   L2_LINES_IN  24h
+\item 0x4000006a   L2_M_LINES_OUT  27h
+\item 0x400000cb   SSE_PRE_MISS 4Bh 00h/01h/02h
+\item 62h BUS_DRDY_CLOCKS
+\end{itemize}
 
 
 \section{Mesuring Operation Count}
+\begin{itemize}
+\item 0x40000156   SIMD_UOP_TYPE_EXEC B3h 01h/20h
+\end{itemize}
 
 
-Options:
-**********
-- execution time
--- realtime
--- cycle counter
--- k best
--- loop
--- detect context switches
--- investigate variance
--- reproduce variance plots from [ComSysProgPersp.pdf]
--- detect frequency changes
--- control governor
-
-- cache
--- core-l1
--- l1-l2
--- l2-l3
--- ll-memory
--- TLB
-
-- operations
 
 \bibliographystyle{abbrv}
 \bibliography{../report.bib}

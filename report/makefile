@@ -1,9 +1,12 @@
 report: report.dvi
 
 clean:
-	rm -f out/*
+	rm -rf out
 
-report.dvi: report.tex report.bib
+out:
+	mkdir out
+
+report.dvi: report.tex report.bib out
 	cd out &&\
 	pdflatex ../report.tex &&\
 	bibtex report &&\
