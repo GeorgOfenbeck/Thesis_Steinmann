@@ -67,6 +67,14 @@ In case of hyper threading, some functional units of a processor core are shared
 It is possible that the operating system moves a thread from one core to another. Since the overhead of a switching the core is large, it is generally avoided by the scheduler of the operating system. But it can occur, and we have to be prepared for it.
 
 \section{Measurement Tool Architecture}
+To simplify development and maintenance, we tried to keep the part of the tool written in C++ as small as possible. This is called the MeasuringCore. The rest is written in Java.
+
+There are the following parts:
+\begin{itemize}
+\end{itemize}
+
+\subsection{Sharing Infrastructure}
+Some classes are shared between MeasurementDriver and the MeasuringCore. Since these tools are written in different languages, the source code for the C++ and the Java implementation is generated from an XML definition. The XML definition contains field definitions only, no code. If code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
 
 \section{Measuring Execution Time}
 \begin{itemize}
