@@ -41,7 +41,9 @@ public class CCodeGenerator implements ICodeGenerator {
 	}
 
 	@Override
-	public String getExtension() {
-		return ".cpp";
+	public String getFileName(SharedClass sharedClass) {
+		return "generatedC/"+sharedClass.getName()+".cpp";
 	}
+
+	
 }

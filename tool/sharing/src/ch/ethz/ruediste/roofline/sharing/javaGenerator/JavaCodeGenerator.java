@@ -41,7 +41,7 @@ public class JavaCodeGenerator implements ICodeGenerator {
 	}
 
 	@Override
-	public String getExtension() {
-		return ".java";
+	public String getFileName(SharedClass sharedClass) {
+		return "generatedJava/"+sharedClass.getName()+".java";
 	}
 }

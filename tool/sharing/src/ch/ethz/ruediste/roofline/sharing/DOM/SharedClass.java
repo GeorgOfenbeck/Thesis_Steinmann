@@ -7,8 +7,6 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 @XStreamAlias("class")
 public class SharedClass {
-	@XStreamAsAttribute()
-	private String comment;
 	
 	@XStreamImplicit
 	private LinkedList<SharedFieldBase> fields
@@ -22,7 +20,8 @@ public class SharedClass {
 	@XStreamAsAttribute
 	private String javaBaseType;
 
-
+	@XStreamAsAttribute()
+	private String comment;
 	
 	public LinkedList<SharedFieldBase> getFields() {
 		return fields;

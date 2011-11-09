@@ -6,5 +6,5 @@ import ch.ethz.ruediste.roofline.sharing.DOM.SharedClass;
 
 public interface ICodeGenerator {
 	void generate(SharedClass sharedClass, Writer writer);
-	String getExtension();
+	String getFileName(SharedClass sharedClass);
 }

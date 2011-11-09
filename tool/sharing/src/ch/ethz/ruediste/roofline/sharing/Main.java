@@ -1,6 +1,7 @@
 package ch.ethz.ruediste.roofline.sharing;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,12 +21,7 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 public class Main {
 
 	public static void main(String args[]) throws FileNotFoundException{
-		if (args.length!=1){
-			System.out.println("usage: shared <classDefinition.xml>");
-			System.exit(1);
-		}
-		
-		// inistialize XSTream
+		// inistialize XStream
 		XStream xStream=new XStream(new DomDriver());
 		xStream.processAnnotations(SharedClass.class);
 		xStream.processAnnotations(SharedField.class);
@@ -34,27 +30,35 @@ public class Main {
 		xStream.processAnnotations(SharedFieldBase.class);
 		
 		// get input filename
-		File inputFile=new File(args[0]);
-		
-		// load the input
-		SharedClass sharedClass= (SharedClass) xStream.fromXML(inputFile);
-		System.out.println(xStream.toXML(sharedClass));
-		
-		// instantiate generators
-		ICodeGenerator generators[]={new JavaCodeGenerator(), new CCodeGenerator()};
-				
-		// generate code
-		for (ICodeGenerator generator: generators){
-			FileWriter writer;
-			try {
-				writer = new FileWriter(inputFile.getAbsoluteFile().getParent()+inputFile.separator+sharedClass.getName()+generator.getExtension());
-				generator.generate(sharedClass,writer);
-				writer.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		File inputDir=new File("./definitions");
+		File inputFiles[]=inputDir.listFiles(new FileFilter() {
 			
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".xml");
+			}
+		});
+		for (File inputFile : inputFiles){
+			// load the input
+			SharedClass sharedClass= (SharedClass) xStream.fromXML(inputFile);
+			System.out.println(xStream.toXML(sharedClass));
+			
+			// instantiate generators
+			ICodeGenerator generators[]={new JavaCodeGenerator(), new CCodeGenerator()};
+					
+			// generate code
+			for (ICodeGenerator generator: generators){
+				FileWriter writer;
+				try {
+					writer = new FileWriter(generator.getFileName(sharedClass));
+					generator.generate(sharedClass,writer);
+					writer.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+		}
 		}
 	}
 }
