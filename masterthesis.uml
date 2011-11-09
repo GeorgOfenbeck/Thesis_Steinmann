@@ -47,23 +47,23 @@
               diagramclass="org.argouml.uml.diagram.static_structure.ui.UMLClassDiagram"
               diagramname="Overview" />
       <member type="pgml"
-              name="masterthesis_ClassDiagram.pgml"
+              name="masterthesis_Shared.pgml"
               diagramclass="org.argouml.uml.diagram.static_structure.ui.UMLClassDiagram"
               diagramname="Shared" />
       <member type="pgml"
-              name="masterthesis_ClassDiagram.pgml"
+              name="masterthesis_SerializationFramework.pgml"
               diagramclass="org.argouml.uml.diagram.static_structure.ui.UMLClassDiagram"
               diagramname="Serialization Framework" />
       <member type="pgml"
-              name="masterthesis_DeploymentDiagram.pgml"
+              name="masterthesis_Collaboration.pgml"
               diagramclass="org.argouml.uml.diagram.deployment.ui.UMLDeploymentDiagram"
               diagramname="Collaboration" />
       <member type="pgml"
-              name="masterthesis_ClassDiagram.pgml"
+              name="masterthesis_JavaCode.pgml"
               diagramclass="org.argouml.uml.diagram.static_structure.ui.UMLClassDiagram"
               diagramname="Java Code" />
       <member type="pgml"
-              name="masterthesis_ClassDiagram.pgml"
+              name="masterthesis_SharedDOM.pgml"
               diagramclass="org.argouml.uml.diagram.static_structure.ui.UMLClassDiagram"
               diagramname="Shared DOM" />
       <member type="todo"
@@ -82,7 +82,7 @@
 			CodeGeneration
 		</plugin>
 </profile>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Tue Nov 08 19:47:06 CET 2011'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Wed Nov 09 07:29:46 CET 2011'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.32.2(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -1085,6 +1085,21 @@
                     <UML:DataType href = 'http://argouml.org/profiles/uml14/default-uml14.xmi#-84-17--56-5-43645a83:11466542d86:-8000:000000000000087E'/>
                   </UML:StructuralFeature.type>
                 </UML:Attribute>
+                <UML:Attribute xmi.id = '127-0-1-1--512a0f95:1338703b671:-8000:0000000000000B35'
+                  name = 'name' visibility = 'public' isSpecification = 'false' ownerScope = 'instance'
+                  changeability = 'changeable' targetScope = 'instance'>
+                  <UML:StructuralFeature.multiplicity>
+                    <UML:Multiplicity xmi.id = '127-0-1-1--512a0f95:1338703b671:-8000:0000000000000B36'>
+                      <UML:Multiplicity.range>
+                        <UML:MultiplicityRange xmi.id = '127-0-1-1--512a0f95:1338703b671:-8000:0000000000000B37'
+                          lower = '1' upper = '1'/>
+                      </UML:Multiplicity.range>
+                    </UML:Multiplicity>
+                  </UML:StructuralFeature.multiplicity>
+                  <UML:StructuralFeature.type>
+                    <UML:DataType href = 'http://argouml.org/profiles/uml14/default-uml14.xmi#-84-17--56-5-43645a83:11466542d86:-8000:000000000000087E'/>
+                  </UML:StructuralFeature.type>
+                </UML:Attribute>
               </UML:Classifier.feature>
             </UML:Class>
             <UML:Class xmi.id = '127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B18'
@@ -1513,7 +1528,7 @@
       justification="Center"
     >ExecutionTimeMeasurer</text>
     <group name="Fig0.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[49, 649, 209, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[49, 649, 157, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000AA0"
          fill="0"
          fillcolor="white"
@@ -1527,7 +1542,7 @@
       <rectangle name="Fig0.2.0"
         x="49"
         y="649"
-        width="209"
+        width="157"
         height="0"
         fill="0"
         fillcolor="white"
@@ -1638,7 +1653,7 @@
       justification="Center"
     >MemoryTrafficMeasurer</text>
     <group name="Fig1.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[233, 657, 205, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[233, 657, 153, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000AA1"
          fill="0"
          fillcolor="white"
@@ -1652,7 +1667,7 @@
       <rectangle name="Fig1.2.0"
         x="233"
         y="657"
-        width="205"
+        width="153"
         height="0"
         fill="0"
         fillcolor="white"
@@ -1763,7 +1778,7 @@
       justification="Center"
     >OperationCountMeasurer</text>
     <group name="Fig2.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[417, 657, 218, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[417, 657, 166, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000AA7"
          fill="0"
          fillcolor="white"
@@ -1777,7 +1792,7 @@
       <rectangle name="Fig2.2.0"
         x="417"
         y="657"
-        width="218"
+        width="166"
         height="0"
         fill="0"
         fillcolor="white"
@@ -1888,7 +1903,7 @@
       justification="Center"
     >KernelBase</text>
     <group name="Fig3.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[833, 49, 130, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[833, 49, 103, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000AAA"
          fill="0"
          fillcolor="white"
@@ -1902,7 +1917,7 @@
       <rectangle name="Fig3.2.0"
         x="833"
         y="49"
-        width="130"
+        width="103"
         height="0"
         fill="0"
         fillcolor="white"
@@ -2029,7 +2044,7 @@
       justification="Center"
     >MeasurerBase</text>
     <group name="Fig4.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[145, 457, 190, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[145, 457, 240, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000AAB"
          fill="0"
          fillcolor="white"
@@ -2043,7 +2058,7 @@
       <rectangle name="Fig4.2.0"
         x="145"
         y="457"
-        width="190"
+        width="240"
         height="0"
         fill="0"
         fillcolor="white"
@@ -2311,7 +2326,7 @@
       justification="Center"
     >MeasurementSchemeChooser</text>
     <group name="Fig8.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[849, 169, 248, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[849, 169, 196, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000AB1"
          fill="0"
          fillcolor="white"
@@ -2325,7 +2340,7 @@
       <rectangle name="Fig8.2.0"
         x="849"
         y="169"
-        width="248"
+        width="196"
         height="0"
         fill="0"
         fillcolor="white"
@@ -2452,7 +2467,7 @@
       justification="Center"
     >MeasurerSet</text>
     <group name="Fig9.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[121, 89, 140, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[121, 89, 257, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000AB2"
          fill="0"
          fillcolor="white"
@@ -2466,7 +2481,7 @@
       <rectangle name="Fig9.2.0"
         x="121"
         y="89"
-        width="140"
+        width="257"
         height="0"
         fill="0"
         fillcolor="white"
@@ -2634,7 +2649,7 @@
       justification="Center"
     >LoopMeasurementScheme</text>
     <group name="Fig11.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[633, 321, 226, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[633, 321, 174, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000ACE"
          fill="0"
          fillcolor="white"
@@ -2648,7 +2663,7 @@
       <rectangle name="Fig11.2.0"
         x="633"
         y="321"
-        width="226"
+        width="174"
         height="0"
         fill="0"
         fillcolor="white"
@@ -2759,7 +2774,7 @@
       justification="Center"
     >KBestMeasurementScheme</text>
     <group name="Fig12.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[881, 313, 231, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[881, 313, 179, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000ACF"
          fill="0"
          fillcolor="white"
@@ -2773,7 +2788,7 @@
       <rectangle name="Fig12.2.0"
         x="881"
         y="313"
-        width="231"
+        width="179"
         height="0"
         fill="0"
         fillcolor="white"
@@ -2884,7 +2899,7 @@
       justification="Center"
     >MeasurementSchemeBase</text>
     <group name="Fig13.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[505, 81, 227, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[505, 81, 175, 0]"
          href="127-0-1-1-53da692d:1337cfd591b:-8000:0000000000000AE8"
          fill="0"
          fillcolor="white"
@@ -2898,7 +2913,7 @@
       <rectangle name="Fig13.2.0"
         x="505"
         y="81"
-        width="227"
+        width="175"
         height="0"
         fill="0"
         fillcolor="white"
@@ -3294,7 +3309,7 @@
       justification="Center"
     >MMMKernel</text>
     <group name="Fig21.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[1121, 137, 129, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[1121, 137, 78, 0]"
          href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000AD4"
          fill="0"
          fillcolor="white"
@@ -3308,7 +3323,7 @@
       <rectangle name="Fig21.2.0"
         x="1121"
         y="137"
-        width="129"
+        width="78"
         height="0"
         fill="0"
         fillcolor="white"
@@ -3632,7 +3647,7 @@
       justification="Center"
     >Application</text>
     <group name="Fig25.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[1049, 513, 129, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[1049, 513, 103, 0]"
          href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000ADA"
          fill="0"
          fillcolor="white"
@@ -3646,7 +3661,7 @@
       <rectangle name="Fig25.2.0"
         x="1049"
         y="513"
-        width="129"
+        width="103"
         height="0"
         fill="0"
         fillcolor="white"
@@ -3930,7 +3945,7 @@
       justification="Center"
     >MeasurementSpecification</text>
     <group name="Fig27.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[1169, 345, 226, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[1169, 345, 174, 0]"
          href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000AE5"
          fill="0"
          fillcolor="white"
@@ -3944,7 +3959,7 @@
       <rectangle name="Fig27.2.0"
         x="1169"
         y="345"
-        width="226"
+        width="174"
         height="0"
         fill="0"
         fillcolor="white"
@@ -4200,7 +4215,7 @@
       justification="Center"
     >KernelDescriptionBase</text>
     <group name="Fig31.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[1265, 17, 201, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[1265, 17, 149, 0]"
          href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000AF1"
          fill="0"
          fillcolor="white"
@@ -4214,7 +4229,7 @@
       <rectangle name="Fig31.2.0"
         x="1265"
         y="17"
-        width="201"
+        width="149"
         height="0"
         fill="0"
         fillcolor="white"
@@ -4919,7 +4934,7 @@
       justification="Center"
     >MeasurerOutputBase</text>
     <group name="Fig38.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[713, 569, 193, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[713, 569, 141, 0]"
          href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000B07"
          fill="0"
          fillcolor="white"
@@ -4933,7 +4948,7 @@
       <rectangle name="Fig38.2.0"
         x="713"
         y="569"
-        width="193"
+        width="141"
         height="0"
         fill="0"
         fillcolor="white"
@@ -5319,7 +5334,7 @@
       justification="Center"
     >MeasurerTypeRegistry</text>
     <group name="Fig44.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[177, 785, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[177, 785, 146, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B0E"
          fill="0"
          fillcolor="white"
@@ -5333,7 +5348,7 @@
       <rectangle name="Fig44.2.0"
         x="177"
         y="785"
-        width="64"
+        width="146"
         height="0"
         fill="0"
         fillcolor="white"
@@ -5407,7 +5422,7 @@
     </group>
   </group>
   <group name="Fig45"
-       description="org.argouml.uml.diagram.static_structure.ui.FigComment[20, 20, 284, 59]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.uml.diagram.static_structure.ui.FigComment[20, 20, 296, 59]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B0F"
        fill="1"
        fillcolor="white"
@@ -5420,7 +5435,7 @@
     <rectangle name="Fig45.0"
       x="20"
       y="20"
-      width="284"
+      width="296"
       height="59"
       fill="0"
       fillcolor="white"
@@ -5436,11 +5451,11 @@
     >
       <moveto x="20"
               y="20" />
-      <lineto x="293"
+      <lineto x="305"
               y="20" />
-      <lineto x="303"
+      <lineto x="315"
               y="30" />
-      <lineto x="303"
+      <lineto x="315"
               y="78" />
       <lineto x="20"
               y="78" />
@@ -5450,26 +5465,27 @@
     <path name="Fig45.2"
       description="org.tigris.gef.presentation.FigPoly"
       fill="1"
-      fillcolor="178 178 178"
+      fillcolor="white"
       stroke="1"
       strokecolor="black"
     >
-      <moveto x="293"
+      <moveto x="305"
               y="20" />
-      <lineto x="303"
+      <lineto x="315"
               y="30" />
-      <lineto x="293"
+      <lineto x="305"
               y="30" />
-      <lineto x="293"
+      <lineto x="305"
               y="20" />
     </path>
     <group name="Fig45.3"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[22, 22, 270, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[22, 22, 282, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B0F"
          fill="0"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
+         visibility="0"
     >
       <private>
       </private>
@@ -5477,7 +5493,7 @@
       <rectangle name="Fig45.3.0"
         x="22"
         y="22"
-        width="270"
+        width="282"
         height="0"
         fill="0"
         fillcolor="white"
@@ -5488,7 +5504,7 @@
     <text name="Fig45.4"
       x="22"
       y="22"
-      width="270"
+      width="282"
       height="55"
       fill="0"
       fillcolor="white"
@@ -5505,7 +5521,7 @@ MeasurerTypeRegistry, along with the type
 of MeasurerOutput and MeasurerDescription</text>
   </group>
   <group name="Fig46"
-       description="org.argouml.uml.diagram.static_structure.ui.FigComment[0, 344, 284, 72]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.uml.diagram.static_structure.ui.FigComment[0, 344, 296, 72]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B0F"
        fill="1"
        fillcolor="white"
@@ -5518,7 +5534,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <rectangle name="Fig46.0"
       x="0"
       y="344"
-      width="284"
+      width="296"
       height="72"
       fill="0"
       fillcolor="white"
@@ -5534,11 +5550,11 @@ of MeasurerOutput and MeasurerDescription</text>
     >
       <moveto x="0"
               y="344" />
-      <lineto x="273"
+      <lineto x="285"
               y="344" />
-      <lineto x="283"
+      <lineto x="295"
               y="354" />
-      <lineto x="283"
+      <lineto x="295"
               y="415" />
       <lineto x="0"
               y="415" />
@@ -5548,26 +5564,27 @@ of MeasurerOutput and MeasurerDescription</text>
     <path name="Fig46.2"
       description="org.tigris.gef.presentation.FigPoly"
       fill="1"
-      fillcolor="178 178 178"
+      fillcolor="white"
       stroke="1"
       strokecolor="black"
     >
-      <moveto x="273"
+      <moveto x="285"
               y="344" />
-      <lineto x="283"
+      <lineto x="295"
               y="354" />
-      <lineto x="273"
+      <lineto x="285"
               y="354" />
-      <lineto x="273"
+      <lineto x="285"
               y="344" />
     </path>
     <group name="Fig46.3"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[2, 346, 270, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[2, 346, 282, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B0F"
          fill="0"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
+         visibility="0"
     >
       <private>
       </private>
@@ -5575,7 +5592,7 @@ of MeasurerOutput and MeasurerDescription</text>
       <rectangle name="Fig46.3.0"
         x="2"
         y="346"
-        width="270"
+        width="282"
         height="0"
         fill="0"
         fillcolor="white"
@@ -5586,7 +5603,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <text name="Fig46.4"
       x="2"
       y="346"
-      width="270"
+      width="282"
       height="68"
       fill="0"
       fillcolor="white"
@@ -7864,7 +7881,7 @@ of MeasurerOutput and MeasurerDescription</text>
       name="Serialization Framework"
 >
   <group name="Fig0"
-       description="org.argouml.uml.diagram.static_structure.ui.FigClass[288, 112, 117, 69]pathVisible=false;stereotypeView=0;operationsVisible=true;attributesVisible=true;"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[288, 112, 117, 85]pathVisible=false;stereotypeView=0;operationsVisible=true;attributesVisible=true;"
        href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B12"
        fill="1"
        fillcolor="white"
@@ -7878,7 +7895,7 @@ of MeasurerOutput and MeasurerDescription</text>
       x="288"
       y="112"
       width="117"
-      height="69"
+      height="85"
       fill="1"
       fillcolor="white"
       stroke="1"
@@ -7901,7 +7918,7 @@ of MeasurerOutput and MeasurerDescription</text>
       justification="Center"
     >Class</text>
     <group name="Fig0.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[289, 113, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[289, 113, 115, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B12"
          fill="0"
          fillcolor="white"
@@ -7915,7 +7932,7 @@ of MeasurerOutput and MeasurerDescription</text>
       <rectangle name="Fig0.2.0"
         x="289"
         y="113"
-        width="64"
+        width="115"
         height="0"
         fill="0"
         fillcolor="white"
@@ -7934,7 +7951,7 @@ of MeasurerOutput and MeasurerDescription</text>
       strokecolor="black"
     />
     <group name="Fig0.4"
-         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[289, 136, 115, 24]"
+         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[289, 136, 115, 40]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B12"
          fill="0"
          fillcolor="white"
@@ -7948,7 +7965,7 @@ of MeasurerOutput and MeasurerDescription</text>
         x="289"
         y="136"
         width="115"
-        height="24"
+        height="40"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -7957,6 +7974,22 @@ of MeasurerOutput and MeasurerDescription</text>
       <text name="Fig0.4.1"
         x="289"
         y="136"
+        width="115"
+        height="16"
+        fill="0"
+        fillcolor="white"
+        stroke="0"
+        strokecolor="black"
+        textcolor="black"
+        font="Dialog"
+        italic="false"
+        bold="false"
+        textsize="12"
+        justification="Left"
+      >baseType : String</text>
+      <text name="Fig0.4.2"
+        x="289"
+        y="152"
         width="115"
         height="22"
         fill="0"
@@ -7969,11 +8002,11 @@ of MeasurerOutput and MeasurerDescription</text>
         bold="false"
         textsize="12"
         justification="Left"
-      >baseType : String</text>
+      >name : String</text>
     </group>
     <rectangle name="Fig0.5"
       x="288"
-      y="159"
+      y="175"
       width="117"
       height="1"
       fill="1"
@@ -7982,7 +8015,7 @@ of MeasurerOutput and MeasurerDescription</text>
       strokecolor="black"
     />
     <group name="Fig0.6"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[289, 160, 115, 21]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[289, 176, 115, 21]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B12"
          fill="0"
          fillcolor="white"
@@ -7994,7 +8027,7 @@ of MeasurerOutput and MeasurerDescription</text>
       
       <rectangle name="Fig0.6.0"
         x="289"
-        y="160"
+        y="176"
         width="115"
         height="21"
         fill="0"
@@ -8292,7 +8325,7 @@ of MeasurerOutput and MeasurerDescription</text>
       justification="Center"
     >FieldBase</text>
     <group name="Fig3.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[537, 97, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[537, 97, 111, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B1A"
          fill="0"
          fillcolor="white"
@@ -8306,7 +8339,7 @@ of MeasurerOutput and MeasurerDescription</text>
       <rectangle name="Fig3.2.0"
         x="537"
         y="97"
-        width="64"
+        width="111"
         height="0"
         fill="0"
         fillcolor="white"
@@ -8430,7 +8463,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="-10" />
     </private>
     <path name="Fig4.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -8461,7 +8494,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="-10" />
     </private>
     <path name="Fig5.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -8518,7 +8551,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="5" />
     </private>
     <path name="Fig6.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -8674,7 +8707,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="-10" />
     </private>
     <path name="Fig8.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -8707,7 +8740,7 @@ of MeasurerOutput and MeasurerDescription</text>
       width="240"
       height="80"
       fill="1"
-      fillcolor="255 0 255"
+      fillcolor="white"
       stroke="1"
       strokecolor="255 0 255"
     />
@@ -8724,7 +8757,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <group name="Fig0.2"
          description="org.argouml.uml.diagram.ui.FigStereotypesGroup[53, 33, 228, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B31"
-         fill="0"
+         fill="1"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
@@ -8737,7 +8770,7 @@ of MeasurerOutput and MeasurerDescription</text>
         y="33"
         width="228"
         height="0"
-        fill="0"
+        fill="1"
         fillcolor="white"
         stroke="0"
         strokecolor="black"
@@ -8746,7 +8779,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <text name="Fig0.3"
       x="53"
       y="33"
-      width="229"
+      width="228"
       height="23"
       fill="0"
       fillcolor="white"
@@ -8797,7 +8830,7 @@ of MeasurerOutput and MeasurerDescription</text>
       width="141"
       height="80"
       fill="1"
-      fillcolor="255 0 255"
+      fillcolor="white"
       stroke="1"
       strokecolor="255 0 255"
     />
@@ -8814,7 +8847,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <group name="Fig1.2"
          description="org.argouml.uml.diagram.ui.FigStereotypesGroup[109, 153, 129, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B32"
-         fill="0"
+         fill="1"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
@@ -8827,7 +8860,7 @@ of MeasurerOutput and MeasurerDescription</text>
         y="153"
         width="129"
         height="0"
-        fill="0"
+        fill="1"
         fillcolor="white"
         stroke="0"
         strokecolor="black"
@@ -8836,7 +8869,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <text name="Fig1.3"
       x="109"
       y="153"
-      width="130"
+      width="129"
       height="23"
       fill="0"
       fillcolor="white"
@@ -8887,7 +8920,7 @@ of MeasurerOutput and MeasurerDescription</text>
       width="120"
       height="80"
       fill="1"
-      fillcolor="255 0 255"
+      fillcolor="white"
       stroke="1"
       strokecolor="255 0 255"
     />
@@ -8904,7 +8937,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <group name="Fig2.2"
          description="org.argouml.uml.diagram.ui.FigStereotypesGroup[509, 161, 108, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B33"
-         fill="0"
+         fill="1"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
@@ -8917,7 +8950,7 @@ of MeasurerOutput and MeasurerDescription</text>
         y="161"
         width="108"
         height="0"
-        fill="0"
+        fill="1"
         fillcolor="white"
         stroke="0"
         strokecolor="black"
@@ -8977,7 +9010,7 @@ of MeasurerOutput and MeasurerDescription</text>
       width="122"
       height="80"
       fill="1"
-      fillcolor="255 0 255"
+      fillcolor="white"
       stroke="1"
       strokecolor="255 0 255"
     />
@@ -8994,7 +9027,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <group name="Fig3.2"
          description="org.argouml.uml.diagram.ui.FigStereotypesGroup[109, 329, 110, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B34"
-         fill="0"
+         fill="1"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
@@ -9007,7 +9040,7 @@ of MeasurerOutput and MeasurerDescription</text>
         y="329"
         width="110"
         height="0"
-        fill="0"
+        fill="1"
         fillcolor="white"
         stroke="0"
         strokecolor="black"
@@ -9016,7 +9049,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <text name="Fig3.3"
       x="109"
       y="329"
-      width="111"
+      width="110"
       height="23"
       fill="0"
       fillcolor="white"
@@ -9067,7 +9100,7 @@ of MeasurerOutput and MeasurerDescription</text>
       width="120"
       height="80"
       fill="1"
-      fillcolor="255 0 255"
+      fillcolor="white"
       stroke="1"
       strokecolor="255 0 255"
     />
@@ -9084,7 +9117,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <group name="Fig4.2"
          description="org.argouml.uml.diagram.ui.FigStereotypesGroup[125, 481, 108, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B35"
-         fill="0"
+         fill="1"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
@@ -9097,7 +9130,7 @@ of MeasurerOutput and MeasurerDescription</text>
         y="481"
         width="108"
         height="0"
-        fill="0"
+        fill="1"
         fillcolor="white"
         stroke="0"
         strokecolor="black"
@@ -9159,7 +9192,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="25" />
     </private>
     <path name="Fig5.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -9190,7 +9223,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="35" />
     </private>
     <path name="Fig6.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -9221,7 +9254,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="25" />
     </private>
     <path name="Fig7.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -9252,7 +9285,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="24" />
     </private>
     <path name="Fig8.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -9283,7 +9316,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="37" />
     </private>
     <path name="Fig9.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -9314,7 +9347,7 @@ of MeasurerOutput and MeasurerDescription</text>
                         offset="25" />
     </private>
     <path name="Fig10.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -9327,7 +9360,7 @@ of MeasurerOutput and MeasurerDescription</text>
     </path>
   </group>
   <group name="Fig11"
-       description="org.argouml.uml.diagram.static_structure.ui.FigComment[320, 328, 299, 59]pathVisible=false;stereotypeView=0;"
+       description="org.argouml.uml.diagram.static_structure.ui.FigComment[320, 328, 303, 59]pathVisible=false;stereotypeView=0;"
        href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B69"
        fill="1"
        fillcolor="white"
@@ -9340,7 +9373,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <rectangle name="Fig11.0"
       x="320"
       y="328"
-      width="299"
+      width="303"
       height="59"
       fill="0"
       fillcolor="white"
@@ -9356,11 +9389,11 @@ of MeasurerOutput and MeasurerDescription</text>
     >
       <moveto x="320"
               y="328" />
-      <lineto x="608"
+      <lineto x="612"
               y="328" />
-      <lineto x="618"
+      <lineto x="622"
               y="338" />
-      <lineto x="618"
+      <lineto x="622"
               y="386" />
       <lineto x="320"
               y="386" />
@@ -9370,26 +9403,27 @@ of MeasurerOutput and MeasurerDescription</text>
     <path name="Fig11.2"
       description="org.tigris.gef.presentation.FigPoly"
       fill="1"
-      fillcolor="178 178 178"
+      fillcolor="white"
       stroke="1"
       strokecolor="black"
     >
-      <moveto x="608"
+      <moveto x="612"
               y="328" />
-      <lineto x="618"
+      <lineto x="622"
               y="338" />
-      <lineto x="608"
+      <lineto x="612"
               y="338" />
-      <lineto x="608"
+      <lineto x="612"
               y="328" />
     </path>
     <group name="Fig11.3"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[322, 330, 285, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[322, 330, 289, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B69"
          fill="0"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
+         visibility="0"
     >
       <private>
       </private>
@@ -9397,7 +9431,7 @@ of MeasurerOutput and MeasurerDescription</text>
       <rectangle name="Fig11.3.0"
         x="322"
         y="330"
-        width="285"
+        width="289"
         height="0"
         fill="0"
         fillcolor="white"
@@ -9408,7 +9442,7 @@ of MeasurerOutput and MeasurerDescription</text>
     <text name="Fig11.4"
       x="322"
       y="330"
-      width="285"
+      width="289"
       height="55"
       fill="0"
       fillcolor="white"
@@ -9840,7 +9874,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >MeasurerOutputBase</text>
     <group name="Fig3.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[233, 297, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[233, 297, 141, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B46"
          fill="0"
          fillcolor="white"
@@ -9854,7 +9888,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig3.2.0"
         x="233"
         y="297"
-        width="64"
+        width="141"
         height="0"
         fill="0"
         fillcolor="white"
@@ -9946,7 +9980,7 @@ is archieved using files with serialized objects.</text>
                         offset="-10" />
     </private>
     <path name="Fig4.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -9996,7 +10030,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >MeasurerDescriptionBase</text>
     <group name="Fig5.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[553, 299, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[553, 299, 169, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B48"
          fill="0"
          fillcolor="white"
@@ -10010,7 +10044,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig5.2.0"
         x="553"
         y="299"
-        width="64"
+        width="169"
         height="0"
         fill="0"
         fillcolor="white"
@@ -10102,7 +10136,7 @@ is archieved using files with serialized objects.</text>
                         offset="-10" />
     </private>
     <path name="Fig6.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -10152,7 +10186,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >MMMKernelDescription</text>
     <group name="Fig7.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[937, 297, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[937, 297, 148, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B4A"
          fill="0"
          fillcolor="white"
@@ -10166,7 +10200,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig7.2.0"
         x="937"
         y="297"
-        width="64"
+        width="148"
         height="0"
         fill="0"
         fillcolor="white"
@@ -10258,7 +10292,7 @@ is archieved using files with serialized objects.</text>
                         offset="-10" />
     </private>
     <path name="Fig8.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -10308,7 +10342,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >MeasurmentResult</text>
     <group name="Fig9.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[433, 105, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[433, 105, 125, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B4C"
          fill="0"
          fillcolor="white"
@@ -10322,7 +10356,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig9.2.0"
         x="433"
         y="105"
-        width="64"
+        width="125"
         height="0"
         fill="0"
         fillcolor="white"
@@ -10433,7 +10467,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >MeasurmentDescription</text>
     <group name="Fig10.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[697, 153, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[697, 153, 157, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B4D"
          fill="0"
          fillcolor="white"
@@ -10447,7 +10481,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig10.2.0"
         x="697"
         y="153"
-        width="64"
+        width="157"
         height="0"
         fill="0"
         fillcolor="white"
@@ -10565,7 +10599,7 @@ is archieved using files with serialized objects.</text>
                         offset="5" />
     </private>
     <path name="Fig11.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -10622,7 +10656,7 @@ is archieved using files with serialized objects.</text>
                         offset="5" />
     </private>
     <path name="Fig12.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -10679,7 +10713,7 @@ is archieved using files with serialized objects.</text>
                         offset="5" />
     </private>
     <path name="Fig13.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -10736,7 +10770,7 @@ is archieved using files with serialized objects.</text>
                         offset="5" />
     </private>
     <path name="Fig14.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -11165,7 +11199,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >MeasurementDescription</text>
     <group name="Fig3.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[353, 49, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[353, 49, 165, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B5C"
          fill="0"
          fillcolor="white"
@@ -11179,7 +11213,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig3.2.0"
         x="353"
         y="49"
-        width="64"
+        width="165"
         height="0"
         fill="0"
         fillcolor="white"
@@ -11290,7 +11324,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >KernelDescriptionBase</text>
     <group name="Fig4.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[105, 89, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[105, 89, 149, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B5D"
          fill="0"
          fillcolor="white"
@@ -11304,7 +11338,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig4.2.0"
         x="105"
         y="89"
-        width="64"
+        width="149"
         height="0"
         fill="0"
         fillcolor="white"
@@ -11396,7 +11430,7 @@ is archieved using files with serialized objects.</text>
                         offset="-10" />
     </private>
     <path name="Fig5.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -11453,7 +11487,7 @@ is archieved using files with serialized objects.</text>
                         offset="5" />
     </private>
     <path name="Fig6.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -11503,7 +11537,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >MeasurerDescriptionBase</text>
     <group name="Fig7.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[641, 137, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[641, 137, 169, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B62"
          fill="0"
          fillcolor="white"
@@ -11517,7 +11551,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig7.2.0"
         x="641"
         y="137"
-        width="64"
+        width="169"
         height="0"
         fill="0"
         fillcolor="white"
@@ -11609,7 +11643,7 @@ is archieved using files with serialized objects.</text>
                         offset="-10" />
     </private>
     <path name="Fig8.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -11666,7 +11700,7 @@ is archieved using files with serialized objects.</text>
                         offset="5" />
     </private>
     <path name="Fig9.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -11716,7 +11750,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >MeasurerOutputBase</text>
     <group name="Fig10.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[329, 297, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[329, 297, 141, 0]"
          href="127-0-1-1--68bf476:133835f4ba1:-8000:0000000000000B67"
          fill="0"
          fillcolor="white"
@@ -11730,7 +11764,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig10.2.0"
         x="329"
         y="297"
-        width="64"
+        width="141"
         height="0"
         fill="0"
         fillcolor="white"
@@ -11822,7 +11856,7 @@ is archieved using files with serialized objects.</text>
                         offset="-10" />
     </private>
     <path name="Fig11.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"

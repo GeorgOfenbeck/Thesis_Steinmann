@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="sampleData" 
+	cBaseType="cbase"
+	javaBaseType="javabase"
+	comment="Class doing this and that">
+  <field  name="aName" type="Muster" comment="Determines if foo and bar"/>
+  <define name="aDefine" type="Muster" comment="Determines if foo and bar, set as a #DEFINE in the c code"/>
+  <list name="aList" type="Muster" comment="The list of foo which set bar."/>
+</class>

@@ -1,0 +1,30 @@
+/** $class.comment */
+public class $class.name extends $class.baseType{
+#foreach($field in $class.fields)
+#if ($field.fieldType == "Field" || $field.fieldType == "Define")
+	private $field.type $field.name;
+	
+	/** $field.comment */
+	public $field.type get${field.nameUpperCamel}(){
+		return $field.name;
+	}
+	
+	/** $field.comment */	
+	public void set${field.nameUpperCamel}(${field.type} value){
+		${field.name} = valuee;
+	}
+	
+#end 
+#if ($field.fieldType == "List")
+	/** $field.comment */
+	private LinkedList<$field.type> $field.name
+		=new LinkedList<$field.type>();
+	
+	/** $field.comment */
+	public List<$field.type> get${field.nameUpperCamel}(){
+		return $field.name;
+	}
+	
+#end 
+#end
+}
