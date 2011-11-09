@@ -1,3 +1,5 @@
+package ch.ethz.ruediste.roofline.shared;
+
 /** $class.comment */
 public class $class.name extends $class.baseType{
 #foreach($field in $class.fields)
@@ -11,7 +13,7 @@ public class $class.name extends $class.baseType{
 	
 	/** $field.comment */	
 	public void set${field.nameUpperCamel}(${field.type} value){
-		${field.name} = valuee;
+		${field.name} = value;
 	}
 	
 #end 

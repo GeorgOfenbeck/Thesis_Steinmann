@@ -89,7 +89,7 @@ Some classes are shared between MeasurementDriver and the MeasuringCore. Since t
 \subsection{Frequency Scaling}
 The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core freqency, a lower core freqency will generally cause a higher percentage of the peak performance to be reached by the kernel.
 
-It is difficult to control the core frequency. But the frequency should at least be recorded along with the measurement. If the frequency changes during the measurement, this should be recored as well.
+It is difficult to control the core frequency. But the frequency should at least be recorded along with the measurement. If the frequency changes during the measurement, this should be recored as well. The other option is to disable frequency scaling completely.
 
 \section{Measuring Memory Traffic}
 \begin{itemize}

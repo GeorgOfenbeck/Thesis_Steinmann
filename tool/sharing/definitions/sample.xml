@@ -2,11 +2,9 @@
 <class
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
-	name="sampleData" 
-	cBaseType="cbase"
-	javaBaseType="javabase"
-	comment="Class doing this and that">
-  <field  name="aName" type="Muster" comment="Determines if foo and bar"/>
-  <define name="aDefine" type="Muster" comment="Determines if foo and bar, set as a #DEFINE in the c code"/>
-  <list name="aList" type="Muster" comment="The list of foo which set bar."/>
+	name="MemoryLoadKernelDescription" 
+	cBaseType="KernelDescriptionBase"
+	javaBaseType="KernelDescriptionBase"
+	comment="Kernel just loading a memory block into memory">
+  <field  name="blockSize" type="long" comment="The size of the block to be loaded from memory"/>
 </class>

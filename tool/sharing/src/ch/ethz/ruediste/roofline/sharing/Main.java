@@ -50,7 +50,10 @@ public class Main {
 			for (ICodeGenerator generator: generators){
 				FileWriter writer;
 				try {
-					writer = new FileWriter(generator.getFileName(sharedClass));
+					String fileName = generator.getFileName(sharedClass);
+					File file=new File(fileName);
+					file.getParentFile().mkdirs();
+					writer = new FileWriter(file);
 					generator.generate(sharedClass,writer);
 					writer.close();
 				} catch (IOException e) {

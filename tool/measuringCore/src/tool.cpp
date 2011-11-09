@@ -16,6 +16,7 @@
 #define THREADCOUNT 200
 using namespace std;
 
+/*
 void *ThreadStart(void *arg){
 	// abort all threads on the first cpu
 	// this will cause threads from the other cpu to be put on the first cpu
@@ -60,4 +61,14 @@ int main() {
 
 	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
 	return 0;
+}
+*/
+
+#include "generatedC/MemoryLoadKernelDescription.h"
+int main(){
+	printf("Measuring\n");
+	MemoryLoadKernelDescription desc;
+
+	printf("%li\n",desc.getBlockSize());
+
 }

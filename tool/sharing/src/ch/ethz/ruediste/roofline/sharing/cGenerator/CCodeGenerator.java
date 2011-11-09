@@ -42,7 +42,7 @@ public class CCodeGenerator implements ICodeGenerator {
 
 	@Override
 	public String getFileName(SharedClass sharedClass) {
-		return "generatedC/"+sharedClass.getName()+".cpp";
+		return "generatedC/"+sharedClass.getName()+".h";
 	}
 
 	

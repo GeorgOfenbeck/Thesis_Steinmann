@@ -42,6 +42,6 @@ public class JavaCodeGenerator implements ICodeGenerator {
 
 	@Override
 	public String getFileName(SharedClass sharedClass) {
-		return "generatedJava/"+sharedClass.getName()+".java";
+		return "generatedJava/ch/ethz/ruediste/roofline/shared/"+sharedClass.getName()+".java";
 	}
 }

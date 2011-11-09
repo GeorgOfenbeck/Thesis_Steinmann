@@ -1,3 +1,5 @@
+\#include "KernelDescriptionBase.h"
+
 /** $class.comment */
 class $class.name : $class.baseType{
 #foreach($field in $class.fields)
@@ -15,7 +17,7 @@ class $class.name : $class.baseType{
 	
 	/** $field.comment */	
 	void set${field.nameUpperCamel}(${field.type} value){
-		${field.name} = valuee;
+		${field.name} = value;
 	}
 	
 #end 
@@ -35,4 +37,4 @@ class $class.name : $class.baseType{
 	
 #end 
 #end
-}
+};
