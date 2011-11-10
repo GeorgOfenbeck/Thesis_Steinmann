@@ -6,9 +6,9 @@ import java.io.IOException;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-import ch.ethz.ruediste.roofline.shared.MeasurementCollection;
-import ch.ethz.ruediste.roofline.shared.MeasurementDescription;
-import ch.ethz.ruediste.roofline.shared.MemoryLoadKernelDescription;
+import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
+import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
+import ch.ethz.ruediste.roofline.sharedDOM.MemoryLoadKernelDescription;
 
 public class Main {
 
