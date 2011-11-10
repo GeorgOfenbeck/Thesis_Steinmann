@@ -1,8 +1,11 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
+\usepackage{graphicx} 
+
+\newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[width=\textwidth]{../../umlDiagrams/#1.png}\end{center}}
 \title{Applying the Roofline Model}
 \author{Ruedi Steinmann}
 \date{\today}
-
-\documentclass[a4paper,12pt]{article}
 
 \begin{document}
 \maketitle
@@ -67,24 +70,45 @@ In case of hyper threading, some functional units of a processor core are shared
 It is possible that the operating system moves a thread from one core to another. Since the overhead of a switching the core is large, it is generally avoided by the scheduler of the operating system. But it can occur, and we have to be prepared for it.
 
 \section{Measurement Tool Architecture}
-To simplify development and maintenance, we tried to keep the part of the tool written in C++ as small as possible. This is called the MeasuringCore. The rest is written in Java.
+Performing measurements requires a kernel, a measurer and a measurement scheme. The kernel contains the code to be measured and can be either custom code or a wrapper around existing code. The measurer is responsible for the actual measuring and produces an output. The measurement scheme finally controls the kernel and the measurer. The three parts together form the Measuring Core.
 
-There are the following parts:
-\begin{itemize}
-\end{itemize}
+We decided that the Measuring Core is implemented in the C++ language. To simplify development and maintenance, we tried to keep the amount of C++ code as small as possible. The rest is written in Java.
 
-\subsection{Sharing Infrastructure}
-Some classes are shared between MeasurementDriver and the MeasuringCore. Since these tools are written in different languages, the source code for the C++ and the Java implementation is generated from an XML definition. The XML definition contains field definitions only, no code. If code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
+To allow all possible optimizations, it must be possible to pass compile time arguments to the Measuring Core and recompile for each measuring.
+
+\subsection{Component Collaboration}
+The tool consists of the following components:
+
+\begin{description}
+\item[Measurement Description Generator] Generates the description of the measurements to be perfomed
+\item[Measurement Driver] Configures, compiles and starts the Measuring Core and aggregates the output of the measurer.
+\item[Measuring Core] Performs the actual measurement.
+\item[Measurement Result Processor] Processes the measurement results and produces plots, statistics etc.
+\end{description}
+
+\umlDiagram{ToolComponents}
+
+Data transfer between the components is archieved using serialized objects stored in files. This allows to run the components independently. The classes of this Shared DOM are shown in the following diagram:
+
+\umlDiagram{SharedDOM}
+
+The Measurement Description Generator generates a list of MeasurementDescriptions. Each MeasurementDescription describes how to perform a single measurement. It contains a MeasurementSchemeDescription, a KernelDescription and a MeasurerDescription. Each description contains all information required to set up the respective part of the Measuring Core (type, parameters, \ldots).
+
+We intentionally directly describe Measuring Core parts in the SharedDOM. This allows the MeasuringCore to directly use the information contained therein and thus helps to keep it simple.
+
+\subsection{Multi Language Infrastructure}
+All calsses in the SharedDOM are used by components written in Java. But some of them are also used by the Measuring Core, which is written in C++. To avoid having to manually synchronize two versions of the same classes, the source code for the C++ and the Java implementation is generated from an XML definition by the Multi Language Code Generator. The XML definition contains field definitions only, no code. If code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
+
 
 \section{Measuring Execution Time}
 \begin{itemize}
-\item 0x40000000   UNHALTED_CORE_CYCLES 30Ah CPU_CLK_UNHALTED.CORE
-\item 0x40000025   UNHALTED_REFERENCE_CYCLES 30Bh CPU_CLK_UNHALTED.REF
-\item 0x400000ad   THERMAL_TRIP 3Bh C0h 
-\item 0x400000ae   CPU_CLK_UNHALTED
-\item 0x400001a9   ix86arch::UNHALTED_CORE_CYCLES
-\item 0x400001aa   ix86arch::INSTRUCTION_RETIRED
-\item 0x400001ab   ix86arch::UNHALTED_REFERENCE_CYCLES 
+\item 0x40000000   UNHALTED\_CORE\_CYCLES 30Ah CPU\_CLK\_UNHALTED.CORE
+\item 0x40000025   UNHALTED\_REFERENCE\_CYCLES 30Bh CPU\_CLK\_UNHALTED.REF
+\item 0x400000ad   THERMAL\_TRIP 3Bh C0h 
+\item 0x400000ae   CPU\_CLK\_UNHALTED
+\item 0x400001a9   ix86arch::UNHALTED\_CORE\_CYCLES
+\item 0x400001aa   ix86arch::INSTRUCTION\_RETIRED
+\item 0x400001ab   ix86arch::UNHALTED\_REFERENCE\_CYCLES 
 \end{itemize}
 \subsection{Frequency Scaling}
 The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core freqency, a lower core freqency will generally cause a higher percentage of the peak performance to be reached by the kernel.
@@ -93,19 +117,19 @@ It is difficult to control the core frequency. But the frequency should at least
 
 \section{Measuring Memory Traffic}
 \begin{itemize}
-\item 0x40000027   LLC_MISSES
-\item 0x40000040   SSE_PRE_EXEC 07h03h SSE_PRE_EXEC.L2
-\item 0x40000059   L2_DBUS_BUSY_RD
-\item 0x4000005c   L2_LINES_IN  24h
-\item 0x4000006a   L2_M_LINES_OUT  27h
-\item 0x400000cb   SSE_PRE_MISS 4Bh 00h/01h/02h
-\item 62h BUS_DRDY_CLOCKS
+\item 0x40000027   LLC\_MISSES
+\item 0x40000040   SSE\_PRE\_EXEC 07h03h SSE\_PRE\_EXEC.L2
+\item 0x40000059   L2\_DBUS\_BUSY\_RD
+\item 0x4000005c   L2\_LINES\_IN  24h
+\item 0x4000006a   L2\_M\_LINES\_OUT  27h
+\item 0x400000cb   SSE\_PRE\_MISS 4Bh 00h/01h/02h
+\item 62h BUS\_DRDY\_CLOCKS
 \end{itemize}
 
 
 \section{Mesuring Operation Count}
 \begin{itemize}
-\item 0x40000156   SIMD_UOP_TYPE_EXEC B3h 01h/20h
+\item 0x40000156   SIMD\_UOP\_TYPE\_EXEC B3h 01h/20h
 \end{itemize}
 
 
