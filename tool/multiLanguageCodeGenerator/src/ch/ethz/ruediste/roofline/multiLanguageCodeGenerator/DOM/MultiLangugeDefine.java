@@ -6,8 +6,8 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class MultiLangugeDefine extends MultiLangugeFieldBase{
 
 	@Override
-	public FieldType getFieldType() {
-		return FieldType.Define;
+	public FieldKind getFieldKind() {
+		return FieldKind.Define;
 	}
 
 }

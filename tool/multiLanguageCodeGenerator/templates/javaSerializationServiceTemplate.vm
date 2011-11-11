@@ -19,13 +19,32 @@ public class MultiLanguageSerializationService{
 	private void SerializeImp(Object o, PrintStream output){
 		if (o==null){
 			output.println("<null>");
+			return;
 		}
 		
 #foreach($class in $classes)
 		if (o.getClass()==${class.name}.class){
 			output.println("$class.name");
+#macro( serializeNonReference $value )
+#if ($field.type == "bool")
+			output.println(($value)?1:0);
+#else
+			output.println($value);
+#end
+#end 
 #foreach($field in $class.fields)
-			output.printf("${field.name}\t%d",(($class.name)o).get${field.nameUpperCamel}());
+			output.print("${field.name}\t");
+	#if ($field.class.simpleName=="MultiLanguageList")
+		output.println((($class.name)o).get${field.nameUpperCamel}().size());
+		for($field.typeDescriptor.javaBoxedName value : (($class.name)o).get${field.nameUpperCamel}()){
+			#serializeNonReference("value");
+		}
+	#elseif ($field.typeDescriptor.reference)
+		output.println();
+		SerializeImp((($class.name)o).get${field.nameUpperCamel}(),output);
+	#else
+		#serializeNonReference("(($class.name)o).get${field.nameUpperCamel}()")
+	#end
 #end
 			return;
 		}
@@ -43,8 +62,30 @@ public class MultiLanguageSerializationService{
 			$class.name result=new ${class.name}();
 			scanner.next("$class.name");
 #foreach($field in $class.fields)
-			scanner.next("${field.name}");
-			result.set${field.nameUpperCamel}(scanner.nextLong());
+#macro( parseNonReference ) 
+#if ($field.type=="bool") scanner.${field.typeDescriptor.scannerMethod}()!=0 #else scanner.${field.typeDescriptor.scannerMethod}() #end 
+#end
+
+			{
+				scanner.next("${field.name}");
+#if ($field.class.simpleName=="MultiLanguageList")
+				{
+					long count=scanner.nextLong();
+					for (int i=0; i<count; i++){
+		
+	#if ($field.typeDescriptor.reference)
+						result.get${field.nameUpperCamel}().add(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
+	#else
+						result.get${field.nameUpperCamel}().add(#parseNonReference());
+	#end
+				}
+			}
+#elseif ($field.typeDescriptor.reference)
+			result.set${field.nameUpperCamel}(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
+#else
+			result.set${field.nameUpperCamel}(#parseNonReference());
+#end
+			}
 #end
 			return result;
 		}

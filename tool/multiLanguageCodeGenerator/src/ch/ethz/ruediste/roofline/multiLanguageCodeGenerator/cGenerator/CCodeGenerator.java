@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Writer;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.velocity.VelocityContext;
@@ -18,16 +19,16 @@ import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeFiel
 public class CCodeGenerator extends CodeGeneratorBase{
 
 	@Override
-	public void generate(List<MultiLangugeClass> sharedClasses) {
+	public void generate(List<MultiLangugeClass> multiLanguageClasses) {
 		VelocityEngine ve=new VelocityEngine();
 
 		// generate java code for all classes
-		for(MultiLangugeClass multiLangugeClass: sharedClasses){
+		for(MultiLangugeClass multiLangugeClass: multiLanguageClasses){
 			try {
 				VelocityContext context=new VelocityContext();
 				
 				// initialize context
-				context.put("class", createPMod(multiLangugeClass));
+				context.put("class", multiLangugeClass);
 				
 				// open output writer
 				FileWriter writer = openWriter("generatedC/"+multiLangugeClass.getName()+".h");
@@ -46,17 +47,37 @@ public class CCodeGenerator extends CodeGeneratorBase{
 			}
 		}
 		
-	}
-	private SharedClassPMod createPMod(MultiLangugeClass sharedClass){
-		SharedClassPMod pMod=new SharedClassPMod(sharedClass);
-		for (MultiLangugeFieldBase field : sharedClass.getFields()){
-			pMod.getFields().add(createPMod(field));
+		// generate SerializerService
+		try{
+			VelocityContext context=new VelocityContext();
+			
+			// initialize context
+			context.put("classes", multiLanguageClasses);
+			
+			// open output writer
+			FileWriter writer=openWriter("generatedC/MultiLanguageSerializationService.cpp");
+			
+			// load template
+			InputStream input=ClassLoader.getSystemResourceAsStream("cSerializationServiceTemplate.vm");
+			
+			// generate output
+			ve.evaluate(context, writer, "cSerializationService", new InputStreamReader(input));
+			writer.close();
+			input.close();
+			
+			// open output writer
+			writer=openWriter("generatedC/MultiLanguageTypeEnum.h");
+			
+			// load template
+			input=ClassLoader.getSystemResourceAsStream("cMultiLanguageTypeEnumTemplate.vm");
+			
+			// generate output
+			ve.evaluate(context, writer, "cMultiLanguageTypeEnum", new InputStreamReader(input));
+			writer.close();
+			input.close();
 		}
-		return pMod;
-	}
-	
-	private SharedFieldBasePMod createPMod(MultiLangugeFieldBase sharedFieldBase){
-		SharedFieldBasePMod pMod=new SharedFieldBasePMod(sharedFieldBase);
-		return pMod;
+		catch (IOException e){
+			e.printStackTrace();
+		}
 	}
 }

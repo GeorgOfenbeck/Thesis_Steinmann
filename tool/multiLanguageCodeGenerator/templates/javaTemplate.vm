@@ -1,29 +1,31 @@
 package ch.ethz.ruediste.roofline.sharedDOM;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /** $class.comment */
-public class $class.name extends $class.baseType{
+public class $class.name #if ($class.hasBaseType())	extends $class.baseType #end {
 #foreach($field in $class.fields)
-#if ($field.fieldType == "Field" || $field.fieldType == "Define")
-	private $field.type $field.name;
+#if ($field.class.simpleName == "MultiLangugeField" || $field.class.simpleName == "MultiLanguageDefine")
+	private $field.typeDescriptor.javaName $field.name;
 	
 	/** $field.comment */
-	public $field.type get${field.nameUpperCamel}(){
+	public $field.typeDescriptor.javaName get${field.nameUpperCamel}(){
 		return $field.name;
 	}
 	
 	/** $field.comment */	
-	public void set${field.nameUpperCamel}(${field.type} value){
+	public void set${field.nameUpperCamel}(${field.typeDescriptor.javaName} value){
 		${field.name} = value;
 	}
 	
-#end 
-#if ($field.fieldType == "List")
+#elseif ($field.class.simpleName == "MultiLanguageList")
 	/** $field.comment */
-	private LinkedList<$field.type> $field.name
-		=new LinkedList<$field.type>();
+	private LinkedList<$field.typeDescriptor.javaBoxedName> $field.name
+		=new LinkedList<$field.typeDescriptor.javaBoxedName>();
 	
 	/** $field.comment */
-	public List<$field.type> get${field.nameUpperCamel}(){
+	public List<$field.typeDescriptor.javaBoxedName> get${field.nameUpperCamel}(){
 		return $field.name;
 	}
 	

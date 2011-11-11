@@ -11,7 +11,13 @@
 #include <vector>
 #include <sched.h>
 #include <cstdio>
+#include <cstdlib>
+#include <string.h>
+#include <fstream>
 #include "coreSwitchTest.hpp"
+#include "MultiLanguageSerializationService.h"
+#include "generatedC/MultiLanguageTestClass.h"
+#include "generatedC/MemoryLoadKernelDescription.h"
 
 #define THREADCOUNT 200
 using namespace std;
@@ -65,10 +71,23 @@ int main() {
 */
 
 #include "generatedC/MemoryLoadKernelDescription.h"
-int main(){
-	printf("Measuring\n");
-	MemoryLoadKernelDescription desc;
+int main(int argc, char *argv[]){
+	if (argc==2 && strcmp(argv[1],"serializationTest")==0){
+		// run the serialization test
+		printf("Running Serialization Test\n");
+		MultiLanguageSerializationService serializationService;
 
-	printf("%li\n",desc.getBlockSize());
+		// load input
+		ifstream input("serializationTestInput");
+		MultiLanguageTestClass *testObject;
+		testObject=(MultiLanguageTestClass *)serializationService.DeSerialize(input);
+
+		// write output
+		ofstream output("serializationTestOutput");
+		serializationService.Serialize(testObject,output);
+
+		return 0;
+	}
+	printf("Measuring\n");
 
 }

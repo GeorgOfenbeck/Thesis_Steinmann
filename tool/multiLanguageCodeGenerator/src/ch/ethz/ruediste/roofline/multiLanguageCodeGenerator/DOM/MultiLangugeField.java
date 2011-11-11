@@ -7,7 +7,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
 public class MultiLangugeField  extends MultiLangugeFieldBase
 {
 	@Override
-	public FieldType getFieldType() {
-		return FieldType.Field;
+	public FieldKind getFieldKind() {
+		return FieldKind.Field;
 	}
 }

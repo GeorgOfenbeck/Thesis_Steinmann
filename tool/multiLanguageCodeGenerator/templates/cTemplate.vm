@@ -1,40 +1,76 @@
-\#include "KernelDescriptionBase.h"
+#ifndef ${class.name}_H
+\#define ${class.name}_H
+\#include "MultiLanguageIncludes.h"
+\#include <vector>
 
 /** $class.comment */
-class $class.name : $class.baseType{
+class $class.name #if ($class.hasBaseType()) : public $class.baseType #end{
+	public:
+	MultiLanguageTypeEnum getType(){return MULTI_LANGUAGE_TYPE_ENUM_$class.name;}
 #foreach($field in $class.fields)
-#if ($field.fieldType == "Field" || $field.fieldType == "Define")
-	private: 
+#if ($field.class.simpleName == "MultiLangugeField" || $field.class.simpleName == "MultiLanguageDefine")
+	#if ($field.typeDescriptor.reference)
+		private: 
+		
+		$field.typeDescriptor.cName *$field.name;
+		
+		/** $field.comment */
+		public:
+		
+		$field.typeDescriptor.cName *get${field.nameUpperCamel}(){
+			return $field.name;
+		}
+		
+		/** $field.comment */	
+		void set${field.nameUpperCamel}(${field.typeDescriptor.cName} *value){
+			${field.name} = value;
+		}
+	#else
+		private: 
+		
+		$field.typeDescriptor.cName $field.name;
+		
+		/** $field.comment */
+		public:
+		
+		$field.typeDescriptor.cName get${field.nameUpperCamel}(){
+			return $field.name;
+		}
+		
+		/** $field.comment */	
+		void set${field.nameUpperCamel}(${field.typeDescriptor.cName} value){
+			${field.name} = value;
+		}
+	#end
 	
-	$field.type $field.name;
-	
-	/** $field.comment */
-	public:
-	
-	$field.type get${field.nameUpperCamel}(){
-		return $field.name;
-	}
-	
-	/** $field.comment */	
-	void set${field.nameUpperCamel}(${field.type} value){
-		${field.name} = value;
-	}
-	
-#end 
-#if ($field.fieldType == "List")
-	/** $field.comment */
-	private:
-	
-	LinkedList<$field.type> $field.name
-		=new LinkedList<$field.type>();
-	
-	/** $field.comment */
-	public:
-	
-	List<$field.type> get${field.nameUpperCamel}(){
-		return $field.name;
-	}
+#elseif ($field.class.simpleName == "MultiLanguageList")
+	#if ($field.typeDescriptor.reference)
+		/** $field.comment */
+		private:
+		
+		std::vector<${field.typeDescriptor.cName}*> $field.name;
+		
+		/** $field.comment */
+		public:
+		
+		std::vector<${field.typeDescriptor.cName}*> &get${field.nameUpperCamel}(){
+			return $field.name;
+		}
+	#else
+		/** $field.comment */
+		private:
+		
+		std::vector<$field.typeDescriptor.cName> $field.name;
+		
+		/** $field.comment */
+		public:
+		
+		std::vector<$field.typeDescriptor.cName> &get${field.nameUpperCamel}(){
+			return $field.name;
+		}
+	#end
 	
 #end 
 #end
 };
+#endif

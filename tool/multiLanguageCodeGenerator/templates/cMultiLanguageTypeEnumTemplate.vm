@@ -1,0 +1,10 @@
+#ifndef MULTI_LANGUAGE_TYPE_ENUM__H
+\#define MULTI_LANGUAGE_TYPE_ENUM__H
+enum MultiLanguageTypeEnum{
+
+#foreach($class in $classes)
+MULTI_LANGUAGE_TYPE_ENUM_$class.name, 
+#end
+DUMMY
+};
+#endif

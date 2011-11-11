@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,7 +13,8 @@ import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeClas
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeDefine;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeField;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeFieldBase;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeList;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageList;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.TypeDescriptor;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.cGenerator.CCodeGenerator;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.javaGenerator.JavaCodeGenerator;
 
@@ -28,7 +30,7 @@ public class Main {
 		xStream.processAnnotations(MultiLangugeClass.class);
 		xStream.processAnnotations(MultiLangugeField.class);
 		xStream.processAnnotations(MultiLangugeDefine.class);
-		xStream.processAnnotations(MultiLangugeList.class);
+		xStream.processAnnotations(MultiLanguageList.class);
 		xStream.processAnnotations(MultiLangugeFieldBase.class);
 		
 		// get input filenames
@@ -41,6 +43,12 @@ public class Main {
 			}
 		});
 		
+		// create Type Descriptors
+		HashMap<String, TypeDescriptor> typeDescriptors=new HashMap<String, TypeDescriptor>();
+		typeDescriptors.put("int", new TypeDescriptor("int","int","int","%d","nextInt", "Integer"));
+		typeDescriptors.put("long", new TypeDescriptor("long","long","long","%ld","nextLong", "Long"));
+		typeDescriptors.put("bool", new TypeDescriptor("bool","bool","boolean","%d","nextInt","Boolean"));
+		
 		// load all class definitions
 		List<MultiLangugeClass> classes=new LinkedList<MultiLangugeClass>();
 		
@@ -48,7 +56,10 @@ public class Main {
 			// load the input
 			MultiLangugeClass multiLanguageClass= (MultiLangugeClass) xStream.fromXML(inputFile);
 			System.out.println(xStream.toXML(multiLanguageClass));
+			multiLanguageClass.setTypeDescriptors(typeDescriptors);
 			classes.add(multiLanguageClass);
+			
+			typeDescriptors.put(multiLanguageClass.getName(),new TypeDescriptor(multiLanguageClass.getName()));
 		}
 		
 		// instantiate generators

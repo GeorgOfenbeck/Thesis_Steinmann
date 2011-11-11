@@ -1,9 +1,11 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("class")
 public class MultiLangugeClass {
@@ -22,7 +24,7 @@ public class MultiLangugeClass {
 
 	@XStreamAsAttribute()
 	private String comment;
-	
+
 	public LinkedList<MultiLangugeFieldBase> getFields() {
 		return fields;
 	}
@@ -63,5 +65,14 @@ public class MultiLangugeClass {
 		this.comment=comment;
 	}
 
+	public void setTypeDescriptors(HashMap<String, TypeDescriptor> typeDescriptors) {
+		for (MultiLangugeFieldBase field: fields){
+			field.setTypeDescriptors(typeDescriptors);
+		}
+	}
+
+	public String getNameUpperCamel(){
+		return getName().substring(0,1).toUpperCase()+getName().substring(1);
+	}
 
 }
