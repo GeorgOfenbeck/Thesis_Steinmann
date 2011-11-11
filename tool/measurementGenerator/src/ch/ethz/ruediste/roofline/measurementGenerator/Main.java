@@ -7,7 +7,6 @@ import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
-import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.MemoryLoadKernelDescription;
 
 public class Main {

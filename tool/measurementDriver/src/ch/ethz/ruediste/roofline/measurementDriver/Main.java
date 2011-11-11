@@ -1,12 +1,18 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 
 
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
+import ch.ethz.ruediste.roofline.sharedDOM.MultiLanguageSerializationService;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -16,6 +22,8 @@ public class Main {
 	public static void main(String args[]){
 		System.out.println("Performing Measurements");
 		XStream xStream=new XStream(new DomDriver());
+		MultiLanguageSerializationService serializationService
+			=new MultiLanguageSerializationService();
 		
 		// load measurement collection
 		System.out.println("Loading measurement descriptions");
@@ -26,6 +34,27 @@ public class Main {
 			xStream.toXML(measurement, System.out);
 			System.out.println();
 			
+			// write configuration
+			try {
+				File configFile=new File("config");
+				FileOutputStream conf = new FileOutputStream(configFile);
+				serializationService.Serialize(measurement, conf);
+				conf.close();
+				
+				FileInputStream confIn=new FileInputStream(configFile);
+				MeasurementDescription measurement2
+					=(MeasurementDescription) serializationService.DeSerialize(confIn);
+				confIn.close();
+				
+				System.out.println("Serialized/Deserialized:");
+				xStream.toXML(measurement2);
+			} catch (FileNotFoundException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			// create def files
 			System.out.println("creating def files");
 			

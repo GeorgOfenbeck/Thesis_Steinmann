@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.velocity.VelocityContext;
@@ -17,11 +18,11 @@ import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeFiel
 public class JavaCodeGenerator extends CodeGeneratorBase {
 
 	@Override
-	public void generate(List<MultiLangugeClass> sharedClasses) {
+	public void generate(List<MultiLangugeClass> multiLanguageClasses) {
 		VelocityEngine ve=new VelocityEngine();
-
+		
 		// generate java code for all classes
-		for(MultiLangugeClass multiLangugeClass: sharedClasses){
+		for(MultiLangugeClass multiLangugeClass: multiLanguageClasses){
 			try{
 				VelocityContext context=new VelocityContext();
 				
@@ -42,8 +43,34 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 			catch (IOException e){
 				e.printStackTrace();
 			}
-			
 		}
+		
+		// generate SerializerService
+		try{
+			VelocityContext context=new VelocityContext();
+			
+			// initialize context
+			LinkedList<SharedClassPMod> classPMods=new LinkedList<SharedClassPMod>();
+			for (MultiLangugeClass multiLangugeClass: multiLanguageClasses){
+				classPMods.add(createPMod(multiLangugeClass));
+			}
+			context.put("classes", classPMods);
+			
+			// open output writer
+			FileWriter writer=openWriter("generatedJava/ch/ethz/ruediste/roofline/sharedDOM/MultiLanguageSerializationService.java");
+			
+			// load template
+			InputStream input=ClassLoader.getSystemResourceAsStream("javaSerializationServiceTemplate.vm");
+			
+			// generate output
+			ve.evaluate(context, writer, "javaSerializationService", new InputStreamReader(input));
+			writer.close();
+			input.close();
+		}
+		catch (IOException e){
+			e.printStackTrace();
+		}
+		
 		
 	}
 	

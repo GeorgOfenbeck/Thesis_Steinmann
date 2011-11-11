@@ -1,0 +1,55 @@
+package ch.ethz.ruediste.roofline.sharedDOM;
+
+import java.io.*;
+import java.util.Scanner;
+
+/** Serializes and deserializes multi language objects */
+public class MultiLanguageSerializationService{
+
+	public void Serialize(Object o, OutputStream output){
+		PrintStream stream=new PrintStream(output);
+		SerializeImp(o, stream);
+	}
+	
+	public Object DeSerialize(InputStream input){
+		Scanner scanner=new Scanner(input);
+		return DeSerializeImp(scanner);
+	}
+	
+	private void SerializeImp(Object o, PrintStream output){
+		if (o==null){
+			output.println("<null>");
+		}
+		
+#foreach($class in $classes)
+		if (o.getClass()==${class.name}.class){
+			output.println("$class.name");
+#foreach($field in $class.fields)
+			output.printf("${field.name}\t%d",(($class.name)o).get${field.nameUpperCamel}());
+#end
+			return;
+		}
+#end
+		throw new Error("Unknown class: "+o.getClass().getName());
+	}
+
+	private Object DeSerializeImp(Scanner scanner) {
+		if (scanner.hasNext("<null>")){
+			return null;
+		}
+		
+#foreach($class in $classes)		
+		if (scanner.hasNext("$class.name")){
+			$class.name result=new ${class.name}();
+			scanner.next("$class.name");
+#foreach($field in $class.fields)
+			scanner.next("${field.name}");
+			result.set${field.nameUpperCamel}(scanner.nextLong());
+#end
+			return result;
+		}
+#end
+		
+		throw new Error("Parse Error");
+	}
+}
