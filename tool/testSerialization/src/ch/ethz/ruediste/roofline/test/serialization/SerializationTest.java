@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +31,7 @@ public class SerializationTest {
 		testObject.setLongField(2);
 		testObject.setBoolField(true);
 		testObject.setIntField(3);
+		testObject.setDoubleField(2.4);
 		
 		testObject.getPrimitiveList().add(2);
 		testObject.getPrimitiveList().add(3);
@@ -50,6 +50,7 @@ public class SerializationTest {
 		assertEquals(2,deserializedTestObject.getLongField());
 		assertEquals(true,deserializedTestObject.getBoolField());
 		assertEquals(3,deserializedTestObject.getIntField());
+		assertTrue(2.4==deserializedTestObject.getDoubleField());
 		
 		assertEquals(3, deserializedTestObject.getPrimitiveList().size());
 		assertEquals(2,(int)deserializedTestObject.getPrimitiveList().get(0));

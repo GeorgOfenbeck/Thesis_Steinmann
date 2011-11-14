@@ -94,12 +94,10 @@ Data transfer between the components is archieved using serialized objects store
 
 The Measurement Description Generator generates a list of MeasurementDescriptions. Each MeasurementDescription describes how to perform a single measurement. It contains a MeasurementSchemeDescription, a KernelDescription and a MeasurerDescription. Each description contains all information required to set up the respective part of the Measuring Core (type, parameters, \ldots).
 
-We intentionally directly describe Measuring Core parts in the SharedDOM. This allows the MeasuringCore to directly use the information contained therein and thus helps to keep it simple.
+We intentionally directly describe Measuring Core parts in the SharedDOM. This allows the MeasuringCore to directly use the information contained therein and thus helps to keep the core simple.
 
 \subsection{Multi Language Infrastructure}
 All classes in the SharedDOM are used by components written in Java. But some of them are also used by the Measuring Core, which is written in C++. To avoid having to manually synchronize two versions of the same classes, the source code for the C++ and the Java implementation is generated from an XML definition by the Multi Language Code Generator. The XML definition contains field definitions only, no code. If class specific code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
-
-The generation of enums is supported as well.
 
 Along with the source code for each class, the implementation of  the MultiLanguageSerializationService is generated for both languages. This service allows to serialize to and deserialize from a simple text based serialization format. It supports the following primitive types:
 \begin{itemize}
@@ -109,7 +107,43 @@ Along with the source code for each class, the implementation of  the MultiLangu
 \item boolean
 \end{itemize}
 
-In addition, enum types are supported as well as references to other multi language classes. The serializer does not recognize if the same object can be reached multiple times within the same object graph. Each time it encounters an object, the object is serialized instead of referencing the previous serialization.
+References to other multi language classes are supported. The serializer does not recognize if the same object can be reached multiple times within the same object graph. Each time it encounters an object, the object is serialized instead of referencing the previous serialization.
+
+Lists of the supported primitive types as well as of references are supported.
+
+The XML class representation is parsed using a serialization library called XStream. XStream maps classes to an XML representation. The serialized classes are shown in the following diagram.
+
+\umlDiagram{MultiLanguageClassDefinition}
+
+The following is an example of a class definition:
+\begin{verbatim}
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="MultiLanguageTestClass" 
+  cBaseType="MultiLanguageObjectBase"
+  javaBaseType=""
+  comment="Multi Language Class used for unit tests">
+
+  <field 
+    name="longField" 
+    type="long" 
+    comment="test field with type 'long'"/>
+  <list  
+    name="referenceList" 
+    type="MultiLanguageTestClass" 
+    comment="list referencing full classes"/>
+  <field 
+    name="referenceField" 
+    type="MultiLanguageTestClass" 
+    comment="field referencing another class"/>
+</class>
+\end{verbatim}
+
+After the definitions are loaded, Velocity templates are used to generate all source code.
+
+The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Shared DOM project. The generated C code is linked by the Measuring Core. The following Diagram shows the build dependencies:
+
+\umlDiagram{BuildDependencies}
+
 
 \section{Measuring Execution Time}
 \begin{itemize}

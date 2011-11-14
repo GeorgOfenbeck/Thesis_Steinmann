@@ -1,8 +1,5 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
@@ -20,7 +17,7 @@ public abstract class MultiLangugeFieldBase {
 	private String comment;
 	
 	@XStreamOmitField
-	private TypeDescriptor typeDescriptor;
+	private FieldTypeDescriptor typeDescriptor;
 	
 	public String getName() {
 		return name;
@@ -36,9 +33,6 @@ public abstract class MultiLangugeFieldBase {
 		this.type = type;
 	}
 	
-	
-	public abstract FieldKind getFieldKind();
-	
 	public String getComment() {
 		return comment;
 	}
@@ -47,12 +41,12 @@ public abstract class MultiLangugeFieldBase {
 		this.comment=comment;
 	}
 	
-	public void setTypeDescriptor(TypeDescriptor typeDescriptor) {
+	public void setTypeDescriptor(FieldTypeDescriptor typeDescriptor) {
 		this.typeDescriptor = typeDescriptor;
 		
 	}
 	
-	public TypeDescriptor getTypeDescriptor(){
+	public FieldTypeDescriptor getTypeDescriptor(){
 		return typeDescriptor;
 	}
 	

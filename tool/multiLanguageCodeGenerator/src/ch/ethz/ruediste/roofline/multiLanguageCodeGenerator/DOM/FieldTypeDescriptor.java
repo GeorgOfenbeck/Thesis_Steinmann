@@ -1,6 +1,10 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
 
-public class TypeDescriptor {
+/**
+ * Describes the type of a field. Various information is needed for a field type in
+ * order to generate the source code in both C and Java, and for serialization.
+ */
+public class FieldTypeDescriptor {
 	private String name;
 	private String cName;
 	private String javaName;
@@ -10,7 +14,7 @@ public class TypeDescriptor {
 	private boolean isReference;
 	
 	/**
-	 * 
+	 * Initialize an instance
 	 * @param name type name
 	 * @param cName type name in C
 	 * @param javaName type name in java
@@ -18,7 +22,7 @@ public class TypeDescriptor {
 	 * @param scannerMethod scanner method name to be used in Java
 	 * @param javaBoxedName boxed name of the type for java lists
 	 */
-	public TypeDescriptor(String name, String cName, String javaName, String scanfSpecification, String scannerMethod, String javaBoxedName){
+	public FieldTypeDescriptor(String name, String cName, String javaName, String scanfSpecification, String scannerMethod, String javaBoxedName){
 		this.name = name;
 		this.cName = cName;
 		this.javaName = javaName;
@@ -28,7 +32,7 @@ public class TypeDescriptor {
 		
 	}
 	
-	public TypeDescriptor(String name) {
+	public FieldTypeDescriptor(String name) {
 		isReference=true;
 		this.name = name;
 		this.cName=name;
@@ -36,33 +40,54 @@ public class TypeDescriptor {
 		this.javaBoxedName = name;
 	}
 
+	/** 
+	 * name of the type in definitions
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * name of the type in C
+	 */
 	public String getcName() {
 		return cName;
 	}
 
+	/**
+	 * name of the type in Java
+	 */
 	public String getJavaName() {
 		return javaName;
 	}
 
+	/**
+	 * scanf specification (%d,%f, etc) used to scan a primitive type
+	 */
 	public String getScanfSpecification() {
 		return scanfSpecification;
 	}
 
+	/**
+	 * name of the method in the Scanner class used to read a
+	 * primitive type
+	 */
 	public String getScannerMethod() {
 		return scannerMethod;
 	}
 
 
+	/**
+	 * true if the type is a reference and not a primitive type
+	 * @return
+	 */
 	public boolean isReference() {
 		return isReference;
 	}
 
-	/** the type as boxed java type. Boxed type for primitive type, normal type otherwise
-	 * @return
+	/** 
+	 * the type as boxed java type. Boxed type for primitive type, normal type otherwise.
+	 * Used as type parameter for collection classes in Java.
 	 */
 	public String getJavaBoxedName() {
 		return javaBoxedName;

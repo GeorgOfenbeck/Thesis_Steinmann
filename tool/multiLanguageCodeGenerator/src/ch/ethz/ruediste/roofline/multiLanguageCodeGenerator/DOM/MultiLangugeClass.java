@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 @XStreamAlias("class")
 public class MultiLangugeClass {
@@ -73,7 +72,7 @@ public class MultiLangugeClass {
 		this.comment=comment;
 	}
 
-	public void setTypeDescriptors(HashMap<String, TypeDescriptor> typeDescriptors) {
+	public void setTypeDescriptors(HashMap<String, FieldTypeDescriptor> typeDescriptors) {
 		for (MultiLangugeFieldBase field: fields){
 			if (!typeDescriptors.containsKey(field.getType())){
 				throw new Error(String.format("Type %s of field %s in class %s not found", field.getType(),field.getName(),getName()));
