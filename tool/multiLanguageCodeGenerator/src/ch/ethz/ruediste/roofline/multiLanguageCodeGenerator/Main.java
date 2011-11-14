@@ -56,10 +56,13 @@ public class Main {
 			// load the input
 			MultiLangugeClass multiLanguageClass= (MultiLangugeClass) xStream.fromXML(inputFile);
 			System.out.println(xStream.toXML(multiLanguageClass));
-			multiLanguageClass.setTypeDescriptors(typeDescriptors);
+
 			classes.add(multiLanguageClass);
-			
 			typeDescriptors.put(multiLanguageClass.getName(),new TypeDescriptor(multiLanguageClass.getName()));
+		}
+		
+		for (MultiLangugeClass multiLanguageClass: classes){
+			multiLanguageClass.setTypeDescriptors(typeDescriptors);
 		}
 		
 		// instantiate generators

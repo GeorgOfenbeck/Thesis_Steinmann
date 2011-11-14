@@ -45,6 +45,10 @@ public class MultiLangugeClass {
 		return cBaseType;
 	}
 
+	public boolean hascBaseType(){
+		return cBaseType!=null && !cBaseType.isEmpty();
+	}
+	
 	public void setcBaseType(String cBaseType) {
 		this.cBaseType = cBaseType;
 	}
@@ -52,7 +56,11 @@ public class MultiLangugeClass {
 	public String getJavaBaseType() {
 		return javaBaseType;
 	}
-
+	
+	public boolean hasJavaBaseType(){
+		return javaBaseType!=null && !javaBaseType.isEmpty();
+	}
+	
 	public void setJavaBaseType(String javaBaseType) {
 		this.javaBaseType = javaBaseType;
 	}
@@ -67,7 +75,10 @@ public class MultiLangugeClass {
 
 	public void setTypeDescriptors(HashMap<String, TypeDescriptor> typeDescriptors) {
 		for (MultiLangugeFieldBase field: fields){
-			field.setTypeDescriptors(typeDescriptors);
+			if (!typeDescriptors.containsKey(field.getType())){
+				throw new Error(String.format("Type %s of field %s in class %s not found", field.getType(),field.getName(),getName()));
+			}
+			field.setTypeDescriptor(typeDescriptors.get(field.getType()));
 		}
 	}
 

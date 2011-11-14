@@ -20,7 +20,7 @@ public abstract class MultiLangugeFieldBase {
 	private String comment;
 	
 	@XStreamOmitField
-	private HashMap<String,TypeDescriptor> typeDescriptors;
+	private TypeDescriptor typeDescriptor;
 	
 	public String getName() {
 		return name;
@@ -47,19 +47,45 @@ public abstract class MultiLangugeFieldBase {
 		this.comment=comment;
 	}
 	
-	public void setTypeDescriptors(HashMap<String,TypeDescriptor> typeDescriptors) {
-		this.typeDescriptors = typeDescriptors;
+	public void setTypeDescriptor(TypeDescriptor typeDescriptor) {
+		this.typeDescriptor = typeDescriptor;
 		
 	}
 	
 	public TypeDescriptor getTypeDescriptor(){
-		if (!typeDescriptors.containsKey(type)){
-			throw new Error("type "+type+" not known");
-		}
-		return typeDescriptors.get(type);
+		return typeDescriptor;
 	}
 	
 	public String getNameUpperCamel(){
 		return getName().substring(0,1).toUpperCase()+getName().substring(1);
+	}
+	
+	/** The type of the field as it appears in c
+	 * @return
+	 */
+	public String getcType(){
+		return getcItemType();
+	}
+	
+	/** The type of an item of the list, if the field contains a list.
+	 * The normal field type otherwise 
+	 * @return
+	 */
+	public String getcItemType(){
+		if (typeDescriptor.isReference()){
+			return typeDescriptor.getcName()+"*";
+		}
+		
+		return typeDescriptor.getcName();
+	}
+	
+	/** The type of the field as it appears in java
+	 */
+	public String getJavaType(){
+		return typeDescriptor.getJavaName();
+	}
+	
+	public String getJavaItemType(){
+		return typeDescriptor.getJavaName();
 	}
 }

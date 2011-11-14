@@ -4,31 +4,31 @@ import java.util.LinkedList;
 import java.util.List;
 
 /** $class.comment */
-public class $class.name #if ($class.hasBaseType())	extends $class.baseType #end {
+public class $class.name #if ($class.hasJavaBaseType())	extends $class.javaBaseType #end {
+
+## iterate over all fields of the class
 #foreach($field in $class.fields)
-#if ($field.class.simpleName == "MultiLangugeField" || $field.class.simpleName == "MultiLanguageDefine")
-	private $field.typeDescriptor.javaName $field.name;
-	
+	#if ($field.class.simpleName == "MultiLangugeField" || $field.class.simpleName == "MultiLanguageDefine")
+		private $field.typeDescriptor.javaName $field.name;
+		
+		## the setter is present only for normal fields
+		## a list needs no setter
+		/** $field.comment */	
+		public void set${field.nameUpperCamel}($field.getJavaType() value){
+			${field.name} = value;
+		}
+		
+	#elseif ($field.class.simpleName == "MultiLanguageList")
+		## initialize the list
+		/** $field.comment */
+		private LinkedList<$field.typeDescriptor.javaBoxedName> $field.name
+			=new LinkedList<$field.typeDescriptor.javaBoxedName>();
+	#end
+ 	
+ 	## the getter can be used for lists and normal fields
 	/** $field.comment */
-	public $field.typeDescriptor.javaName get${field.nameUpperCamel}(){
+	public $field.getJavaType() get${field.nameUpperCamel}(){
 		return $field.name;
 	}
-	
-	/** $field.comment */	
-	public void set${field.nameUpperCamel}(${field.typeDescriptor.javaName} value){
-		${field.name} = value;
-	}
-	
-#elseif ($field.class.simpleName == "MultiLanguageList")
-	/** $field.comment */
-	private LinkedList<$field.typeDescriptor.javaBoxedName> $field.name
-		=new LinkedList<$field.typeDescriptor.javaBoxedName>();
-	
-	/** $field.comment */
-	public List<$field.typeDescriptor.javaBoxedName> get${field.nameUpperCamel}(){
-		return $field.name;
-	}
-	
-#end 
 #end
 }

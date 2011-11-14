@@ -9,6 +9,15 @@ public class TypeDescriptor {
 	private String javaBoxedName;
 	private boolean isReference;
 	
+	/**
+	 * 
+	 * @param name type name
+	 * @param cName type name in C
+	 * @param javaName type name in java
+	 * @param scanfSpecification scanf specification for parsing in C
+	 * @param scannerMethod scanner method name to be used in Java
+	 * @param javaBoxedName boxed name of the type for java lists
+	 */
 	public TypeDescriptor(String name, String cName, String javaName, String scanfSpecification, String scannerMethod, String javaBoxedName){
 		this.name = name;
 		this.cName = cName;
@@ -52,6 +61,9 @@ public class TypeDescriptor {
 		return isReference;
 	}
 
+	/** the type as boxed java type. Boxed type for primitive type, normal type otherwise
+	 * @return
+	 */
 	public String getJavaBoxedName() {
 		return javaBoxedName;
 	}

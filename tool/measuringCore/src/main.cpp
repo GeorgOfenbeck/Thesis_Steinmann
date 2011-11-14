@@ -78,13 +78,17 @@ int main(int argc, char *argv[]){
 		MultiLanguageSerializationService serializationService;
 
 		// load input
+		printf("Loading input\n");
 		ifstream input("serializationTestInput");
 		MultiLanguageTestClass *testObject;
 		testObject=(MultiLanguageTestClass *)serializationService.DeSerialize(input);
+		input.close();
 
 		// write output
+		printf("writing output\n");
 		ofstream output("serializationTestOutput");
 		serializationService.Serialize(testObject,output);
+		output.close();
 
 		return 0;
 	}

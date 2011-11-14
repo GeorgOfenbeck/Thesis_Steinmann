@@ -32,6 +32,17 @@ public class SerializationTest {
 		testObject.setLongField(2);
 		testObject.setBoolField(true);
 		testObject.setIntField(3);
+		
+		testObject.getPrimitiveList().add(2);
+		testObject.getPrimitiveList().add(3);
+		testObject.getPrimitiveList().add(4);
+		
+		MultiLanguageTestClass testObject2=new MultiLanguageTestClass();
+		testObject.setReferenceField(testObject2);
+		
+		
+		testObject2.getReferenceList().add(new MultiLanguageTestClass());
+		testObject2.getReferenceList().add(new MultiLanguageTestClass());
 	}
 	
 	
@@ -39,6 +50,14 @@ public class SerializationTest {
 		assertEquals(2,deserializedTestObject.getLongField());
 		assertEquals(true,deserializedTestObject.getBoolField());
 		assertEquals(3,deserializedTestObject.getIntField());
+		
+		assertEquals(3, deserializedTestObject.getPrimitiveList().size());
+		assertEquals(2,(int)deserializedTestObject.getPrimitiveList().get(0));
+		assertEquals(3,(int)deserializedTestObject.getPrimitiveList().get(1));
+		assertEquals(4,(int)deserializedTestObject.getPrimitiveList().get(2));
+		
+		MultiLanguageTestClass testObject2=deserializedTestObject.getReferenceField();
+		assertEquals(2, testObject2.getReferenceList().size());
 	}
 	
 	/** Test java serialization and deserialization

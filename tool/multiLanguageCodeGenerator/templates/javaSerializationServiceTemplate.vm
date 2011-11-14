@@ -15,45 +15,59 @@ public class MultiLanguageSerializationService{
 		Scanner scanner=new Scanner(input);
 		return DeSerializeImp(scanner);
 	}
-	
+
+## Macro serializing a field known not to be a reference	
+#macro( serializeNonList $value )
+	#if ($field.typeDescriptor.reference)
+		SerializeImp($value,output);
+	#else
+		#if ($field.type == "bool")
+			output.println(($value)?1:0);
+		#else
+			output.println($value);
+		#end
+	#end
+#end
+ 
 	private void SerializeImp(Object o, PrintStream output){
 		if (o==null){
 			output.println("<null>");
 			return;
 		}
 		
-#foreach($class in $classes)
-		if (o.getClass()==${class.name}.class){
-			output.println("$class.name");
-#macro( serializeNonReference $value )
-#if ($field.type == "bool")
-			output.println(($value)?1:0);
-#else
-			output.println($value);
-#end
-#end 
-#foreach($field in $class.fields)
-			output.print("${field.name}\t");
-	#if ($field.class.simpleName=="MultiLanguageList")
-		output.println((($class.name)o).get${field.nameUpperCamel}().size());
-		for($field.typeDescriptor.javaBoxedName value : (($class.name)o).get${field.nameUpperCamel}()){
-			#serializeNonReference("value");
-		}
-	#elseif ($field.typeDescriptor.reference)
-		output.println();
-		SerializeImp((($class.name)o).get${field.nameUpperCamel}(),output);
-	#else
-		#serializeNonReference("(($class.name)o).get${field.nameUpperCamel}()")
-	#end
-#end
-			return;
-		}
-#end
+		##iterate over all classes	
+		#foreach($class in $classes)
+			if (o.getClass()==${class.name}.class){
+				output.println("$class.name");
+	
+				## iterate over all fields
+				#foreach($field in $class.fields)
+				
+					## output field header
+					output.println("${field.name}");
+					
+					## check if the field is a list
+					#if ($field.class.simpleName=="MultiLanguageList")
+						## print the field size
+						output.println((($class.name)o).get${field.nameUpperCamel}().size());
+						
+						## serialize all elements		
+						for($field.typeDescriptor.javaBoxedName value : (($class.name)o).get${field.nameUpperCamel}()){
+							#serializeNonList("value")
+						}
+					#else
+						#serializeNonList("(($class.name)o).get${field.nameUpperCamel}()")
+					#end
+				#end
+				return;
+			}
+		#end
 		throw new Error("Unknown class: "+o.getClass().getName());
 	}
 
 	private Object DeSerializeImp(Scanner scanner) {
 		if (scanner.hasNext("<null>")){
+			scanner.next("<null>");
 			return null;
 		}
 		

@@ -4,73 +4,34 @@
 \#include <vector>
 
 /** $class.comment */
-class $class.name #if ($class.hasBaseType()) : public $class.baseType #end{
+class $class.name #if ($class.hascBaseType()) : public $class.cBaseType #end{
 	public:
 	MultiLanguageTypeEnum getType(){return MULTI_LANGUAGE_TYPE_ENUM_$class.name;}
 #foreach($field in $class.fields)
-#if ($field.class.simpleName == "MultiLangugeField" || $field.class.simpleName == "MultiLanguageDefine")
-	#if ($field.typeDescriptor.reference)
-		private: 
-		
-		$field.typeDescriptor.cName *$field.name;
-		
+	private: 
+	
+	$field.getcType() $field.name;
+	
+	public:
+	
+	## for lists, there is no setter, but the getter returns a reference to the vector
+	#if ($field.class.simpleName == "MultiLanguageList")
 		/** $field.comment */
-		public:
-		
-		$field.typeDescriptor.cName *get${field.nameUpperCamel}(){
+		$field.getcType() &get${field.nameUpperCamel}(){
+			return $field.name;
+		}
+	#else
+		## create getter and setter for a normal field
+		/** $field.comment */
+		$field.getcType() get${field.nameUpperCamel}(){
 			return $field.name;
 		}
 		
 		/** $field.comment */	
-		void set${field.nameUpperCamel}(${field.typeDescriptor.cName} *value){
+		void set${field.nameUpperCamel}($field.getcType() value){
 			${field.name} = value;
 		}
-	#else
-		private: 
-		
-		$field.typeDescriptor.cName $field.name;
-		
-		/** $field.comment */
-		public:
-		
-		$field.typeDescriptor.cName get${field.nameUpperCamel}(){
-			return $field.name;
-		}
-		
-		/** $field.comment */	
-		void set${field.nameUpperCamel}(${field.typeDescriptor.cName} value){
-			${field.name} = value;
-		}
-	#end
-	
-#elseif ($field.class.simpleName == "MultiLanguageList")
-	#if ($field.typeDescriptor.reference)
-		/** $field.comment */
-		private:
-		
-		std::vector<${field.typeDescriptor.cName}*> $field.name;
-		
-		/** $field.comment */
-		public:
-		
-		std::vector<${field.typeDescriptor.cName}*> &get${field.nameUpperCamel}(){
-			return $field.name;
-		}
-	#else
-		/** $field.comment */
-		private:
-		
-		std::vector<$field.typeDescriptor.cName> $field.name;
-		
-		/** $field.comment */
-		public:
-		
-		std::vector<$field.typeDescriptor.cName> &get${field.nameUpperCamel}(){
-			return $field.name;
-		}
-	#end
-	
-#end 
+	#end 
 #end
 };
 #endif
