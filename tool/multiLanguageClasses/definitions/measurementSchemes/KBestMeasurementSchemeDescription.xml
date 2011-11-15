@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="KBestMeasurementSchemeDescription" 
+	cBaseType="MeasurementSchemeDescriptionBase"
+	javaBaseType="MeasurementSchemeDescriptionBase"
+	comment="Describes the K Best measurement scheme">
+	
+</class>

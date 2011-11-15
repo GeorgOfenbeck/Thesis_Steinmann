@@ -2,7 +2,7 @@
 #define KERNEL_DESCRIPTION_BASE
 
 #include "MultiLanguageObjectBase.h"
-class KernelDescriptionBase: public MultiLanguageObjectBase {
+class MeasurementSchemeDescriptionBase: public MultiLanguageObjectBase {
 
 };
 

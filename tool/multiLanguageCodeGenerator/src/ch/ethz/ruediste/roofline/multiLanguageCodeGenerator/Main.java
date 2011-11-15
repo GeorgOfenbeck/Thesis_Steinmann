@@ -3,6 +3,8 @@ package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,19 +80,44 @@ public class Main {
 
 	/**
 	 * Scan the given directory for all files containing class definitions (all
-	 * .xml files)
+	 * .xml files), including sub directories (recursively)
 	 */
 	private static File[] scanClassDefinitionDirectory(
 			File classDefinitionDirectory) {
-		File inputDir = classDefinitionDirectory;
-		File inputFiles[] = inputDir.listFiles(new FileFilter() {
 
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getName().endsWith(".xml");
-			}
-		});
-		return inputFiles;
+		// get all sub directories
+		File inputDirectoriesFiles[] = classDefinitionDirectory
+				.listFiles(new FileFilter() {
+					@Override
+					public boolean accept(File pathname) {
+						// get all directories
+						return pathname.isDirectory();
+					}
+				});
+
+		// get all files in all subdirectories
+		ArrayList<File> inputFiles = new ArrayList<File>();
+
+		// scan subdirectories recursively
+		for (File dir : inputDirectoriesFiles) {
+			Collections.addAll(inputFiles, scanClassDefinitionDirectory(dir));
+		}
+
+		// add files in the current directory
+		Collections.addAll(
+				inputFiles,
+				classDefinitionDirectory
+						.listFiles(new FileFilter() {
+							@Override
+							public boolean accept(File pathname) {
+								// get all .xml files
+								return !pathname.isDirectory()
+										&& pathname.getName().endsWith(
+												".xml");
+							}
+						}));
+
+		return inputFiles.toArray(new File[] {});
 	}
 
 	/** initialize XStream and process annotaions */

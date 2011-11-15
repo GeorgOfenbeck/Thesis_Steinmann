@@ -18,6 +18,7 @@
 #include "MultiLanguageSerializationService.h"
 #include "generatedC/MultiLanguageTestClass.h"
 #include "generatedC/MemoryLoadKernelDescription.h"
+#include "generatedC/MeasurementDescription.h"
 
 #define THREADCOUNT 200
 using namespace std;
@@ -72,10 +73,12 @@ int main() {
 
 #include "generatedC/MemoryLoadKernelDescription.h"
 int main(int argc, char *argv[]){
+	MultiLanguageSerializationService serializationService;
+
 	if (argc==2 && strcmp(argv[1],"serializationTest")==0){
 		// run the serialization test
 		printf("Running Serialization Test\n");
-		MultiLanguageSerializationService serializationService;
+
 
 		// load input
 		printf("Loading input\n");
@@ -92,6 +95,19 @@ int main(int argc, char *argv[]){
 
 		return 0;
 	}
+
 	printf("Measuring\n");
+
+	printf("Reading input\n");
+	ifstream input("config");
+	MeasurementDescription *description;
+	description=(MeasurementDescription *)serializationService.DeSerialize(input);
+	input.close();
+
+	printf("Setting up the measurement\n");
+
+	printf("Performing measurement\n");
+
+	printf("writing output\n");
 
 }

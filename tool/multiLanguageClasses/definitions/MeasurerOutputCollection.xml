@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="MeasurerOutputCollection" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	comment="Transfer object used to transfer MeasurerOutputs">
+  <list  name="measurerOutputs" type="MeasurerOutputBase" comment="the transferred measurer outputs"/>
+</class>

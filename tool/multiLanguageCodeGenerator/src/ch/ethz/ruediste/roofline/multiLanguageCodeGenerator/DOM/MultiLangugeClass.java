@@ -81,12 +81,21 @@ public class MultiLangugeClass {
 
 	public void setTypeDescriptors(
 			HashMap<String, FieldTypeDescriptor> typeDescriptors) {
+		// can happen due to deserialization
+		if (fields == null) {
+			return;
+		}
+
+		// set the type descriptor of all fields
 		for (MultiLangugeFieldBase field : fields) {
+			// check if the type of the field is known
 			if (!typeDescriptors.containsKey(field.getType())) {
 				throw new Error(String.format(
 						"Type %s of field %s in class %s not found",
 						field.getType(), field.getName(), getName()));
 			}
+
+			// set the type descriptor
 			field.setTypeDescriptor(typeDescriptors.get(field.getType()));
 		}
 	}

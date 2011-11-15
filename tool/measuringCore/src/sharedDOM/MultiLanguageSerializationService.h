@@ -1,8 +1,7 @@
 /*
  * MultiLanguageSerializationService.h
- *
- *  Created on: Nov 11, 2011
- *      Author: ruedi
+ * header file of the serialization service. The methods are implemented by generated
+ * and non-generated code.
  */
 
 #ifndef MULTILANGUAGESERIALIZATIONSERVICE_H_

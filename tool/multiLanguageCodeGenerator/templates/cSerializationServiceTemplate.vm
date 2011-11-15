@@ -111,12 +111,12 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 				
 				## parse all elements
 				for (int i=0; i<count; i++){
-					#deSerializeNonList()
+					#deSerializeNonList($field)
 					result->get${field.nameUpperCamel}().push_back(value);
 				}
 			}
 			#else
-				#deSerializeNonList()
+				#deSerializeNonList($field)
 				result->set${field.nameUpperCamel}(value);
 			#end
 		}
