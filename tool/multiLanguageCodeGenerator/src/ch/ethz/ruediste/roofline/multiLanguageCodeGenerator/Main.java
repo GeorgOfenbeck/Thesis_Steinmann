@@ -19,49 +19,55 @@ import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.javaGenerator.JavaCo
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-/** loads all class definitions and generates the code*/
+/** loads all class definitions and generates the code */
 public class Main {
 
-	public static void main(String args[]) throws FileNotFoundException{
-		
+	public static void main(String args[]) throws FileNotFoundException {
+
 		// get input filenames
-		File[] inputFiles = scanClassDefinitionDirectory(new File("./definitions"));
-		
+		File[] inputFiles = scanClassDefinitionDirectory(new File(
+				"./definitions"));
+
 		// create Type Descriptors
 		HashMap<String, FieldTypeDescriptor> typeDescriptors = createTypeDescriptorsForPrimitiveTypes();
-		
+
 		// load the class definitions
 		List<MultiLangugeClass> classes = loadClassDefinitions(inputFiles);
-		
+
 		// create type descriptor for each loaded class
-		for (MultiLangugeClass multiLanguageClass: classes){
-			typeDescriptors.put(multiLanguageClass.getName(),new FieldTypeDescriptor(multiLanguageClass.getName()));
+		for (MultiLangugeClass multiLanguageClass : classes) {
+			typeDescriptors.put(multiLanguageClass.getName(),
+					new FieldTypeDescriptor(multiLanguageClass.getName()));
 		}
-		
+
 		// set type descriptors of all fields in all classes
-		for (MultiLangugeClass multiLanguageClass: classes){
+		for (MultiLangugeClass multiLanguageClass : classes) {
 			multiLanguageClass.setTypeDescriptors(typeDescriptors);
 		}
-		
+
 		// instantiate generators
-		CodeGeneratorBase generators[]={new JavaCodeGenerator(), new CCodeGenerator()};
-				
+		CodeGeneratorBase generators[] = { new JavaCodeGenerator(),
+				new CCodeGenerator() };
+
 		// generate code
-		for (CodeGeneratorBase generator: generators)
+		for (CodeGeneratorBase generator : generators)
 		{
 			generator.generate(classes);
 		}
 	}
 
-	private static List<MultiLangugeClass> loadClassDefinitions(File[] inputFiles) {
+	/** load all class definitions defined in the given input files */
+	private static List<MultiLangugeClass> loadClassDefinitions(
+			File[] inputFiles) {
 		// inistialize XStream
 		XStream xStream = createXStream();
-		
+
 		// load all classes
-		List<MultiLangugeClass> classes=new LinkedList<MultiLangugeClass>();
-		for (File inputFile : inputFiles){
+		List<MultiLangugeClass> classes = new LinkedList<MultiLangugeClass>();
+		for (File inputFile : inputFiles) {
 			// load the input
-			MultiLangugeClass multiLanguageClass= (MultiLangugeClass) xStream.fromXML(inputFile);
+			MultiLangugeClass multiLanguageClass = (MultiLangugeClass) xStream
+					.fromXML(inputFile);
 			System.out.println(xStream.toXML(multiLanguageClass));
 
 			// add class to the list of classes
@@ -70,11 +76,15 @@ public class Main {
 		return classes;
 	}
 
-	/** Scan the given directory for all files containing class definitions (all .xml files) */
-	private static File[] scanClassDefinitionDirectory(File classDefinitionDirectory) {
-		File inputDir=classDefinitionDirectory;
-		File inputFiles[]=inputDir.listFiles(new FileFilter() {
-			
+	/**
+	 * Scan the given directory for all files containing class definitions (all
+	 * .xml files)
+	 */
+	private static File[] scanClassDefinitionDirectory(
+			File classDefinitionDirectory) {
+		File inputDir = classDefinitionDirectory;
+		File inputFiles[] = inputDir.listFiles(new FileFilter() {
+
 			@Override
 			public boolean accept(File pathname) {
 				return pathname.getName().endsWith(".xml");
@@ -83,9 +93,9 @@ public class Main {
 		return inputFiles;
 	}
 
-	/** initialize XStream and process annotaions*/
+	/** initialize XStream and process annotaions */
 	private static XStream createXStream() {
-		XStream xStream=new XStream(new DomDriver());
+		XStream xStream = new XStream(new DomDriver());
 		xStream.processAnnotations(MultiLangugeClass.class);
 		xStream.processAnnotations(MultiLangugeField.class);
 		xStream.processAnnotations(MultiLangugeDefine.class);
@@ -94,13 +104,17 @@ public class Main {
 		return xStream;
 	}
 
-	/** create type descirptors for supported primitive types*/ 
+	/** create type descirptors for supported primitive types */
 	private static HashMap<String, FieldTypeDescriptor> createTypeDescriptorsForPrimitiveTypes() {
-		HashMap<String, FieldTypeDescriptor> typeDescriptors=new HashMap<String, FieldTypeDescriptor>();
-		typeDescriptors.put("int", new FieldTypeDescriptor("int","int","int","%d","nextInt", "Integer"));
-		typeDescriptors.put("long", new FieldTypeDescriptor("long","long","long","%ld","nextLong", "Long"));
-		typeDescriptors.put("bool", new FieldTypeDescriptor("bool","bool","boolean","%d","nextInt","Boolean"));
-		typeDescriptors.put("double", new FieldTypeDescriptor("double","double","double","%lf","nextDouble","Double"));
+		HashMap<String, FieldTypeDescriptor> typeDescriptors = new HashMap<String, FieldTypeDescriptor>();
+		typeDescriptors.put("int", new FieldTypeDescriptor("int", "int", "int",
+				"%d", "nextInt", "Integer"));
+		typeDescriptors.put("long", new FieldTypeDescriptor("long", "long",
+				"long", "%ld", "nextLong", "Long"));
+		typeDescriptors.put("bool", new FieldTypeDescriptor("bool", "bool",
+				"boolean", "%d", "nextInt", "Boolean"));
+		typeDescriptors.put("double", new FieldTypeDescriptor("double",
+				"double", "double", "%lf", "nextDouble", "Double"));
 		return typeDescriptors;
 	}
 }

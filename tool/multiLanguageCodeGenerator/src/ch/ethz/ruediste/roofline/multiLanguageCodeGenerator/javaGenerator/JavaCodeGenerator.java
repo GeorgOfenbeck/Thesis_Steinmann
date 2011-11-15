@@ -7,7 +7,7 @@ import org.apache.velocity.VelocityContext;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.CodeGeneratorBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeClass;
 
-/** Generates Java code from a SharedClass */
+/** Generates Java for a list of multi language classes */
 public class JavaCodeGenerator extends CodeGeneratorBase {
 	public JavaCodeGenerator() {
 
@@ -39,7 +39,8 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 
 		String outputFileName = "generatedJava/ch/ethz/ruediste/roofline/sharedDOM/MultiLanguageSerializationService.java";
 		String templateName = "javaSerializationServiceTemplate.vm";
-		applyTemplate(outputFileName, templateName, context, "javaSerializationService");
+		applyTemplate(outputFileName, templateName, context,
+				"javaSerializationService");
 
 	}
 

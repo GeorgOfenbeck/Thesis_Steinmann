@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /** $class.comment */
+@SuppressWarnings("unused")
 public class $class.name #if ($class.hasJavaBaseType())	extends $class.javaBaseType #end {
 
 ## iterate over all fields of the class

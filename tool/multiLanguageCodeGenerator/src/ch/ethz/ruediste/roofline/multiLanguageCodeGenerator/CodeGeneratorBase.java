@@ -1,4 +1,5 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,10 +15,14 @@ import org.apache.velocity.runtime.log.LogChute;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeClass;
 
-
+/**
+ * base class for code generators. Initializes the velocity engine and provides
+ * a wrapper.
+ * 
+ */
 public abstract class CodeGeneratorBase {
 	/** Logger for Velocity which logs everything to System.out */
-	private class ConsoleLogger implements LogChute{
+	private class ConsoleLogger implements LogChute {
 
 		@Override
 		public void init(RuntimeServices arg0) throws Exception {
@@ -38,20 +43,22 @@ public abstract class CodeGeneratorBase {
 			System.out.println(arg1);
 		}
 	}
-		
+
 	/** Velocity engine user for code generation */
 	protected final VelocityEngine velocityEngine;
 
-	public CodeGeneratorBase(){
+	public CodeGeneratorBase() {
 		// initialize the velocity engine
 		velocityEngine = new VelocityEngine();
-		velocityEngine.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM, new ConsoleLogger());
+		velocityEngine.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM,
+				new ConsoleLogger());
 		velocityEngine.init();
 	}
+
 	public abstract void generate(List<MultiLangugeClass> classes);
-	
-	protected FileWriter openWriter(String fileName) throws IOException{
-		File file=new File(fileName);
+
+	protected FileWriter openWriter(String fileName) throws IOException {
+		File file = new File(fileName);
 		file.getParentFile().mkdirs();
 		return new FileWriter(file);
 	}
@@ -70,7 +77,7 @@ public abstract class CodeGeneratorBase {
 			// generate output
 			velocityEngine.evaluate(context, writer, logTag,
 					new InputStreamReader(input));
-			
+
 			// close files
 			writer.close();
 			input.close();
@@ -79,4 +86,3 @@ public abstract class CodeGeneratorBase {
 		}
 	}
 }
-

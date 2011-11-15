@@ -32,6 +32,14 @@ public class FieldTypeDescriptor {
 		
 	}
 	
+	/**
+	 * Initialize an instance, describing a MultiLanguageClass.
+	 * 
+	 * The resulting type is a reference type and therefore needs
+	 * no scanfSpecification and scanner method. All names are set to
+	 * the name of the class (cName, javaName, javaBoxedName)
+	 * @param name Name of the MultiLanugageClass.
+	 */
 	public FieldTypeDescriptor(String name) {
 		isReference=true;
 		this.name = name;
