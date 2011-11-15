@@ -26,7 +26,7 @@
       <fontname>Dialog</fontname>
       <fontsize>12</fontsize>
       <defaultstereotypeview>0</defaultstereotypeview>
-      <activediagram>Shared DOM</activediagram>
+      <activediagram>Overview C</activediagram>
     </settings>
     <searchpath href="PROJECT_DIR" />
     <members>
@@ -82,7 +82,7 @@
 			CodeGeneration
 		</plugin>
 </profile>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Tue Nov 15 11:33:26 CET 2011'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Tue Nov 15 20:16:48 CET 2011'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.32.2(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -4947,7 +4947,7 @@
     </path>
   </group>
   <group name="Fig34"
-       description="org.argouml.uml.diagram.static_structure.ui.FigClass[704, 800, 282, 69]pathVisible=false;stereotypeView=0;operationsVisible=true;attributesVisible=true;"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[512, 864, 282, 69]pathVisible=false;stereotypeView=0;operationsVisible=true;attributesVisible=true;"
        href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000AFE"
        fill="1"
        fillcolor="white"
@@ -4958,8 +4958,8 @@
     </private>
     
     <rectangle name="Fig34.0"
-      x="704"
-      y="800"
+      x="512"
+      y="864"
       width="282"
       height="69"
       fill="1"
@@ -4968,8 +4968,8 @@
       strokecolor="black"
     />
     <text name="Fig34.1"
-      x="705"
-      y="801"
+      x="513"
+      y="865"
       width="280"
       height="22"
       fill="0"
@@ -4984,7 +4984,7 @@
       justification="Center"
     >KernelFactory</text>
     <group name="Fig34.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[705, 801, 280, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[513, 865, 280, 0]"
          href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000AFE"
          fill="0"
          fillcolor="white"
@@ -4996,8 +4996,8 @@
       </private>
       
       <rectangle name="Fig34.2.0"
-        x="705"
-        y="801"
+        x="513"
+        y="865"
         width="280"
         height="0"
         fill="0"
@@ -5007,8 +5007,8 @@
       />
     </group>
     <rectangle name="Fig34.3"
-      x="704"
-      y="823"
+      x="512"
+      y="887"
       width="282"
       height="1"
       fill="1"
@@ -5017,7 +5017,7 @@
       strokecolor="black"
     />
     <group name="Fig34.4"
-         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[705, 824, 280, 21]"
+         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[513, 888, 280, 21]"
          href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000AFE"
          fill="0"
          fillcolor="white"
@@ -5028,8 +5028,8 @@
       </private>
       
       <rectangle name="Fig34.4.0"
-        x="705"
-        y="824"
+        x="513"
+        y="888"
         width="280"
         height="21"
         fill="0"
@@ -5039,8 +5039,8 @@
       />
     </group>
     <rectangle name="Fig34.5"
-      x="704"
-      y="844"
+      x="512"
+      y="908"
       width="282"
       height="1"
       fill="1"
@@ -5049,7 +5049,7 @@
       strokecolor="black"
     />
     <group name="Fig34.6"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[705, 845, 280, 24]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[513, 909, 280, 24]"
          href="127-0-1-1--53a5958e:1338270c6d5:-8000:0000000000000AFE"
          fill="0"
          fillcolor="white"
@@ -5060,8 +5060,8 @@
       </private>
       
       <rectangle name="Fig34.6.0"
-        x="705"
-        y="845"
+        x="513"
+        y="909"
         width="280"
         height="24"
         fill="0"
@@ -5070,8 +5070,8 @@
         strokecolor="black"
       />
       <text name="Fig34.6.1"
-        x="705"
-        y="845"
+        x="513"
+        y="909"
         width="280"
         height="22"
         fill="0"

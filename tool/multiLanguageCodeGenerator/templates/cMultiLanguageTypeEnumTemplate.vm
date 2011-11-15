@@ -5,6 +5,6 @@ enum MultiLanguageTypeEnum{
 #foreach($class in $classes)
 MULTI_LANGUAGE_TYPE_ENUM_$class.name, 
 #end
-DUMMY
+MULTI_LANGUAGE_TYPE_ENUM__DUMMY
 };
 #endif

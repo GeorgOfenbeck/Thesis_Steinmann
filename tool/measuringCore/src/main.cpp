@@ -14,11 +14,18 @@
 #include <cstdlib>
 #include <string.h>
 #include <fstream>
+#include <typeinfo>
 #include "coreSwitchTest.hpp"
 #include "MultiLanguageSerializationService.h"
 #include "generatedC/MultiLanguageTestClass.h"
 #include "generatedC/MemoryLoadKernelDescription.h"
 #include "generatedC/MeasurementDescription.h"
+#include "TypeRegistry.h"
+#include "TypeRegistryEntry.h"
+#include "KernelBase.h"
+#include "MeasurerBase.h"
+#include "MeasurementSchemeBase.h"
+
 
 #define THREADCOUNT 200
 using namespace std;
@@ -71,6 +78,7 @@ int main() {
 }
 */
 
+
 #include "generatedC/MemoryLoadKernelDescription.h"
 int main(int argc, char *argv[]){
 	MultiLanguageSerializationService serializationService;
@@ -106,7 +114,41 @@ int main(int argc, char *argv[]){
 
 	printf("Setting up the measurement\n");
 
+	printf("registered kernels:\n");
+	TypeRegistry<KernelBase>::print();
+
+	printf("registered measurers:\n");
+	TypeRegistry<MeasurerBase>::print();
+
+	printf("registered measurement schemes:\n");
+	TypeRegistry<MeasurementSchemeBase>::print();
+
+	// create kernel
+	KernelBase *kernel=TypeRegistry<KernelBase>::createObject(description->getKernel());
+	if (kernel==NULL){
+		printf("kernel for %s not found\n",typeid(*description->getKernel()).name());
+		exit(1);
+	}
+
+	// create measurer
+	MeasurerBase *measurer=TypeRegistry<MeasurerBase>::createObject(description->getMeasurer());
+	if (measurer==NULL){
+		printf("measurer for %s not found\n",typeid(*description->getMeasurer()).name());
+		exit(1);
+	}
+
+	// create measurement scheme
+	MeasurementSchemeBase *scheme=TypeRegistry<MeasurementSchemeBase>::createObject(description->getScheme());
+	if (scheme==NULL){
+		printf("measurement scheme for %s not found\n",typeid(*description->getScheme()).name());
+		exit(1);
+	}
+
+	scheme->setKernel(kernel);
+	scheme->setMeasurer(measurer);
+
 	printf("Performing measurement\n");
+	scheme->measure();
 
 	printf("writing output\n");
 
