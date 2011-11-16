@@ -11,11 +11,16 @@
 #include "generatedC/KBestMeasurementSchemeDescription.h"
 
 class KBestMeasurementScheme : public MeasurementScheme<KBestMeasurementSchemeDescription>{
+protected:
+	template<class TKernel, class TMeasurer>
+	MeasurerOutputBase * measureImp(TKernel *kernel, TMeasurer *measurer);
+
 public:
 	KBestMeasurementScheme(KBestMeasurementSchemeDescription *desc):MeasurementScheme(desc){};
 	virtual ~KBestMeasurementScheme();
 
 	MeasurerOutputBase *measure();
+
 };
 
 #endif /* KBESTMEASUREMENTSCHEME_H_ */

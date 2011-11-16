@@ -11,34 +11,34 @@
       </measurement>
       <outputs>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>243543</uSecs>
+          <uSecs>236454</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>231047</uSecs>
+          <uSecs>234971</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>231009</uSecs>
+          <uSecs>233823</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>230990</uSecs>
+          <uSecs>233354</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>231034</uSecs>
+          <uSecs>233601</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>231106</uSecs>
+          <uSecs>233828</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>230895</uSecs>
+          <uSecs>233865</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>230968</uSecs>
+          <uSecs>233871</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>231078</uSecs>
+          <uSecs>233396</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
         <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
-          <uSecs>231007</uSecs>
+          <uSecs>233849</uSecs>
         </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
       </outputs>
     </ch.ethz.ruediste.roofline.sharedDOM.MeasurementResult>
