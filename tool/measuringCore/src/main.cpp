@@ -20,6 +20,7 @@
 #include "generatedC/MultiLanguageTestClass.h"
 #include "generatedC/MemoryLoadKernelDescription.h"
 #include "generatedC/MeasurementDescription.h"
+#include "generatedC/MeasurerOutputCollection.h"
 #include "TypeRegistry.h"
 #include "TypeRegistryEntry.h"
 #include "KernelBase.h"
@@ -80,7 +81,9 @@ int main() {
 
 
 #include "generatedC/MemoryLoadKernelDescription.h"
-int main(int argc, char *argv[]){
+
+
+int doIt(int argc, char *argv[]){
 	MultiLanguageSerializationService serializationService;
 
 	if (argc==2 && strcmp(argv[1],"serializationTest")==0){
@@ -108,6 +111,10 @@ int main(int argc, char *argv[]){
 
 	printf("Reading input\n");
 	ifstream input("config");
+	if (!input.is_open()){
+		printf("could not read measurement configuratio file <config>");
+		exit(1);
+	}
 	MeasurementDescription *description;
 	description=(MeasurementDescription *)serializationService.DeSerialize(input);
 	input.close();
@@ -146,10 +153,36 @@ int main(int argc, char *argv[]){
 
 	scheme->setKernel(kernel);
 	scheme->setMeasurer(measurer);
+	MeasurerOutputCollection outputCollection;
 
 	printf("Performing measurement\n");
-	scheme->measure();
+	for (int i=0; i<description->getNumberOfMeasurements(); i++){
+		MeasurerOutputBase *measurerOutput=scheme->measure();
+		outputCollection.getMeasurerOutputs().push_back(measurerOutput);
+	}
+
+	printf("tearing down\n");
+	delete(kernel);
+	delete(measurer);
+	delete(scheme);
 
 	printf("writing output\n");
+	ofstream output("output");
+	serializationService.Serialize(&outputCollection,output);
+	output.close();
+	return 0;
+}
 
+int main(int argc, char *argv[]){
+	try {
+		return doIt(argc,argv);
+	}
+	catch (char const *msg){
+		printf("Exception: %s\n",msg);
+	}
+	catch (Exception exception){
+		cout<<"Exception: "<<exception.get_message()<<"\n";
+		exception.print(0);
+	}
+	catch (...){throw;}
 }

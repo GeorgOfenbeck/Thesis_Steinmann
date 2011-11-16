@@ -20,12 +20,13 @@ public class Main {
 
 		// create measurements
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
-		kernel.setBlockSize(30);
+		kernel.setBlockSize(1<<25);
 
 		coll.addDescription(
 				kernel,
 				new KBestMeasurementSchemeDescription(),
-				new ExecutionTimeMeasurerDescription()
+				new ExecutionTimeMeasurerDescription(),
+				10
 				);
 
 		// store measurement description

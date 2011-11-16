@@ -11,6 +11,14 @@
 #include "TypeRegistry.h"
 #include "TypeRegistryEntry.h"
 
+/*
+ * When instantiated, registers the type given as template parameter with the type registry
+ * corresponding to TObject::tBase. Used in the .cpp file of a class as static variable:
+ *
+ *  static TypeRegisterer<MemoryLoadKernel> dummy;
+ *
+ *  The variable itself is never used.
+ */
 template <class TObject>
 class TypeRegisterer {
 public:

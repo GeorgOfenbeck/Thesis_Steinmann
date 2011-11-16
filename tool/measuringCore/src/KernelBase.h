@@ -17,10 +17,12 @@ public:
 	virtual ~KernelBase();
 
 	virtual KernelDescriptionBase *getKernelDescription()=0;
+	virtual void run()=0;
 };
 
 template<class TDescription>
 class Kernel : public KernelBase{
+protected:
 	TDescription *description;
 public:
 	typedef TDescription tDescription;

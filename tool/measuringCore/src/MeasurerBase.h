@@ -9,12 +9,17 @@
 #define MEASURERBASE_H_
 
 #include "generatedC/MeasurerDescriptionBase.h"
+#include "generatedC/MeasurerOutputBase.h"
 
 class MeasurerBase {
 public:
 	typedef MeasurerDescriptionBase tDescriptionBase;
 
 	virtual ~MeasurerBase();
+
+	virtual void start()=0;
+	virtual void stop()=0;
+	virtual MeasurerOutputBase *read()=0;
 };
 
 template<class TDescription>

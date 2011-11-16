@@ -7,16 +7,17 @@
 
 #include "MemoryLoadKernel.h"
 #include "TypeRegisterer.h"
+#include <cstdlib>
 
 static TypeRegisterer<MemoryLoadKernel> dummy;
 
 
 MemoryLoadKernel::MemoryLoadKernel(MemoryLoadKernelDescription *description)
 	: Kernel(description){
-	// TODO Auto-generated constructor stub
+	buffer=(char*)malloc(description->getBlockSize());
 }
 
 MemoryLoadKernel::~MemoryLoadKernel() {
-	// TODO Auto-generated destructor stub
+	free(buffer);
 }
 

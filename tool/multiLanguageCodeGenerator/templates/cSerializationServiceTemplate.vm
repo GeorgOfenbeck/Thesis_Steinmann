@@ -1,4 +1,5 @@
 \#include "MultiLanguageSerializationService.h"
+\#include "Exception.h"
 \#include <typeinfo>
 \#include <string>
 \#include <cstdio>
@@ -9,10 +10,6 @@
 
 using namespace std;
 
-bool readString(FILE *input,std::string str){
-	int dummy; // used to remove warning
-	return fscanf(input,str.c_str(),&dummy)==(signed)str.length();
-}
 
 #macro(serializeNonList $field )
 	#if ($field.typeDescriptor.reference)
@@ -56,10 +53,7 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 	}
 #end
 	
-	std::string errorMessage="Unknown class: ";
-	errorMessage+=typeid(o).name();
-
-	throw errorMessage;
+	throw Exception((std::string)"Unknown class: "+typeid(o).name());
 }
 
 #macro(deSerializeNonList $field )
@@ -76,13 +70,22 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 	#else
 		getline(input,line);
 		if (sscanf(line.c_str(),"${field.typeDescriptor.scanfSpecification}",&value)!=1){
-			throw "Parse Error";
+			throw Exception((std::string)"Parse Error: could not parse "+line+" as $field.type using scanf specification ${field.typeDescriptor.scanfSpecification}. "
+			+ "Was parsing $field.name of $class.name");
 		}
 	#end
 #end 
 	
 MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream &input){
 	string line;
+	
+	if (input.eof()){
+		throw Exception("deserializing: unexpected end of input");
+	}
+	
+	if (!input.good()){
+		throw Exception("deserializing: something's wrong with the input stream");
+	}
 	
 	getline(input,line);
 	
@@ -98,7 +101,7 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 		{
 			getline(input,line);
 			if (line.compare("${field.name}")!=0){
-				throw "Parse Error";
+				throw Exception("Parse Error. Field $field.name of class $class.name expected");
 			}
 			#if ($field.class.simpleName=="MultiLanguageList")
 			{
@@ -106,7 +109,7 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 				getline(input,line);
 				int count;
 				if (sscanf(line.c_str(),"%i",&count)!=1){
-					throw "Parse Error";
+					throw Exception("Parse Error. could not parse item count of list $field.name of $class.name. Item count string is "+line);
 				}
 				
 				## parse all elements
@@ -126,6 +129,6 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 	}
 #end
 
-	throw "Parse Error";
+	throw Exception("Parse Error: class "+line+" is not known");;
 }
 

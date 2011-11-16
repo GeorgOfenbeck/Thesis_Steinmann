@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="ExecutionTimeMeasurerOutput" 
+	cBaseType="MeasurerOutputBase"
+	javaBaseType="MeasurerOutputBase"
+	comment="result of the execution time measurer">
+	
+	<field name="uSecs" type="long" comment="execution time in micro seconds (1e-6)"/>
+	
+</class>

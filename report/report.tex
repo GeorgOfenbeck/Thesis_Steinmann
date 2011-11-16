@@ -3,6 +3,25 @@
 \usepackage{graphicx} 
 
 \newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[width=\textwidth]{../../umlDiagrams/#1.png}\end{center}}
+
+\newcommand{\umlFloat}[2]{
+\begin{figure}[tbh]
+\umlDiagram{#1}
+\caption{#2}
+\label{#1}
+\end{figure}
+}
+
+\newcommand{\umlFloatCap}[3]{
+\begin{figure}[tbh]
+\umlDiagram{#1}
+\caption[#2]{#3}
+\label{#1}
+\end{figure}
+}
+\newcommand{\umlRef}[1]{\autoref{#1}}
+
+
 \title{Applying the Roofline Model}
 \author{Ruedi Steinmann}
 \date{\today}
@@ -111,9 +130,9 @@ References to other multi language classes are supported. The serializer does no
 
 Lists of the supported primitive types as well as of references are supported.
 
-The XML class representation is parsed using a serialization library called XStream. XStream maps classes to an XML representation. The serialized classes are shown in the following diagram.
+The XML class representation is parsed using a serialization library called XStream. XStream maps classes to an XML representation. The serialized classes are shown in \umlRef{MultiLanguageClassDefinition}.
 
-\umlDiagram{MultiLanguageClassDefinition}
+\umlFloat{MultiLanguageClassDefinition}{Elements representing a multi language class definition}
 
 The following is an example of a class definition:
 \begin{verbatim}
@@ -144,6 +163,12 @@ The class definitions and the generated code is located in the Multi Language Cl
 
 \umlDiagram{BuildDependencies}
 
+\subsection{Type Registry}
+The Measuring Core receives kernel, measurement scheme and measurer descriptions and needs to instantiate the corresponding kernels, measurement schemes and measurers. Conceptually, each description class is associated to exactly one object class. The description describes instances of the associated object class. In code, the realtionships are represented using typedefs.
+
+The object classes are grouped by base classes. The TypeRegistry templated class is instantiated for each base class. For each object class a TypeRegisterer is instantiated as static global variable (static means only visible in the file that defines the variable). The constructor of the TypeRegisterer creates a TypeRegistryEntry for the object class and adds it to the corresponding TypeRegistry instantiation.
+
+\umlDiagram{TypeRegistry}
 
 \section{Measuring Execution Time}
 \begin{itemize}
@@ -178,6 +203,7 @@ It is difficult to control the core frequency. But the frequency should at least
 \end{itemize}
 
 
+\listoffigures
 
 \bibliographystyle{abbrv}
 \bibliography{../report.bib}

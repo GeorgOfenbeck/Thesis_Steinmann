@@ -6,9 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
+import ch.ethz.ruediste.roofline.sharedDOM.MeasurementResult;
+import ch.ethz.ruediste.roofline.sharedDOM.MeasurementResultCollection;
+import ch.ethz.ruediste.roofline.sharedDOM.MeasurerOutputCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MultiLanguageSerializationService;
 
 import com.thoughtworks.xstream.XStream;
@@ -28,25 +32,46 @@ public class Main {
 		MeasurementCollection coll = (MeasurementCollection) xStream
 				.fromXML(new File("measurement.xml"));
 
+		// instantiate measurement result collection
+		MeasurementResultCollection results=new MeasurementResultCollection();
+		
+		// iterate over all measurements
 		for (MeasurementDescription measurement : coll.getDescriptions()) {
 			System.out.println("processing the following measurement:");
 			xStream.toXML(measurement, System.out);
 			System.out.println();
-
-			// write configuration
+			
+			// create result
+			MeasurementResult result=new MeasurementResult();
+			results.add(result);
+			result.setMeasurement(measurement);
+			
 			try {
+				// write configuration
 				File configFile = new File(measuringCoreDir, "config");
 				FileOutputStream conf = new FileOutputStream(configFile);
 				serializationService.Serialize(measurement, conf);
 				conf.close();
+				
+				// create def files
+				System.out.println("creating def files");
 
-				FileInputStream confIn = new FileInputStream(configFile);
-				MeasurementDescription measurement2 = (MeasurementDescription) serializationService
-						.DeSerialize(confIn);
-				confIn.close();
+				// build
+				System.out.println("building measuring core");
+				runCommand(measuringCoreDir, new String[] { "make", "all" });
 
-				System.out.println("Serialized/Deserialized:");
-				xStream.toXML(measurement2);
+				// run measurement
+				System.out.println("running measurement");
+				runCommand(measuringCoreDir, new String[] { "./measuringCore" });
+
+				// parse measurer output
+				System.out.println("parsing measurement output");
+				File outputFile=new File(measuringCoreDir,"output");
+				FileInputStream output=new FileInputStream(outputFile);
+				MeasurerOutputCollection outputs=(MeasurerOutputCollection) serializationService.DeSerialize(output);
+
+				// add output to result
+				result.add(outputs);
 			} catch (FileNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -54,24 +79,15 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			// create def files
-			System.out.println("creating def files");
-
-			// build
-			System.out.println("building measuring core");
-			runCommand(measuringCoreDir, new String[] { "make", "all" });
-
-			// run measurement
-			System.out.println("running measurement");
-			runCommand(measuringCoreDir, new String[] { "./measuringCore" });
-
-			// parse measurer output
-			System.out.println("parsing measurement output");
-
-			// add output to result
 		}
 
-		System.out.println("writing result");
+		System.out.println("writing results");
+		try {
+			xStream.toXML(results,new FileOutputStream("measurementResults.xml"));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private static void runCommand(File workingDirectory, String[] command) {

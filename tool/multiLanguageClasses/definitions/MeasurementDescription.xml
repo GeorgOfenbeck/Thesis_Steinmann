@@ -2,9 +2,14 @@
 <class
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
-	name="ExecutionTimeMeasurerDescription" 
-	cBaseType="MeasurerDescriptionBase"
-	javaBaseType="MeasurerDescriptionBase"
-	comment="describes a measurer which measures execution time">
+	name="MeasurementDescription" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	comment="Describes a Measurement">
 	
+	<field name="scheme" type="MeasurementSchemeDescriptionBase" comment="describes the measurement scheme to be used"/>
+	<field name="kernel" type="KernelDescriptionBase" comment="describes the kernel to be used"/>
+	<field name="measurer" type="MeasurerDescriptionBase" comment="describes the measurer to be used"/>
+	
+	<field name="numberOfMeasurements" type="int" comment="the number of measurements to perform(for statistical analysis)"/>
 </class>

@@ -15,5 +15,8 @@ KBestMeasurementScheme::~KBestMeasurementScheme() {
 }
 
 MeasurerOutputBase *KBestMeasurementScheme::measure(){
-	return NULL;
+	measurer->start();
+	kernel->run();
+	measurer->stop();
+	return measurer->read();
 }
