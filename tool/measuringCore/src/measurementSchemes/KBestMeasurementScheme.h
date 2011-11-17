@@ -10,16 +10,23 @@
 #include "MeasurementSchemeBase.h"
 #include "generatedC/KBestMeasurementSchemeDescription.h"
 
-class KBestMeasurementScheme : public MeasurementScheme<KBestMeasurementSchemeDescription>{
-protected:
-	template<class TKernel, class TMeasurer>
-	MeasurerOutputBase * measureImp(TKernel *kernel, TMeasurer *measurer);
-
+template<class TKernel, class TMeasurer>
+class KBestMeasurementScheme : public MeasurementScheme<KBestMeasurementSchemeDescription,TKernel,TMeasurer>{
+	typedef MeasurementScheme<KBestMeasurementSchemeDescription,TKernel,TMeasurer> super;
 public:
-	KBestMeasurementScheme(KBestMeasurementSchemeDescription *desc):MeasurementScheme(desc){};
-	virtual ~KBestMeasurementScheme();
+	KBestMeasurementScheme(KBestMeasurementSchemeDescription *desc, TKernel *kernel, TMeasurer *measurer)
+		:super::MeasurementScheme(desc,kernel,measurer)
+	{
+	}
 
-	MeasurerOutputBase *measure();
+	virtual ~KBestMeasurementScheme(){}
+
+	MeasurerOutputBase *measure(){
+		super::measurer->start();
+		super::kernel->run();
+		super::measurer->stop();
+		return super::measurer->read();
+	}
 
 };
 

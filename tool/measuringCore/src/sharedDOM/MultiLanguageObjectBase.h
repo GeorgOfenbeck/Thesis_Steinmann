@@ -10,7 +10,9 @@
 
 #include <string>
 #include "generatedC/MultiLanguageTypeEnum.h"
-class MultiLanguageObjectBase {
+#include "PolymorphicBase.h"
+
+class MultiLanguageObjectBase: public PolymorphicBase {
 public:
 	virtual MultiLanguageTypeEnum getType()=0;
 	//MultiLanguageObjectBase();

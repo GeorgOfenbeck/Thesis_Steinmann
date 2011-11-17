@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
@@ -33,26 +32,26 @@ public class Main {
 				.fromXML(new File("measurement.xml"));
 
 		// instantiate measurement result collection
-		MeasurementResultCollection results=new MeasurementResultCollection();
-		
+		MeasurementResultCollection results = new MeasurementResultCollection();
+
 		// iterate over all measurements
 		for (MeasurementDescription measurement : coll.getDescriptions()) {
 			System.out.println("processing the following measurement:");
 			xStream.toXML(measurement, System.out);
 			System.out.println();
-			
+
 			// create result
-			MeasurementResult result=new MeasurementResult();
+			MeasurementResult result = new MeasurementResult();
 			results.add(result);
 			result.setMeasurement(measurement);
-			
+
 			try {
 				// write configuration
 				File configFile = new File(measuringCoreDir, "config");
 				FileOutputStream conf = new FileOutputStream(configFile);
 				serializationService.Serialize(measurement, conf);
 				conf.close();
-				
+
 				// create def files
 				System.out.println("creating def files");
 
@@ -66,9 +65,10 @@ public class Main {
 
 				// parse measurer output
 				System.out.println("parsing measurement output");
-				File outputFile=new File(measuringCoreDir,"output");
-				FileInputStream output=new FileInputStream(outputFile);
-				MeasurerOutputCollection outputs=(MeasurerOutputCollection) serializationService.DeSerialize(output);
+				File outputFile = new File(measuringCoreDir, "output");
+				FileInputStream output = new FileInputStream(outputFile);
+				MeasurerOutputCollection outputs = (MeasurerOutputCollection) serializationService
+						.DeSerialize(output);
 
 				// add output to result
 				result.add(outputs);
@@ -83,11 +83,13 @@ public class Main {
 
 		System.out.println("writing results");
 		try {
-			xStream.toXML(results,new FileOutputStream("measurementResults.xml"));
+			xStream.toXML(results, new FileOutputStream(
+					"measurementResults.xml"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		xStream.toXML(results, System.out);
 	}
 
 	private static void runCommand(File workingDirectory, String[] command) {

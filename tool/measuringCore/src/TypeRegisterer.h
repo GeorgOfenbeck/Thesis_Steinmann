@@ -19,11 +19,11 @@
  *
  *  The variable itself is never used.
  */
-template <class TObject>
+template <typename TObject, typename ... TArgs>
 class TypeRegisterer {
 public:
 	TypeRegisterer(){
-		TypeRegistryEntry<TObject> *entry=new TypeRegistryEntry<TObject>();
+		TypeRegistryEntry<TObject, TArgs...> *entry=new TypeRegistryEntry<TObject,TArgs ...>();
 		TypeRegistry<typename TObject::tBase>::add_entry(entry);
 	}
 };

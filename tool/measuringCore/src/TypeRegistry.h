@@ -10,7 +10,10 @@
 
 #include "generatedC/KernelDescriptionBase.h"
 #include <vector>
+#include <list>
 #include <cstdio>
+#include "utils.h"
+#include "PolymorphicBase.h"
 
 template <class TObjectBase>
 class TypeRegistryEntryBase;
@@ -31,6 +34,9 @@ class TypeRegistry {
 		static std::vector<TypeRegistryEntryBase<TObjectBase>*> entries;
 		return entries;
 	}
+
+
+
 public:
 	virtual ~TypeRegistry();
 
@@ -48,12 +54,17 @@ public:
 		}
 	}
 
+
+
 	/* find the entry for the given description. return null if no entry was found */
-	static TypeRegistryEntryBase<TObjectBase>* find(typename TObjectBase::tDescriptionBase *desc){
+	template<typename ...TArgs>
+	static TypeRegistryEntryBase<TObjectBase> *find(typename TObjectBase::tDescriptionBase *desc, TArgs... args){
+		std::vector<PolymorphicBase*> argVec=utils::toCollection<std::vector<PolymorphicBase*>,TArgs...>(args ...);
+
 		// iterate over all entries and return the first that matches
 		typename std::vector<TypeRegistryEntryBase<TObjectBase>*>::iterator it=TypeRegistry::get_entries().begin();
 		for (;it!=get_entries().end();it++){
-			if ((*it)->match(desc)){
+			if ((*it)->match(desc,argVec)){
 				return *it;
 			}
 		}
@@ -61,18 +72,21 @@ public:
 		return NULL;
 	}
 
-	/* instantiate an object from the given description */
-	static TObjectBase *createObject(typename TObjectBase::tDescriptionBase *desc){
+	template<typename ...TArgs>
+	static TObjectBase *createObject(typename TObjectBase::tDescriptionBase *desc, TArgs... args){
 		// find an entry
-		TypeRegistryEntryBase<TObjectBase>* entry=TypeRegistry<TObjectBase>::find(desc);
+		TypeRegistryEntryBase<TObjectBase>* entry=TypeRegistry<TObjectBase>::find(desc,args...);
 
 		// check if an entry was found
 		if (entry==NULL){
 			return NULL;
 		}
 
+		std::vector<PolymorphicBase*> argVec;
+		utils::push_all_back(argVec,args...);
+
 		// return the kernel
-		return entry->createObject(desc);
+		return entry->createObject(desc,argVec);
 
 	}
 

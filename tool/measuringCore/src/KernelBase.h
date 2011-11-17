@@ -9,8 +9,9 @@
 #define KERNELBASE_H_
 
 #include "generatedC/KernelDescriptionBase.h"
+#include "PolymorphicBase.h"
 
-class KernelBase {
+class KernelBase : public PolymorphicBase{
 public:
 	typedef KernelDescriptionBase tDescriptionBase;
 	KernelBase();

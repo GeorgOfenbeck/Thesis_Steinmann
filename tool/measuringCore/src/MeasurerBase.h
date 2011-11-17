@@ -10,8 +10,9 @@
 
 #include "generatedC/MeasurerDescriptionBase.h"
 #include "generatedC/MeasurerOutputBase.h"
+#include "PolymorphicBase.h"
 
-class MeasurerBase {
+class MeasurerBase : public PolymorphicBase{
 public:
 	typedef MeasurerDescriptionBase tDescriptionBase;
 

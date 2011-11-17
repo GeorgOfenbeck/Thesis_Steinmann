@@ -145,14 +145,14 @@ int doIt(int argc, char *argv[]){
 	}
 
 	// create measurement scheme
-	MeasurementSchemeBase *scheme=TypeRegistry<MeasurementSchemeBase>::createObject(description->getScheme());
+	MeasurementSchemeBase *scheme=TypeRegistry<MeasurementSchemeBase>::createObject(description->getScheme(),kernel,measurer);
 	if (scheme==NULL){
 		printf("measurement scheme for %s not found\n",typeid(*description->getScheme()).name());
 		exit(1);
 	}
 
-	scheme->setKernel(kernel);
-	scheme->setMeasurer(measurer);
+	TypeRegistry<MeasurementSchemeBase>::find(description->getScheme(),kernel,measurer);
+
 	MeasurerOutputCollection outputCollection;
 
 	printf("Performing measurement\n");
