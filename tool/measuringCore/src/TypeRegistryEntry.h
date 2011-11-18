@@ -35,48 +35,37 @@ public:
 	virtual const char* getTypeName()=0;
 };
 
-/*
-template<typename T, typename ... TArgs>
-struct bar{
 
-	template<typename THead, typename ... TTail>
-	static T* foo(int idx, std::vector<PolymorphicBase*> &argVec, TArgs ... args){
-		//bar<T,TArgs ...,THead>::foo<idx+1,TTail ... >(argVec,args...,argVec[idx]);
-		bar<T,TArgs ...>::foo<TTail ... >(idx+1,argVec,args...,argVec[idx]);
-
-	}
-
-	static T* foo(std::vector<PolymorphicBase*> &argVec,TArgs... args){
-		return new T(args...);
-	}
-};
-*/
-
-template<typename T, typename TDesc, typename ... TProcessed>
-struct bar{
-	template<typename ... TArgs>
-	struct foo{
-		static T* func(int idx,  TDesc *desc, std::vector<PolymorphicBase*> &argVec,TProcessed ... args){
-					return new T(desc, args...);
-				}
-	};
-
-	template<typename head, typename ... tail>
-	struct foo<head,tail...>{
-		typedef bar<T,TDesc,TProcessed...,head> t1;
-		typedef typename t1::template foo<tail ...> t2;
-
-		static T* func(int idx, TDesc *desc,  std::vector<PolymorphicBase*> &argVec,TProcessed ... args){
-			return t2::func(idx+1,desc,argVec,args...,(head)argVec[idx]);
-		}
-	};
-
-};
 
 /* concrete type registry entries for objects only having a description and no other parameters*/
 template <class TObject, typename ... TArgs>
 class TypeRegistryEntry: public TypeRegistryEntryBase<typename TObject::tBase>{
 
+	template<typename T, typename ... TProcessed>
+	struct instantiator{
+		typedef typename T::tDescription tDesc;
+
+		template<int idx, typename ... DUMMY>
+		struct inner{
+			static T* func(tDesc *desc, std::vector<PolymorphicBase*> &argVec,TProcessed ... args){
+				return new T(desc, args...);
+			}
+		};
+
+		template<int idx, typename argsHead, typename ... argsTail>
+		struct inner<idx,argsHead,argsTail...>{
+			static T* func(tDesc *desc,  std::vector<PolymorphicBase*> &argVec,TProcessed ... args){
+				return
+					// append the first unprocessed argument to the end of the processed arguments
+					instantiator<T,TProcessed...,argsHead>
+					// only the tail of the unprocessed arguments remains
+					::template inner<idx+1,argsTail ...>
+					// do the call with the next index and append the head argument
+					::func(desc,argVec,args...,(argsHead)argVec[idx]);
+			}
+		};
+
+	};
 public:
 	virtual ~TypeRegistryEntry(){
 	}
@@ -93,10 +82,10 @@ public:
 			throw Exception("description could not be downcasted");
 		}
 
-		typedef bar<TObject,typename TObject::tDescription> t1;
-		typedef typename t1::template foo<TArgs* ...> t2;
-		return t2::func(0,castedDescription,args);
-		//return createObject(castedDescription);
+		return
+			instantiator<TObject>
+			::template inner<0,TArgs* ...>
+			::func(castedDescription,args);
 	}
 
 	virtual bool match(typename TObject::tBase::tDescriptionBase *description, std::vector<PolymorphicBase*> args){
