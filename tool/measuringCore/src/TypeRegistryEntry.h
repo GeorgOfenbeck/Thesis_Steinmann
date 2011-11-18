@@ -41,31 +41,37 @@ public:
 template <class TObject, typename ... TArgs>
 class TypeRegistryEntry: public TypeRegistryEntryBase<typename TObject::tBase>{
 
-	template<typename T, typename ... TProcessed>
+	/*
+	 * The instantiator is used to instantiate a TObject
+	 */
+	template<typename ... TProcessed>
 	struct instantiator{
-		typedef typename T::tDescription tDesc;
+		typedef typename TObject::tDescription tDesc;
 
+		// if all arguments are processed, the base cased is used, which instantiates
+		// TObject
 		template<int idx, typename ... DUMMY>
 		struct inner{
-			static T* func(tDesc *desc, std::vector<PolymorphicBase*> &argVec,TProcessed ... args){
-				return new T(desc, args...);
+			static TObject* func(tDesc *desc, std::vector<PolymorphicBase*> &argVec,TProcessed* ... args){
+				return new TObject(desc, args...);
 			}
 		};
 
+		// this specialization is used as long as there are unprocessed arguments
 		template<int idx, typename argsHead, typename ... argsTail>
 		struct inner<idx,argsHead,argsTail...>{
-			static T* func(tDesc *desc,  std::vector<PolymorphicBase*> &argVec,TProcessed ... args){
+			static TObject* func(tDesc *desc,  std::vector<PolymorphicBase*> &argVec,TProcessed* ... args){
 				return
 					// append the first unprocessed argument to the end of the processed arguments
-					instantiator<T,TProcessed...,argsHead>
+					instantiator<TProcessed...,argsHead>
 					// only the tail of the unprocessed arguments remains
 					::template inner<idx+1,argsTail ...>
 					// do the call with the next index and append the head argument
-					::func(desc,argVec,args...,(argsHead)argVec[idx]);
+					::func(desc,argVec,args...,(argsHead*)argVec[idx]);
 			}
 		};
-
 	};
+
 public:
 	virtual ~TypeRegistryEntry(){
 	}
@@ -83,8 +89,12 @@ public:
 		}
 
 		return
-			instantiator<TObject>
-			::template inner<0,TArgs* ...>
+			// no arguments are processed
+			instantiator<>
+			//start with the first member of args
+			// process all arguments
+			::template inner<0,TArgs ...>
+			// supply the data
 			::func(castedDescription,args);
 	}
 
