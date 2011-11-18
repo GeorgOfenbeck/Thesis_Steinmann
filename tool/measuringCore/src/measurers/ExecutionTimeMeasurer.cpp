@@ -6,7 +6,7 @@
  */
 
 #include "ExecutionTimeMeasurer.h"
-#include "TypeRegisterer.h"
+#include "typeRegistry/TypeRegisterer.h"
 
 static TypeRegisterer<ExecutionTimeMeasurer> dummy;
 

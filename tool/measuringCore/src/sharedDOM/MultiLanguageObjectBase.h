@@ -10,7 +10,7 @@
 
 #include <string>
 #include "generatedC/MultiLanguageTypeEnum.h"
-#include "PolymorphicBase.h"
+#include "baseClasses/PolymorphicBase.h"
 
 class MultiLanguageObjectBase: public PolymorphicBase {
 public:

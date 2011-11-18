@@ -6,7 +6,7 @@
  */
 
 #include "KBestMeasurementScheme.h"
-#include "TypeRegisterer.h"
+#include "typeRegistry/TypeRegisterer.h"
 #include <typeinfo>
 #include "kernels/MemoryLoadKernel.h"
 #include "measurers/ExecutionTimeMeasurer.h"

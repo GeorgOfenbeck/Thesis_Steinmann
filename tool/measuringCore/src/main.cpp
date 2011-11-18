@@ -21,11 +21,11 @@
 #include "generatedC/MemoryLoadKernelDescription.h"
 #include "generatedC/MeasurementDescription.h"
 #include "generatedC/MeasurerOutputCollection.h"
-#include "TypeRegistry.h"
-#include "TypeRegistryEntry.h"
-#include "KernelBase.h"
-#include "MeasurerBase.h"
-#include "MeasurementSchemeBase.h"
+#include "typeRegistry/TypeRegistry.h"
+#include "typeRegistry/TypeRegistryEntry.h"
+#include "baseClasses/KernelBase.h"
+#include "baseClasses/MeasurerBase.h"
+#include "baseClasses/MeasurementSchemeBase.h"
 
 
 #define THREADCOUNT 200

@@ -13,7 +13,7 @@
 #include <list>
 #include <cstdio>
 #include "utils.h"
-#include "PolymorphicBase.h"
+#include "baseClasses/PolymorphicBase.h"
 
 template <class TObjectBase>
 class TypeRegistryEntryBase;

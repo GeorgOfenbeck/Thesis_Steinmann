@@ -7,7 +7,7 @@
 
 #ifndef KBESTMEASUREMENTSCHEME_H_
 #define KBESTMEASUREMENTSCHEME_H_
-#include "MeasurementSchemeBase.h"
+#include "baseClasses/MeasurementSchemeBase.h"
 #include "generatedC/KBestMeasurementSchemeDescription.h"
 
 template<class TKernel, class TMeasurer>

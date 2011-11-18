@@ -6,7 +6,7 @@
  */
 
 #include "MemoryLoadKernel.h"
-#include "TypeRegisterer.h"
+#include "typeRegistry/TypeRegisterer.h"
 #include <cstdlib>
 
 static TypeRegisterer<MemoryLoadKernel> dummy;
