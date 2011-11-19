@@ -10,6 +10,7 @@
 
 #include "TypeRegistry.h"
 #include "TypeRegistryEntry.h"
+#include "concepts.h"
 
 /*
  * When instantiated, registers the type given as template parameter with the type registry
@@ -21,6 +22,8 @@
  */
 template <typename TObject, typename ... TArgs>
 class TypeRegisterer {
+	BOOST_CONCEPT_ASSERT((concepts::Object_concept<TObject>));
+	BOOST_CONCEPT_ASSERT((concepts::constructible_concept<TObject,typename TObject::tDescription,TArgs ...>));
 public:
 	TypeRegisterer(){
 		TypeRegistryEntry<TObject, TArgs...> *entry=new TypeRegistryEntry<TObject,TArgs ...>();

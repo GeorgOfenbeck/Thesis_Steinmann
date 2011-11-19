@@ -13,10 +13,12 @@
 #include <typeinfo>
 #include "Exception.h"
 #include <vector>
+#include "concepts.h"
 
 /* base class of entries in the TypeRegistry. Represents an object type */
 template <class TObjectBase>
 class TypeRegistryEntryBase{
+	BOOST_CONCEPT_ASSERT((concepts::ObjectBase_concept<TObjectBase>));
 public:
 	virtual ~TypeRegistryEntryBase(){}
 
@@ -40,6 +42,8 @@ public:
 /* concrete type registry entries for objects only having a description and no other parameters*/
 template <class TObject, typename ... TArgs>
 class TypeRegistryEntry: public TypeRegistryEntryBase<typename TObject::tBase>{
+	BOOST_CONCEPT_ASSERT((concepts::constructible_concept<TObject,typename TObject::tDescription, TArgs ...>));
+	BOOST_CONCEPT_ASSERT((concepts::Object_concept<TObject>));
 
 	/*
 	 * The instantiator is used to instantiate a TObject

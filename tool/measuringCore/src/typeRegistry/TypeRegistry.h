@@ -14,6 +14,8 @@
 #include <cstdio>
 #include "utils.h"
 #include "baseClasses/PolymorphicBase.h"
+#include "concepts.h"
+#include "Exception.h"
 
 template <class TObjectBase>
 class TypeRegistryEntryBase;
@@ -25,6 +27,7 @@ class TypeRegistryEntryBase;
  */
 template <class TObjectBase>
 class TypeRegistry {
+	BOOST_CONCEPT_ASSERT((concepts::ObjectBase_concept<TObjectBase>));
 	/*
 	 * return the entry list for the TObjectBase
 	 */
@@ -56,20 +59,32 @@ public:
 
 
 
-	/* find the entry for the given description. return null if no entry was found */
+	/* find the entry for the given description and arguments. return null if no entry was found. throw exception if multiple entries are found */
 	template<typename ...TArgs>
 	static TypeRegistryEntryBase<TObjectBase> *find(typename TObjectBase::tDescriptionBase *desc, TArgs... args){
-		std::vector<PolymorphicBase*> argVec=utils::toCollection<std::vector<PolymorphicBase*>,TArgs...>(args ...);
+		// put all arguments in a vector
+		std::vector<PolymorphicBase*> argVec;
+		utils::push_all_back(argVec,args...);
 
-		// iterate over all entries and return the first that matches
-		typename std::vector<TypeRegistryEntryBase<TObjectBase>*>::iterator it=TypeRegistry::get_entries().begin();
+		// iterate over all entries and return the one that matches
+		TypeRegistryEntryBase<TObjectBase> *result=NULL;
+		auto it=TypeRegistry::get_entries().begin();
 		for (;it!=get_entries().end();it++){
 			if ((*it)->match(desc,argVec)){
-				return *it;
+				if (result==NULL){
+					result=*it;
+				}
+				else{
+					std::string msg="Multiple matching TypeRegistryEntries found: ";
+					msg+=result->getTypeName();
+					msg+=", ";
+					msg+=(*it)->getTypeName();
+					throw Exception(msg);
+				}
 			}
 		}
 
-		return NULL;
+		return result;
 	}
 
 	template<typename ...TArgs>
