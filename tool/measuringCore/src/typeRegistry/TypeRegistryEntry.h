@@ -22,7 +22,7 @@ class TypeRegistryEntryBase{
 public:
 	virtual ~TypeRegistryEntryBase(){}
 
-	/* create an object form the given description */
+	/* create an object form the given description and arguments*/
 	virtual TObjectBase *createObject(typename TObjectBase::tDescriptionBase *description, std::vector<PolymorphicBase*> &args)=0;
 
 	/*
@@ -45,18 +45,20 @@ class TypeRegistryEntry: public TypeRegistryEntryBase<typename TObject::tBase>{
 	BOOST_CONCEPT_ASSERT((concepts::constructible_concept<TObject,typename TObject::tDescription, TArgs ...>));
 	BOOST_CONCEPT_ASSERT((concepts::Object_concept<TObject>));
 
+	typedef typename TObject::tDescription tDescription;
+	typedef typename TObject::tBase tBase;
+	typedef typename tBase::tDescriptionBase tDescriptionBase;
+
 	/*
 	 * The instantiator is used to instantiate a TObject
 	 */
 	template<typename ... TProcessed>
 	struct instantiator{
-		typedef typename TObject::tDescription tDesc;
-
 		// if all arguments are processed, the base cased is used, which instantiates
 		// TObject
 		template<int idx, typename ... DUMMY>
 		struct inner{
-			static TObject* func(tDesc *desc, std::vector<PolymorphicBase*> &argVec,TProcessed* ... args){
+			static TObject* func(tDescription *desc, std::vector<PolymorphicBase*> &argVec,TProcessed* ... args){
 				return new TObject(desc, args...);
 			}
 		};
@@ -64,7 +66,7 @@ class TypeRegistryEntry: public TypeRegistryEntryBase<typename TObject::tBase>{
 		// this specialization is used as long as there are unprocessed arguments
 		template<int idx, typename argsHead, typename ... argsTail>
 		struct inner<idx,argsHead,argsTail...>{
-			static TObject* func(tDesc *desc,  std::vector<PolymorphicBase*> &argVec,TProcessed* ... args){
+			static TObject* func(tDescription *desc,  std::vector<PolymorphicBase*> &argVec,TProcessed* ... args){
 				return
 					// append the first unprocessed argument to the end of the processed arguments
 					instantiator<TProcessed...,argsHead>
@@ -80,13 +82,12 @@ public:
 	virtual ~TypeRegistryEntry(){
 	}
 
-	typename TObject::tBase *createObject(typename TObject::tBase::tDescriptionBase *description, std::vector<PolymorphicBase*> &args){
+	tBase *createObject(tDescriptionBase *description, std::vector<PolymorphicBase*> &args){
 		if (!match(description,args)){
 			throw Exception("arguments do not match the entry");
 		}
 
-		typename TObject::tDescription * castedDescription=
-				dynamic_cast<typename TObject::tDescription *>(description);
+		tDescription * castedDescription= dynamic_cast<tDescription *>(description);
 
 		if (castedDescription==NULL){
 			throw Exception("description could not be downcasted");
@@ -102,7 +103,7 @@ public:
 			::func(castedDescription,args);
 	}
 
-	virtual bool match(typename TObject::tBase::tDescriptionBase *description, std::vector<PolymorphicBase*> args){
+	virtual bool match(tDescriptionBase *description, std::vector<PolymorphicBase*> args){
 		if (description==NULL){
 			throw Exception("description was null");
 		}
@@ -115,10 +116,10 @@ public:
 			return false;
 		}
 
-		return typeid(*description)==typeid(typename TObject::tDescription);
+		return typeid(*description)==typeid(tDescription);
 	}
 
-	TObject *createObject(typename TObject::tDescription *description, TArgs* ... args){
+	TObject *createObject(tDescription *description, TArgs* ... args){
 		return new TObject(description,args ...);
 		//return NULL;
 	}

@@ -164,11 +164,17 @@ The class definitions and the generated code is located in the Multi Language Cl
 \umlDiagram{BuildDependencies}
 
 \subsection{Type Registry}
-The Measuring Core receives kernel, measurement scheme and measurer descriptions and needs to instantiate the corresponding kernels, measurement schemes and measurers. Conceptually, each description class is associated to exactly one object class. The description describes instances of the associated object class. In code, the realtionships are represented using typedefs.
+The Measuring Core receives kernel, measurement scheme and measurer descriptions and needs to instantiate the corresponding kernels, measurement schemes and measurers. Conceptually, each description class is associated to exactly one object class. The description describes instances of the associated object class. In code, the realtionships are represented using typedefs and they are checked using concept checking (\cite{siek01_concept_check}).
 
 The object classes are grouped by base classes. The TypeRegistry templated class is instantiated for each base class. For each object class a TypeRegisterer is instantiated as static global variable (static means only visible in the file that defines the variable). The constructor of the TypeRegisterer creates a TypeRegistryEntry for the object class and adds it to the corresponding TypeRegistry instantiation.
 
 \umlDiagram{TypeRegistry}
+
+The MeasurerScheme has template type parameters for the measurer and the kernel it operates on. This allows the compiler to do optimizations, which is important for small kernels. The type registry supports this by accepting a number of arguments along with the description. The arguments sent to the TypeRegistryEntries for matching. The matching is based on the dynamic type of the provided arguments and the TArgs type arguments of the TypeRegistryEntry. When creating an object, the arguments are passed to the object constructor.
+
+The methods on the TypeRegistry have type arguments. These will be set to the base classes of the arguments. But the important information is the actual type of the arguments. Therefore the arguments are packed into a vector and sent to the TypeRegistryEntries which use dynamic\_cast to determine if the arguments match the type arguments. Dynamic cast needs pointers to a polymorphic class. Since void pointers are not polymorphic, pointers to PolymorphicBase are used.
+
+The code makes use of variadic templates (\cite{Gregor06:variadics_rev_3}).
 
 \section{Measuring Execution Time}
 \begin{itemize}

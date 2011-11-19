@@ -74,6 +74,10 @@
               name="masterthesis_KernelMeasurerMeasurementScheme.pgml"
               diagramclass="org.argouml.uml.diagram.static_structure.ui.UMLClassDiagram"
               diagramname="Kernel Measurer MeasurementScheme" />
+      <member type="pgml"
+              name="masterthesis_Toolactivity1.pgml"
+              diagramclass="org.argouml.uml.diagram.activity.ui.UMLActivityDiagram"
+              diagramname="Tool activity 1" />
       <member type="todo"
               name="masterthesis.todo" />
     </members>
@@ -90,7 +94,7 @@
 			CodeGeneration
 		</plugin>
 </profile>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Fri Nov 18 21:45:34 CET 2011'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Sat Nov 19 09:54:35 CET 2011'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.32.2(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -1038,7 +1042,7 @@
                   </UML:GeneralizableElement.generalization>
                 </UML:Class>
                 <UML:Class xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBA'
-                  name = 'TObject' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+                  name = 'Object' visibility = 'public' isSpecification = 'false' isRoot = 'false'
                   isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
                   <UML:ModelElement.stereotype>
                     <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBB'/>
@@ -1046,12 +1050,27 @@
                   <UML:GeneralizableElement.generalization>
                     <UML:Generalization xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF8'/>
                   </UML:GeneralizableElement.generalization>
+                  <UML:Classifier.feature>
+                    <UML:Operation xmi.id = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF3'
+                      name = 'Object' visibility = 'public' isSpecification = 'false' ownerScope = 'instance'
+                      isQuery = 'false' concurrency = 'sequential' isRoot = 'false' isLeaf = 'false'
+                      isAbstract = 'false'>
+                      <UML:BehavioralFeature.parameter>
+                        <UML:Parameter xmi.id = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF4'
+                          name = 'return' isSpecification = 'false' kind = 'return'/>
+                        <UML:Parameter xmi.id = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF5'
+                          name = 'description' isSpecification = 'false' kind = 'in'>
+                          <UML:Parameter.type>
+                            <UML:Class xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC0'/>
+                          </UML:Parameter.type>
+                        </UML:Parameter>
+                      </UML:BehavioralFeature.parameter>
+                    </UML:Operation>
+                  </UML:Classifier.feature>
                 </UML:Class>
                 <UML:Association xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBC'
-                  name = '' isSpecification = 'false' isRoot = 'false' isLeaf = 'false' isAbstract = 'false'>
-                  <UML:ModelElement.stereotype>
-                    <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE8'/>
-                  </UML:ModelElement.stereotype>
+                  name = 'TObject' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+                  isAbstract = 'false'>
                   <UML:Association.connection>
                     <UML:AssociationEnd xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBD'
                       visibility = 'public' isSpecification = 'false' isNavigable = 'false' ordering = 'unordered'
@@ -1070,14 +1089,14 @@
                   </UML:Association.connection>
                 </UML:Association>
                 <UML:Class xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBF'
-                  name = 'TObjectBase' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+                  name = 'ObjectBase' visibility = 'public' isSpecification = 'false' isRoot = 'false'
                   isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
                   <UML:ModelElement.stereotype>
                     <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBB'/>
                   </UML:ModelElement.stereotype>
                 </UML:Class>
                 <UML:Class xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC0'
-                  name = 'TDescription' visibility = 'public' isSpecification = 'false' isRoot = 'false'
+                  name = 'Description' visibility = 'public' isSpecification = 'false' isRoot = 'false'
                   isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
                   <UML:ModelElement.stereotype>
                     <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBB'/>
@@ -1087,7 +1106,7 @@
                   </UML:GeneralizableElement.generalization>
                 </UML:Class>
                 <UML:Class xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC1'
-                  name = 'TDescriptionBase' visibility = 'public' isSpecification = 'false'
+                  name = 'DescriptionBase' visibility = 'public' isSpecification = 'false'
                   isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
                   <UML:ModelElement.stereotype>
                     <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBB'/>
@@ -1096,9 +1115,6 @@
                 <UML:Association xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC2'
                   name = 'tBase' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
                   isAbstract = 'false'>
-                  <UML:ModelElement.stereotype>
-                    <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE9'/>
-                  </UML:ModelElement.stereotype>
                   <UML:Association.connection>
                     <UML:AssociationEnd xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC3'
                       visibility = 'public' isSpecification = 'false' isNavigable = 'false' ordering = 'unordered'
@@ -1119,9 +1135,6 @@
                 <UML:Association xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC5'
                   name = 'tDescription' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
                   isAbstract = 'false'>
-                  <UML:ModelElement.stereotype>
-                    <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE9'/>
-                  </UML:ModelElement.stereotype>
                   <UML:Association.connection>
                     <UML:AssociationEnd xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC6'
                       visibility = 'public' isSpecification = 'false' isNavigable = 'false' ordering = 'unordered'
@@ -1142,9 +1155,6 @@
                 <UML:Association xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC8'
                   name = 'tDescriptionBase' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
                   isAbstract = 'false'>
-                  <UML:ModelElement.stereotype>
-                    <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE9'/>
-                  </UML:ModelElement.stereotype>
                   <UML:Association.connection>
                     <UML:AssociationEnd xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC9'
                       visibility = 'public' isSpecification = 'false' isNavigable = 'false' ordering = 'unordered'
@@ -1163,10 +1173,8 @@
                   </UML:Association.connection>
                 </UML:Association>
                 <UML:Association xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BCB'
-                  name = '' isSpecification = 'false' isRoot = 'false' isLeaf = 'false' isAbstract = 'false'>
-                  <UML:ModelElement.stereotype>
-                    <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE8'/>
-                  </UML:ModelElement.stereotype>
+                  name = 'TObjectBase' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+                  isAbstract = 'false'>
                   <UML:Association.connection>
                     <UML:AssociationEnd xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BCC'
                       visibility = 'public' isSpecification = 'false' isNavigable = 'false' ordering = 'unordered'
@@ -1229,10 +1237,11 @@
                   </UML:Association.connection>
                 </UML:Association>
                 <UML:Association xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE2'
-                  name = '' isSpecification = 'false' isRoot = 'false' isLeaf = 'false' isAbstract = 'false'>
-                  <UML:ModelElement.stereotype>
-                    <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE8'/>
-                  </UML:ModelElement.stereotype>
+                  name = 'TObjectBase' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+                  isAbstract = 'false'>
+                  <UML:ModelElement.clientDependency>
+                    <UML:Dependency xmi.idref = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF7'/>
+                  </UML:ModelElement.clientDependency>
                   <UML:Association.connection>
                     <UML:AssociationEnd xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE3'
                       visibility = 'public' isSpecification = 'false' isNavigable = 'false' ordering = 'unordered'
@@ -1252,12 +1261,25 @@
                 </UML:Association>
                 <UML:Class xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF0'
                   name = 'TypeRegisterer&lt;TObject,...TArgs&gt;' visibility = 'public' isSpecification = 'false'
-                  isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'/>
+                  isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
+                  <UML:ModelElement.clientDependency>
+                    <UML:Dependency xmi.idref = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF6'/>
+                  </UML:ModelElement.clientDependency>
+                  <UML:Namespace.ownedElement>
+                    <UML:Dependency xmi.id = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF6'
+                      name = 'instantiates' isSpecification = 'false'>
+                      <UML:Dependency.client>
+                        <UML:Class xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF0'/>
+                      </UML:Dependency.client>
+                      <UML:Dependency.supplier>
+                        <UML:Class xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BB8'/>
+                      </UML:Dependency.supplier>
+                    </UML:Dependency>
+                  </UML:Namespace.ownedElement>
+                </UML:Class>
                 <UML:Association xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF4'
-                  name = '' isSpecification = 'false' isRoot = 'false' isLeaf = 'false' isAbstract = 'false'>
-                  <UML:ModelElement.stereotype>
-                    <UML:Stereotype xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE8'/>
-                  </UML:ModelElement.stereotype>
+                  name = 'TObject' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
+                  isAbstract = 'false'>
                   <UML:Association.connection>
                     <UML:AssociationEnd xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF5'
                       visibility = 'public' isSpecification = 'false' isNavigable = 'false' ordering = 'unordered'
@@ -1296,6 +1318,15 @@
                 <UML:Class xmi.id = '127-0-1-1--3d5e8fd:133b5e744a6:-8000:0000000000000F79'
                   name = 'vector&lt;PolymorphicBase*&gt;' visibility = 'public' isSpecification = 'false'
                   isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'/>
+                <UML:Dependency xmi.id = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF7'
+                  isSpecification = 'false'>
+                  <UML:Dependency.client>
+                    <UML:Association xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE2'/>
+                  </UML:Dependency.client>
+                  <UML:Dependency.supplier>
+                    <UML:Association xmi.idref = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BCB'/>
+                  </UML:Dependency.supplier>
+                </UML:Dependency>
               </UML:Namespace.ownedElement>
             </UML:Package>
             <UML:Association xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF9'
@@ -2375,16 +2406,16 @@
           isAbstract = 'false'>
           <UML:Stereotype.baseClass>Class</UML:Stereotype.baseClass>
         </UML:Stereotype>
-        <UML:Stereotype xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE8'
-          name = 'TemplateParameter' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
-          isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Association</UML:Stereotype.baseClass>
-        </UML:Stereotype>
-        <UML:Stereotype xmi.id = '127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE9'
-          name = 'typedef' isSpecification = 'false' isRoot = 'false' isLeaf = 'false'
-          isAbstract = 'false'>
-          <UML:Stereotype.baseClass>Association</UML:Stereotype.baseClass>
-        </UML:Stereotype>
+        <UML:ActivityGraph xmi.id = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000C25'
+          isSpecification = 'false'>
+          <UML:StateMachine.context>
+            <UML:Model xmi.idref = '127-0-1-1-49ca558d:13373589d00:-8000:0000000000000961'/>
+          </UML:StateMachine.context>
+          <UML:StateMachine.top>
+            <UML:CompositeState xmi.id = '127-0-1-1-57824a59:133ba97f334:-8000:0000000000000C26'
+              name = 'top' isSpecification = 'false' isConcurrent = 'false'/>
+          </UML:StateMachine.top>
+        </UML:ActivityGraph>
       </UML:Namespace.ownedElement>
     </UML:Model>
     <UML:Parameter xmi.id = '127-0-1-1--29c8e70:133a0d77444:-8000:00000000000010CB'
@@ -14493,7 +14524,7 @@ is archieved using files with serialized objects.</text>
         bold="false"
         textsize="12"
         justification="Left"
-      >&lt;&lt;static&gt;&gt; find&lt;...TArgs&gt;(description : TDescriptionBase,args...) : TypeRegistryEntryBase&lt;TObjectBase&gt;</text>
+      >&lt;&lt;static&gt;&gt; find&lt;...TArgs&gt;(description : DescriptionBase,args...) : TypeRegistryEntryBase&lt;TObjectBase&gt;</text>
       <text name="Fig0.6.3"
         x="17"
         y="85"
@@ -14509,7 +14540,7 @@ is archieved using files with serialized objects.</text>
         bold="false"
         textsize="12"
         justification="Left"
-      >&lt;&lt;static&gt;&gt; createObject&lt;...TArgs&gt;(description : TDescriptionBase,args...) : TObjectBase</text>
+      >&lt;&lt;static&gt;&gt; createObject&lt;...TArgs&gt;(description : DescriptionBase,args...) : ObjectBase</text>
     </group>
   </group>
   <group name="Fig1"
@@ -14650,7 +14681,7 @@ is archieved using files with serialized objects.</text>
         bold="false"
         textsize="12"
         justification="Left"
-      >match(description : TDescriptionBase,args : vector&lt;PolymorphicBase*&gt;) : Boolean</text>
+      >match(description : DescriptionBase,args : vector&lt;PolymorphicBase*&gt;) : Boolean</text>
       <text name="Fig1.6.2"
         x="9"
         y="217"
@@ -14666,7 +14697,7 @@ is archieved using files with serialized objects.</text>
         bold="false"
         textsize="12"
         justification="Left"
-      >createObject(description : TDescriptionBase,args : vector&lt;PolymorphicBase*&gt;) : TObjectBase</text>
+      >createObject(description : DescriptionBase,args : vector&lt;PolymorphicBase*&gt;) : ObjectBase</text>
     </group>
   </group>
   <group name="Fig2"
@@ -14795,7 +14826,7 @@ is archieved using files with serialized objects.</text>
     </group>
   </group>
   <group name="Fig3"
-       description="org.argouml.uml.diagram.static_structure.ui.FigClass[352, 408, 112, 43]pathVisible=false;stereotypeView=0;operationsVisible=false;attributesVisible=false;"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[320, 392, 203, 67]pathVisible=false;stereotypeView=0;operationsVisible=true;attributesVisible=false;"
        href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBA"
        fill="1"
        fillcolor="white"
@@ -14806,19 +14837,19 @@ is archieved using files with serialized objects.</text>
     </private>
     
     <rectangle name="Fig3.0"
-      x="352"
-      y="408"
-      width="112"
-      height="43"
+      x="320"
+      y="392"
+      width="203"
+      height="67"
       fill="1"
       fillcolor="white"
       stroke="1"
       strokecolor="black"
     />
     <text name="Fig3.1"
-      x="353"
-      y="409"
-      width="110"
+      x="321"
+      y="393"
+      width="201"
       height="41"
       fill="0"
       fillcolor="white"
@@ -14830,9 +14861,9 @@ is archieved using files with serialized objects.</text>
       bold="false"
       textsize="12"
       justification="Center"
-    >TObject</text>
+    >Object</text>
     <group name="Fig3.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[353, 409, 110, 19]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[321, 393, 201, 19]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBA"
          fill="0"
          fillcolor="white"
@@ -14843,9 +14874,9 @@ is archieved using files with serialized objects.</text>
       </private>
       
       <rectangle name="Fig3.2.0"
-        x="353"
-        y="409"
-        width="110"
+        x="321"
+        y="393"
+        width="201"
         height="19"
         fill="0"
         fillcolor="white"
@@ -14853,9 +14884,9 @@ is archieved using files with serialized objects.</text>
         strokecolor="black"
       />
       <text name="Fig3.2.1"
-        x="353"
-        y="409"
-        width="110"
+        x="321"
+        y="393"
+        width="201"
         height="17"
         fill="0"
         fillcolor="white"
@@ -14870,9 +14901,9 @@ is archieved using files with serialized objects.</text>
       >&lt;&lt;concept&gt;&gt;</text>
     </group>
     <rectangle name="Fig3.3"
-      x="352"
-      y="450"
-      width="112"
+      x="320"
+      y="434"
+      width="99"
       height="1"
       fill="1"
       fillcolor="black"
@@ -14881,7 +14912,7 @@ is archieved using files with serialized objects.</text>
       visibility="0"
     />
     <group name="Fig3.4"
-         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[353, 451, 110, 21]"
+         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[321, 435, 97, 21]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBA"
          fill="0"
          fillcolor="white"
@@ -14893,9 +14924,9 @@ is archieved using files with serialized objects.</text>
       </private>
       
       <rectangle name="Fig3.4.0"
-        x="353"
-        y="451"
-        width="110"
+        x="321"
+        y="435"
+        width="97"
         height="21"
         fill="0"
         fillcolor="white"
@@ -14905,39 +14936,52 @@ is archieved using files with serialized objects.</text>
       />
     </group>
     <rectangle name="Fig3.5"
-      x="352"
-      y="471"
-      width="112"
+      x="320"
+      y="434"
+      width="203"
       height="1"
       fill="1"
       fillcolor="black"
       stroke="1"
       strokecolor="black"
-      visibility="0"
     />
     <group name="Fig3.6"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[353, 472, 110, 21]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[321, 435, 201, 24]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBA"
          fill="0"
          fillcolor="white"
          stroke="0"
          strokecolor="black"
-         visibility="0"
     >
       <private>
       </private>
       
       <rectangle name="Fig3.6.0"
-        x="353"
-        y="472"
-        width="110"
-        height="21"
+        x="321"
+        y="435"
+        width="201"
+        height="24"
         fill="0"
         fillcolor="white"
         stroke="0"
         strokecolor="black"
-        visibility="0"
       />
+      <text name="Fig3.6.1"
+        x="321"
+        y="435"
+        width="201"
+        height="22"
+        fill="0"
+        fillcolor="white"
+        stroke="0"
+        strokecolor="black"
+        textcolor="black"
+        font="Dialog"
+        italic="false"
+        bold="false"
+        textsize="12"
+        justification="Left"
+      >Object(description : Description)</text>
     </group>
   </group>
   <group name="Fig4"
@@ -14957,8 +15001,8 @@ is archieved using files with serialized objects.</text>
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigTextGroup"
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBC"
-                        angle="328.0"
-                        offset="56" />
+                        angle="348.0"
+                        offset="28" />
       <argouml:pathitem figname="Fig4.2"
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigMultiplicity"
@@ -14993,8 +15037,8 @@ is archieved using files with serialized objects.</text>
     >
       <moveto x="255"
               y="387" />
-      <lineto x="352"
-              y="408" />
+      <lineto x="320"
+              y="392" />
     </path>
   </group>
   <group name="Fig5"
@@ -15033,7 +15077,7 @@ is archieved using files with serialized objects.</text>
       bold="false"
       textsize="12"
       justification="Center"
-    >TObjectBase</text>
+    >ObjectBase</text>
     <group name="Fig5.2"
          description="org.argouml.uml.diagram.ui.FigStereotypesGroup[561, 313, 110, 19]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBF"
@@ -15075,7 +15119,7 @@ is archieved using files with serialized objects.</text>
     <rectangle name="Fig5.3"
       x="560"
       y="354"
-      width="112"
+      width="99"
       height="1"
       fill="1"
       fillcolor="black"
@@ -15084,7 +15128,7 @@ is archieved using files with serialized objects.</text>
       visibility="0"
     />
     <group name="Fig5.4"
-         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[561, 355, 110, 21]"
+         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[561, 355, 97, 21]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBF"
          fill="0"
          fillcolor="white"
@@ -15098,7 +15142,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig5.4.0"
         x="561"
         y="355"
-        width="110"
+        width="97"
         height="21"
         fill="0"
         fillcolor="white"
@@ -15110,7 +15154,7 @@ is archieved using files with serialized objects.</text>
     <rectangle name="Fig5.5"
       x="560"
       y="375"
-      width="112"
+      width="99"
       height="1"
       fill="1"
       fillcolor="black"
@@ -15119,7 +15163,7 @@ is archieved using files with serialized objects.</text>
       visibility="0"
     />
     <group name="Fig5.6"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[561, 376, 110, 21]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[561, 376, 97, 21]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BBF"
          fill="0"
          fillcolor="white"
@@ -15133,7 +15177,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig5.6.0"
         x="561"
         y="376"
-        width="110"
+        width="97"
         height="21"
         fill="0"
         fillcolor="white"
@@ -15179,7 +15223,7 @@ is archieved using files with serialized objects.</text>
       bold="false"
       textsize="12"
       justification="Center"
-    >TDescription</text>
+    >Description</text>
     <group name="Fig6.2"
          description="org.argouml.uml.diagram.ui.FigStereotypesGroup[537, 497, 110, 19]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC0"
@@ -15221,7 +15265,7 @@ is archieved using files with serialized objects.</text>
     <rectangle name="Fig6.3"
       x="536"
       y="538"
-      width="112"
+      width="99"
       height="1"
       fill="1"
       fillcolor="black"
@@ -15230,7 +15274,7 @@ is archieved using files with serialized objects.</text>
       visibility="0"
     />
     <group name="Fig6.4"
-         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[537, 539, 110, 21]"
+         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[537, 539, 97, 21]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC0"
          fill="0"
          fillcolor="white"
@@ -15244,7 +15288,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig6.4.0"
         x="537"
         y="539"
-        width="110"
+        width="97"
         height="21"
         fill="0"
         fillcolor="white"
@@ -15256,7 +15300,7 @@ is archieved using files with serialized objects.</text>
     <rectangle name="Fig6.5"
       x="536"
       y="559"
-      width="112"
+      width="99"
       height="1"
       fill="1"
       fillcolor="black"
@@ -15265,7 +15309,7 @@ is archieved using files with serialized objects.</text>
       visibility="0"
     />
     <group name="Fig6.6"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[537, 560, 110, 21]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[537, 560, 97, 21]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC0"
          fill="0"
          fillcolor="white"
@@ -15279,7 +15323,7 @@ is archieved using files with serialized objects.</text>
       <rectangle name="Fig6.6.0"
         x="537"
         y="560"
-        width="110"
+        width="97"
         height="21"
         fill="0"
         fillcolor="white"
@@ -15325,7 +15369,7 @@ is archieved using files with serialized objects.</text>
       bold="false"
       textsize="12"
       justification="Center"
-    >TDescriptionBase</text>
+    >DescriptionBase</text>
     <group name="Fig7.2"
          description="org.argouml.uml.diagram.ui.FigStereotypesGroup[577, 409, 117, 19]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC1"
@@ -15487,7 +15531,7 @@ is archieved using files with serialized objects.</text>
       strokecolor="black"
     >
       <moveto x="456"
-              y="408" />
+              y="392" />
       <lineto x="456"
               y="320" />
       <lineto x="560"
@@ -15511,8 +15555,8 @@ is archieved using files with serialized objects.</text>
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigTextGroup"
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC5"
-                        angle="110.0"
-                        offset="15" />
+                        angle="63.0"
+                        offset="22" />
       <argouml:pathitem figname="Fig9.2"
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigMultiplicity"
@@ -15545,8 +15589,8 @@ is archieved using files with serialized objects.</text>
       stroke="1"
       strokecolor="black"
     >
-      <moveto x="464"
-              y="451" />
+      <moveto x="523"
+              y="459" />
       <lineto x="536"
               y="496" />
     </path>
@@ -15568,8 +15612,8 @@ is archieved using files with serialized objects.</text>
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigTextGroup"
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BC8"
-                        angle="84.0"
-                        offset="48" />
+                        angle="68.0"
+                        offset="62" />
       <argouml:pathitem figname="Fig10.2"
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigMultiplicity"
@@ -15625,8 +15669,8 @@ is archieved using files with serialized objects.</text>
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigTextGroup"
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BCB"
-                        angle="92.99999999999999"
-                        offset="80" />
+                        angle="266.0"
+                        offset="50" />
       <argouml:pathitem figname="Fig11.2"
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigMultiplicity"
@@ -15651,6 +15695,12 @@ is archieved using files with serialized objects.</text>
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BCD"
                         angle="135.0"
                         offset="5" />
+      <argouml:pathitem figname="Fig11.6"
+                        classname="org.argouml.uml.diagram.ui.PathItemPlacement"
+                        figclassname="org.argouml.uml.diagram.ui.FigEdgePort"
+                        ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BCB"
+                        angle="270.0"
+                        offset="0" />
     </private>
     <path name="Fig11.0"
       description="org.argouml.gefext.ArgoFigPoly"
@@ -15770,14 +15820,14 @@ is archieved using files with serialized objects.</text>
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigTextGroup"
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE2"
-                        angle="136.0"
-                        offset="79" />
+                        angle="180.0"
+                        offset="33" />
       <argouml:pathitem figname="Fig14.2"
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigMultiplicity"
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE3"
-                        angle="315.0"
-                        offset="5" />
+                        angle="-64.0"
+                        offset="21" />
       <argouml:pathitem figname="Fig14.3"
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigAssociationEndAnnotation"
@@ -15794,8 +15844,14 @@ is archieved using files with serialized objects.</text>
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigAssociationEndAnnotation"
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE4"
-                        angle="135.0"
-                        offset="5" />
+                        angle="162.0"
+                        offset="19" />
+      <argouml:pathitem figname="Fig14.6"
+                        classname="org.argouml.uml.diagram.ui.PathItemPlacement"
+                        figclassname="org.argouml.uml.diagram.ui.FigEdgePort"
+                        ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BE2"
+                        angle="270.0"
+                        offset="0" />
     </private>
     <path name="Fig14.0"
       description="org.argouml.gefext.ArgoFigPoly"
@@ -15811,7 +15867,7 @@ is archieved using files with serialized objects.</text>
     </path>
   </group>
   <group name="Fig15"
-       description="org.argouml.uml.diagram.static_structure.ui.FigClass[32, 472, 222, 67]pathVisible=false;stereotypeView=0;operationsVisible=true;attributesVisible=true;"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[32, 488, 222, 67]pathVisible=false;stereotypeView=0;operationsVisible=true;attributesVisible=true;"
        href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF0"
        fill="1"
        fillcolor="white"
@@ -15823,7 +15879,7 @@ is archieved using files with serialized objects.</text>
     
     <rectangle name="Fig15.0"
       x="32"
-      y="472"
+      y="488"
       width="222"
       height="67"
       fill="1"
@@ -15833,7 +15889,7 @@ is archieved using files with serialized objects.</text>
     />
     <text name="Fig15.1"
       x="33"
-      y="473"
+      y="489"
       width="220"
       height="22"
       fill="0"
@@ -15848,7 +15904,7 @@ is archieved using files with serialized objects.</text>
       justification="Center"
     >TypeRegisterer&lt;TObject,...TArgs&gt;</text>
     <group name="Fig15.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[33, 473, 220, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[33, 489, 220, 0]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF0"
          fill="0"
          fillcolor="white"
@@ -15861,7 +15917,7 @@ is archieved using files with serialized objects.</text>
       
       <rectangle name="Fig15.2.0"
         x="33"
-        y="473"
+        y="489"
         width="220"
         height="0"
         fill="0"
@@ -15872,7 +15928,7 @@ is archieved using files with serialized objects.</text>
     </group>
     <rectangle name="Fig15.3"
       x="32"
-      y="495"
+      y="511"
       width="222"
       height="1"
       fill="1"
@@ -15881,7 +15937,7 @@ is archieved using files with serialized objects.</text>
       strokecolor="black"
     />
     <group name="Fig15.4"
-         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[33, 496, 220, 21]"
+         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[33, 512, 220, 21]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF0"
          fill="0"
          fillcolor="white"
@@ -15893,7 +15949,7 @@ is archieved using files with serialized objects.</text>
       
       <rectangle name="Fig15.4.0"
         x="33"
-        y="496"
+        y="512"
         width="220"
         height="21"
         fill="0"
@@ -15904,7 +15960,7 @@ is archieved using files with serialized objects.</text>
     </group>
     <rectangle name="Fig15.5"
       x="32"
-      y="516"
+      y="532"
       width="222"
       height="1"
       fill="1"
@@ -15913,7 +15969,7 @@ is archieved using files with serialized objects.</text>
       strokecolor="black"
     />
     <group name="Fig15.6"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[33, 517, 220, 21]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[33, 533, 220, 21]"
          href="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF0"
          fill="0"
          fillcolor="white"
@@ -15925,7 +15981,7 @@ is archieved using files with serialized objects.</text>
       
       <rectangle name="Fig15.6.0"
         x="33"
-        y="517"
+        y="533"
         width="220"
         height="21"
         fill="0"
@@ -15952,8 +16008,8 @@ is archieved using files with serialized objects.</text>
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigTextGroup"
                         ownerhref="127-0-1-1--63aa05eb:133ab5bf2c3:-8000:0000000000000BF4"
-                        angle="204.0"
-                        offset="84" />
+                        angle="-313.0"
+                        offset="70" />
       <argouml:pathitem figname="Fig16.2"
                         classname="org.argouml.uml.diagram.ui.PathItemPlacement"
                         figclassname="org.argouml.uml.diagram.ui.FigMultiplicity"
@@ -15987,9 +16043,9 @@ is archieved using files with serialized objects.</text>
       strokecolor="black"
     >
       <moveto x="254"
-              y="472" />
-      <lineto x="352"
-              y="451" />
+              y="488" />
+      <lineto x="320"
+              y="459" />
     </path>
   </group>
   <group name="Fig17"
@@ -16048,10 +16104,41 @@ is archieved using files with serialized objects.</text>
       stroke="1"
       strokecolor="black"
     >
-      <moveto x="464"
-              y="408" />
+      <moveto x="523"
+              y="392" />
       <lineto x="560"
               y="355" />
+    </path>
+  </group>
+  <group name="Fig19"
+       description="org.argouml.uml.diagram.ui.FigDependency"
+       href="127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF6"
+       stroke="1"
+       strokecolor="black"
+  >
+    <private>
+      sourcePortFig="Fig15.0"
+      destPortFig="Fig2"
+      sourceFigNode="Fig15"
+      destFigNode="Fig2"
+      <argouml:pathitem figname="Fig19.1"
+                        classname="org.argouml.uml.diagram.ui.PathItemPlacement"
+                        figclassname="org.argouml.uml.diagram.ui.FigTextGroup"
+                        ownerhref="127-0-1-1-57824a59:133ba97f334:-8000:0000000000000BF6"
+                        angle="83.00000000000001"
+                        offset="18" />
+    </private>
+    <path name="Fig19.0"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="white"
+      stroke="1"
+      strokecolor="black"
+    >
+      <moveto x="96"
+              y="488" />
+      <lineto x="96"
+              y="387" />
     </path>
   </group>
 </pgml>
@@ -17189,6 +17276,10 @@ is archieved using files with serialized objects.</text>
               y="136" />
     </path>
   </group>
+</pgml>
+<pgml description="org.argouml.uml.diagram.activity.ui.UMLActivityDiagram|127-0-1-1-57824a59:133ba97f334:-8000:0000000000000C25"
+      name="Tool activity 1"
+>
 </pgml>
 <todo>
 <todolist>
