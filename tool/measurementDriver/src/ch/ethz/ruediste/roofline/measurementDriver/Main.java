@@ -26,6 +26,7 @@ public class Main {
 		MultiLanguageSerializationService serializationService = new MultiLanguageSerializationService();
 
 		File measuringCoreDir = new File("../measuringCore/Debug");
+		File measurementResultsDir = new File("../outputProcessor");
 
 		// load measurement collection
 		System.out.println("Loading measurement descriptions");
@@ -100,16 +101,12 @@ public class Main {
 		System.out.println("writing results");
 		try {
 			xStream.toXML(results, new FileOutputStream(
-					"measurementResults.xml"));
+					new File(measurementResultsDir, "measurementResults.xml")));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		xStream.toXML(results, System.out);
-	}
-
-	private static void createDefFiles(MeasurementDescription measurement) {
-
 	}
 
 	private static void runCommand(File workingDirectory, String[] command) {
