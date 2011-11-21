@@ -1,0 +1,88 @@
+<ch.ethz.ruediste.roofline.sharedDOM.MeasurementResultCollection>
+  <results>
+    <ch.ethz.ruediste.roofline.sharedDOM.MeasurementResult>
+      <measurement>
+        <scheme class="ch.ethz.ruediste.roofline.sharedDOM.KBestMeasurementSchemeDescription"/>
+        <kernel class="ch.ethz.ruediste.roofline.sharedDOM.MemoryLoadKernelDescription">
+          <blockSize>33554432</blockSize>
+        </kernel>
+        <measurer class="ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerDescription"/>
+        <numberOfMeasurements>10</numberOfMeasurements>
+        <optimization>-O3</optimization>
+      </measurement>
+      <outputs>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>45725</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>37844</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>38033</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>37810</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>37735</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>37939</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>37734</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>37849</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>37721</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>37775</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+      </outputs>
+    </ch.ethz.ruediste.roofline.sharedDOM.MeasurementResult>
+    <ch.ethz.ruediste.roofline.sharedDOM.MeasurementResult>
+      <measurement>
+        <scheme class="ch.ethz.ruediste.roofline.sharedDOM.KBestMeasurementSchemeDescription"/>
+        <kernel class="ch.ethz.ruediste.roofline.sharedDOM.MemoryLoadKernelDescription" reference="../../../ch.ethz.ruediste.roofline.sharedDOM.MeasurementResult/measurement/kernel"/>
+        <measurer class="ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerDescription"/>
+        <numberOfMeasurements>10</numberOfMeasurements>
+        <optimization>-O0</optimization>
+      </measurement>
+      <outputs>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>302963</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>296192</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>294413</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>293704</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>294733</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>294303</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>293282</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>293208</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>294451</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+        <ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+          <uSecs>293704</uSecs>
+        </ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput>
+      </outputs>
+    </ch.ethz.ruediste.roofline.sharedDOM.MeasurementResult>
+  </results>
+</ch.ethz.ruediste.roofline.sharedDOM.MeasurementResultCollection>
