@@ -6,9 +6,10 @@ import java.util.Scanner;
 /** Serializes and deserializes multi language objects */
 public class MultiLanguageSerializationService{
 
-	public void Serialize(Object o, OutputStream output){
+	public void Serialize(Object o, OutputStream output, OutputStream outputDef){
 		PrintStream stream=new PrintStream(output);
-		SerializeImp(o, stream);
+		PrintStream streamDef=new PrintStream(outputDef);
+		SerializeImp(o, stream, streamDef);
 	}
 	
 	public Object DeSerialize(InputStream input){
@@ -19,7 +20,14 @@ public class MultiLanguageSerializationService{
 ## Macro serializing a field known not to be a reference	
 #macro( serializeNonList $value )
 	#if ($field.typeDescriptor.reference)
-		SerializeImp($value,output);
+		SerializeImp($value,output,outputDef);
+	#elseif ($field.class.simpleName=="MultiLanguageDefine")
+		outputDef.print("\#define MULTI_LANGUAGE_DEFINE_${class.name}_$field.name ");
+		#if ($field.type == "bool")
+			outputDef.println(($value)?1:0);
+		#else
+			outputDef.println($value);
+		#end			
 	#else
 		#if ($field.type == "bool")
 			output.println(($value)?1:0);
@@ -29,7 +37,7 @@ public class MultiLanguageSerializationService{
 	#end
 #end
  
-	private void SerializeImp(Object o, PrintStream output){
+	private void SerializeImp(Object o, PrintStream output, PrintStream outputDef){
 		if (o==null){
 			output.println("<null>");
 			return;
@@ -44,7 +52,9 @@ public class MultiLanguageSerializationService{
 				#foreach($field in $class.fields)
 				
 					## output field header
-					output.println("${field.name}");
+					#if ($field.class.simpleName != "MultiLanguageDefine")
+						output.println("${field.name}");
+					#end
 					
 					## check if the field is a list
 					#if ($field.class.simpleName=="MultiLanguageList")

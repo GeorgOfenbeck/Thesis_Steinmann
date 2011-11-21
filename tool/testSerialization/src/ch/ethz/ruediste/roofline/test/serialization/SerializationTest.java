@@ -67,9 +67,14 @@ public class SerializationTest {
 	 */
 	@Test
 	public void testJava() {
-		serializationService.Serialize(testObject, System.out);
+		ByteArrayBuffer dummyBuffer = new ByteArrayBuffer();
+		serializationService.Serialize(testObject, System.out, dummyBuffer);
 
-		serializationService.Serialize(testObject, buffer);
+		dummyBuffer.reset();
+		serializationService.Serialize(testObject, dummyBuffer, System.out);
+
+		dummyBuffer.reset();
+		serializationService.Serialize(testObject, buffer, dummyBuffer);
 
 		MultiLanguageTestClass deserializedTestObject = (MultiLanguageTestClass) serializationService
 				.DeSerialize(buffer.newInputStream());
@@ -94,7 +99,9 @@ public class SerializationTest {
 
 		// serialize test object
 		FileOutputStream inputFileStream = new FileOutputStream(inputFile);
-		serializationService.Serialize(testObject, inputFileStream);
+		ByteArrayBuffer dummyBuffer = new ByteArrayBuffer();
+		serializationService
+				.Serialize(testObject, inputFileStream, dummyBuffer);
 		inputFileStream.close();
 
 		// run c code

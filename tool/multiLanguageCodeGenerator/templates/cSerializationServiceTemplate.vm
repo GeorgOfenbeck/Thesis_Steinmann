@@ -102,31 +102,33 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 		$class.name *result=new ${class.name}();
 		
 		#foreach($field in $class.fields)
-		{
-			getline(input,line);
-			if (line.compare("${field.name}")!=0){
-				throw Exception("Parse Error. Field $field.name of class $class.name expected");
-			}
-			#if ($field.class.simpleName=="MultiLanguageList")
+			#if ($field.class.simpleName!="MultiLanguageDefine")
 			{
-				## read the line with the count
 				getline(input,line);
-				int count;
-				if (sscanf(line.c_str(),"%i",&count)!=1){
-					throw Exception("Parse Error. could not parse item count of list $field.name of $class.name. Item count string is "+line);
+				if (line.compare("${field.name}")!=0){
+					throw Exception("Parse Error. Field $field.name of class $class.name expected. got "+line);
 				}
-				
-				## parse all elements
-				for (int i=0; i<count; i++){
+				#if ($field.class.simpleName=="MultiLanguageList")
+				{
+					## read the line with the count
+					getline(input,line);
+					int count;
+					if (sscanf(line.c_str(),"%i",&count)!=1){
+						throw Exception("Parse Error. could not parse item count of list $field.name of $class.name. Item count string is "+line);
+					}
+					
+					## parse all elements
+					for (int i=0; i<count; i++){
+						#deSerializeNonList($field)
+						result->get${field.nameUpperCamel}().push_back(value);
+					}
+				}
+				#else
 					#deSerializeNonList($field)
-					result->get${field.nameUpperCamel}().push_back(value);
-				}
+					result->set${field.nameUpperCamel}(value);
+				#end
 			}
-			#else
-				#deSerializeNonList($field)
-				result->set${field.nameUpperCamel}(value);
 			#end
-		}
 		#end
 
 		return result;

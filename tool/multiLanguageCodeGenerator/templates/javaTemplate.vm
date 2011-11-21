@@ -9,7 +9,7 @@ public class $class.name #if ($class.hasJavaBaseType())	extends $class.javaBaseT
 
 ## iterate over all fields of the class
 #foreach($field in $class.fields)
-	#if ($field.class.simpleName == "MultiLangugeField" || $field.class.simpleName == "MultiLanguageDefine")
+	#if ($field.class.simpleName == "MultiLanguageField" || $field.class.simpleName == "MultiLanguageDefine")
 		private $field.typeDescriptor.javaName $field.name;
 		
 		## the setter is present only for normal fields

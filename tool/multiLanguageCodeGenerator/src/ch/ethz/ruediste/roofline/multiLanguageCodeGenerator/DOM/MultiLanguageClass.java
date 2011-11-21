@@ -14,10 +14,10 @@ import com.thoughtworks.xstream.annotations.XStreamImplicit;
  * 
  */
 @XStreamAlias("class")
-public class MultiLangugeClass {
+public class MultiLanguageClass {
 
 	@XStreamImplicit
-	private LinkedList<MultiLangugeFieldBase> fields = new LinkedList<MultiLangugeFieldBase>();
+	private LinkedList<MultiLanguageFieldBase> fields = new LinkedList<MultiLanguageFieldBase>();
 
 	@XStreamAsAttribute
 	private String name;
@@ -31,11 +31,11 @@ public class MultiLangugeClass {
 	@XStreamAsAttribute()
 	private String comment;
 
-	public LinkedList<MultiLangugeFieldBase> getFields() {
+	public LinkedList<MultiLanguageFieldBase> getFields() {
 		return fields;
 	}
 
-	public void addField(MultiLangugeFieldBase sharedField) {
+	public void addField(MultiLanguageFieldBase sharedField) {
 		fields.add(sharedField);
 	}
 
@@ -87,7 +87,7 @@ public class MultiLangugeClass {
 		}
 
 		// set the type descriptor of all fields
-		for (MultiLangugeFieldBase field : fields) {
+		for (MultiLanguageFieldBase field : fields) {
 			// check if the type of the field is known
 			if (!typeDescriptors.containsKey(field.getType())) {
 				throw new Error(String.format(

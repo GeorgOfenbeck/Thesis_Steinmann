@@ -9,6 +9,6 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  */
 @XStreamAlias("define")
-public class MultiLangugeDefine extends MultiLangugeFieldBase {
+public class MultiLanguageDefine extends MultiLanguageFieldBase {
 
 }

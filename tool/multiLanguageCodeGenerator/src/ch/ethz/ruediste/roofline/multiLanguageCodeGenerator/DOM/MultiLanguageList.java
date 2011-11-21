@@ -9,7 +9,7 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * 
  */
 @XStreamAlias("list")
-public class MultiLanguageList extends MultiLangugeFieldBase {
+public class MultiLanguageList extends MultiLanguageFieldBase {
 
 	public String getcType() {
 		return String.format("std::vector<%s>", getcItemType());

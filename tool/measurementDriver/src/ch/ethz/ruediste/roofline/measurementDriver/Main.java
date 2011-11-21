@@ -49,12 +49,15 @@ public class Main {
 			try {
 				// write configuration
 				File configFile = new File(measuringCoreDir, "config");
-				FileOutputStream conf = new FileOutputStream(configFile);
-				serializationService.Serialize(measurement, conf);
-				conf.close();
+				File configDefFile = new File(measuringCoreDir,
+						"../src/configDef.h");
+				FileOutputStream config = new FileOutputStream(configFile);
+				FileOutputStream configDef = new FileOutputStream(configDefFile);
+				serializationService.Serialize(measurement, config, configDef);
+				config.close();
 
-				// create def files
-				System.out.println("creating def files");
+				// create optimization files
+				System.out.println("creating optimization file");
 				File optimizationFile = new File(measuringCoreDir,
 						"../makefile.init");
 				PrintStream optimizationPrintStream = new PrintStream(
@@ -68,13 +71,17 @@ public class Main {
 				runCommand(measuringCoreDir, new String[] { "make", "clean" });
 				runCommand(measuringCoreDir, new String[] { "make", "all" });
 
+				// remove output file
+				System.out.println("removing output file");
+				File outputFile = new File(measuringCoreDir, "output");
+				outputFile.delete();
+
 				// run measurement
 				System.out.println("running measurement");
 				runCommand(measuringCoreDir, new String[] { "./measuringCore" });
 
 				// parse measurer output
 				System.out.println("parsing measurement output");
-				File outputFile = new File(measuringCoreDir, "output");
 				FileInputStream output = new FileInputStream(outputFile);
 				MeasurerOutputCollection outputs = (MeasurerOutputCollection) serializationService
 						.DeSerialize(output);
@@ -101,6 +108,10 @@ public class Main {
 		xStream.toXML(results, System.out);
 	}
 
+	private static void createDefFiles(MeasurementDescription measurement) {
+
+	}
+
 	private static void runCommand(File workingDirectory, String[] command) {
 		try {
 			// running make
@@ -112,7 +123,11 @@ public class Main {
 			System.out.println(">>>>");
 			byte[] buf = new byte[100];
 			InputStream input = p.getInputStream();
-			int len = 0;
+			int len;
+			while ((len = input.read(buf)) > 0) {
+				System.out.write(buf, 0, len);
+			}
+			input = p.getErrorStream();
 			while ((len = input.read(buf)) > 0) {
 				System.out.write(buf, 0, len);
 			}

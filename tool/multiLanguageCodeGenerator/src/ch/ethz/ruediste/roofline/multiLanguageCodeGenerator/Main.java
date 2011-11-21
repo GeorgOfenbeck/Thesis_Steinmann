@@ -10,11 +10,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.FieldTypeDescriptor;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageDefine;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageField;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageFieldBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageList;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeClass;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeDefine;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeField;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeFieldBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.cGenerator.CCodeGenerator;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.javaGenerator.JavaCodeGenerator;
 
@@ -34,16 +34,16 @@ public class Main {
 		HashMap<String, FieldTypeDescriptor> typeDescriptors = createTypeDescriptorsForPrimitiveTypes();
 
 		// load the class definitions
-		List<MultiLangugeClass> classes = loadClassDefinitions(inputFiles);
+		List<MultiLanguageClass> classes = loadClassDefinitions(inputFiles);
 
 		// create type descriptor for each loaded class
-		for (MultiLangugeClass multiLanguageClass : classes) {
+		for (MultiLanguageClass multiLanguageClass : classes) {
 			typeDescriptors.put(multiLanguageClass.getName(),
 					new FieldTypeDescriptor(multiLanguageClass.getName()));
 		}
 
 		// set type descriptors of all fields in all classes
-		for (MultiLangugeClass multiLanguageClass : classes) {
+		for (MultiLanguageClass multiLanguageClass : classes) {
 			multiLanguageClass.setTypeDescriptors(typeDescriptors);
 		}
 
@@ -59,16 +59,16 @@ public class Main {
 	}
 
 	/** load all class definitions defined in the given input files */
-	private static List<MultiLangugeClass> loadClassDefinitions(
+	private static List<MultiLanguageClass> loadClassDefinitions(
 			File[] inputFiles) {
 		// inistialize XStream
 		XStream xStream = createXStream();
 
 		// load all classes
-		List<MultiLangugeClass> classes = new LinkedList<MultiLangugeClass>();
+		List<MultiLanguageClass> classes = new LinkedList<MultiLanguageClass>();
 		for (File inputFile : inputFiles) {
 			// load the input
-			MultiLangugeClass multiLanguageClass = (MultiLangugeClass) xStream
+			MultiLanguageClass multiLanguageClass = (MultiLanguageClass) xStream
 					.fromXML(inputFile);
 			System.out.println(xStream.toXML(multiLanguageClass));
 
@@ -123,11 +123,11 @@ public class Main {
 	/** initialize XStream and process annotaions */
 	private static XStream createXStream() {
 		XStream xStream = new XStream(new DomDriver());
-		xStream.processAnnotations(MultiLangugeClass.class);
-		xStream.processAnnotations(MultiLangugeField.class);
-		xStream.processAnnotations(MultiLangugeDefine.class);
+		xStream.processAnnotations(MultiLanguageClass.class);
+		xStream.processAnnotations(MultiLanguageField.class);
+		xStream.processAnnotations(MultiLanguageDefine.class);
 		xStream.processAnnotations(MultiLanguageList.class);
-		xStream.processAnnotations(MultiLangugeFieldBase.class);
+		xStream.processAnnotations(MultiLanguageFieldBase.class);
 		return xStream;
 	}
 
@@ -135,16 +135,16 @@ public class Main {
 	private static HashMap<String, FieldTypeDescriptor> createTypeDescriptorsForPrimitiveTypes() {
 		HashMap<String, FieldTypeDescriptor> typeDescriptors = new HashMap<String, FieldTypeDescriptor>();
 		typeDescriptors.put("int", new FieldTypeDescriptor("int", "int", "int",
-				"%d", "nextInt", "Integer"));
+				"%d", "nextInt", "Integer", "0"));
 		typeDescriptors.put("long", new FieldTypeDescriptor("long", "long",
-				"long", "%ld", "nextLong", "Long"));
+				"long", "%ld", "nextLong", "Long", "0"));
 		typeDescriptors.put("bool", new FieldTypeDescriptor("bool", "bool",
-				"boolean", "%d", "nextInt", "Boolean"));
+				"boolean", "%d", "nextInt", "Boolean", "0"));
 		typeDescriptors.put("double", new FieldTypeDescriptor("double",
-				"double", "double", "%lf", "nextDouble", "Double"));
+				"double", "double", "%lf", "nextDouble", "Double", "0.0"));
 
 		typeDescriptors.put("string", new FieldTypeDescriptor("string",
-				"std::string", "String", "%c", "nextLine", "String"));
+				"std::string", "String", "%c", "nextLine", "String", "\"\""));
 
 		return typeDescriptors;
 	}

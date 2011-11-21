@@ -3,3 +3,4 @@
 #include "generatedC/MeasurementSchemeDescriptionBase.h"
 #include "generatedC/MeasurerDescriptionBase.h"
 #include "generatedC/MeasurerOutputBase.h"
+#include "configDef.h"

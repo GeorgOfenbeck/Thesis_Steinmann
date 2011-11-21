@@ -5,15 +5,15 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.CodeGeneratorBase;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeClass;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
 
 /** generates c code from a shared class */
 public class CCodeGenerator extends CodeGeneratorBase {
 
 	@Override
-	public void generate(List<MultiLangugeClass> multiLanguageClasses) {
+	public void generate(List<MultiLanguageClass> multiLanguageClasses) {
 		// generate java code for all classes
-		for (MultiLangugeClass multiLangugeClass : multiLanguageClasses) {
+		for (MultiLanguageClass multiLangugeClass : multiLanguageClasses) {
 			// initialize context
 			VelocityContext context = new VelocityContext();
 			context.put("class", multiLangugeClass);

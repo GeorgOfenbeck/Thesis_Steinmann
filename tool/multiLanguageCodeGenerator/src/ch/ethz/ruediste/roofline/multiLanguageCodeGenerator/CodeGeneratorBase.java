@@ -13,7 +13,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.log.LogChute;
 
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLangugeClass;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
 
 /**
  * base class for code generators. Initializes the velocity engine and provides
@@ -55,7 +55,7 @@ public abstract class CodeGeneratorBase {
 		velocityEngine.init();
 	}
 
-	public abstract void generate(List<MultiLangugeClass> classes);
+	public abstract void generate(List<MultiLanguageClass> classes);
 
 	protected FileWriter openWriter(String fileName) throws IOException {
 		File file = new File(fileName);

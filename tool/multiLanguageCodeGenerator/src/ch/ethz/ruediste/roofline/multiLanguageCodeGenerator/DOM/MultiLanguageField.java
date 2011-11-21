@@ -7,5 +7,5 @@ import com.thoughtworks.xstream.annotations.XStreamAlias;
  * primitive or reference type.
  */
 @XStreamAlias("field")
-public class MultiLangugeField extends MultiLangugeFieldBase {
+public class MultiLanguageField extends MultiLanguageFieldBase {
 }

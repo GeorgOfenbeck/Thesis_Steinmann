@@ -10,7 +10,7 @@ import com.thoughtworks.xstream.converters.extended.ToAttributedValueConverter;
  * 
  */
 @XStreamConverter(value = ToAttributedValueConverter.class, strings = { "comment" })
-public abstract class MultiLangugeFieldBase {
+public abstract class MultiLanguageFieldBase {
 	@XStreamAsAttribute
 	private String name;
 	@XStreamAsAttribute
