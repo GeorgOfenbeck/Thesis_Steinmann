@@ -27,40 +27,40 @@ template<class TDescription, class TKernel, class TMeasurer>
 class MeasurementScheme : public MeasurementSchemeBase{
 protected:
 	TDescription *description;
-	TKernel *kernel;
-	TMeasurer *measurer;
+
+	// nested class to allow for optimization
+	TKernel kernel;
+
+	// nested class to allow for optimization
+	TMeasurer measurer;
+
 public:
 	typedef TDescription tDescription;
 	typedef MeasurementSchemeBase tBase;
 
-	MeasurementScheme(TDescription *description, TKernel *kernel, TMeasurer *measurer){
+	MeasurementScheme(TDescription *description, TKernel *kernel, TMeasurer *measurer)
+	:kernel(*kernel), measurer(*measurer){
 		this->description=description;
-		this->kernel=kernel;
-		this->measurer=measurer;
+		this->kernel.initialize();
+		//this->measurer.initialize();
 	}
 
+	~MeasurementScheme(){
+		kernel.dispose();
+		//measurer.dispose();
+	}
 	MeasurementSchemeDescriptionBase *getMeasurementSchemeDescription(){
 		return description;
 	}
 
-    TKernel *getKernel() const
+    TKernel &getKernel() const
     {
         return kernel;
     }
 
-    TMeasurer *getMeasurer() const
+    TMeasurer &getMeasurer() const
     {
         return measurer;
-    }
-
-    void setKernel(TKernel *kernel)
-    {
-        this->kernel = kernel;
-    }
-
-    void setMeasurer(TMeasurer *measurer)
-    {
-        this->measurer = measurer;
     }
 
 };

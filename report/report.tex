@@ -162,8 +162,11 @@ After the definitions are loaded, Velocity templates are used to generate all so
 The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Shared DOM project. The generated C code is linked by the Measuring Core. The following Diagram shows the build dependencies:
 
 \umlDiagram{BuildDependencies}
+\subsection{Measuring Core}
+\umlFloat{CentralComponents}{Central classes of the measuring core}
+The central classes of the Measuring Core are the measurement scheme, the kernel and the measurer. (\umlRef{CentralComponents}) The MeasurementScheme has template arguments for the kernel and the measurer type. The scheme contains nested instances of the kernel and the measurer. This disables polymorphic calls and allows the compiler to fully optimize the measure function of the measurer, including inlining methods of the kernel and the measurer.
 
-\subsection{Type Registry}
+\subsubsection{Type Registry}
 The Measuring Core receives kernel, measurement scheme and measurer descriptions and needs to instantiate the corresponding kernels, measurement schemes and measurers. Conceptually, each description class is associated to exactly one object class. The description describes instances of the associated object class. In code, the realtionships are represented using typedefs and they are checked using concept checking (\cite{siek01_concept_check}).
 
 The object classes are grouped by base classes. The TypeRegistry templated class is instantiated for each base class. For each object class a TypeRegisterer is instantiated as static global variable (static means only visible in the file that defines the variable). The constructor of the TypeRegisterer creates a TypeRegistryEntry for the object class and adds it to the corresponding TypeRegistry instantiation.

@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
@@ -54,9 +55,17 @@ public class Main {
 
 				// create def files
 				System.out.println("creating def files");
+				File optimizationFile = new File(measuringCoreDir,
+						"../makefile.init");
+				PrintStream optimizationPrintStream = new PrintStream(
+						optimizationFile);
+				optimizationPrintStream.printf("OPTIMIZATION = %s\n",
+						measurement.getOptimization());
+				optimizationPrintStream.close();
 
 				// build
 				System.out.println("building measuring core");
+				runCommand(measuringCoreDir, new String[] { "make", "clean" });
 				runCommand(measuringCoreDir, new String[] { "make", "all" });
 
 				// run measurement

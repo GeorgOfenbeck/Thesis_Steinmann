@@ -10,6 +10,7 @@
   <field  name="intField" type="int" comment="test field with type 'int'"/>
   <field  name="boolField" type="bool" comment="test field with type 'bool'"/>
   <field  name="doubleField" type="double" comment="test field with type 'double'"/>
+  <field  name="stringField" type="string" comment="test field with type 'string'"/>
   
   <list  name="primitiveList" type="int" comment="list referencing ints"/>
   <list  name="referenceList" type="MultiLanguageTestClass" comment="list referencing full classes"/>

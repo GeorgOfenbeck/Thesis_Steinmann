@@ -22,10 +22,10 @@ public:
 	virtual ~KBestMeasurementScheme(){}
 
 	MeasurerOutputBase *measure(){
-		super::measurer->start();
-		super::kernel->run();
-		super::measurer->stop();
-		return super::measurer->read();
+		super::measurer.start();
+		super::kernel.run();
+		super::measurer.stop();
+		return super::measurer.read();
 	}
 
 };

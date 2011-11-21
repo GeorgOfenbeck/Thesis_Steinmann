@@ -18,7 +18,9 @@ public:
 	virtual ~KernelBase();
 
 	virtual KernelDescriptionBase *getKernelDescription()=0;
+	virtual void initialize()=0;
 	virtual void run()=0;
+	virtual void dispose()=0;
 };
 
 template<class TDescription>

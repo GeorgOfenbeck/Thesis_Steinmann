@@ -6,6 +6,7 @@ import java.io.IOException;
 import ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.KBestMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
+import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.MemoryLoadKernelDescription;
 
 import com.thoughtworks.xstream.XStream;
@@ -20,14 +21,23 @@ public class Main {
 
 		// create measurements
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
-		kernel.setBlockSize(1<<25);
+		kernel.setBlockSize(1 << 25);
 
-		coll.addDescription(
-				kernel,
-				new KBestMeasurementSchemeDescription(),
-				new ExecutionTimeMeasurerDescription(),
-				10
-				);
+		MeasurementDescription desc = new MeasurementDescription();
+		desc.setKernel(kernel);
+		desc.setScheme(new KBestMeasurementSchemeDescription());
+		desc.setMeasurer(new ExecutionTimeMeasurerDescription());
+		desc.setNumberOfMeasurements(10);
+		desc.setOptimization("-O3");
+		coll.addDescription(desc);
+
+		desc = new MeasurementDescription();
+		desc.setKernel(kernel);
+		desc.setScheme(new KBestMeasurementSchemeDescription());
+		desc.setMeasurer(new ExecutionTimeMeasurerDescription());
+		desc.setNumberOfMeasurements(10);
+		desc.setOptimization("-O0");
+		coll.addDescription(desc);
 
 		// store measurement description
 		XStream xStream = new XStream(new DomDriver());

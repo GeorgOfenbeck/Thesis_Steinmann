@@ -39,7 +39,7 @@ public:
 
 
 
-/* concrete type registry entries for objects only having a description and no other parameters*/
+/* concrete type registry entry*/
 template <class TObject, typename ... TArgs>
 class TypeRegistryEntry: public TypeRegistryEntryBase<typename TObject::tBase>{
 	BOOST_CONCEPT_ASSERT((concepts::constructible_concept<TObject,typename TObject::tDescription, TArgs ...>));
@@ -51,6 +51,10 @@ class TypeRegistryEntry: public TypeRegistryEntryBase<typename TObject::tBase>{
 
 	/*
 	 * The instantiator is used to instantiate a TObject
+	 *
+	 * Initially, idx is set to 0 and all arguments are put into argsHead and argsTail of inner.
+	 * args of func is empty. In each recursion, one argument type is taken put into TProcessed and
+	 * one argument value is put into the args parameter pack.
 	 */
 	template<typename ... TProcessed>
 	struct instantiator{

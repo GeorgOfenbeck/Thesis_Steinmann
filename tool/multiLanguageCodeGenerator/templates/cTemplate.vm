@@ -2,6 +2,7 @@
 \#define ${class.name}_H
 \#include "MultiLanguageIncludes.h"
 \#include <vector>
+\#include <string>
 
 /** $class.comment */
 class $class.name #if ($class.hascBaseType()) : public $class.cBaseType #end{

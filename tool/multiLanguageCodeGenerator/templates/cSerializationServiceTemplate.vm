@@ -69,10 +69,14 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 		value=(${field.getcItemType()}) DeSerialize(input);
 	#else
 		getline(input,line);
-		if (sscanf(line.c_str(),"${field.typeDescriptor.scanfSpecification}",&value)!=1){
-			throw Exception((std::string)"Parse Error: could not parse "+line+" as $field.type using scanf specification ${field.typeDescriptor.scanfSpecification}. "
-			+ "Was parsing $field.name of $class.name");
-		}
+		#if ($field.type == "string")
+			value=line;
+		#else
+			if (sscanf(line.c_str(),"${field.typeDescriptor.scanfSpecification}",&value)!=1){
+				throw Exception((std::string)"Parse Error: could not parse "+line+" as $field.type using scanf specification ${field.typeDescriptor.scanfSpecification}. "
+				+ "Was parsing $field.name of $class.name");
+			}
+		#end
 	#end
 #end 
 	

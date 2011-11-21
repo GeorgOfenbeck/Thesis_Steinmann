@@ -15,6 +15,9 @@
 
 namespace concepts{
 
+/*
+ * This concept checks if X is polymorphic
+ */
 template <class X>
 struct polymorphic_concept{
 	struct derived: X { };
@@ -25,6 +28,9 @@ struct polymorphic_concept{
 	}
 };
 
+/*
+ * This concept checks if X has a constructor with the given arguments
+ */
 template <typename X, typename ... TArgs>
 struct constructible_concept{
 	BOOST_CONCEPT_USAGE(constructible_concept){

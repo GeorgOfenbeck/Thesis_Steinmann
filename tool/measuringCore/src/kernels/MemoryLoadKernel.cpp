@@ -12,12 +12,11 @@
 static TypeRegisterer<MemoryLoadKernel> dummy;
 
 
-MemoryLoadKernel::MemoryLoadKernel(MemoryLoadKernelDescription *description)
-	: Kernel(description){
+void MemoryLoadKernel::initialize(){
 	buffer=(char*)malloc(description->getBlockSize());
 }
 
-MemoryLoadKernel::~MemoryLoadKernel() {
+void MemoryLoadKernel::dispose() {
 	free(buffer);
 }
 

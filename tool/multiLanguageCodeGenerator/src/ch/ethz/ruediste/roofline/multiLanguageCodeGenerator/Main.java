@@ -142,6 +142,10 @@ public class Main {
 				"boolean", "%d", "nextInt", "Boolean"));
 		typeDescriptors.put("double", new FieldTypeDescriptor("double",
 				"double", "double", "%lf", "nextDouble", "Double"));
+
+		typeDescriptors.put("string", new FieldTypeDescriptor("string",
+				"std::string", "String", "%c", "nextLine", "String"));
+
 		return typeDescriptors;
 	}
 }

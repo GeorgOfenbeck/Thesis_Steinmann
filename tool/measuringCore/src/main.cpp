@@ -27,6 +27,7 @@
 #include "baseClasses/MeasurerBase.h"
 #include "baseClasses/MeasurementSchemeBase.h"
 
+#include "kernels/MemoryLoadKernel.h"
 
 #define THREADCOUNT 200
 using namespace std;
