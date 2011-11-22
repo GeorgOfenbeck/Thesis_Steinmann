@@ -7,8 +7,5 @@
 	javaBaseType="MeasurerOutputBase"
 	comment="result of the perf event measurer">
 	
-	<field name="rawCount" type="long" comment="raw event count"/>
-	<field name="timeEnabled" type="long" comment="time the event was enabled"/>
-	<field name="timeRunning" type="long" comment="time the event was running"/>
-	
+	<list name="eventCounts" type="PerfEventCount" comment="counts of the measured events"/>
 </class>

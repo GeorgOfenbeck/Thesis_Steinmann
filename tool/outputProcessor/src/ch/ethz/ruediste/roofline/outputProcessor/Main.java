@@ -9,6 +9,8 @@ import ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerOutput;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementResult;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementResultCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurerOutputBase;
+import ch.ethz.ruediste.roofline.sharedDOM.PerfEventCount;
+import ch.ethz.ruediste.roofline.sharedDOM.PerfEventMeasurerOutput;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -28,8 +30,18 @@ public class Main {
 			DescriptiveStatistics summary = new DescriptiveStatistics();
 			Median median = new Median();
 			for (MeasurerOutputBase output : result.getOutputs()) {
-				ExecutionTimeMeasurerOutput et = (ExecutionTimeMeasurerOutput) output;
-				summary.addValue(et.getUSecs());
+				if (output instanceof ExecutionTimeMeasurerOutput) {
+					ExecutionTimeMeasurerOutput et = (ExecutionTimeMeasurerOutput) output;
+					summary.addValue(et.getUSecs());
+				}
+				if (output instanceof PerfEventMeasurerOutput) {
+					PerfEventMeasurerOutput out = (PerfEventMeasurerOutput) output;
+					PerfEventCount count = out.getEventCounts().get(0);
+					double rawCount = count.getRawCount().doubleValue();
+					double timeEnabled = count.getTimeEnabled().doubleValue();
+					double timeRunning = count.getTimeRunning().doubleValue();
+					summary.addValue(rawCount * timeEnabled / timeRunning);
+				}
 
 			}
 			System.out.println("Measurement");

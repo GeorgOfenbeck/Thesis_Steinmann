@@ -7,4 +7,5 @@
 	javaBaseType="MeasurerDescriptionBase"
 	comment="describes a measurer which measures using the perf events">
 	
+	<list name="events" type="string" comment="events to be observed"/>
 </class>

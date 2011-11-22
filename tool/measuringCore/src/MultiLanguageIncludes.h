@@ -4,3 +4,4 @@
 #include "generatedC/MeasurerDescriptionBase.h"
 #include "generatedC/MeasurerOutputBase.h"
 #include "configDef.h"
+#include "generatedC/PerfEventCount.h"

@@ -27,6 +27,7 @@ public:
 
 template<class TDescription>
 class Measurer : public MeasurerBase{
+protected:
 	TDescription *description;
 public:
 	typedef TDescription tDescription;

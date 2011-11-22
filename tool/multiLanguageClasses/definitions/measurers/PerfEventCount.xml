@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="PerfEventCount" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	comment="result of one observed event">
+	
+	<field name="rawCount" type="ulong" comment="raw event count"/>
+	<field name="timeEnabled" type="ulong" comment="time the event was enabled"/>
+	<field name="timeRunning" type="ulong" comment="time the event was running"/>
+	
+</class>

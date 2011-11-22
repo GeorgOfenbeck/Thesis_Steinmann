@@ -109,7 +109,8 @@ public class Main {
 				// build
 				System.out.println("building measuring core");
 				runCommand(measuringCoreDir, new String[] { "make", "clean" });
-				runCommand(measuringCoreDir, new String[] { "make", "all" });
+				runCommand(measuringCoreDir, new String[] { "make", "all" },
+						false);
 
 				// remove output file
 				System.out.println("removing output file");
@@ -149,6 +150,11 @@ public class Main {
 	}
 
 	private static void runCommand(File workingDirectory, String[] command) {
+		runCommand(workingDirectory, command, true);
+	}
+
+	private static void runCommand(File workingDirectory, String[] command,
+			boolean showOutput) {
 		try {
 			// running make
 			Process p = Runtime.getRuntime().exec(
@@ -158,11 +164,19 @@ public class Main {
 			// copy output of the make process to the output of this process
 			System.out.println(">>>>");
 			byte[] buf = new byte[100];
-			InputStream input = p.getInputStream();
+			InputStream input;
 			int len;
-			while ((len = input.read(buf)) > 0) {
-				System.out.write(buf, 0, len);
+
+			// print standard output
+			if (showOutput) {
+				input = p.getInputStream();
+
+				while ((len = input.read(buf)) > 0) {
+					System.out.write(buf, 0, len);
+				}
 			}
+
+			// print error stream
 			input = p.getErrorStream();
 			while ((len = input.read(buf)) > 0) {
 				System.out.write(buf, 0, len);

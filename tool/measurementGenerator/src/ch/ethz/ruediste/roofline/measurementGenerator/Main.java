@@ -3,11 +3,11 @@ package ch.ethz.ruediste.roofline.measurementGenerator;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.KBestMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.MemoryLoadKernelDescription;
+import ch.ethz.ruediste.roofline.sharedDOM.PerfEventMeasurerDescription;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -22,11 +22,13 @@ public class Main {
 		// create measurements
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
 		kernel.setBlockSize(1 << 25);
+		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+		measurer.getEvents().add("core::UNHALTED_REFERENCE_CYCLES");
 
 		MeasurementDescription desc = new MeasurementDescription();
 		desc.setKernel(kernel);
 		desc.setScheme(new KBestMeasurementSchemeDescription());
-		desc.setMeasurer(new ExecutionTimeMeasurerDescription());
+		desc.setMeasurer(measurer);
 		desc.setNumberOfMeasurements(50);
 		desc.setOptimization("-O3");
 		coll.addDescription(desc);
@@ -34,7 +36,7 @@ public class Main {
 		desc = new MeasurementDescription();
 		desc.setKernel(kernel);
 		desc.setScheme(new KBestMeasurementSchemeDescription());
-		desc.setMeasurer(new ExecutionTimeMeasurerDescription());
+		desc.setMeasurer(measurer);
 		desc.setNumberOfMeasurements(10);
 		desc.setOptimization("-O0");
 		coll.addDescription(desc);
