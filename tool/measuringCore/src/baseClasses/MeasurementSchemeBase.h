@@ -42,12 +42,12 @@ public:
 	:kernel(*kernel), measurer(*measurer){
 		this->description=description;
 		this->kernel.initialize();
-		//this->measurer.initialize();
+		this->measurer.initialize();
 	}
 
 	~MeasurementScheme(){
 		kernel.dispose();
-		//measurer.dispose();
+		measurer.dispose();
 	}
 	MeasurementSchemeDescriptionBase *getMeasurementSchemeDescription(){
 		return description;

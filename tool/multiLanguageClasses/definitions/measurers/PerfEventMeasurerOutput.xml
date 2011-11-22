@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="PerfEventMeasurerOutput" 
+	cBaseType="MeasurerOutputBase"
+	javaBaseType="MeasurerOutputBase"
+	comment="result of the perf event measurer">
+	
+	<field name="rawCount" type="long" comment="raw event count"/>
+	<field name="timeEnabled" type="long" comment="time the event was enabled"/>
+	<field name="timeRunning" type="long" comment="time the event was running"/>
+	
+</class>

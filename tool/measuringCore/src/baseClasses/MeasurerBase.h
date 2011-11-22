@@ -21,6 +21,8 @@ public:
 	virtual void start()=0;
 	virtual void stop()=0;
 	virtual MeasurerOutputBase *read()=0;
+	virtual void initialize(){};
+	virtual void dispose(){};
 };
 
 template<class TDescription>
