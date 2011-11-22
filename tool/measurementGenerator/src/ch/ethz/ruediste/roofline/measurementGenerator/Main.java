@@ -27,7 +27,7 @@ public class Main {
 		desc.setKernel(kernel);
 		desc.setScheme(new KBestMeasurementSchemeDescription());
 		desc.setMeasurer(new ExecutionTimeMeasurerDescription());
-		desc.setNumberOfMeasurements(10);
+		desc.setNumberOfMeasurements(50);
 		desc.setOptimization("-O3");
 		coll.addDescription(desc);
 

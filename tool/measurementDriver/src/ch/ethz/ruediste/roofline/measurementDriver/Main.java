@@ -57,7 +57,7 @@ public class Main {
 				serializationService.Serialize(measurement, config, configDef);
 				config.close();
 
-				// create optimization files
+				// create optimization file
 				System.out.println("creating optimization file");
 				File optimizationFile = new File(measuringCoreDir,
 						"../makefile.init");
@@ -66,6 +66,45 @@ public class Main {
 				optimizationPrintStream.printf("OPTIMIZATION = %s\n",
 						measurement.getOptimization());
 				optimizationPrintStream.close();
+
+				// create optimization file
+				System.out
+						.println("creating MeasurementScheme registration file");
+				File measurementSchemeRegistrationFile = new File(
+						measuringCoreDir,
+						"../src/MeasurementSchemeRegistration.cpp");
+				PrintStream measurementSchemeRegistrationStream = new PrintStream(
+						measurementSchemeRegistrationFile);
+
+				String schemeName = measurement.getScheme().getClass()
+						.getSimpleName();
+				schemeName = schemeName.substring(0, schemeName.length()
+						- "Description".length());
+				String kernelName = measurement.getKernel().getClass()
+						.getSimpleName();
+				kernelName = kernelName.substring(0, kernelName.length()
+						- "Description".length());
+				String measurerName = measurement.getMeasurer().getClass()
+						.getSimpleName();
+				measurerName = measurerName.substring(0, measurerName.length()
+						- "Description".length());
+
+				measurementSchemeRegistrationStream
+						.printf(
+								"#include \"measurementSchemes/%s.h\"\n"
+										+ "#include \"kernels/%s.h\"\n"
+										+ "#include \"measurers/%s.h\"\n"
+										+ "#include \"typeRegistry/TypeRegisterer.h\"\n"
+										+ "static TypeRegisterer<%s<%s,%s>,%s,%s > dummy;\n",
+								schemeName,
+								kernelName,
+								measurerName,
+								schemeName,
+								kernelName,
+								measurerName,
+								kernelName,
+								measurerName);
+				measurementSchemeRegistrationStream.close();
 
 				// build
 				System.out.println("building measuring core");
