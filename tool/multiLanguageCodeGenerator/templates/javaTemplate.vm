@@ -2,6 +2,7 @@ package ch.ethz.ruediste.roofline.sharedDOM;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.math.BigInteger;
 
 /** $class.comment */
 @SuppressWarnings("unused")
@@ -10,7 +11,11 @@ public class $class.name #if ($class.hasJavaBaseType())	extends $class.javaBaseT
 ## iterate over all fields of the class
 #foreach($field in $class.fields)
 	#if ($field.class.simpleName == "MultiLanguageField" || $field.class.simpleName == "MultiLanguageDefine")
-		private $field.typeDescriptor.javaName $field.name;
+		#if ($field.typeDescriptor.hasJavaDefault())
+			private $field.typeDescriptor.javaName $field.name=$field.typeDescriptor.javaDefault;
+		#else
+			private $field.typeDescriptor.javaName $field.name;
+		#end
 		
 		## the setter is present only for normal fields
 		## a list needs no setter

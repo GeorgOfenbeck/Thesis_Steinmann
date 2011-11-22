@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ public class SerializationTest {
 		testObject.setIntField(3);
 		testObject.setDoubleField(2.4);
 		testObject.setStringField("Hello World");
+		testObject.setUlongField(new BigInteger("1234"));
 
 		testObject.getPrimitiveList().add(2);
 		testObject.getPrimitiveList().add(3);
@@ -51,6 +53,8 @@ public class SerializationTest {
 		assertEquals(3, deserializedTestObject.getIntField());
 		assertTrue(2.4 == deserializedTestObject.getDoubleField());
 		assertEquals("Hello World", deserializedTestObject.getStringField());
+		assertTrue(new BigInteger("1234").equals(deserializedTestObject
+				.getUlongField()));
 
 		assertEquals(3, deserializedTestObject.getPrimitiveList().size());
 		assertEquals(2, (int) deserializedTestObject.getPrimitiveList().get(0));

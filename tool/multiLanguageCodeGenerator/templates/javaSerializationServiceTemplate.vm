@@ -2,6 +2,7 @@ package ch.ethz.ruediste.roofline.sharedDOM;
 
 import java.io.*;
 import java.util.Scanner;
+import java.math.BigInteger;
 
 /** Serializes and deserializes multi language objects */
 public class MultiLanguageSerializationService{
@@ -78,6 +79,7 @@ public class MultiLanguageSerializationService{
 	private Object DeSerializeImp(Scanner scanner) {
 		if (scanner.hasNext("<null>")){
 			scanner.next("<null>");
+			scanner.nextLine();
 			return null;
 		}
 		
@@ -85,13 +87,19 @@ public class MultiLanguageSerializationService{
 		if (scanner.hasNext("$class.name")){
 			$class.name result=new ${class.name}();
 			scanner.next("$class.name");
+			scanner.nextLine();
 #foreach($field in $class.fields)
+
 #macro( parseNonReference ) 
 #if ($field.type=="bool") scanner.${field.typeDescriptor.scannerMethod}()!=0 #else scanner.${field.typeDescriptor.scannerMethod}() #end 
 #end
 
+#macro( advanceAfterParseNonReference ) 
+#if ($field.type!="string") scanner.nextLine(); #end 
+#end
 			{
 				scanner.next("${field.name}");
+				scanner.nextLine();
 #if ($field.class.simpleName=="MultiLanguageList")
 				{
 					long count=scanner.nextLong();
@@ -101,6 +109,7 @@ public class MultiLanguageSerializationService{
 						result.get${field.nameUpperCamel}().add(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
 	#else
 						result.get${field.nameUpperCamel}().add(#parseNonReference());
+						#advanceAfterParseNonReference
 	#end
 				}
 			}
@@ -108,6 +117,7 @@ public class MultiLanguageSerializationService{
 			result.set${field.nameUpperCamel}(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
 #else
 			result.set${field.nameUpperCamel}(#parseNonReference());
+			#advanceAfterParseNonReference
 #end
 			}
 #end

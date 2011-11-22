@@ -14,6 +14,7 @@ public class FieldTypeDescriptor {
 	private String javaBoxedName;
 	private boolean isReference;
 	private String cDefault;
+	private String javaDefault;
 
 	/**
 	 * Initialize an instance
@@ -33,7 +34,7 @@ public class FieldTypeDescriptor {
 	 */
 	public FieldTypeDescriptor(String name, String cName, String javaName,
 			String scanfSpecification, String scannerMethod,
-			String javaBoxedName, String cDefault) {
+			String javaBoxedName, String cDefault, String javaDefault) {
 		this.name = name;
 		this.cName = cName;
 		this.javaName = javaName;
@@ -41,6 +42,7 @@ public class FieldTypeDescriptor {
 		this.scannerMethod = scannerMethod;
 		this.javaBoxedName = javaBoxedName;
 		this.cDefault = cDefault;
+		this.javaDefault = javaDefault;
 
 	}
 
@@ -119,4 +121,11 @@ public class FieldTypeDescriptor {
 		return cDefault;
 	}
 
+	public String getJavaDefault() {
+		return javaDefault;
+	}
+
+	public boolean hasJavaDefault() {
+		return javaDefault != null && !javaDefault.isEmpty();
+	}
 }

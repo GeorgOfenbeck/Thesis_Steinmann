@@ -12,12 +12,13 @@
 #include "generatedC/PerfEventMeasurerDescription.h"
 #include "generatedC/PerfEventMeasurerOutput.h"
 #include "sys/time.h"
+
 class PerfEventMeasurer: public Measurer<PerfEventMeasurerDescription> {
 	timeval startTime;
 	timeval endTime;
 public:
 	PerfEventMeasurer(PerfEventMeasurerDescription *desc): Measurer(desc){}
-	virtual ~ExecutionTimeMeasurer();
+	virtual ~PerfEventMeasurer();
 
 	void start(){
 		gettimeofday(&startTime,NULL);
@@ -27,8 +28,8 @@ public:
 	}
 	MeasurerOutputBase *read(){
 		long result=(endTime.tv_sec-startTime.tv_sec)*1e6+endTime.tv_usec-startTime.tv_usec;
-		ExecutionTimeMeasurerOutput *output=new ExecutionTimeMeasurerOutput();
-		output->setUSecs(result);
+		PerfEventMeasurerOutput *output=new PerfEventMeasurerOutput();
+		output->setRawCount(0);
 		return output;
 	}
 };

@@ -135,16 +135,23 @@ public class Main {
 	private static HashMap<String, FieldTypeDescriptor> createTypeDescriptorsForPrimitiveTypes() {
 		HashMap<String, FieldTypeDescriptor> typeDescriptors = new HashMap<String, FieldTypeDescriptor>();
 		typeDescriptors.put("int", new FieldTypeDescriptor("int", "int", "int",
-				"%d", "nextInt", "Integer", "0"));
+				"%d", "nextInt", "Integer", "0", null));
 		typeDescriptors.put("long", new FieldTypeDescriptor("long", "long",
-				"long", "%ld", "nextLong", "Long", "0"));
+				"long", "%ld", "nextLong", "Long", "0", null));
 		typeDescriptors.put("bool", new FieldTypeDescriptor("bool", "bool",
-				"boolean", "%d", "nextInt", "Boolean", "0"));
-		typeDescriptors.put("double", new FieldTypeDescriptor("double",
-				"double", "double", "%lf", "nextDouble", "Double", "0.0"));
+				"boolean", "%d", "nextInt", "Boolean", "0", null));
+		typeDescriptors
+				.put("double", new FieldTypeDescriptor("double",
+						"double", "double", "%lf", "nextDouble", "Double",
+						"0.0", null));
 
 		typeDescriptors.put("string", new FieldTypeDescriptor("string",
-				"std::string", "String", "%c", "nextLine", "String", "\"\""));
+				"std::string", "String", "%c", "nextLine", "String", "\"\"",
+				"\"\""));
+
+		typeDescriptors.put("ulong", new FieldTypeDescriptor("ulong",
+				"unsigned long", "BigInteger", "%lu", "nextBigInteger",
+				"BigInteger", "0", "BigInteger.ZERO"));
 
 		return typeDescriptors;
 	}
