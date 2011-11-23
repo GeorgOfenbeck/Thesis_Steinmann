@@ -52,11 +52,28 @@ void list_pmu_events(pfm_pmu_t pmu)
    for (i = pinfo.first_event; i != -1; i = pfm_get_event_next(i)) {
       ret = pfm_get_event_info(i, PFM_OS_PERF_EVENT_EXT, &info);
       if (ret != PFM_SUCCESS)
-        errx(1, "cannot get event info");
+        errx(1, "cannot get event info: %s",pfm_strerror(ret));
 
-        printf("%s Event: %s::%s\n",
+        printf("%s Event: %s::%s (%llX)\n",
                pinfo.is_present ? "Active" : "Supported",
-               pinfo.name, info.name);
+               pinfo.name, info.name, info.code);
+
+        printf("%s\n", info.desc);
+        if (info.equiv!=NULL){
+        	printf("--> %s\n", info.equiv);
+        }
+
+        // print attribute infos
+        for (int aidx=0; aidx<info.nattrs; aidx++){
+        	pfm_event_attr_info_t attr_info;
+        	//printf("%i %i\n",info.idx,aidx);
+        	ret=pfm_get_event_attr_info(info.idx,aidx,PFM_OS_PERF_EVENT_EXT,&attr_info);
+        	if (ret != PFM_SUCCESS)
+        	        errx(1, "cannot get event attribute info: %i %i %i %s",info.nattrs,info.idx,aidx,pfm_strerror(ret));
+        	printf(" * %s (%llX): %s\n",attr_info.name,attr_info.code,attr_info.desc);
+        }
+
+        printf("\n");
   }
 }
 
@@ -72,7 +89,7 @@ int registerEvent(int parentFd, string eventName){
 	 */
 	ret = pfm_get_perf_event_encoding("PERF_COUNT_HW_CPU_CYCLES", PFM_PLM0|PFM_PLM3, &attr, NULL, NULL);
 	if (ret != PFM_SUCCESS)
-		errx(1, "cannot find encoding: %s", pfm_strerror(ret));
+		errx(1, "cannot find encoding for %s: %s",eventName.c_str(), pfm_strerror(ret));
 
 	/*
 	 * request timing information because event may be multiplexed
@@ -94,7 +111,7 @@ int registerEvent(int parentFd, string eventName){
 	 */
 	fd = perf_event_open(&attr, getpid(), -1, parentFd, 0);
 	if (fd < 0)
-		err(1, "cannot create event");
+		err(1, "cannot create event: %s",eventName.c_str());
 	return fd;
 }
 
@@ -107,8 +124,12 @@ void PerfEventMeasurer::initialize(){
 	if (ret != PFM_SUCCESS)
 		errx(1, "cannot initialize library: %s", pfm_strerror(ret));
 
+	//list_pmu_events(PFM_PMU_PERF_EVENT);
+
 	groupFd=-1;
 	for (size_t i=0; i<description->getEvents().size(); i++){
+		printf("Measuring Event: %s\n",super::description->getEvents()[i].c_str());
+
 		int fd=registerEvent(groupFd,super::description->getEvents()[i]);
 		fds.push_back(fd);
 		if (groupFd==-1){

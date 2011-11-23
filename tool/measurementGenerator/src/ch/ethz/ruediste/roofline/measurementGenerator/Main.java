@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementGenerator;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.KBestMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
@@ -20,25 +21,23 @@ public class Main {
 		MeasurementCollection coll = new MeasurementCollection();
 
 		// create measurements
+
+		// addCycleTimer(coll);
+
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
-		kernel.setBlockSize(1 << 25);
-		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
-		measurer.getEvents().add("core::UNHALTED_REFERENCE_CYCLES");
+		kernel.setBlockSize(50);
 
-		MeasurementDescription desc = new MeasurementDescription();
-		desc.setKernel(kernel);
-		desc.setScheme(new KBestMeasurementSchemeDescription());
-		desc.setMeasurer(measurer);
-		desc.setNumberOfMeasurements(50);
-		desc.setOptimization("-O3");
-		coll.addDescription(desc);
+		PerfEventMeasurerDescription measurerPerfEvents = new PerfEventMeasurerDescription();
+		measurerPerfEvents.getEvents().add(
+				"perf::PERF_COUNT_SW_CONTEXT_SWITCHES:u");
 
+		MeasurementDescription desc;
 		desc = new MeasurementDescription();
 		desc.setKernel(kernel);
 		desc.setScheme(new KBestMeasurementSchemeDescription());
-		desc.setMeasurer(measurer);
-		desc.setNumberOfMeasurements(10);
-		desc.setOptimization("-O0");
+		desc.setMeasurer(measurerPerfEvents);
+		desc.setNumberOfMeasurements(3);
+		desc.setOptimization("-O3");
 		coll.addDescription(desc);
 
 		// store measurement description
@@ -52,5 +51,38 @@ public class Main {
 			e.printStackTrace();
 		}
 		xStream.toXML(coll, System.out);
+	}
+
+	private static void addCycleTimer(MeasurementCollection coll) {
+		PerfEventMeasurerDescription measurerPerfEvents = new PerfEventMeasurerDescription();
+		measurerPerfEvents.getEvents().add("core::UNHALTED_REFERENCE_CYCLES:u");
+
+		ExecutionTimeMeasurerDescription measurerExecutionTime = new ExecutionTimeMeasurerDescription();
+
+		KBestMeasurementSchemeDescription scheme = new KBestMeasurementSchemeDescription();
+
+		for (long blockSize = 1; blockSize < 1 << 29; blockSize = blockSize << 1) {
+			MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+			kernel.setBlockSize(blockSize);
+
+			MeasurementDescription desc;
+
+			desc = new MeasurementDescription();
+			desc.setKernel(kernel);
+			desc.setScheme(scheme);
+			desc.setMeasurer(measurerPerfEvents);
+			desc.setNumberOfMeasurements(50);
+			desc.setOptimization("-O3");
+			coll.addDescription(desc);
+
+			desc = new MeasurementDescription();
+			desc.setKernel(kernel);
+			desc.setScheme(scheme);
+			desc.setMeasurer(measurerExecutionTime);
+			desc.setNumberOfMeasurements(50);
+			desc.setOptimization("-O3");
+			coll.addDescription(desc);
+
+		}
 	}
 }

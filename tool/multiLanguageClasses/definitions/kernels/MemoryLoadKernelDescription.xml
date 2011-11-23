@@ -6,5 +6,5 @@
 	cBaseType="KernelDescriptionBase"
 	javaBaseType="KernelDescriptionBase"
 	comment="Kernel just loading a memory block into memory">
-  <define  name="blockSize" type="long" comment="The size of the block to be loaded from memory"/>
+  <field  name="blockSize" type="long" comment="The size of the block to be loaded from memory"/>
 </class>

@@ -1,0 +1,1620 @@
+Supported Event: core::UNHALTED_CORE_CYCLES (3C)
+Count core clock cycles whenever the clock signal on the specific core is running (not halted)
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::INSTRUCTION_RETIRED (C0)
+Count the number of instructions at retirement
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::INSTRUCTIONS_RETIRED (C0)
+This is an alias from INSTRUCTION_RETIRED
+--> INSTRUCTION_RETIRED
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::UNHALTED_REFERENCE_CYCLES (300)
+Unhalted reference cycles
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::LLC_REFERENCES (4F2E)
+Count each request originating equiv the core to reference a cache line in the last level cache. The count may include speculation, but excludes cache line fills due to hardware prefetch. Alias to L2_RQSTS:SELF_DEMAND_MESI
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::LAST_LEVEL_CACHE_REFERENCES (4F2E)
+This is an alias for LLC_REFERENCES
+--> LLC_REFERENCES
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::LLC_MISSES (412E)
+Count each cache miss condition for references to the last level cache. The event count may include speculation, but excludes cache line fills due to hardware prefetch. Alias to event L2_RQSTS:SELF_DEMAND_I_STATE
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::LAST_LEVEL_CACHE_MISSES (412E)
+This is an alias for LLC_MISSES
+--> LLC_MISSES
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BRANCH_INSTRUCTIONS_RETIRED (C4)
+Count branch instructions at retirement. Specifically, this event counts the retirement of the last micro-op of a branch instruction.
+--> BR_INST_RETIRED:ANY
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::MISPREDICTED_BRANCH_RETIRED (C5)
+Count mispredicted branch instructions at retirement. Specifically, this event counts at retirement of the last micro-op of a branch instruction in the architectural path of the execution and experienced misprediction in the branch prediction hardware.
+--> BR_INST_RETIRED_MISPRED
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+ * precise (5): precise ip
+
+Supported Event: core::RS_UOPS_DISPATCHED_CYCLES (A1)
+Cycles micro-ops dispatched for execution
+ * PORT_0 (1): On port 0
+ * PORT_1 (2): On port 1
+ * PORT_2 (4): On port 2
+ * PORT_3 (8): On port 3
+ * PORT_4 (10): On port 4
+ * PORT_5 (20): On port 5
+ * ANY (3F): On any port
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::RS_UOPS_DISPATCHED (A0)
+Number of micro-ops dispatched for execution
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::RS_UOPS_DISPATCHED_NONE (18000A0)
+Number of of cycles in which no micro-ops is dispatched for execution
+--> RS_UOPS_DISPATCHED:i=1:c=1
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::LOAD_BLOCK (3)
+Loads blocked
+ * STA (2): Loads blocked by a preceding store with unknown address
+ * STD (4): Loads blocked by a preceding store with unknown data
+ * OVERLAP_STORE (8): Loads that partially overlap an earlier store, or 4K equived with a previous store
+ * UNTIL_RETIRE (10): Loads blocked until retirement
+ * L1D (20): Loads blocked by the L1 data cache
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SB_DRAIN_CYCLES (104)
+Cycles while stores are blocked due to store buffer drain
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::STORE_BLOCK (4)
+Cycles while store is waiting
+ * ORDER (2): Cycles while store is waiting for a preceding store to be globally observed
+ * SNOOP (8): A store is blocked due to a conflict with an external or internal snoop
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SEGMENT_REG_LOADS (6)
+Number of segment register loads
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SSE_PRE_EXEC (7)
+Streaming SIMD Extensions (SSE) Prefetch instructions executed
+ * NTA (0): Streaming SIMD Extensions (SSE) Prefetch NTA instructions executed
+ * L1 (1): Streaming SIMD Extensions (SSE) PrefetchT0 instructions executed
+ * L2 (2): Streaming SIMD Extensions (SSE) PrefetchT1 and PrefetchT2 instructions executed
+ * STORES (3): Streaming SIMD Extensions (SSE) Weakly-ordered store instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::DTLB_MISSES (8)
+Memory accesses that missed the DTLB
+ * ANY (1): Any memory access that missed the DTLB
+ * MISS_LD (2): DTLB misses due to load operations
+ * L0_MISS_LD (4): L0 DTLB misses due to load operations
+ * MISS_ST (8): DTLB misses due to store operations
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::MEMORY_DISAMBIGUATION (9)
+Memory disambiguation
+ * RESET (1): Memory disambiguation reset cycles
+ * SUCCESS (2): Number of loads that were successfully disambiguated
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::PAGE_WALKS (C)
+Number of page-walks executed
+ * COUNT (1): Number of page-walks executed
+ * CYCLES (2): Duration of page-walks in core cycles
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::FP_COMP_OPS_EXE (10)
+Floating point computational micro-ops executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::FP_ASSIST (11)
+Floating point assists
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::MUL (12)
+Multiply operations executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::DIV (13)
+Divide operations executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::CYCLES_DIV_BUSY (14)
+Cycles the divider is busy
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::IDLE_DURING_DIV (18)
+Cycles the divider is busy and all other execution units are idle
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::DELAYED_BYPASS (19)
+Delayed bypass
+ * FP (0): Delayed bypass to FP operation
+ * SIMD (1): Delayed bypass to SIMD operation
+ * LOAD (2): Delayed bypass to load operation
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_ADS (21)
+Cycles L2 address bus is in use
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_DBUS_BUSY_RD (23)
+Cycles the L2 transfers data to the core
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_LINES_IN (24)
+L2 cache misses
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * ANY (30): All inclusive
+ * PREFETCH (10): Hardware prefetch only
+ * EXCL_PREFETCH (0): Exclude hardware prefetch
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_M_LINES_IN (25)
+L2 cache line modifications
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_LINES_OUT (26)
+L2 cache lines evicted
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * ANY (30): All inclusive
+ * PREFETCH (10): Hardware prefetch only
+ * EXCL_PREFETCH (0): Exclude hardware prefetch
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_M_LINES_OUT (27)
+Modified lines evicted from the L2 cache
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * ANY (30): All inclusive
+ * PREFETCH (10): Hardware prefetch only
+ * EXCL_PREFETCH (0): Exclude hardware prefetch
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_IFETCH (28)
+L2 cacheable instruction fetch requests
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_LD (29)
+L2 cache reads
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * ANY (30): All inclusive
+ * PREFETCH (10): Hardware prefetch only
+ * EXCL_PREFETCH (0): Exclude hardware prefetch
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_ST (2A)
+L2 store requests
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_LOCK (2B)
+L2 locked accesses
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_RQSTS (2E)
+L2 cache requests
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * ANY (30): All inclusive
+ * PREFETCH (10): Hardware prefetch only
+ * EXCL_PREFETCH (0): Exclude hardware prefetch
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_REJECT_BUSQ (30)
+Rejected L2 cache requests
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * ANY (30): All inclusive
+ * PREFETCH (10): Hardware prefetch only
+ * EXCL_PREFETCH (0): Exclude hardware prefetch
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L2_NO_REQ (32)
+Cycles no L2 cache requests are pending
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::EIST_TRANS (3A)
+Number of Enhanced Intel SpeedStep(R) Technology (EIST) transitions
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::THERMAL_TRIP (C03B)
+Number of thermal trips
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::CPU_CLK_UNHALTED (3C)
+Core cycles when core is not halted
+ * CORE_P (0): Core cycles when core is not halted
+ * BUS (1): Bus cycles when core is not halted. This event can give a measurement of the elapsed time. This events has a constant ratio with CPU_CLK_UNHALTED:REF event, which is the maximum bus to processor frequency ratio
+ * NO_OTHER (2): Bus cycles when core is active and the other is halted
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_CACHE_LD (40)
+L1 cacheable data reads
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_CACHE_ST (41)
+L1 cacheable data writes
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_CACHE_LOCK (42)
+L1 data cacheable locked reads
+ * MESI (F): Any cacheline access
+ * I_STATE (1): Invalid cacheline
+ * S_STATE (2): Shared cacheline
+ * E_STATE (4): Exclusive cacheline
+ * M_STATE (8): Modified cacheline
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_ALL_REF (143)
+All references to the L1 data cache
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_ALL_CACHE_REF (243)
+L1 Data cacheable reads and writes
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_REPL (F45)
+Cache lines allocated in the L1 data cache
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_M_REPL (46)
+Modified cache lines allocated in the L1 data cache
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_M_EVICT (47)
+Modified cache lines evicted from the L1 data cache
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_PEND_MISS (48)
+Total number of outstanding L1 data cache misses at any cycle
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_SPLIT (49)
+Cache line split from L1 data cache
+ * LOADS (1): Cache line split loads from the L1 data cache
+ * STORES (2): Cache line split stores to the L1 data cache
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SSE_PRE_MISS (4B)
+Streaming SIMD Extensions (SSE) instructions missing all cache levels
+ * NTA (0): Streaming SIMD Extensions (SSE) Prefetch NTA instructions missing all cache levels
+ * L1 (1): Streaming SIMD Extensions (SSE) PrefetchT0 instructions missing all cache levels
+ * L2 (2): Streaming SIMD Extensions (SSE) PrefetchT1 and PrefetchT2 instructions missing all cache levels
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::LOAD_HIT_PRE (4C)
+Load operations conflicting with a software prefetch to the same address
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1D_PREFETCH (4E)
+L1 data cache prefetch
+ * REQUESTS (10): L1 data cache prefetch requests
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_REQUEST_OUTSTANDING (60)
+Number of pending full cache line read transactions on the bus occurring in each cycle
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_BNR_DRV (61)
+Number of Bus Not Ready signals asserted
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_DRDY_CLOCKS (62)
+Bus cycles when data is sent on the bus
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_LOCK_CLOCKS (63)
+Bus cycles when a LOCK signal is asserted
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_DATA_RCV (64)
+Bus cycles while processor receives data
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_BRD (65)
+Burst read bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_RFO (66)
+RFO bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_WB (67)
+Explicit writeback bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_IFETCH (68)
+Instruction-fetch bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_INVAL (69)
+Invalidate bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_PWR (6A)
+Partial write bus transaction
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_P (6B)
+Partial bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_IO (6C)
+IO bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_DEF (6D)
+Deferred bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_BURST (6E)
+Burst (full cache-line) bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_MEM (6F)
+Memory bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_TRANS_ANY (70)
+All bus transactions
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::EXT_SNOOP (77)
+External snoops responses
+ * ANY (B): Any external snoop response
+ * CLEAN (1): External snoop CLEAN response
+ * HIT (2): External snoop HIT response
+ * HITM (8): External snoop HITM response
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::CMP_SNOOP (78)
+L1 data cache is snooped by other core
+ * ANY (3): L1 data cache is snooped by other core
+ * SHARE (1): L1 data cache is snooped for sharing by other core
+ * INVALIDATE (2): L1 data cache is snooped for Invalidation by other core
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_HIT_DRV (7A)
+HIT signal asserted
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_HITM_DRV (7B)
+HITM signal asserted
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUSQ_EMPTY (7D)
+Bus queue is empty
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SNOOP_STALL_DRV (7E)
+Bus stalled for snoops
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * THIS_AGENT (0): This agent
+ * ALL_AGENTS (20): Any agent on the bus
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BUS_IO_WAIT (7F)
+IO requests waiting in the bus queue
+ * SELF (40): This core
+ * BOTH_CORES (C0): Both cores
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1I_READS (80)
+Instruction fetches
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::L1I_MISSES (81)
+Instruction Fetch Unit misses
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::ITLB (82)
+ITLB small page misses
+ * SMALL_MISS (2): ITLB small page misses
+ * LARGE_MISS (10): ITLB large page misses
+ * FLUSH (40): ITLB flushes
+ * MISSES (12): ITLB misses
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::INST_QUEUE (83)
+Cycles during which the instruction queue is full
+ * FULL (2): Cycles during which the instruction queue is full
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::CYCLES_L1I_MEM_STALLED (86)
+Cycles during which instruction fetches are stalled
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::ILD_STALL (87)
+Instruction Length Decoder stall cycles due to a length changing prefix
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_INST_EXEC (88)
+Branch instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_MISSP_EXEC (89)
+Mispredicted branch instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_BAC_MISSP_EXEC (8A)
+Branch instructions mispredicted at decoding
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_CND_EXEC (8B)
+Conditional branch instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_CND_MISSP_EXEC (8C)
+Mispredicted conditional branch instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_IND_EXEC (8D)
+Indirect branch instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_IND_MISSP_EXEC (8E)
+Mispredicted indirect branch instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_RET_EXEC (8F)
+RET instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_RET_MISSP_EXEC (90)
+Mispredicted RET instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_RET_BAC_MISSP_EXEC (91)
+RET instructions executed mispredicted at decoding
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_CALL_EXEC (92)
+CALL instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_CALL_MISSP_EXEC (93)
+Mispredicted CALL instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_IND_CALL_EXEC (94)
+Indirect CALL instructions executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_TKN_BUBBLE_1 (97)
+Branch predicted taken with bubble I
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_TKN_BUBBLE_2 (98)
+Branch predicted taken with bubble II
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::MACRO_INSTS (AA)
+Instructions decoded
+ * DECODED (1): Instructions decoded
+ * CISC_DECODED (8): CISC instructions decoded
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::ESP (AB)
+ESP register content synchronization
+ * SYNCH (1): ESP register content synchronization
+ * ADDITIONS (2): ESP register automatic additions
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SIMD_UOPS_EXEC (B0)
+SIMD micro-ops executed (excluding stores)
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SIMD_SAT_UOP_EXEC (B1)
+SIMD saturated arithmetic micro-ops executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SIMD_UOP_TYPE_EXEC (B3)
+SIMD packed multiply micro-ops executed
+ * MUL (1): SIMD packed multiply micro-ops executed
+ * SHIFT (2): SIMD packed shift micro-ops executed
+ * PACK (4): SIMD pack micro-ops executed
+ * UNPACK (8): SIMD unpack micro-ops executed
+ * LOGICAL (10): SIMD packed logical micro-ops executed
+ * ARITHMETIC (20): SIMD packed arithmetic micro-ops executed
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::INST_RETIRED (C0)
+Instructions retired
+ * ANY_P (0): Instructions retired (Precise Event)
+ * LOADS (1): Instructions retired, which contain a load
+ * STORES (2): Instructions retired, which contain a store
+ * OTHER (4): Instructions retired, with no load or store operation
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+ * precise (5): precise ip
+
+Supported Event: core::X87_OPS_RETIRED (C1)
+FXCH instructions retired
+ * FXCH (1): FXCH instructions retired
+ * ANY (FE): Retired floating-point computational operations (Precise Event)
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+ * precise (5): precise ip
+
+Supported Event: core::UOPS_RETIRED (C2)
+Fused load+op or load+indirect branch retired
+ * LD_IND_BR (1): Fused load+op or load+indirect branch retired
+ * STD_STA (2): Fused store address + data retired
+ * MACRO_FUSION (4): Retired instruction pairs fused into one micro-op
+ * NON_FUSED (8): Non-fused micro-ops retired
+ * FUSED (7): Fused micro-ops retired
+ * ANY (F): Micro-ops retired
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::MACHINE_NUKES (C3)
+Self-Modifying Code detected
+ * SMC (1): Self-Modifying Code detected
+ * MEM_ORDER (4): Execution pipeline restart due to memory ordering conflict or memory disambiguation misprediction
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_INST_RETIRED (C4)
+Retired branch instructions
+ * ANY (0): Retired branch instructions
+ * PRED_NOT_TAKEN (1): Retired branch instructions that were predicted not-taken
+ * MISPRED_NOT_TAKEN (2): Retired branch instructions that were mispredicted not-taken
+ * PRED_TAKEN (4): Retired branch instructions that were predicted taken
+ * MISPRED_TAKEN (8): Retired branch instructions that were mispredicted taken
+ * TAKEN (C): Retired taken branch instructions
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_INST_RETIRED_MISPRED (C5)
+Retired mispredicted branch instructions (Precise_Event)
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+ * precise (5): precise ip
+
+Supported Event: core::CYCLES_INT_MASKED (1C6)
+Cycles during which interrupts are disabled
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::CYCLES_INT_PENDING_AND_MASKED (2C6)
+Cycles during which interrupts are pending and disabled
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SIMD_INST_RETIRED (C7)
+Retired Streaming SIMD Extensions (SSE) packed-single instructions
+ * PACKED_SINGLE (1): Retired Streaming SIMD Extensions (SSE) packed-single instructions
+ * SCALAR_SINGLE (2): Retired Streaming SIMD Extensions (SSE) scalar-single instructions
+ * PACKED_DOUBLE (4): Retired Streaming SIMD Extensions 2 (SSE2) packed-double instructions
+ * SCALAR_DOUBLE (8): Retired Streaming SIMD Extensions 2 (SSE2) scalar-double instructions
+ * VECTOR (10): Retired Streaming SIMD Extensions 2 (SSE2) vector integer instructions
+ * ANY (1F): Retired Streaming SIMD instructions (Precise Event)
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+ * precise (5): precise ip
+
+Supported Event: core::HW_INT_RCV (C8)
+Hardware interrupts received
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::ITLB_MISS_RETIRED (C9)
+Retired instructions that missed the ITLB
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SIMD_COMP_INST_RETIRED (CA)
+Retired computational Streaming SIMD Extensions (SSE) packed-single instructions
+ * PACKED_SINGLE (1): Retired computational Streaming SIMD Extensions (SSE) packed-single instructions
+ * SCALAR_SINGLE (2): Retired computational Streaming SIMD Extensions (SSE) scalar-single instructions
+ * PACKED_DOUBLE (4): Retired computational Streaming SIMD Extensions 2 (SSE2) packed-double instructions
+ * SCALAR_DOUBLE (8): Retired computational Streaming SIMD Extensions 2 (SSE2) scalar-double instructions
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::MEM_LOAD_RETIRED (CB)
+Retired loads that miss the L1 data cache
+ * L1D_MISS (1): Retired loads that miss the L1 data cache (Precise Event)
+ * L1D_LINE_MISS (2): L1 data cache line missed by retired loads (Precise Event)
+ * L2_MISS (4): Retired loads that miss the L2 cache (Precise Event)
+ * L2_LINE_MISS (8): L2 cache line missed by retired loads (Precise Event)
+ * DTLB_MISS (10): Retired loads that miss the DTLB (Precise Event)
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+ * precise (5): precise ip
+
+Supported Event: core::FP_MMX_TRANS (CC)
+Transitions from MMX (TM) Instructions to Floating Point Instructions
+ * TO_FP (2): Transitions from MMX (TM) Instructions to Floating Point Instructions
+ * TO_MMX (1): Transitions from Floating Point to MMX (TM) Instructions
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SIMD_ASSIST (CD)
+SIMD assists invoked
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SIMD_INSTR_RETIRED (CE)
+SIMD Instructions retired
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SIMD_SAT_INSTR_RETIRED (CF)
+Saturated arithmetic instructions retired
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::RAT_STALLS (D2)
+ROB read port stalls cycles
+ * ROB_READ_PORT (1): ROB read port stalls cycles
+ * PARTIAL_CYCLES (2): Partial register stall cycles
+ * FLAGS (4): Flag stall cycles
+ * FPSW (8): FPU status word stall
+ * ANY (F): All RAT stall cycles
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SEG_RENAME_STALLS (D4)
+Segment rename stalls - ES 
+ * ES (1): Segment rename stalls - ES 
+ * DS (2): Segment rename stalls - DS
+ * FS (4): Segment rename stalls - FS
+ * GS (8): Segment rename stalls - GS
+ * ANY (F): Any (ES/DS/FS/GS) segment rename stall
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::SEG_REG_RENAMES (D5)
+Segment renames - ES
+ * ES (1): Segment renames - ES
+ * DS (2): Segment renames - DS
+ * FS (4): Segment renames - FS
+ * GS (8): Segment renames - GS
+ * ANY (F): Any (ES/DS/FS/GS) segment rename
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::RESOURCE_STALLS (DC)
+Cycles during which the ROB is full
+ * ROB_FULL (1): Cycles during which the ROB is full
+ * RS_FULL (2): Cycles during which the RS is full
+ * LD_ST (4): Cycles during which the pipeline has exceeded load or store limit or waiting to commit all stores
+ * FPCW (8): Cycles stalled due to FPU control word write
+ * BR_MISS_CLEAR (10): Cycles stalled due to branch misprediction
+ * ANY (1F): Resource related stalls
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BR_INST_DECODED (E0)
+Branch instructions decoded
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BOGUS_BR (E4)
+Bogus branches
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::BACLEARS (E6)
+BACLEARS asserted
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::PREF_RQSTS_UP (F0)
+Upward prefetches issued from the DPL
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
+
+Supported Event: core::PREF_RQSTS_DN (F8)
+Downward prefetches issued from the DPL
+ * e (2): edge level (may require counter-mask >= 1)
+ * i (3): invert
+ * c (4): counter-mask in range [0-255]
+ * u (0): monitor at user level
+ * k (1): monitor at kernel level
+ * period (3): sampling period
+ * freq (4): sampling frequency (Hz)
