@@ -25,7 +25,7 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 			context.put("class", multiLangugeClass);
 
 			String templateName = "javaTemplate.vm";
-			String outputFileName = "generatedJava/ch/ethz/ruediste/roofline/sharedDOM/"
+			String outputFileName = "generatedJava/ch/ethz/ruediste/roofline/dom/"
 					+ multiLangugeClass.getName() + ".java";
 
 			applyTemplate(outputFileName, templateName, context, "javaClass");
@@ -37,7 +37,7 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 		VelocityContext context = new VelocityContext();
 		context.put("classes", multiLanguageClasses);
 
-		String outputFileName = "generatedJava/ch/ethz/ruediste/roofline/sharedDOM/MultiLanguageSerializationService.java";
+		String outputFileName = "generatedJava/ch/ethz/ruediste/roofline/dom/MultiLanguageSerializationService.java";
 		String templateName = "javaSerializationServiceTemplate.vm";
 		applyTemplate(outputFileName, templateName, context,
 				"javaSerializationService");

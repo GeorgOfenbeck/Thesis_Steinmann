@@ -96,14 +96,11 @@ We decided that the Measuring Core is implemented in the C++ language. To simpli
 To allow all possible optimizations, it must be possible to pass compile time arguments to the Measuring Core and recompile for each measuring.
 
 \subsection{Component Collaboration}
-The tool consists of the following components:
+The tool consists of two main components: The Measuring Core, which performs the actual measurements, and the Measurement Driver, which controls the core.
 
-\begin{description}
-\item[Measurement Description Generator] Generates the description of the measurements to be perfomed
-\item[Measurement Driver] Configures, compiles and starts the Measuring Core and aggregates the output of the measurer.
-\item[Measuring Core] Performs the actual measurement.
-\item[Measurement Result Processor] Processes the measurement results and produces plots, statistics etc.
-\end{description}
+A measurement is controlled by a measurement specific routine (one per measurement), which iterates through all parameter points to be examined, compiles and starts the Measuring Core and processes the results. This should result in straight forward code for controlling the measurements and, since the control code is written in Java, a minimal amount of new concepts has to be learned.
+
+During the development of measurement control routines, it is expected that many changes do not affect the parameter points. To avoid the temporal overhead of reperforming all measurements after every minor change, the measurement results are cached.
 
 \umlDiagram{ToolComponents}
 

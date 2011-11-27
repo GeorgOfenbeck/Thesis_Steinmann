@@ -20,4 +20,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>com.stateofflow.eclipse.metrics.MetricsNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>generatedJava</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/multiLanguageClasses/generatedJava</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

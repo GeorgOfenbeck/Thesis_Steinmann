@@ -10,7 +10,7 @@
 	<field name="scheme" type="MeasurementSchemeDescriptionBase" comment="describes the measurement scheme to be used"/>
 	<field name="kernel" type="KernelDescriptionBase" comment="describes the kernel to be used"/>
 	<field name="measurer" type="MeasurerDescriptionBase" comment="describes the measurer to be used"/>
-	
+
 	<field name="numberOfMeasurements" type="int" comment="the number of measurements to perform(for statistical analysis)"/>
 	<field name="optimization" type="string" comment="optimization flags to be used for the measuring core"/>
 </class>

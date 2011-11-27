@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="MeasurementCommand" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	comment="Command for a measurement">
+	
+	<field name="measurement" type="MeasurementDescription" comment="the measurement to perform"/>
+	<field name="numberOfMeasurements" type="int" comment="the number of measurements to perform(for statistical analysis)"/>
+</class>

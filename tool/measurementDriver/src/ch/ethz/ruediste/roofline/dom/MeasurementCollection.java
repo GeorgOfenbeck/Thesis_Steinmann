@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.sharedDOM;
+package ch.ethz.ruediste.roofline.dom;
 
 import java.util.LinkedList;
 import java.util.List;
