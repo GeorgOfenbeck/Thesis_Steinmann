@@ -4,11 +4,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.sharedDOM.ExecutionTimeMeasurerDescription;
-import ch.ethz.ruediste.roofline.sharedDOM.KBestMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementCollection;
 import ch.ethz.ruediste.roofline.sharedDOM.MeasurementDescription;
+import ch.ethz.ruediste.roofline.sharedDOM.MeasurementSchemeDescriptionBase;
 import ch.ethz.ruediste.roofline.sharedDOM.MemoryLoadKernelDescription;
 import ch.ethz.ruediste.roofline.sharedDOM.PerfEventMeasurerDescription;
+import ch.ethz.ruediste.roofline.sharedDOM.SimpleMeasurementSchemeDescription;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -22,23 +23,25 @@ public class Main {
 
 		// create measurements
 
-		// addCycleTimer(coll);
+		addCycleTimer(coll);
 
-		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
-		kernel.setBlockSize(50);
-
-		PerfEventMeasurerDescription measurerPerfEvents = new PerfEventMeasurerDescription();
-		measurerPerfEvents.getEvents().add(
-				"perf::PERF_COUNT_SW_CONTEXT_SWITCHES:u");
-
-		MeasurementDescription desc;
-		desc = new MeasurementDescription();
-		desc.setKernel(kernel);
-		desc.setScheme(new KBestMeasurementSchemeDescription());
-		desc.setMeasurer(measurerPerfEvents);
-		desc.setNumberOfMeasurements(3);
-		desc.setOptimization("-O3");
-		coll.addDescription(desc);
+		/*
+		 * MemoryLoadKernelDescription kernel = new
+		 * MemoryLoadKernelDescription(); kernel.setBlockSize(1 << 10);
+		 * 
+		 * PerfEventMeasurerDescription measurerPerfEvents = new
+		 * PerfEventMeasurerDescription(); measurerPerfEvents.getEvents().add(
+		 * "coreduo::UNHALTED_REFERENCE_CYCLES"); //
+		 * measurerPerfEvents.getEvents().add( //
+		 * "perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
+		 * 
+		 * MeasurementDescription desc; desc = new MeasurementDescription();
+		 * desc.setKernel(kernel); desc.setScheme(new
+		 * KBestMeasurementSchemeDescription());
+		 * desc.setMeasurer(measurerPerfEvents);
+		 * desc.setNumberOfMeasurements(3); desc.setOptimization("-O3");
+		 * coll.addDescription(desc);
+		 */
 
 		// store measurement description
 		XStream xStream = new XStream(new DomDriver());
@@ -55,11 +58,12 @@ public class Main {
 
 	private static void addCycleTimer(MeasurementCollection coll) {
 		PerfEventMeasurerDescription measurerPerfEvents = new PerfEventMeasurerDescription();
-		measurerPerfEvents.getEvents().add("core::UNHALTED_REFERENCE_CYCLES:u");
+		measurerPerfEvents.getEvents()
+				.add("coreduo::UNHALTED_REFERENCE_CYCLES");
 
 		ExecutionTimeMeasurerDescription measurerExecutionTime = new ExecutionTimeMeasurerDescription();
 
-		KBestMeasurementSchemeDescription scheme = new KBestMeasurementSchemeDescription();
+		MeasurementSchemeDescriptionBase scheme = new SimpleMeasurementSchemeDescription();
 
 		for (long blockSize = 1; blockSize < 1 << 29; blockSize = blockSize << 1) {
 			MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();

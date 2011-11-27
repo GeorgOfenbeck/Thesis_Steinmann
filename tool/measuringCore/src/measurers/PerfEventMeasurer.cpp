@@ -8,6 +8,7 @@
 #include "PerfEventMeasurer.h"
 #include "generatedC/PerfEventMeasurerOutput.h"
 #include "typeRegistry/TypeRegisterer.h"
+#include "baseClasses/SystemInitializer.h"
 
 #include <string>
 #include <sys/types.h>
@@ -79,15 +80,23 @@ void list_pmu_events(pfm_pmu_t pmu)
 
 int registerEvent(int parentFd, string eventName){
 	perf_event_attr_t attr;
+	pfm_perf_encode_arg_t arg;
+
 	int ret,fd;
+
+	// initialize arg, link it to attr
+	memset(&arg, 0, sizeof(arg));
 	memset(&attr, 0, sizeof(attr));
+	arg.size=sizeof(arg);
+	arg.attr=&attr;
 
 	/*
 	 * 1st argument: event string
 	 * 2nd argument: default privilege level (used if not specified in the event string)
-	 * 3rd argument: the perf_event_attr to initialize
+	 * 3rd argument: which struct is used
+	 * 4th argument: the pfm_perf_encode_arg_t to initialize
 	 */
-	ret = pfm_get_perf_event_encoding("PERF_COUNT_HW_CPU_CYCLES", PFM_PLM0|PFM_PLM3, &attr, NULL, NULL);
+	ret = pfm_get_os_event_encoding(eventName.c_str(), PFM_PLM0|PFM_PLM3,PFM_OS_PERF_EVENT_EXT, &arg);
 	if (ret != PFM_SUCCESS)
 		errx(1, "cannot find encoding for %s: %s",eventName.c_str(), pfm_strerror(ret));
 
@@ -117,14 +126,6 @@ int registerEvent(int parentFd, string eventName){
 
 void PerfEventMeasurer::initialize(){
 	int ret;
-	/*
-	 * Initialize libpfm library (required before we can use it)
-	 */
-	ret = pfm_initialize();
-	if (ret != PFM_SUCCESS)
-		errx(1, "cannot initialize library: %s", pfm_strerror(ret));
-
-	//list_pmu_events(PFM_PMU_PERF_EVENT);
 
 	groupFd=-1;
 	for (size_t i=0; i<description->getEvents().size(); i++){
@@ -143,7 +144,7 @@ void PerfEventMeasurer::dispose(){
 	for (size_t i=0; i<fds.size(); i++){
 		close(fds[i]);
 	}
-	pfm_terminate();
+
 }
 
 MeasurerOutputBase *PerfEventMeasurer::read(){
@@ -174,3 +175,24 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 
 	return output;
 }
+
+class Initializer: public SystemInitializer{
+	void start(){
+		int ret;
+		/*
+		 * Initialize libpfm library (required before we can use it)
+		 */
+		ret = pfm_initialize();
+		if (ret != PFM_SUCCESS)
+			errx(1, "cannot initialize library: %s", pfm_strerror(ret));
+
+		//list_pmu_events(PFM_PMU_PERF_EVENT);
+	}
+
+	void stop(){
+		pfm_terminate();
+	}
+};
+
+// instantiate initializer. this will cause it to be registered
+static Initializer dummy2;

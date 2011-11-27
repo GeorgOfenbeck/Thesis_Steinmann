@@ -28,6 +28,7 @@
 #include "baseClasses/MeasurementSchemeBase.h"
 
 #include "kernels/MemoryLoadKernel.h"
+#include "baseClasses/SystemInitializer.h"
 
 #define THREADCOUNT 200
 using namespace std;
@@ -108,7 +109,8 @@ int doIt(int argc, char *argv[]){
 		return 0;
 	}
 
-	printf("Measuring\n");
+	printf("Initializing system\n");
+	SystemInitializer::initialize();
 
 	printf("Reading input\n");
 	ifstream input("config");
@@ -159,7 +161,9 @@ int doIt(int argc, char *argv[]){
 	printf("Performing measurement\n");
 	for (int i=0; i<description->getNumberOfMeasurements(); i++){
 		MeasurerOutputBase *measurerOutput=scheme->measure();
-		outputCollection.getMeasurerOutputs().push_back(measurerOutput);
+		if (measurerOutput!=NULL){
+			outputCollection.getMeasurerOutputs().push_back(measurerOutput);
+		}
 	}
 
 	printf("tearing down\n");
@@ -171,6 +175,10 @@ int doIt(int argc, char *argv[]){
 	ofstream output("output");
 	serializationService.Serialize(&outputCollection,output);
 	output.close();
+
+	printf("Shutting down system\n");
+	SystemInitializer::shutdown();
+
 	return 0;
 }
 

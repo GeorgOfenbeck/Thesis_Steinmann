@@ -43,6 +43,13 @@ public class Main {
 			max = summary.getMax();
 		}
 
+		public DoubleValue(double value) {
+			this.value = value;
+			stdev = 0;
+			min = value;
+			max = value;
+		}
+
 		public double getValue() {
 			return value;
 		}
@@ -193,6 +200,8 @@ public class Main {
 		dataPrintStream.println("# [ET]");
 		for (long key : keyList) {
 			BlockSizeResult tmp = map.get(key);
+			if (tmp.etValue == null)
+				continue;
 			dataPrintStream.printf("%d %f %f\n",
 					key, tmp.etValue.getValue(), tmp.etValue.getStdev());
 		}
@@ -203,6 +212,8 @@ public class Main {
 
 		for (long key : keyList) {
 			BlockSizeResult tmp = map.get(key);
+			if (tmp.perfEventValue == null)
+				continue;
 			dataPrintStream.printf("%d %f %f\n",
 					key, tmp.perfEventValue.getValue(),
 					tmp.perfEventValue.getStdev());
@@ -215,9 +226,12 @@ public class Main {
 
 		for (long key : keyList) {
 			BlockSizeResult tmp = map.get(key);
-			DoubleValue cps = tmp.perfEventValue.Divide(tmp.etValue);
+			if (tmp.perfEventValue == null || tmp.etValue == null)
+				continue;
+			DoubleValue cps = tmp.perfEventValue.Divide(tmp.etValue
+					.Divide(new DoubleValue(1e6)));
 
-			dataPrintStream.printf("%f %f %f %f %f %f %f\n",
+			dataPrintStream.printf("%e %e %e %e %e %e %e\n",
 					tmp.etValue.getValue() * 1e-6,
 					cps.getValue(),
 					cps.getValue() - cps.getStdev(),

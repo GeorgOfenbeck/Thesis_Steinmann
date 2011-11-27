@@ -27,6 +27,8 @@ public class Main {
 
 		File measuringCoreDir = new File("../measuringCore/Debug");
 		File measurementResultsDir = new File("../outputProcessor");
+		File measurementResultsFile = new File(measurementResultsDir,
+				"measurementResults.xml");
 
 		// load measurement collection
 		System.out.println("Loading measurement descriptions");
@@ -129,6 +131,21 @@ public class Main {
 
 				// add output to result
 				result.add(outputs);
+
+				System.out.println("writing results");
+				try {
+					FileOutputStream measurementResultsOutputStream = new FileOutputStream(
+							measurementResultsFile);
+					xStream.toXML(results, measurementResultsOutputStream);
+					measurementResultsOutputStream.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+
+					// exit immediately if the output cannot be written
+					System.exit(1);
+				}
+
 			} catch (FileNotFoundException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -138,14 +155,6 @@ public class Main {
 			}
 		}
 
-		System.out.println("writing results");
-		try {
-			xStream.toXML(results, new FileOutputStream(
-					new File(measurementResultsDir, "measurementResults.xml")));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		xStream.toXML(results, System.out);
 	}
 
