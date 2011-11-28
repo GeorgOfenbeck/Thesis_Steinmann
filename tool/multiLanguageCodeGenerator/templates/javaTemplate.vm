@@ -6,7 +6,7 @@ import java.math.BigInteger;
 
 /** $class.comment */
 @SuppressWarnings("unused")
-public class $class.name #if ($class.hasJavaBaseType())	extends $class.javaBaseType #end {
+public class ${class.javaName} #if ($class.hasJavaBaseType())	extends $class.javaBaseType #end {
 
 ## iterate over all fields of the class
 #foreach($field in $class.fields)

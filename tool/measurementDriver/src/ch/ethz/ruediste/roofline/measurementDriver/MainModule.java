@@ -1,8 +1,16 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
+import java.io.InputStream;
+
+import org.apache.commons.configuration.CombinedConfiguration;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.measurements.VarianceMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.AbstractModule;
@@ -14,14 +22,38 @@ public class MainModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(MeasurementService.class);
-		bind(MeasurementAppController.class);
-		bind(MultiLanguageSerializationService.class);
-		bind(VarianceMeasurement.class)
-				.annotatedWith(Names.named("variance"));
+		// setup configuration
+		PropertiesConfiguration defaultConfiguration = new PropertiesConfiguration();
+		try {
+			InputStream configStream = ClassLoader
+					.getSystemResourceAsStream("defaultConfiguration.config");
+			defaultConfiguration.load(configStream);
+		} catch (ConfigurationException e) {
+			throw new Error(e);
+		}
 
+		CombinedConfiguration combinedConfiguration = new CombinedConfiguration();
+		combinedConfiguration.addConfiguration(defaultConfiguration);
+
+		bind(Configuration.class).toInstance(combinedConfiguration);
+
+		// setup services
+		bind(MeasurementService.class);
+		bind(MultiLanguageSerializationService.class);
+		bind(MeasurementCacheService.class);
+
+		// setup app controllers
+		bind(MeasurementAppController.class);
+
+		// setup XStream
 		XStream xStream = new XStream(new DomDriver());
 		bind(XStream.class).toInstance(xStream);
+
+		// setup measurements
+		bind(VarianceMeasurement.class)
+				.annotatedWith(Names.named("variance"))
+				.to(VarianceMeasurement.class);
+
 	}
 
 }

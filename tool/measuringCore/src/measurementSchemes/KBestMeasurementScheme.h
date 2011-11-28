@@ -30,7 +30,11 @@ public:
 		// initialize measurer to measure context switches
 		PerfEventMeasurerDescription *switchMeasurerDescription
 			=new PerfEventMeasurerDescription();
-		switchMeasurerDescription->getEvents().push_back("perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
+		PerfEventDefinition *eventDefinition=new PerfEventDefinition();
+		eventDefinition->setName("contextSwitches");
+		eventDefinition->setDefinition("perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
+		switchMeasurerDescription->getEvents().push_back(eventDefinition);
+
 		MeasurerBase *switchMeasurer=TypeRegistry<MeasurerBase>::createObject(switchMeasurerDescription);
 		switchMeasurer->initialize();
 

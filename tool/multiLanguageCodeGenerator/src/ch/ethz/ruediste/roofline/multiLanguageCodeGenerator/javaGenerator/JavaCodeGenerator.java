@@ -17,16 +17,16 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 	public void generate(List<MultiLanguageClass> multiLanguageClasses) {
 
 		// generate java code for all classes
-		for (MultiLanguageClass multiLangugeClass : multiLanguageClasses) {
+		for (MultiLanguageClass multiLanguageClass : multiLanguageClasses) {
 
 			VelocityContext context = new VelocityContext();
 
 			// initialize context
-			context.put("class", multiLangugeClass);
+			context.put("class", multiLanguageClass);
 
 			String templateName = "javaTemplate.vm";
 			String outputFileName = "generatedJava/ch/ethz/ruediste/roofline/dom/"
-					+ multiLangugeClass.getName() + ".java";
+					+ multiLanguageClass.getJavaName() + ".java";
 
 			applyTemplate(outputFileName, templateName, context, "javaClass");
 		}

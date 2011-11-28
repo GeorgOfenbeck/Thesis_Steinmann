@@ -1,11 +1,13 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.cGenerator;
 
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.velocity.VelocityContext;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.CodeGeneratorBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageFieldBase;
 
 /** generates c code from a shared class */
 public class CCodeGenerator extends CodeGeneratorBase {
@@ -21,12 +23,29 @@ public class CCodeGenerator extends CodeGeneratorBase {
 					+ ".h";
 			String templateName = "cTemplate.vm";
 
+			// collect all referenced classes
+			HashSet<String> referencedClasses = new HashSet<String>();
+			if (multiLangugeClass.hascBaseType()) {
+				referencedClasses.add(multiLangugeClass.getcBaseType());
+			}
+
+			if (multiLangugeClass.getFields() != null) {
+				for (MultiLanguageFieldBase field : multiLangugeClass
+						.getFields()) {
+					if (!field.getTypeDescriptor().isReference()) {
+						continue;
+					}
+					referencedClasses.add(field.getTypeDescriptor().getcName());
+				}
+			}
+			context.put("references", referencedClasses.toArray());
+
 			// generate output
 			applyTemplate(outputFileName, templateName, context, "cClass");
 		}
 
 		// generate serializer service and type enum
-		
+
 		// initialize context
 		VelocityContext context = new VelocityContext();
 		context.put("classes", multiLanguageClasses);

@@ -125,13 +125,12 @@ int registerEvent(int parentFd, string eventName){
 }
 
 void PerfEventMeasurer::initialize(){
-	int ret;
-
 	groupFd=-1;
 	for (size_t i=0; i<description->getEvents().size(); i++){
-		printf("Measuring Event: %s\n",super::description->getEvents()[i].c_str());
+		PerfEventDefinition *definition=super::description->getEvents()[i];
+		printf("Measuring Event: %s -> %s\n",definition->getName().c_str(),definition->getDefinition().c_str());
 
-		int fd=registerEvent(groupFd,super::description->getEvents()[i]);
+		int fd=registerEvent(groupFd,definition->getDefinition());
 		fds.push_back(fd);
 		if (groupFd==-1){
 			groupFd=fd;
@@ -167,6 +166,7 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 			 * values[2] = TIME_RUNNING
 		 	 */
 		PerfEventCount *count=new PerfEventCount();
+		count->setDefinition(description->getEvents()[i]);
 		count->setRawCount(values[0]);
 		count->setTimeEnabled(values[1]);
 		count->setTimeRunning(values[2]);

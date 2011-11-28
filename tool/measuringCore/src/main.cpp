@@ -21,6 +21,7 @@
 #include "generatedC/MemoryLoadKernelDescription.h"
 #include "generatedC/MeasurementDescription.h"
 #include "generatedC/MeasurerOutputCollection.h"
+#include "generatedC/MeasurementCommand.h"
 #include "typeRegistry/TypeRegistry.h"
 #include "typeRegistry/TypeRegistryEntry.h"
 #include "baseClasses/KernelBase.h"
@@ -118,9 +119,10 @@ int doIt(int argc, char *argv[]){
 		printf("could not read measurement configuratio file <config>");
 		exit(1);
 	}
-	MeasurementDescription *description;
-	description=(MeasurementDescription *)serializationService.DeSerialize(input);
+	MeasurementCommand *command=(MeasurementCommand *)serializationService.DeSerialize(input);
 	input.close();
+
+	MeasurementDescription *description=command->getMeasurement();
 
 	printf("Setting up the measurement\n");
 
@@ -159,7 +161,7 @@ int doIt(int argc, char *argv[]){
 	MeasurerOutputCollection outputCollection;
 
 	printf("Performing measurement\n");
-	for (int i=0; i<description->getNumberOfMeasurements(); i++){
+	for (int i=0; i<command->getNumberOfMeasurements(); i++){
 		MeasurerOutputBase *measurerOutput=scheme->measure();
 		if (measurerOutput!=NULL){
 			outputCollection.getMeasurerOutputs().push_back(measurerOutput);

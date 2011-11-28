@@ -28,6 +28,9 @@ public class MultiLanguageClass {
 	@XStreamAsAttribute
 	private String javaBaseType;
 
+	@XStreamAsAttribute
+	private String javaSuffix = "";
+
 	@XStreamAsAttribute()
 	private String comment;
 
@@ -104,4 +107,18 @@ public class MultiLanguageClass {
 		return getName().substring(0, 1).toUpperCase() + getName().substring(1);
 	}
 
+	public String getJavaSuffix() {
+		return javaSuffix;
+	}
+
+	public void setJavaSuffix(String javaSuffix) {
+		this.javaSuffix = javaSuffix;
+	}
+
+	public String getJavaName() {
+		if (javaSuffix != null && !javaSuffix.equals("")) {
+			return name + javaSuffix;
+		}
+		return name;
+	}
 }

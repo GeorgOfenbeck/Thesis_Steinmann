@@ -5,6 +5,7 @@
 	name="PerfEventMeasurerOutput" 
 	cBaseType="MeasurerOutputBase"
 	javaBaseType="MeasurerOutputBase"
+	javaSuffix="Data"
 	comment="result of the perf event measurer">
 	
 	<list name="eventCounts" type="PerfEventCount" comment="counts of the measured events"/>

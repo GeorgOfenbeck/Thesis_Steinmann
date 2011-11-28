@@ -5,6 +5,7 @@
 	name="ExecutionTimeMeasurerOutput" 
 	cBaseType="MeasurerOutputBase"
 	javaBaseType="MeasurerOutputBase"
+	javaSuffix="Data"
 	comment="result of the execution time measurer">
 	
 	<field name="uSecs" type="long" comment="execution time in micro seconds (1e-6)"/>

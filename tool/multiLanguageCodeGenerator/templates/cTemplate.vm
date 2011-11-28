@@ -4,6 +4,10 @@
 \#include <vector>
 \#include <string>
 
+#foreach ($reference in $references)
+\#include "${reference}.h"
+#end
+
 /** $class.comment */
 class $class.name #if ($class.hascBaseType()) : public $class.cBaseType #end{
 	public:

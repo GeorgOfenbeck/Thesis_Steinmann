@@ -27,7 +27,6 @@ public class MeasurementCollection {
 		description.setKernel(kernel);
 		description.setScheme(scheme);
 		description.setMeasurer(measurer);
-		description.setNumberOfMeasurements(1);
 		description.setOptimization("O3");
 
 		descriptions.add(description);

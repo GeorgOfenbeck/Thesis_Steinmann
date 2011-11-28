@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.test.serialization;
+package ch.ethz.ruediste.roofline.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

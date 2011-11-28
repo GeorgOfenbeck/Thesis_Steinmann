@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="PerfEventDefinition" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	comment="definition of a performance event">
+	
+	<field name="name" type="string" comment="name of the counted event" />
+	<field name="definition" type="string" comment="definition string of the event. Passed to libpfm4"/>
+	
+</class>
