@@ -5,6 +5,7 @@
 	name="MeasurementDescription" 
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType=""
+	javaSuffix="Data"
 	comment="Describes a Measurement">
 	
 	<field name="scheme" type="MeasurementSchemeDescriptionBase" comment="describes the measurement scheme to be used"/>

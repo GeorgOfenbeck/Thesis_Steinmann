@@ -50,8 +50,8 @@ public class VarianceHistogramMeasurement implements IMeasurement {
 		measurement.setKernel(kernel);
 
 		measurement.setScheme(kBestScheme);
-		measurement.setMeasurer(timeMeasurer);
-		kernel.setBlockSize(4096);
+		measurement.setMeasurer(perfEventMeasurer);
+		kernel.setBlockSize(64);
 
 		// perform measurement
 		MeasurementResult result = measurementAppController.measure(
@@ -84,6 +84,12 @@ public class VarianceHistogramMeasurement implements IMeasurement {
 		{
 			PrintStream output = new PrintStream(outputName
 					+ ".gnuplot");
+			output.printf("set title '%d:%s'\n", kernel.getBlockSize(),
+					measurement.toString());
+			output.printf("set terminal postscript color\n");
+			output.printf("set output '%s:%d:%s.ps'\n", outputName,
+					kernel.getBlockSize(),
+					measurement.toString());
 			// output.printf("set xrange [-0.5:%d]\n", binCount);
 			// output.printf("set yrange [0:%d]\n", max + 1);
 			// output.printf("set style histogram rowstacked\n");
@@ -92,9 +98,9 @@ public class VarianceHistogramMeasurement implements IMeasurement {
 			 * outputName);
 			 */
 			output.printf(
-					"plot '%s.data' using 1:2 with impulses\n",
+					"plot '%s.data' using 1:2 with histeps\n",
 					outputName);
-			output.printf("pause mouse\n");
+			// output.printf("pause mouse\n");
 
 			output.close();
 		}

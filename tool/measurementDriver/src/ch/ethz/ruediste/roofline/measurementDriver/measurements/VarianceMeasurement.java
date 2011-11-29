@@ -141,6 +141,9 @@ public class VarianceMeasurement implements IMeasurement {
 		{
 			PrintStream output = new PrintStream(outputName
 					+ "stdev.gnuplot");
+			output.printf("set title 'Mean/Stdev'\n");
+			output.printf("set terminal postscript color\n");
+			output.printf("set output '%s'\n", outputName + "stdev.ps");
 			output.printf("set log xy\n");
 			output.printf(
 					"plot '%sperfBest.data' using 1:2:3 with yerrorbars,\\\n",
@@ -152,7 +155,7 @@ public class VarianceMeasurement implements IMeasurement {
 					outputName);
 			output.printf("'%stimeSimple.data' using 1:2:3 with yerrorbars\n",
 					outputName);
-			output.printf("pause mouse\n");
+			// output.printf("pause mouse\n");
 
 			output.close();
 		}
@@ -160,6 +163,9 @@ public class VarianceMeasurement implements IMeasurement {
 		{
 			PrintStream output = new PrintStream(outputName
 					+ "percentiles.gnuplot");
+			output.printf("set title 'Percentiles'\n");
+			output.printf("set terminal postscript color\n");
+			output.printf("set output '%s'\n", outputName + "percentiles.ps");
 			output.printf("set log xy\n");
 			output.printf(
 					"plot '%sperfBest.data' using 1:4:5:6 with yerrorbars,\\\n",
@@ -173,7 +179,7 @@ public class VarianceMeasurement implements IMeasurement {
 			output.printf(
 					"'%stimeSimple.data' using 1:4:5:6 with yerrorbars\n",
 					outputName);
-			output.printf("pause mouse\n");
+			// output.printf("pause mouse\n");
 
 			output.close();
 		}
@@ -182,6 +188,9 @@ public class VarianceMeasurement implements IMeasurement {
 		commandService.runCommand(new File("."), "gnuplot",
 				new String[] { outputName
 						+ "stdev.gnuplot" });
+		commandService.runCommand(new File("."), "gnuplot",
+				new String[] { outputName
+						+ "percentiles.gnuplot" });
 	}
 
 	static void printSummary(DescriptiveStatistics summary) {
