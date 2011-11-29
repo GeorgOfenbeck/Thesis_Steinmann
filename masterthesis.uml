@@ -75,7 +75,7 @@
               diagramclass="org.argouml.uml.diagram.activity.ui.UMLActivityDiagram"
               diagramname="Tool activity 1" />
       <member type="pgml"
-              name="masterthesis_ClassDiagram.pgml"
+              name="masterthesis_MeasurementDriver.pgml"
               diagramclass="org.argouml.uml.diagram.static_structure.ui.UMLClassDiagram"
               diagramname="Measurement Driver" />
       <member type="todo"
@@ -94,7 +94,7 @@
 			CodeGeneration
 		</plugin>
 </profile>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Sun Nov 27 20:35:21 CET 2011'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Mon Nov 28 12:24:05 CET 2011'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.32.2(6) revised on $Date: 2010-01-11 22:20:14 +0100 (Mon, 11 Jan 2010) $ </XMI.exporterVersion>
@@ -2391,9 +2391,9 @@
               name = 'SpecificMeasurementController' visibility = 'public' isSpecification = 'false'
               isRoot = 'false' isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
               <UML:ModelElement.clientDependency>
-                <UML:Abstraction xmi.idref = '127-0-1-1--71558327:133e54def77:-8000:0000000000000F8F'/>
                 <UML:Dependency xmi.idref = '127-0-1-1--71558327:133e54def77:-8000:0000000000000F93'/>
                 <UML:Dependency xmi.idref = '127-0-1-1--71558327:133e54def77:-8000:0000000000000F95'/>
+                <UML:Abstraction xmi.idref = '127-0-1-1--71558327:133e54def77:-8000:0000000000000F8F'/>
               </UML:ModelElement.clientDependency>
               <UML:Namespace.ownedElement>
                 <UML:Dependency xmi.id = '127-0-1-1--71558327:133e54def77:-8000:0000000000000F93'
@@ -14152,7 +14152,7 @@
       justification="Center"
     >MeasurementAppController</text>
     <group name="Fig0.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[425, 329, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[425, 329, 464, 0]"
          href="127-0-1-1--71558327:133e54def77:-8000:0000000000000F75"
          fill="0"
          fillcolor="white"
@@ -14166,7 +14166,7 @@
       <rectangle name="Fig0.2.0"
         x="425"
         y="329"
-        width="64"
+        width="464"
         height="0"
         fill="0"
         fillcolor="white"
@@ -14293,7 +14293,7 @@
       justification="Center"
     >MeasurementService</text>
     <group name="Fig1.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[433, 457, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[433, 457, 582, 0]"
          href="127-0-1-1--71558327:133e54def77:-8000:0000000000000F78"
          fill="0"
          fillcolor="white"
@@ -14307,7 +14307,7 @@
       <rectangle name="Fig1.2.0"
         x="433"
         y="457"
-        width="64"
+        width="582"
         height="0"
         fill="0"
         fillcolor="white"
@@ -14463,7 +14463,7 @@
                         offset="25" />
     </private>
     <path name="Fig2.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -14513,7 +14513,7 @@
       justification="Center"
     >SpecificMeasurementController</text>
     <group name="Fig3.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[305, 177, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[305, 177, 203, 0]"
          href="127-0-1-1--71558327:133e54def77:-8000:0000000000000F8D"
          fill="0"
          fillcolor="white"
@@ -14527,7 +14527,7 @@
       <rectangle name="Fig3.2.0"
         x="305"
         y="177"
-        width="64"
+        width="203"
         height="0"
         fill="0"
         fillcolor="white"
@@ -14743,7 +14743,7 @@
                         offset="25" />
     </private>
     <path name="Fig5.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -14774,7 +14774,7 @@
                         offset="25" />
     </private>
     <path name="Fig6.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -14824,7 +14824,7 @@
       justification="Center"
     >GnuplotService</text>
     <group name="Fig7.2"
-         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[153, 457, 64, 0]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesGroup[153, 457, 102, 0]"
          href="127-0-1-1--71558327:133e54def77:-8000:0000000000000F94"
          fill="0"
          fillcolor="white"
@@ -14838,7 +14838,7 @@
       <rectangle name="Fig7.2.0"
         x="153"
         y="457"
-        width="64"
+        width="102"
         height="0"
         fill="0"
         fillcolor="white"
@@ -14930,7 +14930,7 @@
                         offset="25" />
     </private>
     <path name="Fig8.0"
-      description="org.tigris.gef.presentation.FigPoly"
+      description="org.argouml.gefext.ArgoFigPoly"
       fill="0"
       fillcolor="white"
       stroke="1"

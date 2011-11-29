@@ -7,6 +7,7 @@
 <listEntry value="1"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.ethz.ruediste.roofline.measurementDriver.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="variance"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="varianceHist"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="measurementDriver"/>
+<stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${workspace_loc:measurementDriver/output}"/>
 </launchConfiguration>

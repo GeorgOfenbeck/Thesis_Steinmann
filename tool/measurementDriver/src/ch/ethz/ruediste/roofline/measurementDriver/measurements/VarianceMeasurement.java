@@ -119,9 +119,16 @@ public class VarianceMeasurement implements IMeasurement {
 
 				// append to output
 				combination.output
-						.printf("%d\t%e\t%e\n", blockSize,
+						.printf("%d\t%e\t%e\t%e\t%e\t%e\n",
+								blockSize,
 								statistics.getMean(),
-								statistics.getStandardDeviation());
+								statistics.getStandardDeviation(),
+								statistics.getPercentile(50),
+								statistics
+										.getPercentile(50 - 68.2689492137 / 2),
+								statistics
+										.getPercentile(50 + 68.2689492137 / 2)
+						);
 			}
 		}
 
@@ -130,24 +137,51 @@ public class VarianceMeasurement implements IMeasurement {
 			combination.output.close();
 		}
 
-		// write gnuplot file
-		PrintStream output = new PrintStream(outputName
-				+ ".gnuplot");
-		output.printf("set log xy\n");
-		output.printf("plot '%sperfBest.data' with yerrorbars,\\\n", outputName);
-		output.printf("'%sperfSimple.data' with yerrorbars,\\\n",
-				outputName);
-		output.printf("'%stimeBest.data' with yerrorbars,\\\n",
-				outputName);
-		output.printf("'%stimeSimple.data' with yerrorbars\n", outputName);
-		output.printf("pause mouse\n");
+		// write gnuplot files
+		{
+			PrintStream output = new PrintStream(outputName
+					+ "stdev.gnuplot");
+			output.printf("set log xy\n");
+			output.printf(
+					"plot '%sperfBest.data' using 1:2:3 with yerrorbars,\\\n",
+					outputName);
+			output.printf(
+					"'%sperfSimple.data' using 1:2:3 with yerrorbars,\\\n",
+					outputName);
+			output.printf("'%stimeBest.data' using 1:2:3 with yerrorbars,\\\n",
+					outputName);
+			output.printf("'%stimeSimple.data' using 1:2:3 with yerrorbars\n",
+					outputName);
+			output.printf("pause mouse\n");
 
-		output.close();
+			output.close();
+		}
+
+		{
+			PrintStream output = new PrintStream(outputName
+					+ "percentiles.gnuplot");
+			output.printf("set log xy\n");
+			output.printf(
+					"plot '%sperfBest.data' using 1:4:5:6 with yerrorbars,\\\n",
+					outputName);
+			output.printf(
+					"'%sperfSimple.data' using 1:4:5:6 with yerrorbars,\\\n",
+					outputName);
+			output.printf(
+					"'%stimeBest.data' using 1:4:5:6 with yerrorbars,\\\n",
+					outputName);
+			output.printf(
+					"'%stimeSimple.data' using 1:4:5:6 with yerrorbars\n",
+					outputName);
+			output.printf("pause mouse\n");
+
+			output.close();
+		}
 
 		// show output
 		commandService.runCommand(new File("."), "gnuplot",
 				new String[] { outputName
-						+ ".gnuplot" });
+						+ "stdev.gnuplot" });
 	}
 
 	static void printSummary(DescriptiveStatistics summary) {

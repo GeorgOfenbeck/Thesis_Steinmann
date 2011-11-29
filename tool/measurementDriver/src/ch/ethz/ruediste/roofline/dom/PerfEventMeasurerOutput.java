@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.dom;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+import ch.ethz.ruediste.roofline.statistics.IAddValue;
+
 public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 	/** get the event count with the given name */
 	public PerfEventCount getEventCount(String name) {
@@ -18,8 +20,20 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 	 */
 	public static DescriptiveStatistics getStatistics(String name,
 			MeasurementResult result) {
-		DescriptiveStatistics statistics = new DescriptiveStatistics();
+		final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
+		addValues(name, result, new IAddValue() {
+			@Override
+			public void addValue(double v) {
+				statistics.addValue(v);
+			}
+		});
+
+		return statistics;
+	}
+
+	public static void addValues(String name,
+			MeasurementResult result, IAddValue addValue) {
 		// iterate over all outputs
 		for (MeasurerOutputBase outputBase : result.getOutputs()) {
 			// check if the output comes from the PerfEvent measurer
@@ -28,13 +42,9 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 				PerfEventCount count = output.getEventCount(name);
 
 				// scale the raw count
-				statistics.addValue(
-						count.getRawCount().doubleValue()
-								* count.getTimeEnabled().doubleValue()
-								/ count.getTimeRunning().doubleValue());
+				addValue.addValue(
+						count.getScaledCount());
 			}
 		}
-
-		return statistics;
 	}
 }

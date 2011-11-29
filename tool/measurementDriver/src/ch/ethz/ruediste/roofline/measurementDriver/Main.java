@@ -3,7 +3,6 @@ package ch.ethz.ruediste.roofline.measurementDriver;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
-import ch.ethz.ruediste.roofline.measurementDriver.measurements.VarianceMeasurement;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -28,7 +27,7 @@ public class Main {
 		Injector injector = Guice.createInjector(new MainModule());
 
 		IMeasurement measurement = injector
-				.getInstance(Key.get(VarianceMeasurement.class,
+				.getInstance(Key.get(IMeasurement.class,
 						Names.named(measurementName)));
 
 		measurement.measure(outputName);

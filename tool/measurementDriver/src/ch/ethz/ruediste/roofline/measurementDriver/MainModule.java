@@ -9,6 +9,8 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.measurements.VarianceHistogramMeasurement;
 import ch.ethz.ruediste.roofline.measurementDriver.measurements.VarianceMeasurement;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
@@ -50,10 +52,16 @@ public class MainModule extends AbstractModule {
 		bind(XStream.class).toInstance(xStream);
 
 		// setup measurements
-		bind(VarianceMeasurement.class)
-				.annotatedWith(Names.named("variance"))
-				.to(VarianceMeasurement.class);
+		bindMeasurement(VarianceMeasurement.class, "variance");
+		bindMeasurement(VarianceHistogramMeasurement.class, "varianceHist");
+	}
 
+	private <T extends IMeasurement> void bindMeasurement(
+			Class<T> measurementClass,
+			String name) {
+		bind(IMeasurement.class)
+				.annotatedWith(Names.named(name))
+				.to(measurementClass);
 	}
 
 }
