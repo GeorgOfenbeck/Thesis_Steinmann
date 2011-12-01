@@ -24,6 +24,9 @@ dependencies {
 // don't do any tests
 test.actions.clear()
 
+clean.delete 'bin/'
+
+
 // setup the manifest of the jar
 jar {
     manifest {
