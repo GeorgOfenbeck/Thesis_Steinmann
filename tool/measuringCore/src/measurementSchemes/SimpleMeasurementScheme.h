@@ -20,6 +20,8 @@ public:
 	}
 
 	MeasurerOutputBase *measure(){
+		super::warmOrClearCaches();
+
 		super::measurer.start();
 		super::kernel.run();
 		super::measurer.stop();

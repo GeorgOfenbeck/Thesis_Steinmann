@@ -53,6 +53,18 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.debug.1988007058.1566545894" name="MeasurementSchemeBase.cpp" rcbsApplicability="disable" resourcePath="src/baseClasses/MeasurementSchemeBase.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1681041374.1834686747">
+						<tool command="ccache g++" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX} ${OUTPUT} ${INPUTS}" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1681041374.1834686747" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1681041374">
+							<option id="gnu.cpp.compiler.option.other.other.859134635" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -pthread -std=c++0x -ftemplate-depth=5000" valueType="string"/>
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1897084717" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+						</tool>
+						<tool customBuildStep="true" id="org.eclipse.cdt.managedbuilder.ui.rcbs.524448891" name="Resource Custom Build Step">
+							<inputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.inputtype.420788721" name="Resource Custom Build Step Input Type">
+								<additionalInput kind="additionalinputdependency" paths=""/>
+							</inputType>
+							<outputType id="org.eclipse.cdt.managedbuilder.ui.rcbs.outputtype.726840354" name="Resource Custom Build Step Output Type"/>
+						</tool>
+					</fileInfo>
 					<sourceEntries>
 						<entry excluding="coreSwitchTest.cpp|setAffinity.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
@@ -107,6 +119,11 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="cdt.managedbuild.config.gnu.exe.release.1524000234.850598961" name="MeasurementSchemeBase.cpp" rcbsApplicability="disable" resourcePath="src/baseClasses/MeasurementSchemeBase.cpp" toolsToInvoke="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1639598239.1812950771">
+						<tool commandLinePattern="${COMMAND} ${FLAGS}${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1639598239.1812950771" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1639598239">
+							<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1034800956" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+						</tool>
+					</fileInfo>
 					<sourceEntries>
 						<entry excluding="setAffinity.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
@@ -142,10 +159,13 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1988007058;cdt.managedbuild.config.gnu.exe.debug.1988007058.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1681041374;cdt.managedbuild.tool.gnu.cpp.compiler.input.419548340">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1524000234;cdt.managedbuild.config.gnu.exe.release.1524000234.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1639598239;cdt.managedbuild.tool.gnu.cpp.compiler.input.1909585637">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1988007058;cdt.managedbuild.config.gnu.exe.debug.1988007058.1105733628;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1681041374.626161743;cdt.managedbuild.tool.gnu.cpp.compiler.input.260342979">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1524000234;cdt.managedbuild.config.gnu.exe.release.1524000234.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.1639598239;cdt.managedbuild.tool.gnu.cpp.compiler.input.1909585637">
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.debug.1988007058;cdt.managedbuild.config.gnu.exe.debug.1988007058.1566545894;cdt.managedbuild.tool.gnu.cpp.compiler.exe.debug.1681041374.1834686747;cdt.managedbuild.tool.gnu.cpp.compiler.input.1897084717">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.1524000234;cdt.managedbuild.config.gnu.exe.release.1524000234.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.368132377;cdt.managedbuild.tool.gnu.c.compiler.input.2013647675">

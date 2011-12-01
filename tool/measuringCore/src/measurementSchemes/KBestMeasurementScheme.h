@@ -39,6 +39,8 @@ public:
 		switchMeasurer->initialize();
 
 		for (int measurementNumber=1; measurementNumber<50; measurementNumber++){
+			super::warmOrClearCaches();
+
 			// do measurement
 			switchMeasurer->start();
 			super::measurer.start();

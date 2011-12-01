@@ -10,6 +10,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.measurements.RawDataMeasurement;
 import ch.ethz.ruediste.roofline.measurementDriver.measurements.VarianceHistogramMeasurement;
 import ch.ethz.ruediste.roofline.measurementDriver.measurements.VarianceMeasurement;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
@@ -54,6 +55,7 @@ public class MainModule extends AbstractModule {
 		// setup measurements
 		bindMeasurement(VarianceMeasurement.class, "variance");
 		bindMeasurement(VarianceHistogramMeasurement.class, "varianceHist");
+		bindMeasurement(RawDataMeasurement.class, "raw");
 	}
 
 	private <T extends IMeasurement> void bindMeasurement(

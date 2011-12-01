@@ -19,11 +19,11 @@ import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementApp
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
 import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
-import ch.ethz.ruediste.roofline.statistics.Histogram;
+import ch.ethz.ruediste.roofline.statistics.IAddValue;
 
 import com.google.inject.Inject;
 
-public class VarianceHistogramMeasurement implements IMeasurement {
+public class RawDataMeasurement implements IMeasurement {
 
 	@Inject
 	public MeasurementAppController measurementAppController;
@@ -60,32 +60,34 @@ public class VarianceHistogramMeasurement implements IMeasurement {
 		kernel.setBlockSize(2048);
 
 		// perform measurement
-		// measurementCacheService.deleteFromCache(measurement);
+		measurementCacheService.deleteFromCache(measurement);
 		MeasurementResult result = measurementAppController.measure(
 				measurement, 100);
 
-		// create statistics
-		Histogram hist = new Histogram();
+		// print data file
+		final PrintStream outputFile = new PrintStream(outputName + ".data");
 		if (measurement.getMeasurer() instanceof PerfEventMeasurerDescription) {
-			PerfEventMeasurerOutput.addValues("cycles", result, hist);
+			PerfEventMeasurerOutput.addValues("cycles", result,
+					new IAddValue() {
+
+						@Override
+						public void addValue(double v) {
+							outputFile.printf("%e\n", v);
+						}
+					});
 		}
 
 		if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {
-			ExecutionTimeMeasurerOutput.addValues(result, hist);
+			ExecutionTimeMeasurerOutput.addValues(result, new IAddValue() {
+
+				@Override
+				public void addValue(double v) {
+					outputFile.printf("%e\n", v);
+
+				}
+			});
 		}
 
-		// retrieve histogram
-		int binCount = 200;
-		double min = hist.getStatistics().getMin();
-		double max = hist.getStatistics().getMax();
-		int[] counts = hist.getCounts(binCount, min, max);
-		double[] binCenters = hist.getBinCenters(binCount, min, max);
-
-		// write data
-		PrintStream outputFile = new PrintStream(outputName + ".data");
-		for (int i = 0; i < binCount; i++) {
-			outputFile.printf("%e\t%d\n", binCenters[i], counts[i]);
-		}
 		outputFile.close();
 
 		// write gnuplot files
@@ -107,7 +109,7 @@ public class VarianceHistogramMeasurement implements IMeasurement {
 			 * outputName);
 			 */
 			output.printf(
-					"plot '%s.data' using 1:2 with histeps\n",
+					"plot '%s.data' with points \n",
 					outputName);
 			// output.printf("pause mouse\n");
 

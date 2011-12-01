@@ -21,6 +21,9 @@ public:
 	virtual void initialize()=0;
 	virtual void run()=0;
 	virtual void dispose()=0;
+	virtual void warmCaches(){
+		run();
+	}
 };
 
 template<class TDescription>

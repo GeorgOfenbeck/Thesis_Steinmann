@@ -42,7 +42,9 @@ public class VarianceMeasurement implements IMeasurement {
 	public void measure(String outputName) throws IOException {
 		// create schemes
 		KBestMeasurementSchemeDescription kBestScheme = new KBestMeasurementSchemeDescription();
+		kBestScheme.setWarmCaches(true);
 		SimpleMeasurementSchemeDescription simpleScheme = new SimpleMeasurementSchemeDescription();
+		simpleScheme.setWarmCaches(true);
 
 		// create kernel
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();

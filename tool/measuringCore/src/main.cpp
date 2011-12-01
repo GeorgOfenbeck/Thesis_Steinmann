@@ -161,12 +161,27 @@ int doIt(int argc, char *argv[]){
 	MeasurerOutputCollection outputCollection;
 
 	printf("Performing measurement\n");
+
+	int totalStars=10;
+	// write head line
+	for (int i=0; i<totalStars;i++) printf(" ");
+	printf("|\n");
+
+	int starsPrinted=0;
 	for (int i=0; i<command->getNumberOfMeasurements(); i++){
 		MeasurerOutputBase *measurerOutput=scheme->measure();
 		if (measurerOutput!=NULL){
 			outputCollection.getMeasurerOutputs().push_back(measurerOutput);
 		}
+
+		//check if new stars need to be printed
+		if (i*totalStars/command->getNumberOfMeasurements()>starsPrinted){
+			printf("*");
+			fflush(stdout);
+			starsPrinted++;
+		}
 	}
+	printf("*\n");
 
 	printf("tearing down\n");
 	delete(kernel);

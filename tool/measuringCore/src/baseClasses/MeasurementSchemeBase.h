@@ -21,6 +21,7 @@ public:
 	virtual MeasurementSchemeDescriptionBase *getMeasurementSchemeDescription()=0;
 
 	virtual MeasurerOutputBase *measure()=0;
+    void clearCaches();
 };
 
 template<class TDescription, class TKernel, class TMeasurer>
@@ -33,6 +34,19 @@ protected:
 
 	// nested class to allow for optimization
 	TMeasurer measurer;
+
+	void warmOrClearCaches(){
+		// warm or clear caches
+		if (description->getWarmCaches()){
+			measurer.start();
+			kernel.warmCaches();
+			measurer.stop();
+		}
+		else
+		{
+			clearCaches();
+		}
+	}
 
 public:
 	typedef TDescription tDescription;
@@ -49,6 +63,7 @@ public:
 		kernel.dispose();
 		measurer.dispose();
 	}
+
 	MeasurementSchemeDescriptionBase *getMeasurementSchemeDescription(){
 		return description;
 	}
@@ -62,6 +77,5 @@ public:
     {
         return measurer;
     }
-
 };
 #endif /* MEASUREMENTSCHEMEBASE_H_ */

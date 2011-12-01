@@ -11,7 +11,19 @@ public class Histogram implements IAddValue {
 		statistics.addValue(d);
 	}
 
+	public DescriptiveStatistics getStatistics() {
+		return statistics;
+	}
+
 	public int[] getCounts(int binCount) {
+		return getCounts(binCount, statistics.getMin(), statistics.getMax());
+	}
+
+	public double[] getBinCenters(int binCount) {
+		return getBinCenters(binCount, statistics.getMin(), statistics.getMax());
+	}
+
+	public int[] getCounts(int binCount, double min, double max) {
 		int[] counts = new int[binCount];
 
 		// clear counts;
@@ -19,57 +31,35 @@ public class Histogram implements IAddValue {
 
 		double[] dataArray = statistics.getValues();
 
-		// determine min and max
-		double min, max;
-		{
-			min = getMin(binCount);
-			max = getMax(binCount);
-		}
-
 		double span = max - min;
 		// process the data
 		for (int i = 0; i < dataArray.length; i++) {
-			double doubleBin = (dataArray[i] - min) / span;
-			int bin = (int) Math.floor(doubleBin * (binCount - 2));
-			if (bin < 0)
-				counts[0]++;
-			else if (bin >= binCount - 2)
+			// measurements which exactly hit the max boundary are included
+			// as are measurements which exactly hit the min boundary
+			if (dataArray[i] == max) {
 				counts[binCount - 1]++;
-			else
-				counts[bin + 1]++;
+			}
+			else {
+				double doubleBin = (dataArray[i] - min) / span;
+				int bin = (int) Math.floor(doubleBin * binCount);
+				if (bin > 0 && bin < binCount)
+					counts[bin]++;
+			}
 		}
 
 		return counts;
 	}
 
-	private double getMax(int binCount) {
-		// return statistics.getPercentile(100 - 100 / binCount);
-		return statistics.getMax();
-	}
-
-	private double getMin(int binCount) {
-		// return statistics.getPercentile(100 / binCount);
-		return statistics.getMin();
-	}
-
-	public String[] getBinLabels(int binCount) {
+	public double[] getBinCenters(int binCount, double min, double max) {
 		// determine min and max
-		double min, max;
-		{
-			min = getMin(binCount);
-			max = getMax(binCount);
-		}
 		double span = max - min;
 
-		String[] binLabels = new String[binCount];
-		binLabels[0] = "" + min;
-		binLabels[binCount - 1] = "" + max;
+		double[] binCenters = new double[binCount];
 
-		for (int i = 0; i < binCount - 2; i++) {
-			double center = min + span * (0.5 + (double) i) / (binCount - 2);
-			binLabels[i + 1] = String.format("%e", center);
+		for (int i = 0; i < binCount; i++) {
+			binCenters[i] = min + span * (0.5 + (double) i) / (binCount);
 		}
 
-		return binLabels;
+		return binCenters;
 	}
 }

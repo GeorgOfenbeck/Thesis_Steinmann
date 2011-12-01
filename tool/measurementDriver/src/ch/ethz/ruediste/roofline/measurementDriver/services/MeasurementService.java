@@ -35,7 +35,7 @@ public class MeasurementService {
 
 			System.out.println("Performing Measurements");
 
-			File measuringCoreDir = new File("../measuringCore/Debug");
+			File measuringCoreDir = new File("../../measuringCore/Debug");
 
 			System.out.println("processing the following measurement:");
 			xStream.toXML(command.getMeasurement(), System.out);
@@ -45,6 +45,7 @@ public class MeasurementService {
 			File configFile = new File(measuringCoreDir, "config");
 			File configDefFile = new File(measuringCoreDir,
 					"../src/configDef.h");
+			configFile.createNewFile();
 			FileOutputStream config = new FileOutputStream(configFile);
 			FileOutputStream configDef = new FileOutputStream(configDefFile);
 			serializationService.Serialize(command, config, configDef);
