@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <string.h>
+#include <csignal>
 #include <fstream>
 #include <typeinfo>
 #include "coreSwitchTest.hpp"
@@ -85,7 +86,52 @@ int main() {
 
 #include "generatedC/MemoryLoadKernelDescription.h"
 
+/*
+ * Print a progress bar. Completed is the amount of work which is completed already,
+ * total is the total amount of work (100%).
+ *
+ * If called multiple time, the existing progress bar is overwritten.
+ */
+static void printProgress(int completed, int total){
+	const int totalElements=40;
 
+	int printedChars=0;
+
+	// abort if there is no work to be done
+	if (total==0){
+		return;
+	}
+
+	// print the progress bar
+	printedChars+=printf("|");
+	int i;
+	for (i=0; i<completed*totalElements/total && i<totalElements;i++){
+		printedChars+=printf("=");
+	}
+
+	// fill remaining space
+	for (; i<totalElements;i++){
+		printedChars+=printf(" ");
+	}
+
+	// output the final bars and the precent number
+	printedChars+=printf("| %i%%",completed*100/total);
+
+	// move the cursor back to the beginning of the line
+	//for (i=0; i<printedChars; i++) printf("\b");
+	printf("\r");
+	fflush(stdout);
+}
+
+/*
+ * If set to true, the measurement loop will quit in the next iteration.
+ * Used by the handler of CTRL+C to abort the measurement
+ */
+static bool abortMeasurement;
+
+static void sigint_handler(int arg){
+	abortMeasurement=true;
+}
 int doIt(int argc, char *argv[]){
 	MultiLanguageSerializationService serializationService;
 
@@ -162,26 +208,17 @@ int doIt(int argc, char *argv[]){
 
 	printf("Performing measurement\n");
 
-	int totalStars=10;
-	// write head line
-	for (int i=0; i<totalStars;i++) printf(" ");
-	printf("|\n");
+	for (int i=0; !abortMeasurement && i<command->getNumberOfMeasurements(); i++){
+		printProgress(i,command->getNumberOfMeasurements());
 
-	int starsPrinted=0;
-	for (int i=0; i<command->getNumberOfMeasurements(); i++){
 		MeasurerOutputBase *measurerOutput=scheme->measure();
 		if (measurerOutput!=NULL){
 			outputCollection.getMeasurerOutputs().push_back(measurerOutput);
 		}
-
-		//check if new stars need to be printed
-		if (i*totalStars/command->getNumberOfMeasurements()>starsPrinted){
-			printf("*");
-			fflush(stdout);
-			starsPrinted++;
-		}
 	}
-	printf("*\n");
+	// print final progress bar
+	printProgress(100,100);
+	printf("\n");
 
 	printf("tearing down\n");
 	delete(kernel);
@@ -200,6 +237,11 @@ int doIt(int argc, char *argv[]){
 }
 
 int main(int argc, char *argv[]){
+	// setup handler for SIGINT (Ctrl+C)
+	abortMeasurement=false;
+	signal(SIGINT, sigint_handler);
+
+	// perform the measurement
 	try {
 		return doIt(argc,argv);
 	}

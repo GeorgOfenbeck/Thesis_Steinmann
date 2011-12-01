@@ -16,6 +16,7 @@ public class Main {
 		if (args.length != 1 && args.length != 2) {
 			System.out
 					.println("Usage: measuringDriver measurementName [outputName]");
+			System.exit(1);
 		}
 
 		String measurementName = args[0];
