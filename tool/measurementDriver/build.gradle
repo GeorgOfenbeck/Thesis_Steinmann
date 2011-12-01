@@ -1,0 +1,76 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+            srcDir '../multiLanguageClasses/generatedJava'
+        }
+        resources {
+            srcDir 'templates'
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+	compile group: 'org.apache.commons', name: 'commons-math', version: '2.2'
+	compile group: 'org.apache.commons', name: 'commons-exec', version: '1.1'
+	compile group: 'commons-configuration', name: 'commons-configuration', version: '1.7'
+    compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.2'
+    compile group: 'com.google.inject', name: 'guice', version: '3.0'
+}
+
+// don't do any tests
+test.actions.clear()
+
+clean.delete 'bin/'
+
+
+// setup the manifest of the jar
+jar {
+    manifest {
+        attributes(
+	    "Main-Class": "ch.ethz.ruediste.roofline.measurementDriver.Main"
+	)
+    }
+}
+
+// make sure multi language classes are built before the measurement driver
+task generateMultiLanguageClasses(type: Exec){
+	dependsOn ':multiLanguageCodeGenerator:runnableJar'
+	workingDir '../multiLanguageClasses'
+	commandLine 'java', '-jar', '../multiLanguageCodeGenerator/build/distributions/multiLanguageCodeGenerator.jar'
+	inputs.dir '../multiLanguageClasses/definitions'
+	inputs.file '../multiLanguageCodeGenerator/build/distributions/multiLanguageCodeGenerator.jar'
+	outputs.dir '../multiLanguageClasses/generatedC'
+	outputs.dir '../multiLanguageClasses/generatedJava'
+	//onlyIf { Task task-> task.taskDependencies.getDependencies(task).any{it.didWork}}
+}
+
+compileJava.dependsOn generateMultiLanguageClasses
+
+// create a runnable jar file for the measuringDriver
+task runnableJar (dependsOn: jar, type: Zip) {
+    extension='jar'
+}
+
+// initialize the runnableJar task
+// add all runtime dependencies, unzip them and add the files to the
+// runnable jar
+files(configurations.runtime) // get all runtime dependencies
+    .each{ // iterate over the dependencies
+	runnableJar.from( // add files to the copy sorce 
+	    zipTree(it) // unzip the dependencies
+		.matching{exclude 'META-INF/'} // exclude meta informations of dependencies
+	)}
+// add the output of the current project to the runnable jar
+runnableJar.from(zipTree(jar.archivePath))
+
+// execute the runnableJar task when building
+build.dependsOn runnableJar
