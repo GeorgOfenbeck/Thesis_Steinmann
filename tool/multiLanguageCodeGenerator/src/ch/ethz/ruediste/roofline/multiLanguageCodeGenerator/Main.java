@@ -10,8 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.FieldTypeDescriptor;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageDefine;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageDerivedClass;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageField;
@@ -123,7 +123,6 @@ public class Main {
 		// get all sub directories
 		File inputDirectoriesFiles[] = classDefinitionDirectory
 				.listFiles(new FileFilter() {
-					@Override
 					public boolean accept(File pathname) {
 						// get all directories
 						return pathname.isDirectory();
@@ -143,7 +142,6 @@ public class Main {
 				inputFiles,
 				classDefinitionDirectory
 						.listFiles(new FileFilter() {
-							@Override
 							public boolean accept(File pathname) {
 								// get all .xml files
 								return !pathname.isDirectory()

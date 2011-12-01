@@ -24,21 +24,17 @@ public abstract class CodeGeneratorBase {
 	/** Logger for Velocity which logs everything to System.out */
 	private class ConsoleLogger implements LogChute {
 
-		@Override
 		public void init(RuntimeServices arg0) throws Exception {
 		}
 
-		@Override
 		public boolean isLevelEnabled(int arg0) {
 			return true;
 		}
 
-		@Override
 		public void log(int arg0, String arg1) {
 			System.out.println(arg1);
 		}
 
-		@Override
 		public void log(int arg0, String arg1, Throwable arg2) {
 			System.out.println(arg1);
 		}

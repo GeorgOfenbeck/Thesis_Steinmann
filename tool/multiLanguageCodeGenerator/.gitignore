@@ -1,3 +1,8 @@
 bin/
+build/
 generatedJava/
 generatedC/
+.project
+.classpath
+.settings/
+.gradle/
