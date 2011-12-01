@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.CodeGeneratorBase;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
 
 /** Generates Java for a list of multi language classes */
 public class JavaCodeGenerator extends CodeGeneratorBase {
@@ -14,10 +14,10 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 	}
 
 	@Override
-	public void generate(List<MultiLanguageClass> multiLanguageClasses) {
+	public void generate(List<MultiLanguageClassBase> multiLanguageClasses) {
 
 		// generate java code for all classes
-		for (MultiLanguageClass multiLanguageClass : multiLanguageClasses) {
+		for (MultiLanguageClassBase multiLanguageClass : multiLanguageClasses) {
 
 			VelocityContext context = new VelocityContext();
 

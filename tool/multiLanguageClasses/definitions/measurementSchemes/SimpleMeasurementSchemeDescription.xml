@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class
+<derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="shared.xsd"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="SimpleMeasurementSchemeDescription" 
-	cBaseType="MeasurementSchemeDescriptionBase"
-	javaBaseType="MeasurementSchemeDescriptionBase"
+	baseType="MeasurementSchemeDescriptionBase"
 	comment="Describes the simple measurement scheme">
 	
-</class>
+</derivedClass>

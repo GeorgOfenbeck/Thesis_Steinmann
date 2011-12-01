@@ -19,6 +19,23 @@
           </xs:complexType>
 
         </xs:element>
+        
+        <xs:element name="derivedClass">
+          <xs:complexType>
+
+          		<xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="field" type="fieldType" />
+          			<xs:element name="define" type="defineType"/>
+          			<xs:element name="list" type="listType"/>
+          		</xs:choice>
+
+          	<xs:attribute name="name" type="xs:string" use="required"/>
+          	<xs:attribute name="baseType" type="xs:string" use="required" />
+          	<xs:attribute name="javaSuffix" type="xs:string" use="optional"/>
+          	<xs:attribute name="comment" type="xs:string" use="optional"/>
+          </xs:complexType>
+
+        </xs:element>
   
 
         <xs:complexType name="fieldBaseType">

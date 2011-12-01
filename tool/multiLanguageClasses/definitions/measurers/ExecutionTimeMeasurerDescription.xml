@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class
+<derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="shared.xsd"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="ExecutionTimeMeasurerDescription" 
-	cBaseType="MeasurerDescriptionBase"
-	javaBaseType="MeasurerDescriptionBase"
+	baseType="MeasurerDescriptionBase"
 	comment="describes a measurer which measures execution time">
 	
-</class>
+</derivedClass>

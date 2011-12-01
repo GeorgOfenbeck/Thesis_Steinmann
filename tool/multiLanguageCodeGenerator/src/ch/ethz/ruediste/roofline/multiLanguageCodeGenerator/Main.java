@@ -10,8 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.FieldTypeDescriptor;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageDefine;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageDerivedClass;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageField;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageFieldBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageList;
@@ -34,17 +36,23 @@ public class Main {
 		HashMap<String, FieldTypeDescriptor> typeDescriptors = createTypeDescriptorsForPrimitiveTypes();
 
 		// load the class definitions
-		List<MultiLanguageClass> classes = loadClassDefinitions(inputFiles);
+		List<MultiLanguageClassBase> classes = loadClassDefinitions(inputFiles);
 
 		// create type descriptor for each loaded class
-		for (MultiLanguageClass multiLanguageClass : classes) {
+		for (MultiLanguageClassBase multiLanguageClass : classes) {
 			typeDescriptors.put(multiLanguageClass.getName(),
 					new FieldTypeDescriptor(multiLanguageClass.getName()));
 		}
 
 		// set type descriptors of all fields in all classes
-		for (MultiLanguageClass multiLanguageClass : classes) {
+		for (MultiLanguageClassBase multiLanguageClass : classes) {
 			multiLanguageClass.setTypeDescriptors(typeDescriptors);
+			if (multiLanguageClass instanceof MultiLanguageDerivedClass) {
+				MultiLanguageDerivedClass derivedClass = (MultiLanguageDerivedClass) multiLanguageClass;
+				derivedClass.setBaseClass(findBaseClass(
+						derivedClass,
+						classes));
+			}
 		}
 
 		// instantiate generators
@@ -58,17 +66,44 @@ public class Main {
 		}
 	}
 
+	/**
+	 * Finds the base class of a bulti language class
+	 * 
+	 * @param multiLanguageClass
+	 *            class to find the base type for
+	 * @param classes
+	 *            list of all available classes
+	 * @return
+	 */
+	private static MultiLanguageClassBase findBaseClass(
+			MultiLanguageDerivedClass multiLanguageClass,
+			List<MultiLanguageClassBase> classes) {
+		// if there is no base type, there is no base class
+		if (multiLanguageClass.getBaseType() == null)
+			return null;
+
+		// iterate over all available classes and return the first matching one
+		for (MultiLanguageClassBase baseClass : classes) {
+			if (baseClass.getName().equals(multiLanguageClass.getBaseType())) {
+				return baseClass;
+			}
+		}
+
+		throw new Error(String.format("base class %s of classs %s not found",
+				multiLanguageClass.getBaseType(), multiLanguageClass.getName()));
+	}
+
 	/** load all class definitions defined in the given input files */
-	private static List<MultiLanguageClass> loadClassDefinitions(
+	private static List<MultiLanguageClassBase> loadClassDefinitions(
 			File[] inputFiles) {
 		// inistialize XStream
 		XStream xStream = createXStream();
 
 		// load all classes
-		List<MultiLanguageClass> classes = new LinkedList<MultiLanguageClass>();
+		List<MultiLanguageClassBase> classes = new LinkedList<MultiLanguageClassBase>();
 		for (File inputFile : inputFiles) {
 			// load the input
-			MultiLanguageClass multiLanguageClass = (MultiLanguageClass) xStream
+			MultiLanguageClassBase multiLanguageClass = (MultiLanguageClassBase) xStream
 					.fromXML(inputFile);
 			System.out.println(xStream.toXML(multiLanguageClass));
 
@@ -128,6 +163,7 @@ public class Main {
 		xStream.processAnnotations(MultiLanguageDefine.class);
 		xStream.processAnnotations(MultiLanguageList.class);
 		xStream.processAnnotations(MultiLanguageFieldBase.class);
+		xStream.processAnnotations(MultiLanguageDerivedClass.class);
 		return xStream;
 	}
 

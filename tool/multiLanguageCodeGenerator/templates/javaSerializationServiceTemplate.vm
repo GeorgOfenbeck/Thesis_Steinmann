@@ -50,7 +50,7 @@ public class MultiLanguageSerializationService{
 				output.println("$class.name");
 	
 				## iterate over all fields
-				#foreach($field in $class.fields)
+				#foreach($field in $class.allFields)
 				
 					## output field header
 					#if ($field.class.simpleName != "MultiLanguageDefine")
@@ -88,7 +88,7 @@ public class MultiLanguageSerializationService{
 			$class.name result=new ${class.name}();
 			scanner.next("$class.name");
 			scanner.nextLine();
-#foreach($field in $class.fields)
+#foreach($field in $class.allFields)
 
 #macro( parseNonReference ) 
 #if ($field.type=="bool") scanner.${field.typeDescriptor.scannerMethod}()!=0 #else scanner.${field.typeDescriptor.scannerMethod}() #end 
