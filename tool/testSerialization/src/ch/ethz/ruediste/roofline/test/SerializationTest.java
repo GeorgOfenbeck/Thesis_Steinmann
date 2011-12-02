@@ -84,7 +84,7 @@ public class SerializationTest {
 		serializationService.Serialize(testObject, buffer, dummyBuffer);
 
 		MultiLanguageTestClass deserializedTestObject = (MultiLanguageTestClass) serializationService
-				.DeSerialize(new ByteArrayInputStream(dummyBuffer.toByteArray()));
+				.DeSerialize(new ByteArrayInputStream(buffer.toByteArray()));
 
 		checkTestObject(deserializedTestObject);
 

@@ -42,7 +42,7 @@ public class Histogram implements IAddValue {
 			else {
 				double doubleBin = (dataArray[i] - min) / span;
 				int bin = (int) Math.floor(doubleBin * binCount);
-				if (bin > 0 && bin < binCount)
+				if (bin >= 0 && bin < binCount)
 					counts[bin]++;
 			}
 		}

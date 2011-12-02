@@ -1,6 +1,7 @@
 subprojects{
-	afterEvaluate{
-		eclipse.dependsOn cleanEclipse
+	afterEvaluate{ p->
+		
+		p.tasks.getByPath('eclipse').dependsOn p.tasks.getByPath('cleanEclipse')
 	}
 }
 
