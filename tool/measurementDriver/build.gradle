@@ -1,14 +1,28 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+// fix eclipse plugin output
+eclipseClasspath {
+ 	beforeConfigured { classpath ->
+        classpath.entries.removeAll { entry -> entry.path.equals("generatedJava") }
+    }
+    whenConfigured { classpath ->
+        classpath.entries.each {
+        	if (it.path.equals("../multiLanguageClasses/generatedJava")){
+        	  it.path="generatedJava";
+        	}
+       	}
+    }
+}
+
 sourceSets {
     main {
         java {
             srcDir 'src'
-            srcDir '../multiLanguageClasses/generatedJava'
+            srcDir 'generatedJava'
         }
         resources {
-            srcDir 'templates'
+            srcDir 'config'
         }
     }
 }
@@ -54,6 +68,8 @@ task generateMultiLanguageClasses(type: Exec){
 }
 
 compileJava.dependsOn generateMultiLanguageClasses
+
+
 
 // create a runnable jar file for the measuringDriver
 task runnableJar (dependsOn: jar, type: Zip) {

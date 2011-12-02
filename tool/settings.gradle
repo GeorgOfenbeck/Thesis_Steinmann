@@ -1,1 +1,4 @@
-include 'multiLanguageCodeGenerator', 'measurementDriver'
+include 'multiLanguageCodeGenerator'
+include 'measurementDriver'
+include 'testSerialization'
+

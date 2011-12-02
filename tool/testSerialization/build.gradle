@@ -1,0 +1,37 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+
+sourceSets {
+    main {
+        java {
+            //srcDir 'src'
+        }
+        resources {
+			//srcDir 'config'
+        }
+    }
+    
+    test {
+    	java { srcDir 'src' }
+    	}
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+//    compile group: 'org.apache.commons', name: 'commons-math', version: '2.2'
+//    compile group: 'org.apache.commons', name: 'commons-exec', version: '1.1'
+//    compile group: 'commons-configuration', name: 'commons-configuration', version: '1.7'
+//    compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
+//    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.2'
+    compile group: 'com.google.inject', name: 'guice', version: '3.0'
+    compile group: 'org.jmock', name: 'jmock', version: '2.5.1'
+    compile group: 'org.jmock', name: 'jmock-legacy', version: '2.5.1'
+    compile group: 'junit', name: 'junit', version: '4.10'
+    compile project(':measurementDriver')
+}
+
+clean.delete 'bin/'

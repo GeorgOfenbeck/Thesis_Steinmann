@@ -3,6 +3,8 @@ package ch.ethz.ruediste.roofline.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,17 +18,17 @@ import org.junit.Test;
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
 import ch.ethz.ruediste.roofline.dom.MultiLanguageTestClass;
 
-import com.sun.xml.internal.ws.util.ByteArrayBuffer;
+//import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 
 public class SerializationTest {
 
 	MultiLanguageTestClass testObject;
-	ByteArrayBuffer buffer;
+	ByteArrayOutputStream buffer;
 	MultiLanguageSerializationService serializationService = new MultiLanguageSerializationService();
 
 	@Before
 	public void setup() {
-		buffer = new ByteArrayBuffer();
+		buffer = new ByteArrayOutputStream();
 
 		testObject = new MultiLanguageTestClass();
 		testObject.setLongField(2);
@@ -71,7 +73,8 @@ public class SerializationTest {
 	 */
 	@Test
 	public void testJava() {
-		ByteArrayBuffer dummyBuffer = new ByteArrayBuffer();
+
+		ByteArrayOutputStream dummyBuffer = new ByteArrayOutputStream();
 		serializationService.Serialize(testObject, System.out, dummyBuffer);
 
 		dummyBuffer.reset();
@@ -81,7 +84,7 @@ public class SerializationTest {
 		serializationService.Serialize(testObject, buffer, dummyBuffer);
 
 		MultiLanguageTestClass deserializedTestObject = (MultiLanguageTestClass) serializationService
-				.DeSerialize(buffer.newInputStream());
+				.DeSerialize(new ByteArrayInputStream(dummyBuffer.toByteArray()));
 
 		checkTestObject(deserializedTestObject);
 
@@ -103,7 +106,7 @@ public class SerializationTest {
 
 		// serialize test object
 		FileOutputStream inputFileStream = new FileOutputStream(inputFile);
-		ByteArrayBuffer dummyBuffer = new ByteArrayBuffer();
+		ByteArrayOutputStream dummyBuffer = new ByteArrayOutputStream();
 		serializationService
 				.Serialize(testObject, inputFileStream, dummyBuffer);
 		inputFileStream.close();

@@ -13,7 +13,6 @@ public class ExecutionTimeMeasurerOutput extends
 		final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
 		addValues(result, new IAddValue() {
-			@Override
 			public void addValue(double v) {
 				statistics.addValue(v);
 			}

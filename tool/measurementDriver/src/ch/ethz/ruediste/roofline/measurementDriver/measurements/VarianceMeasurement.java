@@ -38,7 +38,6 @@ public class VarianceMeasurement implements IMeasurement {
 		PrintStream output;
 	}
 
-	@Override
 	public void measure(String outputName) throws IOException {
 		// create schemes
 		KBestMeasurementSchemeDescription kBestScheme = new KBestMeasurementSchemeDescription();

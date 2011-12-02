@@ -23,7 +23,6 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 		final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
 		addValues(name, result, new IAddValue() {
-			@Override
 			public void addValue(double v) {
 				statistics.addValue(v);
 			}

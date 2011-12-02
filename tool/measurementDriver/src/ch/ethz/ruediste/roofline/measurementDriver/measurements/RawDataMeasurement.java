@@ -34,7 +34,6 @@ public class RawDataMeasurement implements IMeasurement {
 	@Inject
 	public CommandService commandService;
 
-	@Override
 	public void measure(String outputName) throws IOException {
 		// create schemes
 		KBestMeasurementSchemeDescription kBestScheme = new KBestMeasurementSchemeDescription();
@@ -70,7 +69,6 @@ public class RawDataMeasurement implements IMeasurement {
 			PerfEventMeasurerOutput.addValues("cycles", result,
 					new IAddValue() {
 
-						@Override
 						public void addValue(double v) {
 							outputFile.printf("%e\n", v);
 						}
@@ -80,7 +78,6 @@ public class RawDataMeasurement implements IMeasurement {
 		if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {
 			ExecutionTimeMeasurerOutput.addValues(result, new IAddValue() {
 
-				@Override
 				public void addValue(double v) {
 					outputFile.printf("%e\n", v);
 
