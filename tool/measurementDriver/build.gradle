@@ -2,11 +2,17 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 
 // fix eclipse plugin output
-eclipseClasspath {
- 	beforeConfigured { classpath ->
+eclipse.classpath.file {
+// eclipseClasspath { // needed for 1.0-milestone3
+ 	//beforeConfigured // needed for 1.0-milestone3
+ 	beforeMerged 
+ 	{ classpath ->
         classpath.entries.removeAll { entry -> entry.path.equals("generatedJava") }
     }
-    whenConfigured { classpath ->
+    
+    //whenConfigured // needed for 1.0-milestone3
+    whenMerged 
+    { classpath ->
         classpath.entries.each {
         	if (it.path.equals("../multiLanguageClasses/generatedJava")){
         	  it.path="generatedJava";
