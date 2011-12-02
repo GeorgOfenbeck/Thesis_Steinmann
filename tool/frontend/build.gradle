@@ -1,0 +1,85 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDir 'config'
+            // exclude config files, will be copied by the copyAndExpandConfigTemplates task
+            exclude '*.config' 
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+//	compile group: 'org.apache.commons', name: 'commons-math', version: '2.2'
+	compile group: 'org.apache.commons', name: 'commons-exec', version: '1.1'
+	compile group: 'commons-configuration', name: 'commons-configuration', version: '1.7'
+ //   compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
+ //   compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.2'
+//    compile group: 'com.google.inject', name: 'guice', version: '3.0'
+}
+
+// don't do any tests
+test.actions.clear()
+
+clean.delete 'bin/'
+
+
+// setup the manifest of the jar
+jar {
+    manifest {
+        attributes(
+	    "Main-Class": "ch.ethz.ruediste.roofline.frontend.Main"
+	)
+    }
+}
+
+
+// apply templates in config files
+task copyAndExpandConfigTemplates(type: Copy){
+	from('config'){
+		include '*.config'
+	}
+	into 'build/resources/main'
+	expand ('toolPath': rootProject.projectDir.absolutePath)
+}
+
+assemble.dependsOn copyAndExpandConfigTemplates
+
+// install the starter shell script
+task copyShellScript (type: Copy){
+	from 'rmt.sh'
+	//into System.getProperty("user.home")+'/bin'
+	into 'build'
+	rename 'rmt.sh', 'rmt'
+	expand ('toolPath': rootProject.projectDir.absolutePath)
+}
+assemble.dependsOn copyShellScript
+
+// create a runnable jar file for the frontend
+task runnableJar (dependsOn: jar, type: Zip) {
+    extension='jar'
+}
+
+// initialize the runnableJar task
+// add all runtime dependencies, unzip them and add the files to the
+// runnable jar
+files(configurations.runtime) // get all runtime dependencies
+    .each{ // iterate over the dependencies
+	runnableJar.from( // add files to the copy sorce 
+	    zipTree(it) // unzip the dependencies
+		.matching{exclude 'META-INF/'} // exclude meta informations of dependencies
+	)}
+// add the output of the current project to the runnable jar
+runnableJar.from(zipTree(jar.archivePath))
+
+// execute the runnableJar task when building
+build.dependsOn runnableJar

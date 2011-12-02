@@ -100,7 +100,9 @@ The tool consists of two main components: The Measuring Core, which performs the
 
 A measurement is controlled by a measurement specific routine (one per measurement), which iterates through all parameter points to be examined, compiles and starts the Measuring Core and processes the results. This should result in straight forward code for controlling the measurements and, since the control code is written in Java, a minimal amount of new concepts has to be learned.
 
-During the development of measurement control routines, it is expected that many changes do not affect the parameter points. To avoid the temporal overhead of reperforming all measurements after every minor change, the measurement results are cached.
+During the development of measurement control routines, it is expected that many changes do not affect the parameter points. To speed up repeated measurements after every minor change to the measurement driver, the measurement results are cached.
+
+For convenience, a frontend program is provided. It compiles the measurement driver and executes it. It can be started using a shell script called "rmt", which has to be placed manually in a directory which is in the shell path.
 
 \umlDiagram{ToolComponents}
 
@@ -115,17 +117,18 @@ We intentionally directly describe Measuring Core parts in the SharedDOM. This a
 \subsection{Multi Language Infrastructure}
 All classes in the SharedDOM are used by components written in Java. But some of them are also used by the Measuring Core, which is written in C++. To avoid having to manually synchronize two versions of the same classes, the source code for the C++ and the Java implementation is generated from an XML definition by the Multi Language Code Generator. The XML definition contains field definitions only, no code. If class specific code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
 
-Along with the source code for each class, the implementation of  the MultiLanguageSerializationService is generated for both languages. This service allows to serialize to and deserialize from a simple text based serialization format. It supports the following primitive types:
+Along with the source code for each class, the implementation of the MultiLanguageSerializationService is generated for both languages. This service allows to serialize to and deserialize from a simple text based serialization format. It supports the following primitive types:
 \begin{itemize}
 \item double
 \item integer
 \item long integer
 \item boolean
+\item string
 \end{itemize}
 
 References to other multi language classes are supported. The serializer does not recognize if the same object can be reached multiple times within the same object graph. Each time it encounters an object, the object is serialized instead of referencing the previous serialization.
 
-Lists of the supported primitive types as well as of references are supported.
+Lists containing one of the supported primitive types as well as containing references to multi language classes are supported.
 
 The XML class representation is parsed using a serialization library called XStream. XStream maps classes to an XML representation. The serialized classes are shown in \umlRef{MultiLanguageClassDefinition}.
 

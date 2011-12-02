@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
+import org.apache.commons.configuration.Configuration;
+
 import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
@@ -18,6 +20,8 @@ import com.thoughtworks.xstream.XStream;
 
 @Singleton
 public class MeasurementService {
+	public final String measuringCorePathKey = "measurement.corePath";
+
 	@Inject
 	public MultiLanguageSerializationService serializationService;
 
@@ -27,6 +31,9 @@ public class MeasurementService {
 	@Inject
 	public CommandService commandService;
 
+	@Inject
+	public Configuration configuration;
+
 	public MeasurementResult measure(MeasurementCommand command)
 	{
 		try {
@@ -35,7 +42,22 @@ public class MeasurementService {
 
 			System.out.println("Performing Measurements");
 
-			File measuringCoreDir = new File("../../measuringCore/Debug");
+			// check if measuring core path is configured
+			if (!configuration.containsKey(measuringCorePathKey)) {
+				throw new Error(
+						"measuring core path is not configured. Check configuration file. The missing key is: "
+								+ measuringCorePathKey);
+			}
+
+			File measuringCoreDir = new File(
+					configuration.getString(measuringCorePathKey));
+
+			// check if the core directory exists
+			if (!measuringCoreDir.exists()) {
+				throw new Error(
+						"Could not find the measuring core. The configured file is: "
+								+ measuringCoreDir.getAbsolutePath());
+			}
 
 			System.out.println("processing the following measurement:");
 			xStream.toXML(command.getMeasurement(), System.out);

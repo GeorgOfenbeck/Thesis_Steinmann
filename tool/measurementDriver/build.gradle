@@ -29,6 +29,8 @@ sourceSets {
         }
         resources {
             srcDir 'config'
+            // exclude config files, will be copied by the copyAndExpandConfigTemplates task
+            exclude '*.config' 
         }
     }
 }
@@ -51,6 +53,17 @@ test.actions.clear()
 
 clean.delete 'bin/'
 
+
+// apply templates in config files
+task copyAndExpandConfigTemplates(type: Copy){
+	from('config'){
+		include '*.config'
+	}
+	into 'build/resources/main'
+	expand ('toolPath': rootProject.projectDir.absolutePath)
+}
+assemble.dependsOn copyAndExpandConfigTemplates
+jar.inputs.dir 'config'
 
 // setup the manifest of the jar
 jar {
@@ -80,6 +93,7 @@ compileJava.dependsOn generateMultiLanguageClasses
 // create a runnable jar file for the measuringDriver
 task runnableJar (dependsOn: jar, type: Zip) {
     extension='jar'
+    inputs.file jar.archivePath
 }
 
 // initialize the runnableJar task
