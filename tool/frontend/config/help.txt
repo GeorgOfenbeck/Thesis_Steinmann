@@ -1,0 +1,15 @@
+usage: rmt [options] command [command args]
+
+Measurement Driver compilation Options:
+-b	build Measurement Driver
+-nb	do not build Measurement Driver
+-d	use Gradle Daemon (speeds compilation up)
+-nd	don't use Gradle Daemon 
+-c	clean Measurement Driver (rebuild)
+-r	restart Gradle Daemon (might solve strange build errors)
+-nr	don't restart gradle
+
+Compilation Options have to be placed at the beginning of the command line. 
+Multiple options are allowed. If options contradict, the last one takes precedence.
+
+For more help and options run "rmt help". This involves compiling and starting the Measurement Driver.

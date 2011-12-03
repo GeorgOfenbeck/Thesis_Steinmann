@@ -94,6 +94,7 @@ compileJava.dependsOn generateMultiLanguageClasses
 task runnableJar (dependsOn: jar, type: Zip) {
     extension='jar'
     inputs.file jar.archivePath
+    inputs.file configurations.runtime
 }
 
 // initialize the runnableJar task
