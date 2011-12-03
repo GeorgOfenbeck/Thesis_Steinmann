@@ -26,6 +26,14 @@ import com.google.inject.Inject;
 
 public class VarianceMeasurement implements IMeasurement {
 
+	public String getName() {
+		return "variance";
+	}
+
+	public String getDescription() {
+		return "";
+	}
+
 	@Inject
 	public MeasurementAppController measurementAppController;
 

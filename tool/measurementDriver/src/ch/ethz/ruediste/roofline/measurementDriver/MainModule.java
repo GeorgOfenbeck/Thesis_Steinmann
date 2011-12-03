@@ -1,6 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.commons.configuration.CombinedConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -9,10 +10,9 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
-import ch.ethz.ruediste.roofline.measurementDriver.measurements.RawDataMeasurement;
-import ch.ethz.ruediste.roofline.measurementDriver.measurements.VarianceHistogramMeasurement;
-import ch.ethz.ruediste.roofline.measurementDriver.measurements.VarianceMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.INamed;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
@@ -30,6 +30,10 @@ public class MainModule extends AbstractModule {
 		try {
 			InputStream configStream = ClassLoader
 					.getSystemResourceAsStream("defaultConfiguration.config");
+			if (configStream == null) {
+				throw new Error(
+						"could not load <defaultConfiguration.config>. Does not seem to be in the class path. Is it compiled into the .jar?");
+			}
 			defaultConfiguration.load(configStream);
 		} catch (ConfigurationException e) {
 			throw new Error(e);
@@ -39,6 +43,8 @@ public class MainModule extends AbstractModule {
 		combinedConfiguration.addConfiguration(defaultConfiguration);
 
 		bind(Configuration.class).toInstance(combinedConfiguration);
+
+		bind(Instantiator.class);
 
 		// setup services
 		bind(MeasurementService.class);
@@ -52,18 +58,34 @@ public class MainModule extends AbstractModule {
 		XStream xStream = new XStream(new DomDriver());
 		bind(XStream.class).toInstance(xStream);
 
-		// setup measurements
-		bindMeasurement(VarianceMeasurement.class, "variance");
-		bindMeasurement(VarianceHistogramMeasurement.class, "varianceHist");
-		bindMeasurement(RawDataMeasurement.class, "raw");
+		// setup measurements and commands
+		bindNamed(IMeasurement.class,
+				"ch.ethz.ruediste.roofline.measurementDriver.measurements");
+		bindNamed(ICommand.class,
+				"ch.ethz.ruediste.roofline.measurementDriver.commands");
+
 	}
 
-	private <T extends IMeasurement> void bindMeasurement(
-			Class<T> measurementClass,
-			String name) {
-		bind(IMeasurement.class)
-				.annotatedWith(Names.named(name))
-				.to(measurementClass);
-	}
+	private <T extends INamed> void bindNamed(Class<T> baseType,
+			String basePackage) {
+		// get all classes implementing the given base type
+		List<Class<? extends T>> measurementClasses = ClassFinder
+				.getClassesImplementing(
+						baseType, basePackage);
 
+		// bind the classes found
+		for (Class<? extends T> clazz : measurementClasses) {
+			try {
+				INamed measurement = (INamed) clazz.newInstance();
+				bind(baseType)
+						.annotatedWith(Names.named(measurement.getName()))
+						.to(clazz);
+
+			} catch (Exception e) {
+				// rethrow the exception
+				throw new Error(e);
+			}
+
+		}
+	}
 }

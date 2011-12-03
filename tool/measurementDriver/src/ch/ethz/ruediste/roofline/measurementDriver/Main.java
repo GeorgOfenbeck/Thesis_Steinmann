@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -13,11 +13,11 @@ public class Main {
 
 	public static void main(String args[]) throws IOException {
 
-		if (args.length != 1 && args.length != 2) {
-			System.out
-					.println("Usage: measuringDriver measurementName [outputName]");
-			System.exit(1);
-		}
+		/*
+		 * if (args.length != 1 && args.length != 2) { System.out
+		 * .println("Usage: measuringDriver measurementName [outputName]");
+		 * System.exit(1); }
+		 */
 
 		String measurementName = args[0];
 		String outputName = measurementName;
@@ -27,11 +27,14 @@ public class Main {
 
 		Injector injector = Guice.createInjector(new MainModule());
 
-		IMeasurement measurement = injector
-				.getInstance(Key.get(IMeasurement.class,
+		// make the injector available to the instantiator
+		injector.getInstance(Instantiator.class).setInjector(injector);
+
+		ICommand command = injector
+				.getInstance(Key.get(ICommand.class,
 						Names.named(measurementName)));
 
-		measurement.measure(outputName);
+		command.execute(args);
 
 	}
 }

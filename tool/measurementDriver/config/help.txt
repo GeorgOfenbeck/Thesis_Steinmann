@@ -1,0 +1,3 @@
+usage: rmt [<options>] <command> [<command args>]
+
+For Measurement Driver compilation Options run "rmt -h"

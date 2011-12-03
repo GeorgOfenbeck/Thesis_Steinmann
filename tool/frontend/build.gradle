@@ -1,18 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
-sourceSets {
-    main {
-        java {
-            srcDir 'src'
-        }
-        resources {
-            srcDir 'config'
-            // exclude config files, will be copied by the copyAndExpandConfigTemplates task
-            exclude '*.config' 
-        }
-    }
-}
 
 repositories {
     mavenCentral()
@@ -27,6 +15,20 @@ dependencies {
 //    compile group: 'com.google.inject', name: 'guice', version: '3.0'
 }
 
+sourceSets {
+    main {
+        java {
+            srcDir 'src'
+        }
+        resources {
+            srcDir 'config'
+            // exclude config files, will be copied by the copyAndExpandConfigTemplates task
+            exclude '*.config' 
+        }
+        //runtimeClassPath: configurations.runtime
+    }
+}
+
 // don't do any tests
 test.actions.clear()
 
@@ -38,7 +40,7 @@ jar {
     manifest {
         attributes(
 	    "Main-Class": "ch.ethz.ruediste.roofline.frontend.Main"
-	)
+		)
     }
 }
 

@@ -25,6 +25,14 @@ import com.google.inject.Inject;
 
 public class RawDataMeasurement implements IMeasurement {
 
+	public String getName() {
+		return "raw";
+	}
+
+	public String getDescription() {
+		return "";
+	}
+
 	@Inject
 	public MeasurementAppController measurementAppController;
 

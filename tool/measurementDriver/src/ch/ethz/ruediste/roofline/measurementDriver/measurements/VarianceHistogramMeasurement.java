@@ -25,6 +25,14 @@ import com.google.inject.Inject;
 
 public class VarianceHistogramMeasurement implements IMeasurement {
 
+	public String getName() {
+		return "varianceHist";
+	}
+
+	public String getDescription() {
+		return "";
+	}
+
 	@Inject
 	public MeasurementAppController measurementAppController;
 
