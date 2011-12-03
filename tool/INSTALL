@@ -1,0 +1,17 @@
+Installation Instructions
+
+1. clone the git repository
+
+2. change to masterthesis/tool
+
+3. build tool
+./gradlew --daemon build eclipse
+
+==> builds the tool, generates eclipse project files
+This might take a while, since all dependencies are downloaded, including Gradle
+
+4. install libpfm4_2.0_i386.deb and libpfm4-dev_2.0_i386.deb located in masterthesis/tool/lib
+sudo dpkg -i lib/libpfm4_2.0_i386.deb lib/libpfm4-dev_2.0_i386.deb
+
+5. make masterthesis/tool/frontend/build/rmt and place it in a directory which is in the shell path
+cp frontend/build/rmt /usr/local/bin
