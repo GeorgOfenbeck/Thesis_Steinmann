@@ -100,17 +100,17 @@ The tool consists of two main components: The Measuring Core, which performs the
 
 A measurement is controlled by a measurement specific routine (one per measurement), which iterates through all parameter points to be examined, compiles and starts the Measuring Core and processes the results. This should result in straight forward code for controlling the measurements and, since the control code is written in Java, a minimal amount of new concepts has to be learned.
 
-During the development of measurement control routines, it is expected that many changes do not affect the parameter points. To speed up repeated measurements after every minor change to the measurement driver, the measurement results are cached.
+During the development of measurement control routines, it is expected that many changes do not affect the parameter points. To speed up repeated measurements after changes to the measurement driver, the measurement results are cached. Thus, as long as the measurement parameters are not changed, the measurement does not need to be repeated.
 
-For convenience, a frontend program is provided. It compiles the measurement driver and executes it. It can be started using a shell script called "rmt", which has to be placed manually in a directory which is in the shell path.
+The measurement tool is used to generate and display measurement results. Often, the measurement results lead to changes to the tool itself. Thus, switches between using the tool and developing the tool are frequent. To support these switches, a frontend program is provided. It compiles the measurement driver and executes it. It can be started using a shell script called "rmt", which has to be placed manually in a directory in the shell path. The result files of a measurement are placed in the current working directory.
 
 \umlDiagram{ToolComponents}
 
-Data transfer between the components is archieved using serialized objects stored in files. This allows to run the components independently. The classes of this Shared DOM are shown in the following diagram:
+Data transfer between the measuring core and the measurement driver is archieved using serialized objects stored in files. The classes of this Shared DOM are shown in the following diagram:
 
-\umlDiagram{SharedDOM}
+\umlDiagram{MultiLanguageClasses}
 
-The Measurement Description Generator generates a list of MeasurementDescriptions. Each MeasurementDescription describes how to perform a single measurement. It contains a MeasurementSchemeDescription, a KernelDescription and a MeasurerDescription. Each description contains all information required to set up the respective part of the Measuring Core (type, parameters, \ldots).
+Each MeasurementDescription describes how to perform a single measurement. It contains a MeasurementSchemeDescription, a KernelDescription and a MeasurerDescription. Each description contains all information required to set up the respective part of the Measuring Core (type, parameters, \ldots).
 
 We intentionally directly describe Measuring Core parts in the SharedDOM. This allows the MeasuringCore to directly use the information contained therein and thus helps to keep the core simple.
 
@@ -162,8 +162,11 @@ After the definitions are loaded, Velocity templates are used to generate all so
 The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Shared DOM project. The generated C code is linked by the Measuring Core. The following Diagram shows the build dependencies:
 
 \umlDiagram{BuildDependencies}
+
+\subsection{Measurement Driver}
+
 \subsection{Measuring Core}
-\umlFloat{CentralComponents}{Central classes of the measuring core}
+\umlFloat{CentralClasses}{Central classes of the measuring core}
 The central classes of the Measuring Core are the measurement scheme, the kernel and the measurer. (\umlRef{CentralComponents}) The MeasurementScheme has template arguments for the kernel and the measurer type. The scheme contains nested instances of the kernel and the measurer. This disables polymorphic calls and allows the compiler to fully optimize the measure function of the measurer, including inlining methods of the kernel and the measurer.
 
 \subsubsection{Type Registry}
