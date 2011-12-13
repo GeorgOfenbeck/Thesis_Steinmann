@@ -49,7 +49,7 @@ dependencies {
 }
 
 // don't do any tests
-test.actions.clear()
+test.enabled=false
 
 clean.delete 'bin/'
 
@@ -60,8 +60,11 @@ task copyAndExpandConfigTemplates(type: Copy){
 		include '*.config'
 	}
 	into 'build/resources/main'
-	expand ('toolPath': rootProject.projectDir.absolutePath)
+	expand ([
+		'toolPath': rootProject.projectDir.absolutePath
+		])
 }
+
 assemble.dependsOn copyAndExpandConfigTemplates
 jar.inputs.dir 'config'
 
@@ -75,20 +78,7 @@ jar {
 }
 
 // make sure multi language classes are built before the measurement driver
-task generateMultiLanguageClasses(type: Exec){
-	dependsOn ':multiLanguageCodeGenerator:runnableJar'
-	workingDir '../multiLanguageClasses'
-	commandLine 'java', '-jar', '../multiLanguageCodeGenerator/build/distributions/multiLanguageCodeGenerator.jar'
-	inputs.dir '../multiLanguageClasses/definitions'
-	inputs.file '../multiLanguageCodeGenerator/build/distributions/multiLanguageCodeGenerator.jar'
-	outputs.dir '../multiLanguageClasses/generatedC'
-	outputs.dir '../multiLanguageClasses/generatedJava'
-	//onlyIf { Task task-> task.taskDependencies.getDependencies(task).any{it.didWork}}
-}
-
-compileJava.dependsOn generateMultiLanguageClasses
-
-
+compileJava.dependsOn ':multiLanguageCodeGenerator:generateMultiLanguageClasses'
 
 // create a runnable jar file for the measuringDriver
 task runnableJar (dependsOn: jar, type: Zip) {
@@ -106,8 +96,6 @@ files(configurations.runtime) // get all runtime dependencies
 	    zipTree(it) // unzip the dependencies
 		.matching{exclude 'META-INF/'} // exclude meta informations of dependencies
 	)}
+
 // add the output of the current project to the runnable jar
 runnableJar.from(zipTree(jar.archivePath))
-
-// execute the runnableJar task when building
-build.dependsOn runnableJar

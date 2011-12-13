@@ -22,7 +22,7 @@ dependencies {
 }
 
 // don't do any tests
-test.actions.clear()
+test.enabled = false
 
 clean.delete 'bin/'
 
@@ -36,21 +36,14 @@ jar {
     }
 }
 
-task runnableJar (dependsOn: jar, type: Zip) {
-    extension='jar'
+// task for building the multi language classes 
+task generateMultiLanguageClasses(type: JavaExec){
+	dependsOn classes
+	outputs.upToDateSpec = new org.gradle.api.specs.AndSpec()
+	main 'ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.Main'
+	classpath configurations.runtime+sourceSets.main.output
+	inputs.dir '../multiLanguageClasses/definitions'
+	outputs.dir '../multiLanguageClasses/generatedC'
+	outputs.dir '../multiLanguageClasses/generatedJava'
+	workingDir '../multiLanguageClasses'
 }
-
-// initialize the runnableJar task
-// add all runtime dependencies, unzip them and add the files to the
-// runnable jar
-files(configurations.runtime) // get all runtime dependencies
-    .each{ // iterate over the dependencies
-	runnableJar.from( // add files to the copy sorce 
-	    zipTree(it) // unzip the dependencies
-		.matching{exclude 'META-INF/'} // exclude meta informations of dependencies
-	)}
-// add the output of the current project to the runnable jar
-runnableJar.from(zipTree(jar.archivePath))
-
-// execute the runnableJar task when building
-build.dependsOn runnableJar

@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'eclipse'
 
+evaluationDependsOn(':measurementDriver')
 
 repositories {
     mavenCentral()
@@ -44,6 +45,7 @@ jar {
     }
 }
 
+def measurementDriver=findProject(":measurementDriver")
 
 // apply templates in config files
 task copyAndExpandConfigTemplates(type: Copy){
@@ -51,7 +53,11 @@ task copyAndExpandConfigTemplates(type: Copy){
 		include '*.config'
 	}
 	into 'build/resources/main'
-	expand ('toolPath': rootProject.projectDir.absolutePath)
+	expand ([
+		'toolPath': rootProject.projectDir.absolutePath,
+		'classPath': (measurementDriver.sourceSets.main.output+measurementDriver.configurations.runtime).collect{it.absolutePath}.join(":")
+	])
+	
 }
 
 assemble.dependsOn copyAndExpandConfigTemplates

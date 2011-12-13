@@ -120,6 +120,13 @@ public class Main {
 	private static File[] scanClassDefinitionDirectory(
 			File classDefinitionDirectory) {
 
+		// check if the definition directory exists
+		if (!classDefinitionDirectory.exists()) {
+			throw new Error(
+					"Directory containing the class definitions does not exist: "
+							+ classDefinitionDirectory.getAbsolutePath());
+		}
+
 		// get all sub directories
 		File inputDirectoriesFiles[] = classDefinitionDirectory
 				.listFiles(new FileFilter() {

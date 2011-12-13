@@ -16,6 +16,7 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.PumpStreamHandler;
 
 public class Main {
+	private static final String classPathKey = "classPath";
 	private static final String toolPathKey = "toolPath";
 	private static final String buildKey = "doBuild";
 	private static final String useDaemonKey = "useDaemon";
@@ -128,19 +129,14 @@ public class Main {
 			throws ExecuteException, IOException {
 		// setup command line
 		CommandLine cmdLine = new CommandLine("java");
-		cmdLine.addArgument("-jar");
-
-		File sourceDir = new File(configuration.getString(toolPathKey));
-		File jar = new File(sourceDir,
-				"measurementDriver/build/distributions/measurementDriver.jar");
-
-		cmdLine.addArgument(jar.getAbsolutePath());
-
+		cmdLine.addArgument("-cp");
+		cmdLine.addArgument(configuration.getString(classPathKey));
+		cmdLine.addArgument("ch.ethz.ruediste.roofline.measurementDriver.Main");
 		for (int i = parameterNumber; i < args.length; i++) {
 			cmdLine.addArgument(args[i]);
 		}
 
-		System.out.println(cmdLine);
+		// System.out.println(cmdLine);
 
 		// setup executor
 		DefaultExecutor executor = new DefaultExecutor();
