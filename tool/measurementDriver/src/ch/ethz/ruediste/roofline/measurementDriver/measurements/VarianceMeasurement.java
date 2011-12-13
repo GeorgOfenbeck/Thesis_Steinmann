@@ -3,7 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurements;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.LinkedList;
+import java.util.HashMap;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
@@ -12,12 +12,16 @@ import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.KBestMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MeasurementSchemeDescriptionBase;
-import ch.ethz.ruediste.roofline.dom.MeasurerDescriptionBase;
 import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
+import ch.ethz.ruediste.roofline.measurementDriver.IAxis;
+import ch.ethz.ruediste.roofline.measurementDriver.KernelAxis;
+import ch.ethz.ruediste.roofline.measurementDriver.MeasurementSchemeAxis;
+import ch.ethz.ruediste.roofline.measurementDriver.MeasurerAxis;
+import ch.ethz.ruediste.roofline.measurementDriver.ParameterSpace;
+import ch.ethz.ruediste.roofline.measurementDriver.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
 import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
@@ -40,110 +44,100 @@ public class VarianceMeasurement implements IMeasurement {
 	@Inject
 	public CommandService commandService;
 
-	private static class Combination {
-		public MeasurementSchemeDescriptionBase scheme;
-		public MeasurerDescriptionBase measurer;
-		PrintStream output;
+	private class BlockSizeAxis implements IAxis<Long> {
+
 	}
 
 	public void measure(String outputName) throws IOException {
+		ParameterSpace parameterSpace = new ParameterSpace();
+
 		// create schemes
 		KBestMeasurementSchemeDescription kBestScheme = new KBestMeasurementSchemeDescription();
 		kBestScheme.setWarmCaches(true);
+		parameterSpace.add(MeasurementSchemeAxis.class, kBestScheme);
+
 		SimpleMeasurementSchemeDescription simpleScheme = new SimpleMeasurementSchemeDescription();
 		simpleScheme.setWarmCaches(true);
+		parameterSpace.add(MeasurementSchemeAxis.class, simpleScheme);
 
 		// create kernel
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+		parameterSpace.add(KernelAxis.class, kernel);
 
 		// create measurers
 		PerfEventMeasurerDescription perfEventMeasurer = new PerfEventMeasurerDescription();
 		perfEventMeasurer.addEvent("cycles", "perf::PERF_COUNT_HW_BUS_CYCLES");
+		parameterSpace.add(MeasurerAxis.class, perfEventMeasurer);
 		ExecutionTimeMeasurerDescription timeMeasurer = new ExecutionTimeMeasurerDescription();
+		parameterSpace.add(MeasurerAxis.class, timeMeasurer);
 
-		// measurement
-		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setOptimization("-O0");
-		measurement.setKernel(kernel);
-
-		LinkedList<Combination> combinations = new LinkedList<VarianceMeasurement.Combination>();
-
-		{
-			Combination combination = new Combination();
-			combination.scheme = kBestScheme;
-			combination.measurer = perfEventMeasurer;
-			combination.output = new PrintStream(outputName
-					+ "perfBest.data");
-			combinations.add(combination);
-		}
-		{
-			Combination combination = new Combination();
-			combination.scheme = kBestScheme;
-			combination.measurer = timeMeasurer;
-			combination.output = new PrintStream(outputName
-					+ "timeBest.data");
-			combinations.add(combination);
-		}
-		{
-			Combination combination = new Combination();
-			combination.scheme = simpleScheme;
-			combination.measurer = perfEventMeasurer;
-			combination.output = new PrintStream(outputName
-					+ "perfSimple.data");
-			combinations.add(combination);
-		}
-		{
-			Combination combination = new Combination();
-			combination.scheme = simpleScheme;
-			combination.measurer = timeMeasurer;
-			combination.output = new PrintStream(outputName
-					+ "timeSimple.data");
-			combinations.add(combination);
+		// set block sizes
+		for (long blockSize = 1; blockSize < 1e4; blockSize = blockSize << 1) {
+			parameterSpace.add(BlockSizeAxis.class, blockSize);
 		}
 
-		for (long blockSize = 1; blockSize < 1e6; blockSize = blockSize << 1) {
-			// set block size
-			kernel.setBlockSize(blockSize);
+		// create output streams
+		HashMap<Coordinate, PrintStream> outputStreams = new HashMap<ParameterSpace.Coordinate, PrintStream>();
+		for (Coordinate coordinate : parameterSpace.getCoordinates(
+				MeasurementSchemeAxis.class,
+				MeasurerAxis.class)) {
 
-			for (Combination combination : combinations) {
-				// wire measurement
-				measurement.setScheme(combination.scheme);
-				measurement.setMeasurer(combination.measurer);
+			String streamName = outputName;
+			streamName += (coordinate
+					.get(MeasurerAxis.class) == perfEventMeasurer ? "perf"
+					: "time");
+			streamName += (coordinate
+					.get(MeasurementSchemeAxis.class) == kBestScheme ? "Best"
+					: "Simple");
 
-				// perform measurement
-				MeasurementResult result = measurementAppController.measure(
-						measurement, 75);
+			outputStreams
+					.put(coordinate, new PrintStream(streamName + ".data"));
+		}
 
-				// create statistics
-				DescriptiveStatistics statistics = null;
-				if (combination.measurer instanceof PerfEventMeasurerDescription) {
-					statistics = PerfEventMeasurerOutput.getStatistics(
-							"cycles", result);
-				}
+		for (Coordinate coordinate : parameterSpace) {
+			MeasurementDescription measurement = new MeasurementDescription();
+			measurement.setOptimization("-O0");
+			measurement.setKernel(coordinate.get(KernelAxis.class));
+			measurement.setMeasurer(coordinate.get(MeasurerAxis.class));
+			measurement.setScheme(coordinate.get(MeasurementSchemeAxis.class));
+			kernel.setBlockSize(coordinate.get(BlockSizeAxis.class));
 
-				if (combination.measurer instanceof ExecutionTimeMeasurerDescription) {
-					statistics = ExecutionTimeMeasurerOutput
-							.getStatistics(result);
-				}
+			// perform measurement
+			MeasurementResult result = measurementAppController.measure(
+					measurement, 10);
 
-				// append to output
-				combination.output
-						.printf("%d\t%e\t%e\t%e\t%e\t%e\n",
-								blockSize,
-								statistics.getMean(),
-								statistics.getStandardDeviation(),
-								statistics.getPercentile(50),
-								statistics
-										.getPercentile(50 - 68.2689492137 / 2),
-								statistics
-										.getPercentile(50 + 68.2689492137 / 2)
-						);
+			// create statistics
+			DescriptiveStatistics statistics = null;
+			if (measurement.getMeasurer() instanceof PerfEventMeasurerDescription) {
+				statistics = PerfEventMeasurerOutput.getStatistics(
+						"cycles", result);
 			}
+
+			if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {
+				statistics = ExecutionTimeMeasurerOutput
+						.getStatistics(result);
+			}
+
+			// append to output
+			outputStreams.get(
+					coordinate.project(
+							MeasurementSchemeAxis.class,
+							MeasurerAxis.class))
+					.printf("%d\t%e\t%e\t%e\t%e\t%e\n",
+							coordinate.get(BlockSizeAxis.class),
+							statistics.getMean(),
+							statistics.getStandardDeviation(),
+							statistics.getPercentile(50),
+							statistics
+									.getPercentile(50 - 68.2689492137 / 2),
+							statistics
+									.getPercentile(50 + 68.2689492137 / 2)
+					);
 		}
 
 		// close outputs
-		for (Combination combination : combinations) {
-			combination.output.close();
+		for (PrintStream output : outputStreams.values()) {
+			output.close();
 		}
 
 		// write gnuplot files

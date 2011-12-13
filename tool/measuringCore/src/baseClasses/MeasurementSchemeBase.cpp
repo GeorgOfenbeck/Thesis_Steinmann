@@ -32,7 +32,7 @@ void MeasurementSchemeBase::clearCaches() {
 	char *buffer=(char*)malloc(blockSize);
 	for (size_t i=0; i<blockSize; i++){
 		dummy+=buffer[i];
-		buffer[i]=0;
+		//buffer[i]=0;
 	}
 	free((void*)buffer);
 }

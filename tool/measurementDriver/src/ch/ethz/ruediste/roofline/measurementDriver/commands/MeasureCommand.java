@@ -26,7 +26,7 @@ public class MeasureCommand implements ICommand {
 
 	public void execute(String[] args) {
 
-		String measurementName = args[0];
+		String measurementName = args[1];
 
 		IMeasurement measurement = instantiator
 				.getInstance(Key.get(IMeasurement.class,
