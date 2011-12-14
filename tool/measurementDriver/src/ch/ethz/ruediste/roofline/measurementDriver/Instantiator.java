@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.INamed;
+
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -43,5 +45,13 @@ public class Instantiator {
 
 	public void setInjector(Injector injector) {
 		this.injector = injector;
+	}
+
+	public <T extends INamed> void listNamed(Class<T> baseClass) {
+		for (Class<? extends T> namedClass : getBoundClasses(baseClass)) {
+			INamed named = getInstance(namedClass);
+			System.out.printf("%s\t\t%s\n", named.getName(),
+					named.getDescription().replace("\n", "\n\t\t"));
+		}
 	}
 }

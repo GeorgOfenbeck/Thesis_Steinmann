@@ -6,6 +6,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
 
+import com.google.inject.ConfigurationException;
 import com.google.inject.Inject;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -25,15 +26,39 @@ public class MeasureCommand implements ICommand {
 	public Instantiator instantiator;
 
 	public void execute(String[] args) {
+		// check if measurement name has been provided
+		if (args.length < 2) {
+			System.out.printf("Usage: %s %s\n", getName(), getDescription());
+			System.exit(0);
+		}
 
+		// get the measurement name
 		String measurementName = args[1];
 
-		IMeasurement measurement = instantiator
-				.getInstance(Key.get(IMeasurement.class,
-						Names.named(measurementName)));
+		IMeasurement measurement = null;
 
+		// instantiate the measurement
 		try {
-			measurement.measure(measurementName);
+			measurement = instantiator
+					.getInstance(Key.get(IMeasurement.class,
+							Names.named(measurementName)));
+		} catch (ConfigurationException e) {
+			System.out
+					.printf("Could not find the measurement named %s\nAvailable Measurements:",
+							measurementName);
+			instantiator.listNamed(IMeasurement.class);
+			System.exit(1);
+		}
+
+		// get the output name
+		String outputName = measurementName;
+		if (args.length >= 3) {
+			outputName = args[2];
+		}
+
+		// perform the measurement
+		try {
+			measurement.measure(outputName);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

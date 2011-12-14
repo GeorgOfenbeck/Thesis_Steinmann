@@ -19,11 +19,7 @@ public class Main {
 		 * System.exit(1); }
 		 */
 
-		String measurementName = args[0];
-		String outputName = measurementName;
-		if (args.length == 2) {
-			outputName = args[1];
-		}
+		String commandName = args[0];
 
 		Injector injector = Guice.createInjector(new MainModule());
 
@@ -32,7 +28,7 @@ public class Main {
 
 		ICommand command = injector
 				.getInstance(Key.get(ICommand.class,
-						Names.named(measurementName)));
+						Names.named(commandName)));
 
 		command.execute(args);
 
