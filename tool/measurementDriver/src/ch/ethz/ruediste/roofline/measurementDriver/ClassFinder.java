@@ -110,18 +110,25 @@ public class ClassFinder {
 					&& entry.getName().endsWith(".class")) {
 				// System.out.println("entry: " + entry.getName());
 				try {
-					classes.add(Class.forName(
+					Class<?> clazz = Class.forName(
 							entry.getName().substring(
 									0,
 									entry.getName().length()
 											- ".class".length())
-									.replace("/", ".")));
+									.replace("/", "."));
+					if (isClassToBeReturned(clazz)) {
+						classes.add(clazz);
+					}
 				} catch (ClassNotFoundException e) {
 					// suppress
 				}
 			}
 		}
 		return classes;
+	}
+
+	private static boolean isClassToBeReturned(Class<?> clazz) {
+		return clazz.getEnclosingClass() == null;
 	}
 
 	/**
@@ -149,10 +156,13 @@ public class ClassFinder {
 						packageName + "." + file.getName()));
 			} else if (file.getName().endsWith(".class")) {
 				try {
-					classes.add(Class.forName(packageName
+					Class<?> clazz = Class.forName(packageName
 							+ '.'
 							+ file.getName().substring(0,
-									file.getName().length() - 6)));
+									file.getName().length() - 6));
+					if (isClassToBeReturned(clazz)) {
+						classes.add(clazz);
+					}
 				} catch (ClassNotFoundException e) {
 					// suppress
 				}
