@@ -185,7 +185,7 @@ public class Main {
 			cmdLine.addArgument(":measurementDriver:clean");
 			cmdLine.addArgument(":multiLanguageCodeGenerator:clean");
 		}
-		cmdLine.addArgument(":measurementDriver:build");
+		cmdLine.addArgument(":measurementDriver:classes");
 
 		// setup executor
 		DefaultExecutor executor = new DefaultExecutor();
