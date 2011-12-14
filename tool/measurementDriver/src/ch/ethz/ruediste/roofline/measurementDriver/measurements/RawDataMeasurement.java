@@ -79,7 +79,7 @@ public class RawDataMeasurement implements IMeasurement {
 		}
 
 		plot.setTitle("%d:%s", kernel.getBufferSize(), measurement.toString());
-		plot.setOutputName("%s:%d:%s:%s.ps", outputName,
+		plot.setOutputName("%s:%d:%s:%s", outputName,
 				kernel.getBufferSize(),
 				measurement.toString(),
 				measurement.getScheme().getWarmCaches() ? "warm" : "cold");

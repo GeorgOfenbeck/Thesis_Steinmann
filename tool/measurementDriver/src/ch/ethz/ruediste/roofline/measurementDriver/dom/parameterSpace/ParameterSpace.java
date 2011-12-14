@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver;
+package ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace;
 
 import java.util.ArrayList;
 import java.util.Arrays;

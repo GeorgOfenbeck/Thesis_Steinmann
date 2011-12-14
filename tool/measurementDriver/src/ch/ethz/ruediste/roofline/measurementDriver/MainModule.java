@@ -1,12 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-import java.io.InputStream;
 import java.util.List;
-
-import org.apache.commons.configuration.CombinedConfiguration;
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
@@ -23,23 +17,7 @@ public class MainModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		// setup configuration
-		PropertiesConfiguration defaultConfiguration = new PropertiesConfiguration();
-		try {
-			InputStream configStream = ClassLoader
-					.getSystemResourceAsStream("defaultConfiguration.config");
-			if (configStream == null) {
-				throw new Error(
-						"could not load <defaultConfiguration.config>. Does not seem to be in the class path. Is it compiled into the .jar?");
-			}
-			defaultConfiguration.load(configStream);
-		} catch (ConfigurationException e) {
-			throw new Error(e);
-		}
-
-		CombinedConfiguration combinedConfiguration = new CombinedConfiguration();
-		combinedConfiguration.addConfiguration(defaultConfiguration);
-
-		bind(Configuration.class).toInstance(combinedConfiguration);
+		bind(Configuration.class).asEagerSingleton();
 
 		bind(Instantiator.class).in(Singleton.class);
 

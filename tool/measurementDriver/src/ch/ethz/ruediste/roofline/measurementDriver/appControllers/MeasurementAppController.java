@@ -6,12 +6,17 @@ import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.MeasurerOutputBase;
+import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
+import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.Inject;
 
 public class MeasurementAppController {
+	public final static ConfigurationKey<Boolean> useCachedResultsKey = ConfigurationKey
+			.Create(Boolean.class, "useCachedResults",
+					"indicates if the cached results should be used", true);
 
 	@Inject
 	public MeasurementService measurementService;
@@ -19,12 +24,16 @@ public class MeasurementAppController {
 	@Inject
 	public MeasurementCacheService cacheService;
 
+	@Inject
+	public Configuration configuration;
+
 	public MeasurementResult measure(MeasurementDescription measurement,
 			int numberOfMeasurements) {
 
 		ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
 
 		// check cache
+		if (configuration.get(useCachedResultsKey))
 		{
 			MeasurementResult cachedResult = cacheService
 					.loadFromCache(measurement);

@@ -6,19 +6,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import org.apache.commons.configuration.Configuration;
-
 import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.MeasurerOutputCollection;
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
+import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
+import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
 
 public class MeasurementService {
-	public final String measuringCorePathKey = "measurement.corePath";
+	public final ConfigurationKey<String> measuringCorePathKey = ConfigurationKey
+			.Create(String.class, "measurement.corePath",
+					"Path to the measuring core", ".");
 
 	@Inject
 	public MultiLanguageSerializationService serializationService;
@@ -40,15 +42,8 @@ public class MeasurementService {
 
 			System.out.println("Performing Measurements");
 
-			// check if measuring core path is configured
-			if (!configuration.containsKey(measuringCorePathKey)) {
-				throw new Error(
-						"measuring core path is not configured. Check configuration file. The missing key is: "
-								+ measuringCorePathKey);
-			}
-
 			File measuringCoreDir = new File(
-					configuration.getString(measuringCorePathKey));
+					configuration.get(measuringCorePathKey));
 
 			// check if the core directory exists
 			if (!measuringCoreDir.exists()) {

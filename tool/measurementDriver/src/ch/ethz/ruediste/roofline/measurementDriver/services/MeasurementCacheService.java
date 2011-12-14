@@ -8,17 +8,28 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.commons.configuration.Configuration;
-
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
+import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
+import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
 
 public class MeasurementCacheService {
-	private static final String cacheLocationKey = "cache.location";
-	private static final String messageDigestKey = "cache.messageDigest";
+	public static final ConfigurationKey<String> cacheLocationKey = ConfigurationKey
+			.Create(
+					String.class,
+					"cache.location",
+					"directory containing the cached results of measurements",
+					"~/.roofline/cache");
+
+	public static final ConfigurationKey<String> messageDigestKey = ConfigurationKey
+			.Create(
+					String.class,
+					"cache.messageDigest",
+					"Algorithm used to build the hash keys in the measurement cache",
+					"MD5");
 
 	private class NullOutputStream extends OutputStream {
 
@@ -30,10 +41,10 @@ public class MeasurementCacheService {
 	}
 
 	@Inject
-	public Configuration configuration;
+	public XStream xStream;
 
 	@Inject
-	public XStream xStream;
+	public Configuration configuration;
 
 	/**
 	 * load the measurement result form the cache. return null if no cache entry
@@ -69,7 +80,7 @@ public class MeasurementCacheService {
 	 */
 	private File getCacheFile(String key) {
 		// retrieve the cache location directory
-		String cacheLocationString = configuration.getString(cacheLocationKey);
+		String cacheLocationString = configuration.get(cacheLocationKey);
 
 		// replace a starting tilde with the user home directory
 		if (cacheLocationString.startsWith("~")) {
@@ -123,12 +134,12 @@ public class MeasurementCacheService {
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance(configuration
-					.getString(messageDigestKey));
+					.get(messageDigestKey));
 		} catch (NoSuchAlgorithmException e) {
 			throw new Error(
 					String.format(
 							"Message digest algorithm %s not found. Set by %s. Needed for cache key generation",
-							configuration.getString(messageDigestKey),
+							configuration.get(messageDigestKey),
 							messageDigestKey),
 					e);
 		}
