@@ -10,9 +10,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheServ
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
-@Singleton
 public class MeasurementAppController {
 
 	@Inject

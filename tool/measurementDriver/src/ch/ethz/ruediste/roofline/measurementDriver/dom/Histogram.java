@@ -1,8 +1,10 @@
-package ch.ethz.ruediste.roofline.statistics;
+package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
 import java.util.Arrays;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+
+import ch.ethz.ruediste.roofline.statistics.IAddValue;
 
 public class Histogram implements IAddValue {
 	DescriptiveStatistics statistics = new DescriptiveStatistics();

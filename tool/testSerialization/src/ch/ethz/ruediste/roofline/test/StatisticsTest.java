@@ -4,7 +4,7 @@ import static junit.framework.Assert.assertEquals;
 
 import org.junit.Test;
 
-import ch.ethz.ruediste.roofline.statistics.Histogram;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.Histogram;
 
 public class StatisticsTest {
 	@Test

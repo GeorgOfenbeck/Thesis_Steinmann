@@ -44,7 +44,7 @@ public class MeasureCommand implements ICommand {
 							Names.named(measurementName)));
 		} catch (ConfigurationException e) {
 			System.out
-					.printf("Could not find the measurement named %s\nAvailable Measurements:",
+					.printf("Could not find the measurement named %s\nAvailable Measurements:\n",
 							measurementName);
 			instantiator.listNamed(IMeasurement.class);
 			System.exit(1);

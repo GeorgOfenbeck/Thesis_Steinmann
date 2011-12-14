@@ -1,8 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurements;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
@@ -17,9 +15,9 @@ import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
-import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
-import ch.ethz.ruediste.roofline.statistics.IAddValue;
+import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 
 import com.google.inject.Inject;
 
@@ -40,7 +38,7 @@ public class RawDataMeasurement implements IMeasurement {
 	public MeasurementCacheService measurementCacheService;
 
 	@Inject
-	public CommandService commandService;
+	public PlotService plotService;
 
 	public void measure(String outputName) throws IOException {
 		// create schemes
@@ -64,66 +62,29 @@ public class RawDataMeasurement implements IMeasurement {
 
 		measurement.setScheme(simpleScheme);
 		measurement.setMeasurer(perfEventMeasurer);
-		kernel.setBlockSize(2048);
+		kernel.setBufferSize(2048);
 
 		// perform measurement
-		measurementCacheService.deleteFromCache(measurement);
 		MeasurementResult result = measurementAppController.measure(
 				measurement, 100);
 
-		// print data file
-		final PrintStream outputFile = new PrintStream(outputName + ".data");
+		// create plot
+		SimplePlot plot = new SimplePlot();
 		if (measurement.getMeasurer() instanceof PerfEventMeasurerDescription) {
-			PerfEventMeasurerOutput.addValues("cycles", result,
-					new IAddValue() {
-
-						public void addValue(double v) {
-							outputFile.printf("%e\n", v);
-						}
-					});
+			PerfEventMeasurerOutput.addValues("cycles", result, plot);
 		}
 
 		if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {
-			ExecutionTimeMeasurerOutput.addValues(result, new IAddValue() {
-
-				public void addValue(double v) {
-					outputFile.printf("%e\n", v);
-
-				}
-			});
+			ExecutionTimeMeasurerOutput.addValues(result, plot);
 		}
 
-		outputFile.close();
+		plot.setTitle("%d:%s", kernel.getBufferSize(), measurement.toString());
+		plot.setOutputName("%s:%d:%s:%s.ps", outputName,
+				kernel.getBufferSize(),
+				measurement.toString(),
+				measurement.getScheme().getWarmCaches() ? "warm" : "cold");
 
-		// write gnuplot files
-		{
-			PrintStream output = new PrintStream(outputName
-					+ ".gnuplot");
-			output.printf("set title '%d:%s'\n", kernel.getBlockSize(),
-					measurement.toString());
-			output.printf("set terminal postscript color\n");
-			output.printf("set output '%s:%d:%s:%s.ps'\n", outputName,
-					kernel.getBlockSize(),
-					measurement.toString(),
-					measurement.getScheme().getWarmCaches() ? "warm" : "cold");
-			// output.printf("set xrange [-0.5:%d]\n", binCount);
-			// output.printf("set yrange [0:%d]\n", max + 1);
-			// output.printf("set style histogram rowstacked\n");
-			/*
-			 * output.printf( "plot '%s.data' using 2:xtic(1) with histogram\n",
-			 * outputName);
-			 */
-			output.printf(
-					"plot '%s.data' with points \n",
-					outputName);
-			// output.printf("pause mouse\n");
-
-			output.close();
-		}
-
-		// show output
-		commandService.runCommand(new File("."), "gnuplot",
-				new String[] { outputName + ".gnuplot" });
+		plotService.plot(plot);
 	}
 
 	static void printSummary(DescriptiveStatistics summary) {

@@ -15,10 +15,8 @@ import ch.ethz.ruediste.roofline.dom.MeasurerOutputCollection;
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.thoughtworks.xstream.XStream;
 
-@Singleton
 public class MeasurementService {
 	public final String measuringCorePathKey = "measurement.corePath";
 

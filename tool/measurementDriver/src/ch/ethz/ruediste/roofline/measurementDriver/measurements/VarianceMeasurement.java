@@ -44,7 +44,7 @@ public class VarianceMeasurement implements IMeasurement {
 	@Inject
 	public CommandService commandService;
 
-	private class BlockSizeAxis implements IAxis<Long> {
+	private class BufferSizeAxis implements IAxis<Long> {
 
 	}
 
@@ -73,7 +73,7 @@ public class VarianceMeasurement implements IMeasurement {
 
 		// set block sizes
 		for (long blockSize = 1; blockSize < 1e4; blockSize = blockSize << 1) {
-			parameterSpace.add(BlockSizeAxis.class, blockSize);
+			parameterSpace.add(BufferSizeAxis.class, blockSize);
 		}
 
 		// create output streams
@@ -100,7 +100,7 @@ public class VarianceMeasurement implements IMeasurement {
 			measurement.setKernel(coordinate.get(KernelAxis.class));
 			measurement.setMeasurer(coordinate.get(MeasurerAxis.class));
 			measurement.setScheme(coordinate.get(MeasurementSchemeAxis.class));
-			kernel.setBlockSize(coordinate.get(BlockSizeAxis.class));
+			kernel.setBufferSize(coordinate.get(BufferSizeAxis.class));
 
 			// perform measurement
 			MeasurementResult result = measurementAppController.measure(
@@ -124,7 +124,7 @@ public class VarianceMeasurement implements IMeasurement {
 							MeasurementSchemeAxis.class,
 							MeasurerAxis.class))
 					.printf("%d\t%e\t%e\t%e\t%e\t%e\n",
-							coordinate.get(BlockSizeAxis.class),
+							coordinate.get(BufferSizeAxis.class),
 							statistics.getMean(),
 							statistics.getStandardDeviation(),
 							statistics.getPercentile(50),

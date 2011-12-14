@@ -13,7 +13,7 @@ static TypeRegisterer<MemoryLoadKernel> dummy;
 
 
 void MemoryLoadKernel::initialize(){
-	buffer=(char*)malloc(description->getBlockSize());
+	buffer=(char*)malloc(description->getBufferSize());
 }
 
 void MemoryLoadKernel::dispose() {

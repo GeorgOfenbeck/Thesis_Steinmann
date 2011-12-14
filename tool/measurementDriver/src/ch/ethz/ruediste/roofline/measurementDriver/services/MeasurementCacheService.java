@@ -14,10 +14,8 @@ import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import com.thoughtworks.xstream.XStream;
 
-@Singleton
 public class MeasurementCacheService {
 	private static final String cacheLocationKey = "cache.location";
 	private static final String messageDigestKey = "cache.messageDigest";

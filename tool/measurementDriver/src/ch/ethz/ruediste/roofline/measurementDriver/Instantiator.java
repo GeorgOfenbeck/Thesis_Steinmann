@@ -10,9 +10,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.INamed;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Singleton;
 
-@Singleton
 public class Instantiator {
 	private Injector injector;
 
@@ -47,6 +45,9 @@ public class Instantiator {
 		this.injector = injector;
 	}
 
+	/**
+	 * List all named classes driving from baseClass
+	 */
 	public <T extends INamed> void listNamed(Class<T> baseClass) {
 		for (Class<? extends T> namedClass : getBoundClasses(baseClass)) {
 			INamed named = getInstance(namedClass);

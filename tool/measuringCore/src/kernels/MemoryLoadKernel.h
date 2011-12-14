@@ -20,7 +20,7 @@ public:
 	void initialize();
 	void run(){
 		result=0;
-		for (long i=0; i<description->getBlockSize(); i++){
+		for (long i=0; i<description->getBufferSize(); i++){
 			result=result^buffer[i];
 		}
 	}
