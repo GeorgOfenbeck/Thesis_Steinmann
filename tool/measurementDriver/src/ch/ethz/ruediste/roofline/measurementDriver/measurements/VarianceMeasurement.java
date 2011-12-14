@@ -78,7 +78,7 @@ public class VarianceMeasurement implements IMeasurement {
 
 		// create output streams
 		HashMap<Coordinate, PrintStream> outputStreams = new HashMap<ParameterSpace.Coordinate, PrintStream>();
-		for (Coordinate coordinate : parameterSpace.getCoordinates(
+		for (Coordinate coordinate : parameterSpace.project(
 				MeasurementSchemeAxis.class,
 				MeasurerAxis.class)) {
 
