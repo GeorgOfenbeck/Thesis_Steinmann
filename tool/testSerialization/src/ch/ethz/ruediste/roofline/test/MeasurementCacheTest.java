@@ -14,6 +14,7 @@ import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
+import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
@@ -92,6 +93,7 @@ public class MeasurementCacheTest extends TestBase {
 		MeasurementAppController controller = new MeasurementAppController();
 		controller.cacheService = cacheService;
 		controller.measurementService = measurementService;
+		controller.configuration=injector.getInstance(Configuration.class);
 
 		final Sequence seq = context.sequence("sequence");
 

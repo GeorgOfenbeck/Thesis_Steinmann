@@ -40,8 +40,8 @@ public class MemoryLoadMeasurement implements IMeasurement {
 		scheme.setWarmCaches(false);
 
 		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
-		measurer.addEvent("load", "coreduo::BUS_TRANS_MEM:ALL_AGENTS:u");
-		measurer.addEvent("write", "coreduo::L2_M_LINES_OUT");
+		measurer.addEvent("load", "perf::PERF_COUNT_HW_CACHE_LL:MISS");
+		//measurer.addEvent("write", "coreduo::L2_M_LINES_OUT");
 
 		MeasurementDescription measurement = new MeasurementDescription();
 		measurement.setKernel(kernel);
