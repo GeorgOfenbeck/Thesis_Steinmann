@@ -12,17 +12,22 @@
 
 class MemoryLoadKernel : public Kernel<MemoryLoadKernelDescription>{
 protected:
-	char *buffer;
-	char result;
+	double *a,*b,*c;
+	double result;
 public:
 	MemoryLoadKernel(MemoryLoadKernelDescription *description):Kernel(description){};
 
 	void initialize();
 	void run(){
 		result=0;
-		for (long i=0; i<description->getBufferSize(); i++){
-			result=result^buffer[i];
+		for (long p=0;p<1;p++){
+			for (long i=0; i<description->getBufferSize(); i++){
+				result+=a[i];
+				//a[i]=b[i]+2.34*c[i];
+				//result=result^buffer[i];
+			}
 		}
+		//result=a[567];
 	}
 	void dispose();
 };

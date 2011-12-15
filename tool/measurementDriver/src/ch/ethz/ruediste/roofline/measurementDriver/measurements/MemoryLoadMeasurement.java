@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurements;
 
 import java.io.IOException;
 
+import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerDescription;
+import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
@@ -34,14 +36,18 @@ public class MemoryLoadMeasurement implements IMeasurement {
 
 	public void measure(String outputName) throws IOException {
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
-		kernel.setBufferSize(204800);
+		kernel.setBufferSize(1024*1024*40);
 
 		SimpleMeasurementSchemeDescription scheme = new SimpleMeasurementSchemeDescription();
 		scheme.setWarmCaches(false);
 
 		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
-		measurer.addEvent("load", "perf::PERF_COUNT_HW_CACHE_LL:MISS");
-		//measurer.addEvent("write", "coreduo::L2_M_LINES_OUT");
+		//measurer.addEvent("trans", "core::BUS_TRANS_BURST:SELF");
+		measurer.addEvent("inst", "core::INSTRUCTION_RETIRED");
+		//measurer.addEvent("cycles", "core::UNHALTED_CORE_CYCLES");
+		
+		//ExecutionTimeMeasurerDescription measurer=new ExecutionTimeMeasurerDescription();
+		
 
 		MeasurementDescription measurement = new MeasurementDescription();
 		measurement.setKernel(kernel);
@@ -51,33 +57,61 @@ public class MemoryLoadMeasurement implements IMeasurement {
 
 		// perform measurement
 		MeasurementResult result = measurementAppController.measure(
-				measurement, 100);
+				measurement, 10);
 
-		// plot histogram
+		/*// simple plot
 		{
-			HistogramPlot plot = new HistogramPlot();
+			SimplePlot plot = new SimplePlot();
 
-			PerfEventMeasurerOutput.addValues("load", result, plot);
+			ExecutionTimeMeasurerOutput.addValues(result, plot);
 
 			plot.setTitle("Load, BufferSize: %d", kernel.getBufferSize());
-			plot.setOutputName("%sHist:load:%d:%s", outputName,
+			plot.setOutputName("%s:usec:%d:%s", outputName,
 					kernel.getBufferSize(),
 					measurement.getScheme().getWarmCaches() ? "warm" : "cold");
 			plotService.plot(plot);
-		}
+		}*/
+				
+		/*// simple plot
+		{
+			SimplePlot plot = new SimplePlot();
 
+			PerfEventMeasurerOutput.addValues("trans", result, plot);
+
+			plot.setTitle("Load, BufferSize: %d", kernel.getBufferSize());
+			plot.setOutputName("%s:trans:%d:%s", outputName,
+					kernel.getBufferSize(),
+					measurement.getScheme().getWarmCaches() ? "warm" : "cold");
+			plotService.plot(plot);
+		}*/
+		
+	/*	// simple plot
+		{
+			SimplePlot plot = new SimplePlot();
+
+			PerfEventMeasurerOutput.addValues("cycles", result, plot);
+
+			plot.setTitle("Load, BufferSize: %d", kernel.getBufferSize());
+			plot.setOutputName("%s:cycles:%d:%s", outputName,
+					kernel.getBufferSize(),
+					measurement.getScheme().getWarmCaches() ? "warm" : "cold");
+			plotService.plot(plot);
+		}*/
+		
 		// simple plot
 		{
 			SimplePlot plot = new SimplePlot();
 
-			PerfEventMeasurerOutput.addValues("load", result, plot);
+			PerfEventMeasurerOutput.addValues("inst", result, plot);
 
 			plot.setTitle("Load, BufferSize: %d", kernel.getBufferSize());
-			plot.setOutputName("%sSimple:load:%d:%s", outputName,
+			plot.setOutputName("%s:inst:%d:%s", outputName,
 					kernel.getBufferSize(),
 					measurement.getScheme().getWarmCaches() ? "warm" : "cold");
 			plotService.plot(plot);
 		}
+		
+
 
 	}
 

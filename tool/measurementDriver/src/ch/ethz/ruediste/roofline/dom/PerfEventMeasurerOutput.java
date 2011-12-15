@@ -40,6 +40,8 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 				PerfEventMeasurerOutput output = (PerfEventMeasurerOutput) outputBase;
 				PerfEventCount count = output.getEventCount(name);
 
+				//TODO: throw right error if the event with the name could not be found
+				
 				// scale the raw count
 				addValue.addValue(
 						count.getScaledCount());
