@@ -1,29 +1,18 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-public class ConfigurationKey<T> {
-	private final Class<T> clazz;
-	private final String key;
-	private final String description;
+public class ConfigurationKey<T> extends ConfigurationKeyBase {
+	private final Class<T> valueType;
 	private final T defaultValue;
 
-	private ConfigurationKey(Class<T> clazz, String key, String description,
+	private ConfigurationKey(Class<T> valueType, String key, String description,
 			T defaultValue) {
-		this.clazz = clazz;
-		this.key = key;
-		this.description = description;
+		super(key, description);
+		this.valueType = valueType;
 		this.defaultValue = defaultValue;
 	}
 
-	public Class<T> getClazz() {
-		return clazz;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public String getDescription() {
-		return description;
+	public Class<T> getValueType() {
+		return valueType;
 	}
 
 	public T getDefaultValue() {

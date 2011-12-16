@@ -110,6 +110,7 @@ public class ClassFinder {
 					&& entry.getName().endsWith(".class")) {
 				// System.out.println("entry: " + entry.getName());
 				try {
+
 					Class<?> clazz = Class.forName(
 							entry.getName().substring(
 									0,
@@ -164,6 +165,8 @@ public class ClassFinder {
 						classes.add(clazz);
 					}
 				} catch (ClassNotFoundException e) {
+					// suppress
+				} catch (NoClassDefFoundError e) {
 					// suppress
 				}
 			}

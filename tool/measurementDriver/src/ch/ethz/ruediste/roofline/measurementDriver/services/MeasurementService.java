@@ -18,7 +18,7 @@ import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
 
 public class MeasurementService {
-	public final ConfigurationKey<String> measuringCorePathKey = ConfigurationKey
+	public static final ConfigurationKey<String> measuringCorePathKey = ConfigurationKey
 			.Create(String.class, "measurement.corePath",
 					"Path to the measuring core", ".");
 
