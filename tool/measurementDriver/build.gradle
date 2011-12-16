@@ -42,6 +42,7 @@ repositories {
 dependencies {
 	compile group: 'org.apache.commons', name: 'commons-math', version: '2.2'
 	compile group: 'org.apache.commons', name: 'commons-exec', version: '1.1'
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.1'
 	compile group: 'commons-configuration', name: 'commons-configuration', version: '1.7'
     compile group: 'org.apache.velocity', name: 'velocity', version: '1.7'
     compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.2'
@@ -65,7 +66,7 @@ task copyAndExpandConfigTemplates(type: Copy){
 		])
 }
 
-assemble.dependsOn copyAndExpandConfigTemplates
+classes.dependsOn copyAndExpandConfigTemplates
 jar.inputs.dir 'config'
 
 // setup the manifest of the jar
