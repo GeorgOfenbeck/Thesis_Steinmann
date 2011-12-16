@@ -21,6 +21,8 @@ public class MainModule extends AbstractModule {
 
 		bind(Instantiator.class).in(Singleton.class);
 
+		bind(Main.class);
+
 		// setup XStream
 		XStream xStream = new XStream(new DomDriver());
 		bind(XStream.class).toInstance(xStream);

@@ -140,7 +140,7 @@ public class MeasurementCacheService {
 					String.format(
 							"Message digest algorithm %s not found. Set by %s. Needed for cache key generation",
 							configuration.get(messageDigestKey),
-							messageDigestKey),
+							messageDigestKey.getKey()),
 					e);
 		}
 

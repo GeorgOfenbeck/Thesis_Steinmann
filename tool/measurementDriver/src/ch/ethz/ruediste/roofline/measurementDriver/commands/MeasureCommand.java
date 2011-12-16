@@ -1,6 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.commands;
 
 import java.io.IOException;
+import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
@@ -25,15 +26,15 @@ public class MeasureCommand implements ICommand {
 	@Inject
 	public Instantiator instantiator;
 
-	public void execute(String[] args) {
+	public void execute(List<String> args) {
 		// check if measurement name has been provided
-		if (args.length < 2) {
+		if (args.size() < 2) {
 			System.out.printf("Usage: %s %s\n", getName(), getDescription());
 			System.exit(0);
 		}
 
 		// get the measurement name
-		String measurementName = args[1];
+		String measurementName = args.get(1);
 
 		IMeasurement measurement = null;
 
@@ -52,8 +53,8 @@ public class MeasureCommand implements ICommand {
 
 		// get the output name
 		String outputName = measurementName;
-		if (args.length >= 3) {
-			outputName = args[2];
+		if (args.size() >= 3) {
+			outputName = args.get(2);
 		}
 
 		// perform the measurement

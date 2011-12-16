@@ -1,6 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.commands;
 
 import java.io.InputStream;
+import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKeyBase;
@@ -27,7 +28,7 @@ public class HelpCommand implements ICommand {
 		return "Shows the help text";
 	}
 
-	public void execute(String[] args) {
+	public void execute(List<String> args) {
 		try {
 			// copy help.txt, which is included in the jar, to the standard
 			// output

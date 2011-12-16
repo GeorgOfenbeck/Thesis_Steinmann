@@ -39,7 +39,13 @@ public class Configuration {
 		}
 
 		combinedConfiguration.addConfiguration(defaultConfiguration);
+	}
 
+	/**
+	 * check if all configuration properties found correspond to a configuration
+	 * key
+	 */
+	public void checkConfiguration() throws Error {
 		// check if all configuration properties found correspond to a
 		// configuration key
 		Iterator<?> it = combinedConfiguration.getKeys();
@@ -151,5 +157,9 @@ public class Configuration {
 			}
 		}
 		return configurationKeys;
+	}
+
+	public void set(String key, Object value) {
+		mapConfiguration.setProperty(key, value);
 	}
 }
