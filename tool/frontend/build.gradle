@@ -57,7 +57,7 @@ task copyAndExpandConfigTemplates(type: Copy){
 		'toolPath': rootProject.projectDir.absolutePath,
 		'classPath': (measurementDriver.sourceSets.main.output+measurementDriver.configurations.runtime).collect{it.absolutePath}.join(":")
 	])
-	
+	outputs.upToDateWhen{false}
 }
 
 assemble.dependsOn copyAndExpandConfigTemplates
