@@ -10,4 +10,5 @@
 	
 	<field name="name" type="string" comment="name of the attribute"/>
 	<field name="description" type="string" comment="description of the attribute"/>
+	<field name="attributeType" type="string" comment="type of the attribute"/>
 </class>

@@ -67,7 +67,8 @@ public class ListEventsMeasurement implements IMeasurement {
 
 				for (PerfEventAttributeDescription attribute : event
 						.getAttributes()) {
-					out.printf("  %s: %s\n", attribute.getName(),
+					out.printf("  %s %s: %s\n", attribute.getAttributeType(),
+							attribute.getName(),
 							attribute.getDescription());
 				}
 				out.println();

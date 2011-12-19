@@ -64,8 +64,8 @@ ListEventsMeasurerOutput *list_pmu_events(pfm_pmu_t pmu) {
 		for (int aidx = 0; aidx < info.nattrs; aidx++) {
 			// initialize the attribute info structure
 			pfm_event_attr_info_t attr_info;
-			memset(&attr_info,0,sizeof(pfm_event_attr_info_t));
-			attr_info.size=sizeof(pfm_event_attr_info_t);
+			memset(&attr_info, 0, sizeof(pfm_event_attr_info_t));
+			attr_info.size = sizeof(pfm_event_attr_info_t);
 
 			// retrieve the attribute info
 			ret = pfm_get_event_attr_info(info.idx, aidx, PFM_OS_PERF_EVENT_EXT,
@@ -88,6 +88,27 @@ ListEventsMeasurerOutput *list_pmu_events(pfm_pmu_t pmu) {
 				// fill the attribute info of the result
 				attributeDescription->setName(attr_info.name);
 				attributeDescription->setDescription(attr_info.desc);
+
+				switch (attr_info.type) {
+					case PFM_ATTR_NONE: /* no attribute */
+						attributeDescription->setAttributeType("NONE");
+						break;
+					case PFM_ATTR_UMASK: /* unit mask */
+						attributeDescription->setAttributeType("UMASK");
+						break;
+					case PFM_ATTR_MOD_BOOL: /* register modifier */
+						attributeDescription->setAttributeType("MOD_BOOL");
+						break;
+					case PFM_ATTR_MOD_INTEGER: /* register modifier */
+						attributeDescription->setAttributeType("MOD_INTEGER");
+						break;
+					case PFM_ATTR_RAW_UMASK: /* raw umask (not user visible) */
+						attributeDescription->setAttributeType("RAW_UMASK");
+						break;
+					default:
+						// do nothing
+						break;
+				}
 			}
 		}
 
