@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="ListEventsMeasurerOutput" 
+	cBaseType="MeasurerOutputBase"
+	javaBaseType="MeasurerOutputBase"
+	comment="result of the list events measurer">
+	
+	<list name="events" type="PerfEventDescription" comment="list of the available events"/>
+	<field name="pmuName" type="string" comment="name of the PMU"/>
+</class>

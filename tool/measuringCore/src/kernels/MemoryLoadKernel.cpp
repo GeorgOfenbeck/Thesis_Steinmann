@@ -14,19 +14,11 @@ static TypeRegisterer<MemoryLoadKernel> dummy;
 
 
 void MemoryLoadKernel::initialize(){
-	size_t size=description->getBufferSize()*sizeof(double);
-	a=(double*)malloc(size);
-	b=(double*)malloc(size);
-	c=(double*)malloc(size);
-
-	memset(a,0,size);
-	memset(b,0,size);
-	memset(c,0,size);
+	size_t size=description->getBufferSize()*sizeof(char);
+	buffer=(char*)malloc(size);
 }
 
 void MemoryLoadKernel::dispose() {
-	free(a);
-	free(b);
-	free(c);
+	free(buffer);
 }
 

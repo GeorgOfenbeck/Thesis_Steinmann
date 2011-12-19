@@ -34,50 +34,6 @@ PerfEventMeasurer::~PerfEventMeasurer() {
 	// TODO Auto-generated destructor stub
 }
 
-void list_pmu_events(pfm_pmu_t pmu)
-{
-   pfm_event_info_t info;
-   pfm_pmu_info_t pinfo;
-   int i, ret;
-
-   memset(&info, 0, sizeof(info));
-   memset(&pinfo, 0, sizeof(pinfo));
-
-   info.size = sizeof(info);
-   pinfo.size = sizeof(pinfo);
-
-   ret = pfm_get_pmu_info(pmu, &pinfo);
-   if (ret != PFM_SUCCESS)
-      errx(1, "cannot get pmu info");
-
-   for (i = pinfo.first_event; i != -1; i = pfm_get_event_next(i)) {
-      ret = pfm_get_event_info(i, PFM_OS_PERF_EVENT_EXT, &info);
-      if (ret != PFM_SUCCESS)
-        errx(1, "cannot get event info: %s",pfm_strerror(ret));
-
-        printf("%s Event: %s::%s (%llX)\n",
-               pinfo.is_present ? "Active" : "Supported",
-               pinfo.name, info.name, info.code);
-
-        printf("%s\n", info.desc);
-        if (info.equiv!=NULL){
-        	printf("--> %s\n", info.equiv);
-        }
-
-        // print attribute infos
-        for (int aidx=0; aidx<info.nattrs; aidx++){
-        	pfm_event_attr_info_t attr_info;
-        	//printf("%i %i\n",info.idx,aidx);
-        	ret=pfm_get_event_attr_info(info.idx,aidx,PFM_OS_PERF_EVENT_EXT,&attr_info);
-        	if (ret != PFM_SUCCESS)
-        	        errx(1, "cannot get event attribute info: %i %i %i %s",info.nattrs,info.idx,aidx,pfm_strerror(ret));
-        	printf(" * %s (%llX): %s\n",attr_info.name,attr_info.code,attr_info.desc);
-        }
-
-        printf("\n");
-  }
-}
-
 int registerEvent(int parentFd, string eventName){
 	perf_event_attr_t attr;
 	pfm_perf_encode_arg_t arg;
@@ -185,8 +141,6 @@ class Initializer: public SystemInitializer{
 		ret = pfm_initialize();
 		if (ret != PFM_SUCCESS)
 			errx(1, "cannot initialize library: %s", pfm_strerror(ret));
-
-		//list_pmu_events(PFM_PMU_PERF_EVENT);
 	}
 
 	void stop(){

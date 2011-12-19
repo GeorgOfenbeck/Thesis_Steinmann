@@ -30,22 +30,25 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 		output << "$class.name" <<"\n";
 		#foreach($field in $class.allFields)
 			{
-				output << "${field.name}\n";
-				$field.cType value=((${class.name}*)o)->get${field.nameUpperCamel}();
-				
-				#if ($field.class.simpleName=="MultiLanguageList")
-				{
-					$field.cType list=value;
-					unsigned size= list.size();
-					output << size << "\n";
-				
-					for (unsigned i=0; i<size; i++){
-						$field.getcItemType() value=list[i];
-						#serializeNonList($field)
+				#if ($field.class.simpleName!="MultiLanguageDefine")
+					output << "${field.name}\n";
+					$field.cType value=((${class.name}*)o)->get${field.nameUpperCamel}();
+					
+					#if ($field.class.simpleName=="MultiLanguageList")
+					{
+						$field.cType list=value;
+						unsigned size= list.size();
+						output << size << "\n";
+					
+						for (unsigned i=0; i<size; i++){
+							$field.getcItemType() value=list[i];
+							#serializeNonList($field)
+						}
 					}
-				}
-				#else
-					#serializeNonList($field)
+				
+					#else
+						#serializeNonList($field)
+					#end
 				#end
 			}
 		#end

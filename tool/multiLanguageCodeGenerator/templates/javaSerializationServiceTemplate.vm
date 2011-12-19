@@ -76,6 +76,14 @@ public class MultiLanguageSerializationService{
 		throw new Error("Unknown class: "+o.getClass().getName());
 	}
 
+#macro( parseNonReference ) 
+#if ($field.type=="bool") scanner.${field.typeDescriptor.scannerMethod}()!=0 #else scanner.${field.typeDescriptor.scannerMethod}() #end 
+#end
+
+#macro( advanceAfterParseNonReference ) 
+#if ($field.type!="string") scanner.nextLine(); #end 
+#end
+
 	private Object DeSerializeImp(Scanner scanner) {
 		if (scanner.hasNext("<null>")){
 			scanner.next("<null>");
@@ -89,14 +97,7 @@ public class MultiLanguageSerializationService{
 			scanner.next("$class.name");
 			scanner.nextLine();
 #foreach($field in $class.allFields)
-
-#macro( parseNonReference ) 
-#if ($field.type=="bool") scanner.${field.typeDescriptor.scannerMethod}()!=0 #else scanner.${field.typeDescriptor.scannerMethod}() #end 
-#end
-
-#macro( advanceAfterParseNonReference ) 
-#if ($field.type!="string") scanner.nextLine(); #end 
-#end
+#if ($field.class.simpleName!="MultiLanguageDefine")
 			{
 				scanner.next("${field.name}");
 				scanner.nextLine();
@@ -120,6 +121,7 @@ public class MultiLanguageSerializationService{
 			#advanceAfterParseNonReference
 #end
 			}
+#end
 #end
 			return result;
 		}

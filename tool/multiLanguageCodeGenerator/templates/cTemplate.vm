@@ -14,13 +14,15 @@ class $class.name #if ($class.hascBaseType()) : public $class.cBaseType #end{
 	MultiLanguageTypeEnum getType(){return MULTI_LANGUAGE_TYPE_ENUM_$class.name;}
 #foreach($field in $class.fields)
 	#if ($field.class.simpleName=="MultiLanguageDefine")
-	public:
-		static const $field.getcType() $field.name
-		#ifdef MULTI_LANGUAGE_DEFINE_${class.name}_$field.name
-			=MULTI_LANGUAGE_DEFINE_${class.name}_$field.name;
-		\#else
-			=$field.typeDescriptor.cDefault;
-		#endif
+		#if (false)
+		public:
+			static const $field.getcType() $field.name
+			#ifdef MULTI_LANGUAGE_DEFINE_${class.name}_$field.name
+				=MULTI_LANGUAGE_DEFINE_${class.name}_$field.name;
+			\#else
+				=$field.typeDescriptor.cDefault;
+			#endif
+		#end
 	#else
 	private: 
 	
@@ -36,16 +38,18 @@ class $class.name #if ($class.hascBaseType()) : public $class.cBaseType #end{
 			return $field.name;
 		}
 	#else
-		## create getter and setter for a normal field
-		/** $field.comment */
-		$field.getcType() get${field.nameUpperCamel}(){
-			return $field.name;
-		}
 		#if ($field.class.simpleName!="MultiLanguageDefine")
-			/** $field.comment */	
-			void set${field.nameUpperCamel}($field.getcType() value){
-				${field.name} = value;
+			## create getter and setter for a normal field
+			/** $field.comment */
+			$field.getcType() get${field.nameUpperCamel}(){
+				return $field.name;
 			}
+			#if ($field.class.simpleName!="MultiLanguageDefine")
+				/** $field.comment */	
+				void set${field.nameUpperCamel}($field.getcType() value){
+					${field.name} = value;
+				}
+			#end
 		#end
 	#end 
 #end

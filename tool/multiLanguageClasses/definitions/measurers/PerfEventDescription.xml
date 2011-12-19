@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="PerfEventDescription" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	comment="description of an event">
+	
+	
+	<field name="name" type="string" comment="name of the event"/>
+	<field name="description" type="string" comment="description of the event"/>
+	<field name="equivalent" type="string" comment="equivalent event"/>
+	<list name="attributes" type="PerfEventAttributeDescription" comment="attributes of the event" />
+</class>

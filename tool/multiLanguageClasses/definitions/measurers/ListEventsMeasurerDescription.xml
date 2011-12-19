@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="ListEventsMeasurerDescription" 
+	baseType="MeasurerDescriptionBase"
+	comment="measurer listing all perf events">
+	<define name="architecture" type="string" comment="architecture to be listed. example: PFM_PMU_PERF_EVENT, listed in pfmlib.h. Passed to libpfm4"/>
+</derivedClass>

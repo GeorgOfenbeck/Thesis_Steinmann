@@ -167,7 +167,26 @@ The class definitions and the generated code is located in the Multi Language Cl
 \subsubsection{Install}
 see INSTALL file in tool directory
 
-\subsubsection{}
+\subsubsection{Create New Kernels}
+\begin{itemize}
+\item create the xml description of your kernel description in multiLanguageClasses/definitions/kernels
+\item run "rmt help" to generate the multi language code from you description
+\item create your kernel implementation in measuringCore/kernels. Subclass "Kernel", parameterized to the description class you've created. Implement "initialize()", "run()" and "dispose()".
+\item register your kernel class. In the cpp file of your kernel implementation, include "typeRegistry/TypeRegisterer.h" and instantiate a static global variable of type "TypeRegisterer", parameterized to your kernel implementation.
+\item use your kernel from a measurement
+\end{itemize}
+
+\subsubsection{Create New Measurement}
+\begin{itemize}
+\item create new class in measurementDriver/measurements
+\item implement IMeasurement
+\end{itemize}
+
+\subsubsection{Add Configuration Key}
+The configuration is used to set various flags in the measurement driver.
+\begin{itemize}
+\item add public static field of type ConfigurationKey to any class within the measurement driver.
+\end{itemize}
 
 \subsection{Measurement Driver}
 

@@ -12,8 +12,8 @@
 
 class MemoryLoadKernel : public Kernel<MemoryLoadKernelDescription>{
 protected:
-	double *a,*b,*c;
-	double result;
+	char *buffer;
+	char result;
 public:
 	MemoryLoadKernel(MemoryLoadKernelDescription *description):Kernel(description){};
 
@@ -22,21 +22,10 @@ public:
 		result=0;
 		for (long p=0;p<1;p++){
 			for (long i=0; i<description->getBufferSize(); i++){
-				result+=a[i];
-				//a[i]=b[i]+2.34*c[i];
-				//result=result^buffer[i];
+				result=result^buffer[i];
 			}
 		}
-		//result=a[567];
 	}
 	void dispose();
-};
-
-class derivedTmp : public MemoryLoadKernel{
-public:
-	derivedTmp(MemoryLoadKernelDescription *description)
-	:MemoryLoadKernel(description){}
-
-	void run(){result=0;}
 };
 #endif /* LOADMEMORYKERNEL_H_ */
