@@ -22,13 +22,18 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 			MeasurementResult result) {
 		final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
+		addValues(name, result, statistics);
+
+		return statistics;
+	}
+
+	public static void addValues(String name, MeasurementResult result,
+			final DescriptiveStatistics statistics) {
 		addValues(name, result, new IAddValue() {
 			public void addValue(double v) {
 				statistics.addValue(v);
 			}
 		});
-
-		return statistics;
 	}
 
 	public static void addValues(String name,
@@ -40,8 +45,9 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 				PerfEventMeasurerOutput output = (PerfEventMeasurerOutput) outputBase;
 				PerfEventCount count = output.getEventCount(name);
 
-				//TODO: throw right error if the event with the name could not be found
-				
+				// TODO: throw right error if the event with the name could not
+				// be found
+
 				// scale the raw count
 				addValue.addValue(
 						count.getScaledCount());

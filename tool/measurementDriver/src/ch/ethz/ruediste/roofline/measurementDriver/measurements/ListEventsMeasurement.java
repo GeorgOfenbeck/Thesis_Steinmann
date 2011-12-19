@@ -74,6 +74,7 @@ public class ListEventsMeasurement implements IMeasurement {
 				out.println();
 			}
 		}
+		out.close();
 	}
 
 }
