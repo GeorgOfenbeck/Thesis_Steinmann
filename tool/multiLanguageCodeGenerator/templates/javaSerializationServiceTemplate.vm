@@ -7,10 +7,9 @@ import java.math.BigInteger;
 /** Serializes and deserializes multi language objects */
 public class MultiLanguageSerializationService{
 
-	public void Serialize(Object o, OutputStream output, OutputStream outputDef){
+	public void Serialize(Object o, OutputStream output){
 		PrintStream stream=new PrintStream(output);
-		PrintStream streamDef=new PrintStream(outputDef);
-		SerializeImp(o, stream, streamDef);
+		SerializeImp(o, stream);
 	}
 	
 	public Object DeSerialize(InputStream input){
@@ -21,14 +20,7 @@ public class MultiLanguageSerializationService{
 ## Macro serializing a field known not to be a reference	
 #macro( serializeNonList $value )
 	#if ($field.typeDescriptor.reference)
-		SerializeImp($value,output,outputDef);
-	#elseif ($field.class.simpleName=="MultiLanguageDefine")
-		outputDef.print("\#define MULTI_LANGUAGE_DEFINE_${class.name}_$field.name ");
-		#if ($field.type == "bool")
-			outputDef.println(($value)?1:0);
-		#else
-			outputDef.println($value);
-		#end			
+		SerializeImp($value,output);	
 	#else
 		#if ($field.type == "bool")
 			output.println(($value)?1:0);
@@ -38,7 +30,7 @@ public class MultiLanguageSerializationService{
 	#end
 #end
  
-	private void SerializeImp(Object o, PrintStream output, PrintStream outputDef){
+	private void SerializeImp(Object o, PrintStream output){
 		if (o==null){
 			output.println("<null>");
 			return;
@@ -53,9 +45,7 @@ public class MultiLanguageSerializationService{
 				#foreach($field in $class.allFields)
 				
 					## output field header
-					#if ($field.class.simpleName != "MultiLanguageDefine")
-						output.println("${field.name}");
-					#end
+					output.println("${field.name}");
 					
 					## check if the field is a list
 					#if ($field.class.simpleName=="MultiLanguageList")
@@ -84,49 +74,47 @@ public class MultiLanguageSerializationService{
 #if ($field.type!="string") scanner.nextLine(); #end 
 #end
 
-	private Object DeSerializeImp(Scanner scanner) {
-		if (scanner.hasNext("<null>")){
-			scanner.next("<null>");
-			scanner.nextLine();
-			return null;
-		}
-		
-#foreach($class in $classes)		
+private Object DeSerializeImp(Scanner scanner) {
+	if (scanner.hasNext("<null>")){
+		scanner.next("<null>");
+		scanner.nextLine();
+		return null;
+	}
+	
+	#foreach($class in $classes)		
 		if (scanner.hasNext("$class.name")){
 			$class.name result=new ${class.name}();
 			scanner.next("$class.name");
 			scanner.nextLine();
-#foreach($field in $class.allFields)
-#if ($field.class.simpleName!="MultiLanguageDefine")
+			#foreach($field in $class.allFields)
 			{
 				scanner.next("${field.name}");
 				scanner.nextLine();
-#if ($field.class.simpleName=="MultiLanguageList")
+				#if ($field.class.simpleName=="MultiLanguageList")
 				{
 					long count=scanner.nextLong();
 					for (int i=0; i<count; i++){
 		
-	#if ($field.typeDescriptor.reference)
-						result.get${field.nameUpperCamel}().add(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
-	#else
-						result.get${field.nameUpperCamel}().add(#parseNonReference());
-						#advanceAfterParseNonReference
-	#end
+						#if ($field.typeDescriptor.reference)
+							result.get${field.nameUpperCamel}().add(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
+						#else
+							result.get${field.nameUpperCamel}().add(#parseNonReference());
+							#advanceAfterParseNonReference
+						#end
+					}
 				}
+				#elseif ($field.typeDescriptor.reference)
+					result.set${field.nameUpperCamel}(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
+				#else
+					result.set${field.nameUpperCamel}(#parseNonReference());
+					#advanceAfterParseNonReference
+				#end
 			}
-#elseif ($field.typeDescriptor.reference)
-			result.set${field.nameUpperCamel}(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
-#else
-			result.set${field.nameUpperCamel}(#parseNonReference());
-			#advanceAfterParseNonReference
-#end
-			}
-#end
-#end
+			#end
 			return result;
 		}
-#end
+	#end
 		
-		throw new Error("Parse Error");
-	}
+	throw new Error("Parse Error");
+}
 }

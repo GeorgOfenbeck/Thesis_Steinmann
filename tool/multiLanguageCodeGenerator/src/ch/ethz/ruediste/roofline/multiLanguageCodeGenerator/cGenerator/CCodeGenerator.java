@@ -1,5 +1,6 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.cGenerator;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 
@@ -14,6 +15,12 @@ public class CCodeGenerator extends CodeGeneratorBase {
 
 	@Override
 	public void generate(List<MultiLanguageClassBase> multiLanguageClasses) {
+		// clear output directory
+		{
+			File outputDirectory = new File("generatedC");
+			outputDirectory.delete();
+		}
+
 		// generate java code for all classes
 		for (MultiLanguageClassBase multiLangugeClass : multiLanguageClasses) {
 			// initialize context

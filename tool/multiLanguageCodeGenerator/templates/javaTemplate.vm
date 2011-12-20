@@ -10,7 +10,7 @@ public class ${class.javaName} #if ($class.hasJavaBaseType())	extends $class.jav
 
 ## iterate over all fields of the class
 #foreach($field in $class.fields)
-	#if ($field.class.simpleName == "MultiLanguageField" || $field.class.simpleName == "MultiLanguageDefine")
+	#if ($field.class.simpleName == "MultiLanguageField")
 		#if ($field.typeDescriptor.hasJavaDefault())
 			private $field.typeDescriptor.javaName $field.name=$field.typeDescriptor.javaDefault;
 		#else

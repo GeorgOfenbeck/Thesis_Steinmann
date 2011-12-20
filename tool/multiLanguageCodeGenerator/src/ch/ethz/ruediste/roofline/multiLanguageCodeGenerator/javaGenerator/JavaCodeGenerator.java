@@ -1,5 +1,6 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.javaGenerator;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.velocity.VelocityContext;
@@ -15,6 +16,12 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 
 	@Override
 	public void generate(List<MultiLanguageClassBase> multiLanguageClasses) {
+		// clear output directory
+		{
+			File outputDirectory = new File("generatedjava");
+			// TODO: does not work
+			outputDirectory.delete();
+		}
 
 		// generate java code for all classes
 		for (MultiLanguageClassBase multiLanguageClass : multiLanguageClasses) {

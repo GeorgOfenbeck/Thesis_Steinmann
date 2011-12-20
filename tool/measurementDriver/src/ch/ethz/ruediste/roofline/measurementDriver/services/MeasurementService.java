@@ -11,6 +11,7 @@ import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.MeasurerOutputCollection;
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
+import ch.ethz.ruediste.roofline.dom.PreprocessorMacro;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 
@@ -62,9 +63,16 @@ public class MeasurementService {
 					"../src/configDef.h");
 			configFile.createNewFile();
 			FileOutputStream config = new FileOutputStream(configFile);
-			FileOutputStream configDef = new FileOutputStream(configDefFile);
-			serializationService.Serialize(command, config, configDef);
+			serializationService.Serialize(command, config);
 			config.close();
+
+			// create definitions
+			PrintStream configDef = new PrintStream(configDefFile);
+			for (PreprocessorMacro macro : command.getMeasurement().getMacros()) {
+				configDef.printf("#define %s %s\n", macro.getName(),
+						macro.getDefinition());
+			}
+			configDef.close();
 
 			// create optimization file
 			System.out.println("creating optimization file");

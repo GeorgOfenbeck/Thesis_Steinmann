@@ -12,7 +12,6 @@ import java.util.List;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.FieldTypeDescriptor;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageDefine;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageDerivedClass;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageField;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageFieldBase;
@@ -102,6 +101,7 @@ public class Main {
 		// load all classes
 		List<MultiLanguageClassBase> classes = new LinkedList<MultiLanguageClassBase>();
 		for (File inputFile : inputFiles) {
+			System.out.println("loading " + inputFile.getAbsolutePath());
 			// load the input
 			MultiLanguageClassBase multiLanguageClass = (MultiLanguageClassBase) xStream
 					.fromXML(inputFile);
@@ -165,7 +165,6 @@ public class Main {
 		XStream xStream = new XStream(new DomDriver());
 		xStream.processAnnotations(MultiLanguageClass.class);
 		xStream.processAnnotations(MultiLanguageField.class);
-		xStream.processAnnotations(MultiLanguageDefine.class);
 		xStream.processAnnotations(MultiLanguageList.class);
 		xStream.processAnnotations(MultiLanguageFieldBase.class);
 		xStream.processAnnotations(MultiLanguageDerivedClass.class);

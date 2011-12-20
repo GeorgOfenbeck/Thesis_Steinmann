@@ -44,7 +44,6 @@ public class ListEventsMeasurement implements IMeasurement {
 
 	public void measure(String outputName) throws IOException {
 		ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
-		measurer.setArchitecture(configuration.get(architectureKey));
 
 		MeasurementDescription measurement = new MeasurementDescription();
 		measurement.setKernel(new DummyKernelDescription());
@@ -52,6 +51,8 @@ public class ListEventsMeasurement implements IMeasurement {
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
 		measurement.setOptimization("-O3");
+		measurement.addMacro(ListEventsMeasurerDescription.architectureMacroName,
+				configuration.get(architectureKey));
 
 		MeasurementResult result = measurementAppController.measure(
 				measurement, 1);

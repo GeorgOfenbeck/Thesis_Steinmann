@@ -13,4 +13,6 @@
 	<field name="measurer" type="MeasurerDescriptionBase" comment="describes the measurer to be used"/>
 
 	<field name="optimization" type="string" comment="optimization flags to be used for the measuring core"/>
+	
+	<list name="macros" type="PreprocessorMacro" comment="macro definitions to be used for this measurement"/>
 </class>

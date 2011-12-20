@@ -119,8 +119,8 @@ ListEventsMeasurerOutput *list_pmu_events(pfm_pmu_t pmu) {
 
 MeasurerOutputBase *ListEventsMeasurer::read() {
 	return list_pmu_events(
-#ifdef MULTI_LANGUAGE_DEFINE_ListEventsMeasurerDescription_architecture
-			MULTI_LANGUAGE_DEFINE_ListEventsMeasurerDescription_architecture
+#ifdef RMT_PERF_EVENT_ARCHITECTURE
+			RMT_PERF_EVENT_ARCHITECTURE
 #else
 			PFM_PMU_PERF_EVENT
 #endif

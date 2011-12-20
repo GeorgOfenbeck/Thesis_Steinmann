@@ -48,13 +48,15 @@ public class PerformanceEventScreeningMeasurement implements IMeasurement {
 		MeasurementResult result;
 		{
 			ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
-			measurer.setArchitecture(configuration
-					.get(ListEventsMeasurement.architectureKey));
 
 			MeasurementDescription measurement = new MeasurementDescription();
 			measurement.setKernel(new DummyKernelDescription());
 			measurement.setMeasurer(measurer);
 			measurement.setScheme(new SimpleMeasurementSchemeDescription());
+			measurement.addMacro(
+					ListEventsMeasurerDescription.architectureMacroName,
+					configuration
+							.get(ListEventsMeasurement.architectureKey));
 
 			result = measurementAppController.measure(
 					measurement, 1);

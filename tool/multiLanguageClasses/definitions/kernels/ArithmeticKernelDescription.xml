@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="ArithmeticKernelDescription" 
+	cBaseType="KernelDescriptionBase"
+	javaBaseType="KernelDescriptionBase"
+	javaSuffix="Data"
+	comment="Kernel doing artithmetic operations"> 
+</class>

@@ -30,25 +30,23 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 		output << "$class.name" <<"\n";
 		#foreach($field in $class.allFields)
 			{
-				#if ($field.class.simpleName!="MultiLanguageDefine")
-					output << "${field.name}\n";
-					$field.cType value=((${class.name}*)o)->get${field.nameUpperCamel}();
-					
-					#if ($field.class.simpleName=="MultiLanguageList")
-					{
-						$field.cType list=value;
-						unsigned size= list.size();
-						output << size << "\n";
-					
-						for (unsigned i=0; i<size; i++){
-							$field.getcItemType() value=list[i];
-							#serializeNonList($field)
-						}
-					}
+				output << "${field.name}\n";
+				$field.cType value=((${class.name}*)o)->get${field.nameUpperCamel}();
 				
-					#else
+				#if ($field.class.simpleName=="MultiLanguageList")
+				{
+					$field.cType list=value;
+					unsigned size= list.size();
+					output << size << "\n";
+				
+					for (unsigned i=0; i<size; i++){
+						$field.getcItemType() value=list[i];
 						#serializeNonList($field)
-					#end
+					}
+				}
+			
+				#else
+					#serializeNonList($field)
 				#end
 			}
 		#end
@@ -105,33 +103,31 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 		$class.name *result=new ${class.name}();
 		
 		#foreach($field in $class.allFields)
-			#if ($field.class.simpleName!="MultiLanguageDefine")
-			{
-				getline(input,line);
-				if (line.compare("${field.name}")!=0){
-					throw Exception("Parse Error. Field $field.name of class $class.name expected. got "+line);
-				}
-				#if ($field.class.simpleName=="MultiLanguageList")
-				{
-					## read the line with the count
-					getline(input,line);
-					int count;
-					if (sscanf(line.c_str(),"%i",&count)!=1){
-						throw Exception("Parse Error. could not parse item count of list $field.name of $class.name. Item count string is "+line);
-					}
-					
-					## parse all elements
-					for (int i=0; i<count; i++){
-						#deSerializeNonList($field)
-						result->get${field.nameUpperCamel}().push_back(value);
-					}
-				}
-				#else
-					#deSerializeNonList($field)
-					result->set${field.nameUpperCamel}(value);
-				#end
+		{
+			getline(input,line);
+			if (line.compare("${field.name}")!=0){
+				throw Exception("Parse Error. Field $field.name of class $class.name expected. got "+line);
 			}
+			#if ($field.class.simpleName=="MultiLanguageList")
+			{
+				## read the line with the count
+				getline(input,line);
+				int count;
+				if (sscanf(line.c_str(),"%i",&count)!=1){
+					throw Exception("Parse Error. could not parse item count of list $field.name of $class.name. Item count string is "+line);
+				}
+				
+				## parse all elements
+				for (int i=0; i<count; i++){
+					#deSerializeNonList($field)
+					result->get${field.nameUpperCamel}().push_back(value);
+				}
+			}
+			#else
+				#deSerializeNonList($field)
+				result->set${field.nameUpperCamel}(value);
 			#end
+		}
 		#end
 
 		return result;
@@ -140,4 +136,3 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 
 	throw Exception("Parse Error: class "+line+" is not known");;
 }
-

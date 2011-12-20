@@ -4,6 +4,6 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="ListEventsMeasurerDescription" 
 	baseType="MeasurerDescriptionBase"
+	javaSuffix="Data"
 	comment="measurer listing all perf events">
-	<define name="architecture" type="string" comment="architecture to be listed. example: PFM_PMU_PERF_EVENT, listed in pfmlib.h. Passed to libpfm4"/>
 </derivedClass>

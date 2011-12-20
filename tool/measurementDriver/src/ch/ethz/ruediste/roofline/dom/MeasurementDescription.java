@@ -21,4 +21,11 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		}
 		return result;
 	}
+
+	public void addMacro(String macroName, String definition) {
+		PreprocessorMacro macro = new PreprocessorMacro();
+		macro.setName(macroName);
+		macro.setDefinition(definition);
+		getMacros().add(macro);
+	}
 }
