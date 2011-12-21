@@ -3,11 +3,12 @@ package ch.ethz.ruediste.roofline.dom;
 public class MeasurementDescription extends MeasurementDescriptionData {
 	@Override
 	public String toString() {
-		return String.format("%s:%s:%s:%s",
+		return String.format("%s:%s:%s",
 				toString(getKernel()),
 				toString(getMeasurer()),
-				toString(getScheme()),
-				getOptimization());
+				toString(getScheme())
+
+				);
 	}
 
 	private String toString(Object o) {

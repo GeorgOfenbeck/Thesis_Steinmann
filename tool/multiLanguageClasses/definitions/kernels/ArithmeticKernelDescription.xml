@@ -7,4 +7,5 @@
 	javaBaseType="KernelDescriptionBase"
 	javaSuffix="Data"
 	comment="Kernel doing artithmetic operations"> 
+	<field name="iterations" type="long" comment="number of times the operation is performed"/>
 </class>

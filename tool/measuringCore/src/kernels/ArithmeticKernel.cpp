@@ -7,7 +7,10 @@
 
 #include "ArithmeticKernel.h"
 
-ArithmeticKernel::~ArithmeticKernel() {
-	// TODO Auto-generated destructor stub
-}
+#include "typeRegistry/TypeRegisterer.h"
+#include <cmath>
+static TypeRegisterer<ArithmeticKernel> dummy;
 
+double ArithmeticKernel::getBase(double exponent, double result){
+	return exp(log(result)/exponent);
+}

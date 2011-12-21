@@ -4,12 +4,12 @@ import java.io.IOException;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
 import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.KBestMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
@@ -48,25 +48,32 @@ public class RawDataMeasurement implements IMeasurement {
 		simpleScheme.setWarmCaches(false);
 
 		// create kernel
-		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+		// MemoryLoadKernelDescription kernel = new
+		// MemoryLoadKernelDescription();
+		// kernel.setBufferSize(2048);
+
+		ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+		kernel.setIterations(100000);
 
 		// create measurers
 		PerfEventMeasurerDescription perfEventMeasurer = new PerfEventMeasurerDescription();
-		perfEventMeasurer.addEvent("cycles", "perf::PERF_COUNT_HW_BUS_CYCLES");
+		perfEventMeasurer.addEvent("cycles", "perf::PERF_COUNT_HW_CPU_CYCLES");
 		ExecutionTimeMeasurerDescription timeMeasurer = new ExecutionTimeMeasurerDescription();
 
 		// measurement
 		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setOptimization("-O0");
-		measurement.setKernel(kernel);
+		measurement.setOptimization("-O3 -msse -msse2 -msse3");
+		measurement.addMacro(ArithmeticKernelDescription.operationMacroName,
+				"ADD");
+		measurement.addMacro(ArithmeticKernelDescription.unroll4MacroName, "");
 
+		measurement.setKernel(kernel);
 		measurement.setScheme(simpleScheme);
 		measurement.setMeasurer(perfEventMeasurer);
-		kernel.setBufferSize(2048);
 
 		// perform measurement
 		MeasurementResult result = measurementAppController.measure(
-				measurement, 100);
+				measurement, 20);
 
 		// create plot
 		SimplePlot plot = new SimplePlot();
@@ -78,9 +85,13 @@ public class RawDataMeasurement implements IMeasurement {
 			ExecutionTimeMeasurerOutput.addValues(result, plot);
 		}
 
-		plot.setTitle("%d:%s", kernel.getBufferSize(), measurement.toString());
+		plot.setTitle("%d:%s",
+				// kernel.getBufferSize(),
+				kernel.getIterations(),
+				measurement.toString());
 		plot.setOutputName("%s:%d:%s:%s", outputName,
-				kernel.getBufferSize(),
+				// kernel.getBufferSize(),
+				kernel.getIterations(),
 				measurement.toString(),
 				measurement.getScheme().getWarmCaches() ? "warm" : "cold");
 
