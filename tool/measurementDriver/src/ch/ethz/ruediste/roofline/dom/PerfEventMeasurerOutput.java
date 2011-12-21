@@ -12,7 +12,7 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 				return count;
 			}
 		}
-		return null;
+		throw new Error("no event count for event named <" + name + "> found!");
 	}
 
 	/**
@@ -44,9 +44,6 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 			if (outputBase instanceof PerfEventMeasurerOutput) {
 				PerfEventMeasurerOutput output = (PerfEventMeasurerOutput) outputBase;
 				PerfEventCount count = output.getEventCount(name);
-
-				// TODO: throw right error if the event with the name could not
-				// be found
 
 				// scale the raw count
 				addValue.addValue(
