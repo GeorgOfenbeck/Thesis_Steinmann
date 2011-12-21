@@ -64,8 +64,8 @@ public class RawDataMeasurement implements IMeasurement {
 		MeasurementDescription measurement = new MeasurementDescription();
 		measurement.setOptimization("-O3 -msse -msse2 -msse3");
 		measurement.addMacro(ArithmeticKernelDescription.operationMacroName,
-				"ADD");
-		measurement.addMacro(ArithmeticKernelDescription.unroll4MacroName, "");
+				"ArithmeticOperation_ADD");
+		measurement.addMacro(ArithmeticKernelDescription.unrollMacroName, "");
 
 		measurement.setKernel(kernel);
 		measurement.setScheme(simpleScheme);

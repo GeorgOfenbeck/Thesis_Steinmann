@@ -11,5 +11,5 @@ public class ArithmeticKernelDescription extends
 	/**
 	 * indicates that the loop should be unrolled by factor 4
 	 */
-	public static final String unroll4MacroName = "RMT_UNROLL4";
+	public static final String unrollMacroName = "RMT_UNROLL";
 }
