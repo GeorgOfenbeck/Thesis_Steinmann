@@ -188,6 +188,19 @@ The configuration is used to set various flags in the measurement driver.
 \item add public static field of type ConfigurationKey to any class within the measurement driver.
 \end{itemize}
 
+\subsubsection{Generate Annotated Assembly}
+\begin{itemize}
+\item in Eclipse, hit build (Ctrl+B)
+\item change the kernel header file (make it recompile)
+\item build again
+\item from the console window, copy the compiler invocation for MeasurementSchemeRegistration.cpp
+\item open a terminal and go to tool/measuringCore/Debug.
+\item paste the compiler invocation
+\item insert "-Wa,-ahl=ass.s", check optimization flags
+\item issue command
+\item the annotated assembly code can be found in tool/measuringCore/Debug/ass.s
+\item open the annotated assembly code in Eclipse
+\end{itemize|
 \subsection{Measurement Driver}
 
 \subsection{Measuring Core}
