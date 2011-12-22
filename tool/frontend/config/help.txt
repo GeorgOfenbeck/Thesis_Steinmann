@@ -9,7 +9,6 @@ Measurement Driver compilation Options:
 -r	restart Gradle Daemon (might solve strange build errors)
 -nr	don't restart gradle
 
-Compilation Options have to be placed at the beginning of the command line. 
 Multiple options are allowed. If options contradict, the last one takes precedence.
 
 For more help and options run "rmt help". This involves compiling and starting the Measurement Driver.

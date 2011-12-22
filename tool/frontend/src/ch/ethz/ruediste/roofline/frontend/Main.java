@@ -3,7 +3,10 @@ package ch.ethz.ruediste.roofline.frontend;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.CombinedConfiguration;
@@ -28,10 +31,28 @@ public class Main {
 	private static boolean showHelp = false;
 
 	public static void main(String args[]) throws ExecuteException, IOException {
+		// if autocomplete is desired, just call the currently compiled
+		// measurement driver
+		if (args.length == 4 && "-autocomplete".equals(args[0]))
+		{
+			// setup the configuration, without arguments
+			setupConfiguration(new String[] {});
+
+			// copy the arguments into a List
+			List<String> argList = new ArrayList<String>();
+			Collections.addAll(argList, args);
+
+			// execute the measurement Driver
+			execute(argList);
+
+			// exit
+			return;
+		}
+
 		System.out.println("Roofline Measuring Tool");
 
 		// load the configuration
-		int parameterNumber = setupConfiguration(args);
+		List<String> unhandledParameters = setupConfiguration(args);
 
 		// display help if desired
 		if (args.length == 0 || showHelp) {
@@ -60,20 +81,19 @@ public class Main {
 
 		System.out.println("starting tool");
 
-		execute(args, parameterNumber);
+		execute(unhandledParameters);
 	}
 
-	private static int setupConfiguration(String args[]) {
+	private static List<String> setupConfiguration(String args[]) {
+		List<String> unhandledParameters = new ArrayList<String>();
 
 		configuration = new CombinedConfiguration();
 
-		int parameterNumber;
 		Map<String, String> map = new HashMap<String, String>();
 		// parse command line
-		for (parameterNumber = 0; parameterNumber < args.length; parameterNumber++) {
+		for (int parameterNumber = 0; parameterNumber < args.length; parameterNumber++) {
 			if (args[parameterNumber].equals("-nb")) {
 				map.put(buildKey, "false");
-				System.out.println("parsed parameter -nb");
 				continue;
 			}
 			if (args[parameterNumber].equals("-b")) {
@@ -107,7 +127,10 @@ public class Main {
 				showHelp = true;
 				continue;
 			}
-			break;
+
+			// the parameter has not been hadled, add it to the unhandled
+			// parameters
+			unhandledParameters.add(args[parameterNumber]);
 		}
 		configuration.addConfiguration(new MapConfiguration(map));
 
@@ -122,18 +145,18 @@ public class Main {
 		}
 		configuration.addConfiguration(defaultConfiguration);
 
-		return parameterNumber;
+		return unhandledParameters;
 	}
 
-	private static void execute(String[] args, int parameterNumber)
+	private static void execute(List<String> args)
 			throws ExecuteException, IOException {
 		// setup command line
 		CommandLine cmdLine = new CommandLine("java");
 		cmdLine.addArgument("-cp");
 		cmdLine.addArgument(configuration.getString(classPathKey));
 		cmdLine.addArgument("ch.ethz.ruediste.roofline.measurementDriver.Main");
-		for (int i = parameterNumber; i < args.length; i++) {
-			cmdLine.addArgument(args[i]);
+		for (String arg : args) {
+			cmdLine.addArgument(arg);
 		}
 
 		// System.out.println(cmdLine);

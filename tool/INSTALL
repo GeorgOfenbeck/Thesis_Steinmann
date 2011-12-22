@@ -25,4 +25,7 @@ sudo dpkg -i lib/libpfm4_2.0_i386.deb lib/libpfm4-dev_2.0_i386.deb
 5. make masterthesis/tool/frontend/build/rmt executable and link it from a directory which is in the shell path
 chmod +x frontend/build/rmt
 cd /usr/local/bin
-ln -s .../frontend/build/rmt
+sudo ln -s ../frontend/build/rmt
+
+6. for bash autocompleteion support:
+sudo cp rmt.autocompletion /etc/bash_autocompletion.d
