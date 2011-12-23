@@ -8,8 +8,4 @@ public class ArithmeticKernelDescription extends
 	 */
 	public static final String operationMacroName = "RMT_ARITHMETIC_OPERATION";
 
-	/**
-	 * indicates that the loop should be unrolled by factor 4
-	 */
-	public static final String unrollMacroName = "RMT_UNROLL";
 }

@@ -15,7 +15,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
 
 import com.google.inject.Inject;
 
-public class ArtihmeticMeasurement implements IMeasurement {
+public class ArithmeticMeasurement implements IMeasurement {
 
 	public String getName() {
 		return "arithmetic";
@@ -36,7 +36,7 @@ public class ArtihmeticMeasurement implements IMeasurement {
 	private void measure(String outputName, int iterations) {
 		measure(outputName, iterations, "ArithmeticOperation_ADD");
 		measure(outputName, iterations, "ArithmeticOperation_MUL");
-
+		measure(outputName, iterations, "ArithmeticOperation_MULADD");
 	}
 
 	private void measure(String outputName, int iterations, String operation) {
@@ -46,20 +46,31 @@ public class ArtihmeticMeasurement implements IMeasurement {
 
 	private void measure(String outputName, int iterations, String operation,
 			boolean use_sse) {
-		measure(outputName, iterations, operation, use_sse, "Unroll_None");
-		measure(outputName, iterations, operation, use_sse, "Unroll_2");
-		measure(outputName, iterations, operation, use_sse, "Unroll_4");
+		measure(outputName, iterations, operation, use_sse, 1);
+		measure(outputName, iterations, operation, use_sse, 2);
+		measure(outputName, iterations, operation, use_sse, 3);
+		measure(outputName, iterations, operation, use_sse, 8);
 
 	}
 
 	private void measure(String outputName, int iterations, String operation,
-			boolean use_sse, String unroll) {
+			boolean use_sse, int unroll) {
 
 		ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 		kernel.setIterations(iterations);
+		kernel.setIterations(unroll);
 
-		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
-		measurer.addEvent("cycles", "perf::PERF_COUNT_HW_CPU_CYCLES");
+		PerfEventMeasurerDescription measurer = new
+				PerfEventMeasurerDescription();
+		measurer.addEvent("cycles",
+				"coreduo::UNHALTED_CORE_CYCLES");
+		// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE");
+		// "coreduo::FP_COMP_INSTR_RET");
+		// "coreduo::INSTR_RET");
+		// "coreduo::UNHALTED_REFERENCE_CYCLES");
+
+		// ExecutionTimeMeasurerDescription measurer = new
+		// ExecutionTimeMeasurerDescription();
 
 		MeasurementDescription measurement = new MeasurementDescription();
 		measurement.setKernel(kernel);
@@ -75,13 +86,12 @@ public class ArtihmeticMeasurement implements IMeasurement {
 
 		measurement.addMacro(ArithmeticKernelDescription.operationMacroName,
 				operation);
-		measurement.addMacro(ArithmeticKernelDescription.unrollMacroName,
-				unroll);
 
 		MeasurementResult result = measurementAppController.measure(
 				measurement, 10);
 		DescriptiveStatistics statistics = PerfEventMeasurerOutput
 				.getStatistics("cycles", result);
+		// = ExecutionTimeMeasurerOutput.getStatistics(result);
 
 		System.out.printf("%s %s %s %s: %g %g\n", operation, iterations,
 				unroll, use_sse ? "SSE" : "NoSSE",
