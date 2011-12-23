@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
+import ch.ethz.ruediste.roofline.dom.ArithmeticSingleKernelDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
@@ -48,17 +49,21 @@ public class ArithmeticMeasurement implements IMeasurement {
 			boolean use_sse) {
 		measure(outputName, iterations, operation, use_sse, 1);
 		measure(outputName, iterations, operation, use_sse, 2);
-		measure(outputName, iterations, operation, use_sse, 3);
+		measure(outputName, iterations, operation, use_sse, 4);
 		measure(outputName, iterations, operation, use_sse, 8);
-
+		measure(outputName, iterations, operation, use_sse, 16);
+		measure(outputName, iterations, operation, use_sse, 32);
+		measure(outputName, iterations, operation, use_sse, 64);
 	}
 
 	private void measure(String outputName, int iterations, String operation,
 			boolean use_sse, int unroll) {
 
-		ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+		// ArithmeticKernelDescription kernel = new
+		// ArithmeticKernelDescription();
+		ArithmeticSingleKernelDescription kernel = new ArithmeticSingleKernelDescription();
 		kernel.setIterations(iterations);
-		kernel.setIterations(unroll);
+		kernel.setUnroll(unroll);
 
 		PerfEventMeasurerDescription measurer = new
 				PerfEventMeasurerDescription();
