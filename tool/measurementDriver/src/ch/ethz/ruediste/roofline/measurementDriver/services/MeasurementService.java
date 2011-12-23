@@ -128,7 +128,7 @@ public class MeasurementService {
 			commandService.runCommand(measuringCoreDir, "make",
 					new String[] { "clean" });
 			commandService.runCommand(measuringCoreDir, "make",
-					new String[] { "all" }, 0, false);
+					new String[] { "-j2", "all" }, 0, true);
 
 			// remove output file
 			System.out.println("removing output file");
