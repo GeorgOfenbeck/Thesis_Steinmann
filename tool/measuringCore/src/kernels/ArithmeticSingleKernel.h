@@ -269,16 +269,16 @@ class ArithmeticSingleKernel: public Kernel<ArithmeticSingleKernelDescription> {
 	};
 
 	template<template<int I> class T>
-	struct invocationHelper<T, 2> {
+	struct invocationHelper<T, 4> {
 		static double doIt(int unroll, long iterations) {
-			if (unroll == 2) {
-				return T<2>::doIt(iterations);
+			if (unroll == 4) {
+				return T<4>::doIt(iterations);
 			}
 			throw "unsupported unroll specified";
 		}
 	};
 
-	static const int maxUnroll=64;
+	static const int maxUnroll = 64;
 public:
 	double result;
 	ArithmeticSingleKernel(ArithmeticSingleKernelDescription * description) :
@@ -291,10 +291,11 @@ public:
 	;
 	void run() {
 		long iterations = description->getIterations();
+		int unroll = description->getUnroll();
 
 		if (RMT_ARITHMETIC_OPERATION == ArithmeticOperation_ADD) {
 
-			if (description->getUnroll() == 1) {
+			if (unroll == 1 || unroll == 2) {
 				double r = 1;
 				for (long i = 0; i < iterations; i++) {
 					r += 1;
@@ -308,7 +309,7 @@ public:
 
 		if (RMT_ARITHMETIC_OPERATION == ArithmeticOperation_MUL) {
 			double base = getBase(iterations, 4);
-			if (description->getUnroll() == 1) {
+			if (unroll == 1 || unroll == 2) {
 				double r = 1;
 				for (long i = 0; i < iterations; i++) {
 					r *= base;
@@ -321,7 +322,7 @@ public:
 
 		if (RMT_ARITHMETIC_OPERATION == ArithmeticOperation_MULADD) {
 			double base = getBase(iterations, 4);
-			if (description->getUnroll() == 1) {
+			if (unroll == 1 || unroll == 2) {
 				double r = 1, ra = 1;
 				for (long i = 0; i < iterations; i++) {
 					r *= base;
