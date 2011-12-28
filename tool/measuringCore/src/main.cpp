@@ -17,7 +17,7 @@
 #include <fstream>
 #include <typeinfo>
 #include "coreSwitchTest.hpp"
-#include "MultiLanguageSerializationService.h"
+#include "sharedDOM/MultiLanguageSerializationService.h"
 #include "generatedC/MultiLanguageTestClass.h"
 #include "generatedC/MemoryLoadKernelDescription.h"
 #include "generatedC/MeasurementDescription.h"

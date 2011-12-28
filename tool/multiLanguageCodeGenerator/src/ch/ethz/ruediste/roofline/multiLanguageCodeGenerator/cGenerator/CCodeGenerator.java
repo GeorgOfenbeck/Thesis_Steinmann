@@ -22,22 +22,30 @@ public class CCodeGenerator extends CodeGeneratorBase {
 		}
 
 		// generate java code for all classes
-		for (MultiLanguageClassBase multiLangugeClass : multiLanguageClasses) {
+		for (MultiLanguageClassBase multiLanguageClass : multiLanguageClasses) {
 			// initialize context
 			VelocityContext context = new VelocityContext();
-			context.put("class", multiLangugeClass);
-			String outputFileName = "generatedC/" + multiLangugeClass.getName()
+			context.put("class", multiLanguageClass);
+			String outputFileName = "generatedC/"
+					+ multiLanguageClass.getName()
 					+ ".h";
 			String templateName = "cTemplate.vm";
 
 			// collect all referenced classes
 			HashSet<String> referencedClasses = new HashSet<String>();
-			if (multiLangugeClass.hascBaseType()) {
-				referencedClasses.add(multiLangugeClass.getcBaseType());
+			if (multiLanguageClass.hascBaseType()) {
+				String baseType = multiLanguageClass.getcBaseType();
+
+				if (baseType.equals("MultiLanguageObjectBase")) {
+					referencedClasses.add("sharedDOM/" + baseType);
+				}
+				else {
+					referencedClasses.add(baseType);
+				}
 			}
 
-			if (multiLangugeClass.getFields() != null) {
-				for (MultiLanguageFieldBase field : multiLangugeClass
+			if (multiLanguageClass.getFields() != null) {
+				for (MultiLanguageFieldBase field : multiLanguageClass
 						.getFields()) {
 					if (!field.getTypeDescriptor().isReference()) {
 						continue;
