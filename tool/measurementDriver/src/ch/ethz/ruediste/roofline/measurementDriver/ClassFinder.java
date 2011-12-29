@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -173,4 +175,52 @@ public class ClassFinder {
 		}
 		return classes;
 	}
+
+	/**
+	 * Finds all static fields declared in the given package and it's sub
+	 * packages and extracts it's value along with the class the field is
+	 * defined in
+	 * 
+	 * @param fieldType
+	 *            type of the fields to be extracted
+	 * @param packageName
+	 *            package of the classes to be searched
+	 */
+	static public <T> List<Pair<Class<?>, T>> getStaticFieldValues(
+			Class<T> fieldType, String packageName) {
+		List<Pair<Class<?>, T>> values = new ArrayList<Pair<Class<?>, T>>();
+
+		// get all classes in the package
+		List<Class<?>> classes = ClassFinder.getClasses(packageName);
+
+		// loop over all classes
+		for (Class<?> clazz : classes) {
+			// loop over the fields in the class
+			for (Field field : clazz.getDeclaredFields()) {
+				// check if the field is static and a ConfigurationKey
+				if (Modifier.isStatic(field.getModifiers())
+						&& fieldType.isAssignableFrom(field
+								.getType()))
+				{
+					// the field contains a configuration key
+					try {
+						// retrieve the configuration key object
+						@SuppressWarnings("unchecked")
+						T key = (T) field
+								.get(null);
+
+						// add the configuration key to the result list
+						values.add(new Pair<Class<?>, T>(
+								clazz, key));
+					} catch (IllegalArgumentException e) {
+						// ignore
+					} catch (IllegalAccessException e) {
+						// ignore
+					}
+				}
+			}
+		}
+		return values;
+	}
+
 }

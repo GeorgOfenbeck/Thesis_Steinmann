@@ -51,7 +51,8 @@ public class ListEventsMeasurement implements IMeasurement {
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
 		measurement.setOptimization("-O3");
-		measurement.addMacro(ListEventsMeasurerDescription.architectureMacroName,
+		measurement.addMacro(
+				ListEventsMeasurerDescription.architectureMacro,
 				configuration.get(architectureKey));
 
 		MeasurementResult result = measurementAppController.measure(

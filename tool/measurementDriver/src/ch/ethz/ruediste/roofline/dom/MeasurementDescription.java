@@ -1,5 +1,7 @@
 package ch.ethz.ruediste.roofline.dom;
 
+import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
+
 public class MeasurementDescription extends MeasurementDescriptionData {
 	@Override
 	public String toString() {
@@ -23,9 +25,9 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		return result;
 	}
 
-	public void addMacro(String macroName, String definition) {
+	public void addMacro(MacroKey key, String definition) {
 		PreprocessorMacro macro = new PreprocessorMacro();
-		macro.setName(macroName);
+		macro.setName(key.getMacroName());
 		macro.setDefinition(definition);
 		getMacros().add(macro);
 	}

@@ -54,7 +54,7 @@ public class PerformanceEventScreeningMeasurement implements IMeasurement {
 			measurement.setMeasurer(measurer);
 			measurement.setScheme(new SimpleMeasurementSchemeDescription());
 			measurement.addMacro(
-					ListEventsMeasurerDescription.architectureMacroName,
+					ListEventsMeasurerDescription.architectureMacro,
 					configuration
 							.get(ListEventsMeasurement.architectureKey));
 

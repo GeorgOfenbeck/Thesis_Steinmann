@@ -1,1 +1,1 @@
-KERNEL_NAME=ArithmeticSingle
+KERNEL_NAME=Dummy

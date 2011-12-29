@@ -56,10 +56,10 @@ KERNEL_OBJECTS=$(call sourcesToObjects, $(KERNEL_SOURCES))
 DEP_FILES=$(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*")
 
 
-.PHONY: rot clean clean_kernels
+.PHONY: all clean clean_kernels
 
 # rule for the executable
-rot: $(BUILD_DIR)/rot
+all: $(BUILD_DIR)/measuringCore
 
 # rule for cleaning. just delete the build dir
 clean:
@@ -69,7 +69,7 @@ clean_kernels:
 	rm -rf $(BUILD_DIR)/$(KERNEL_DIR)
 	
 # creates the executable from the .o files
-$(BUILD_DIR)/rot: $(OBJECTS) $(KERNEL_OBJECTS)
+$(BUILD_DIR)/measuringCore: $(OBJECTS) $(KERNEL_OBJECTS)
 	$(GCC) -pthread -rdynamic -o $@ $(OBJECTS) $(KERNEL_OBJECTS) $(LIBS)
 
 #include all dependency files

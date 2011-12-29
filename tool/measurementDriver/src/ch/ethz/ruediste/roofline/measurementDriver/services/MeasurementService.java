@@ -2,6 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -12,6 +13,7 @@ import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.MeasurerOutputCollection;
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
 import ch.ethz.ruediste.roofline.dom.PreprocessorMacro;
+import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 
@@ -38,11 +40,11 @@ public class MeasurementService {
 	public MeasurementResult measure(MeasurementCommand command)
 	{
 		try {
-
 			MeasurementDescription measurement = command.getMeasurement();
 
 			System.out.println("Performing Measurements");
 
+			// loading the measuring Core directory
 			File measuringCoreDir = new File(
 					configuration.get(measuringCorePathKey));
 
@@ -57,87 +59,34 @@ public class MeasurementService {
 			xStream.toXML(command.getMeasurement(), System.out);
 			System.out.println();
 
-			// write command
-			File configFile = new File(measuringCoreDir, "config");
-			File configDefFile = new File(measuringCoreDir,
-					"../src/configDef.h");
-			configFile.createNewFile();
-			FileOutputStream config = new FileOutputStream(configFile);
-			serializationService.Serialize(command, config);
-			config.close();
+			// write macro definitions
+			writeMacroDefinitions(command, measuringCoreDir);
 
-			// create definitions
-			PrintStream configDef = new PrintStream(configDefFile);
-			for (PreprocessorMacro macro : command.getMeasurement().getMacros()) {
-				configDef.printf("#define %s %s\n", macro.getName(),
-						macro.getDefinition());
-			}
-			configDef.close();
+			// write optimization file
+			writeOptimizationFile(measurement, measuringCoreDir);
 
-			// create optimization file
-			System.out.println("creating optimization file");
-			File optimizationFile = new File(measuringCoreDir,
-					"../makefile.init");
-			PrintStream optimizationPrintStream = new PrintStream(
-					optimizationFile);
-			optimizationPrintStream.printf("OPTIMIZATION = %s\n",
-					measurement.getOptimization());
-			optimizationPrintStream.close();
-
-			// create optimization file
-			System.out
-					.println("creating MeasurementScheme registration file");
-			File measurementSchemeRegistrationFile = new File(
-					measuringCoreDir,
-					"../src/MeasurementSchemeRegistration.cpp");
-			PrintStream measurementSchemeRegistrationStream = new PrintStream(
-					measurementSchemeRegistrationFile);
-
-			String schemeName = measurement.getScheme().getClass()
-					.getSimpleName();
-			schemeName = schemeName.substring(0, schemeName.length()
-					- "Description".length());
-			String kernelName = measurement.getKernel().getClass()
-					.getSimpleName();
-			kernelName = kernelName.substring(0, kernelName.length()
-					- "Description".length());
-			String measurerName = measurement.getMeasurer().getClass()
-					.getSimpleName();
-			measurerName = measurerName.substring(0, measurerName.length()
-					- "Description".length());
-
-			measurementSchemeRegistrationStream
-					.printf(
-							"#include \"measurementSchemes/%s.h\"\n"
-									+ "#include \"kernels/%s.h\"\n"
-									+ "#include \"measurers/%s.h\"\n"
-									+ "#include \"typeRegistry/TypeRegisterer.h\"\n"
-									+ "static TypeRegisterer<%s<%s,%s>,%s,%s > dummy;\n",
-							schemeName,
-							kernelName,
-							measurerName,
-							schemeName,
-							kernelName,
-							measurerName,
-							kernelName,
-							measurerName);
-			measurementSchemeRegistrationStream.close();
+			// create measurement scheme registration
+			writeMeasurementSchemeRegistration(measurement, measuringCoreDir);
 
 			// build
 			System.out.println("building measuring core");
 			commandService.runCommand(measuringCoreDir, "make",
-					new String[] { "clean" });
-			commandService.runCommand(measuringCoreDir, "make",
 					new String[] { "-j2", "all" }, 0, true);
+
+			// open the build directory
+			File buildDir = new File(measuringCoreDir, "build");
+
+			// write command
+			serializeCommand(command, buildDir);
 
 			// remove output file
 			System.out.println("removing output file");
-			File outputFile = new File(measuringCoreDir, "output");
+			File outputFile = new File(buildDir, "output");
 			outputFile.delete();
 
 			// run measurement
 			System.out.println("running measurement");
-			commandService.runCommand(measuringCoreDir, "./measuringCore",
+			commandService.runCommand(buildDir, "./measuringCore",
 					new String[] {});
 
 			// parse measurer output
@@ -155,6 +104,99 @@ public class MeasurementService {
 		} catch (IOException e) {
 			throw new Error("Error occured during mesurement", e);
 		}
+	}
+
+	/**
+	 * @param measurement
+	 * @param measuringCoreDir
+	 * @throws FileNotFoundException
+	 */
+	public void writeMeasurementSchemeRegistration(
+			MeasurementDescription measurement, File measuringCoreDir)
+			throws FileNotFoundException {
+		System.out
+				.println("creating MeasurementScheme registration file");
+		File measurementSchemeRegistrationFile = new File(
+				measuringCoreDir,
+				"generated/MeasurementSchemeRegistration.cpp");
+		PrintStream measurementSchemeRegistrationStream = new PrintStream(
+				measurementSchemeRegistrationFile);
+
+		String schemeName = measurement.getScheme().getClass()
+				.getSimpleName();
+		schemeName = schemeName.substring(0, schemeName.length()
+				- "Description".length());
+		String kernelName = measurement.getKernel().getClass()
+				.getSimpleName();
+		kernelName = kernelName.substring(0, kernelName.length()
+				- "Description".length());
+		String measurerName = measurement.getMeasurer().getClass()
+				.getSimpleName();
+		measurerName = measurerName.substring(0, measurerName.length()
+				- "Description".length());
+
+		measurementSchemeRegistrationStream
+				.printf(
+						"#include \"measurementSchemes/%s.h\"\n"
+								+ "#include \"kernels/%s.h\"\n"
+								+ "#include \"measurers/%s.h\"\n"
+								+ "#include \"typeRegistry/TypeRegisterer.h\"\n"
+								+ "static TypeRegisterer<%s<%s,%s>,%s,%s > dummy;\n",
+						schemeName,
+						kernelName,
+						measurerName,
+						schemeName,
+						kernelName,
+						measurerName,
+						kernelName,
+						measurerName);
+		measurementSchemeRegistrationStream.close();
+	}
+
+	/**
+	 * @param measurement
+	 * @param measuringCoreDir
+	 * @throws FileNotFoundException
+	 */
+	public void writeOptimizationFile(MeasurementDescription measurement,
+			File measuringCoreDir) throws FileNotFoundException {
+		System.out.println("creating optimization file");
+		File optimizationFile = new File(measuringCoreDir,
+				"kernelOptimization.mk");
+		PrintStream optimizationPrintStream = new PrintStream(
+				optimizationFile);
+		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS = %s\n",
+				measurement.getOptimization());
+		optimizationPrintStream.close();
+	}
+
+	/**
+	 * writes the macro definitions
+	 */
+	public void writeMacroDefinitions(MeasurementCommand command,
+			File measuringCoreDir) throws FileNotFoundException {
+		File macrosDir = new File(measuringCoreDir, "generated/macros");
+		ClassFinder.File configDefFile = new File(measuringCoreDir,
+				"/configDef.h");
+		PrintStream configDef = new PrintStream(configDefFile);
+		for (PreprocessorMacro macro : command.getMeasurement().getMacros()) {
+			configDef.printf("#define %s %s\n", macro.getName(),
+					macro.getDefinition());
+		}
+		configDef.close();
+	}
+
+	/**
+	 * serialized the command
+	 */
+	public void serializeCommand(MeasurementCommand command,
+			File measuringCoreDir) throws IOException, FileNotFoundException {
+		File configFile = new File(measuringCoreDir, "config");
+
+		configFile.createNewFile();
+		FileOutputStream config = new FileOutputStream(configFile);
+		serializationService.Serialize(command, config);
+		config.close();
 	}
 
 }

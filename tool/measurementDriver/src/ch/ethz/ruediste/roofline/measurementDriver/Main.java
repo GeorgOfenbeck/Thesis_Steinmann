@@ -91,7 +91,7 @@ public class Main {
 		if (partialWord.startsWith("-")) {
 			// do the completion for a flag
 			for (Pair<Class<?>, ConfigurationKeyBase> pair : configuration
-					.getConfigurationKeys("ch.ethz.ruediste.roofline.measurementDriver")) {
+					.getStaticFieldValues(ConfigurationKeyBase.class, "ch.ethz.ruediste.roofline.measurementDriver")) {
 				if (pair.getSecond().getKey().startsWith(partialWord)) {
 					System.out.println(pair.getSecond().getKey());
 				}

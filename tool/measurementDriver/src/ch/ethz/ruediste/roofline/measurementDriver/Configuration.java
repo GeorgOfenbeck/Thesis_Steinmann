@@ -1,12 +1,8 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.CombinedConfiguration;
@@ -109,54 +105,12 @@ public class Configuration {
 	public Map<String, ConfigurationKeyBase> getConfigurationKeyMap(
 			String packageName) {
 		HashMap<String, ConfigurationKeyBase> map = new HashMap<String, ConfigurationKeyBase>();
-		for (Pair<Class<?>, ConfigurationKeyBase> pair : getConfigurationKeys(packageName)) {
+		for (Pair<Class<?>, ConfigurationKeyBase> pair : ClassFinder
+				.getStaticFieldValues(
+						ConfigurationKeyBase.class, packageName)) {
 			map.put(pair.getSecond().getKey(), pair.getSecond());
 		}
 		return map;
-	}
-
-	/**
-	 * Finds all configuration keys declared in the given package and it's sub
-	 * packages, along with the class the key is defined in
-	 * 
-	 * @param packageName
-	 *            TODO
-	 */
-	public List<Pair<Class<?>, ConfigurationKeyBase>> getConfigurationKeys(
-			String packageName) {
-		List<Pair<Class<?>, ConfigurationKeyBase>> configurationKeys = new ArrayList<Pair<Class<?>, ConfigurationKeyBase>>();
-
-		// get all classes in the package
-		List<Class<?>> classes = ClassFinder.getClasses(packageName);
-
-		// loop over all classes
-		for (Class<?> clazz : classes) {
-			// loop over the fields in the class
-			for (Field field : clazz.getDeclaredFields()) {
-				// check if the field is static and a ConfigurationKey
-				if (Modifier.isStatic(field.getModifiers())
-						&& ConfigurationKeyBase.class.isAssignableFrom(field
-								.getType()))
-				{
-					// the field contains a configuration key
-					try {
-						// retrieve the configuration key object
-						ConfigurationKeyBase key = (ConfigurationKeyBase) field
-								.get(null);
-
-						// add the configuration key to the result list
-						configurationKeys
-								.add(new Pair<Class<?>, ConfigurationKeyBase>(
-										clazz, key));
-					} catch (IllegalArgumentException e) {
-						// ignore
-					} catch (IllegalAccessException e) {
-						// ignore
-					}
-				}
-			}
-		}
-		return configurationKeys;
 	}
 
 	public void set(String key, Object value) {

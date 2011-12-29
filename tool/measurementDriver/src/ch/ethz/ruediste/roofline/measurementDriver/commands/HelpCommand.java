@@ -56,7 +56,7 @@ public class HelpCommand implements ICommand {
 		System.out.println("**********************");
 
 		for (Pair<Class<?>, ConfigurationKeyBase> entry : configuration
-				.getConfigurationKeys("ch.ethz.ruediste.roofline.measurementDriver")) {
+				.getStaticFieldValues(ConfigurationKeyBase.class, "ch.ethz.ruediste.roofline.measurementDriver")) {
 			System.out.printf("%s = %s   (=>%s / %s)\n\t%s\n",
 					// key
 					entry.getSecond().getKey(),
