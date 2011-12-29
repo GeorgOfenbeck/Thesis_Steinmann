@@ -1,21 +1,25 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.HashSet;
+import java.util.List;
 
 import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.MeasurerOutputCollection;
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
-import ch.ethz.ruediste.roofline.dom.PreprocessorMacro;
 import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
+import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
+import ch.ethz.ruediste.roofline.measurementDriver.Pair;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -164,7 +168,8 @@ public class MeasurementService {
 		File optimizationFile = new File(measuringCoreDir,
 				"kernelOptimization.mk");
 		PrintStream optimizationPrintStream = new PrintStream(
-				optimizationFile);
+				new UpdatingFileOutputStream(
+						optimizationFile));
 		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS = %s\n",
 				measurement.getOptimization());
 		optimizationPrintStream.close();
@@ -175,15 +180,50 @@ public class MeasurementService {
 	 */
 	public void writeMacroDefinitions(MeasurementCommand command,
 			File measuringCoreDir) throws FileNotFoundException {
+		// create the directories for the macro definition headers
 		File macrosDir = new File(measuringCoreDir, "generated/macros");
-		ClassFinder.File configDefFile = new File(measuringCoreDir,
-				"/configDef.h");
-		PrintStream configDef = new PrintStream(configDefFile);
-		for (PreprocessorMacro macro : command.getMeasurement().getMacros()) {
-			configDef.printf("#define %s %s\n", macro.getName(),
-					macro.getDefinition());
+		macrosDir.mkdirs();
+
+		// load all macro definition keys
+		List<Pair<Class<?>, MacroKey>> macros = ClassFinder
+				.getStaticFieldValues(MacroKey.class,
+						"ch.ethz.ruediste.roofline.measurementDriver");
+
+		HashSet<File> presentFiles = new HashSet<File>();
+		// iterate over all keys and write definition file
+		for (Pair<Class<?>, MacroKey> pair : macros) {
+			MacroKey macro = pair.getSecond();
+
+			File outputFile = new File(macrosDir, macro.getMacroName() + ".h");
+			presentFiles.add(outputFile);
+			PrintStream output = new PrintStream(new UpdatingFileOutputStream(
+					outputFile));
+			output.printf("#define %s %s\n", macro.getMacroName(),
+					command.getMeasurement().getMacroDefinition(macro));
+			output.close();
 		}
-		configDef.close();
+
+		// remove spurious files
+		removeFilesNotInSet(macrosDir, presentFiles);
+	}
+
+	/**
+	 * remove all files in dir which are not in presentFiles
+	 */
+	private void removeFilesNotInSet(File dir,
+			final HashSet<File> presentFiles) {
+
+		// load all files not in presentFiles
+		File[] filesToDelete = dir.listFiles(new FileFilter() {
+			public boolean accept(File pathname) {
+				return !presentFiles.contains(pathname);
+			}
+		});
+
+		// delete the files
+		for (File file : filesToDelete) {
+			file.delete();
+		}
 	}
 
 	/**

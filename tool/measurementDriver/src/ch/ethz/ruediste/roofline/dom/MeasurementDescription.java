@@ -31,4 +31,19 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		macro.setDefinition(definition);
 		getMacros().add(macro);
 	}
+
+	/**
+	 * return the definition of the macro identified by macroKey. If the macro
+	 * was not defined in this measurement description, return the default
+	 * definition.
+	 */
+	public String getMacroDefinition(MacroKey macroKey) {
+		for (PreprocessorMacro m : getMacros()) {
+			if (m.getName().equals(macroKey.getMacroName())) {
+				return m.getDefinition();
+			}
+		}
+
+		return macroKey.getDefaultValue();
+	}
 }
