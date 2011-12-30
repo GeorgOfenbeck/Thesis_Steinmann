@@ -90,10 +90,12 @@ public class Main {
 
 		if (partialWord.startsWith("-")) {
 			// do the completion for a flag
-			for (Pair<Class<?>, ConfigurationKeyBase> pair : configuration
-					.getStaticFieldValues(ConfigurationKeyBase.class, "ch.ethz.ruediste.roofline.measurementDriver")) {
-				if (pair.getSecond().getKey().startsWith(partialWord)) {
-					System.out.println(pair.getSecond().getKey());
+			for (Pair<Class<?>, ConfigurationKeyBase> pair : ClassFinder
+					.getStaticFieldValues(ConfigurationKeyBase.class,
+							"ch.ethz.ruediste.roofline.measurementDriver")) {
+				if (pair.getSecond().getKey()
+						.startsWith(partialWord.substring(1))) {
+					System.out.println("-" + pair.getSecond().getKey());
 				}
 			}
 			// we're done
