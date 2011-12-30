@@ -1,2 +1,4 @@
 makefile.init
 generated/
+kernelName.mk
+kernelOptimization.mk

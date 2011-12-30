@@ -15,7 +15,7 @@
 #include <vector>
 #include <cstring>
 #include "err.h"
-
+#include "macros/RMT_PERF_EVENT_ARCHITECTURE.h"
 static TypeRegisterer<ListEventsMeasurer> dummy;
 
 using namespace std;
@@ -119,10 +119,6 @@ ListEventsMeasurerOutput *list_pmu_events(pfm_pmu_t pmu) {
 
 MeasurerOutputBase *ListEventsMeasurer::read() {
 	return list_pmu_events(
-#ifdef RMT_PERF_EVENT_ARCHITECTURE
 			RMT_PERF_EVENT_ARCHITECTURE
-#else
-			PFM_PMU_PERF_EVENT
-#endif
 			);
 }

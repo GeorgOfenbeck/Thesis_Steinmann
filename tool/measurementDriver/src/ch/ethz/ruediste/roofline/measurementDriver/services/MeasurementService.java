@@ -189,7 +189,7 @@ public class MeasurementService {
 						optimizationFile));
 		String kernelName = measurement.getKernel().getClass().getSimpleName();
 		kernelName = kernelName.substring(0, kernelName.length()
-				- "KernelDescription".length() - 1);
+				- "KernelDescription".length());
 		optimizationPrintStream.printf("KERNEL_NAME=%s\n", kernelName);
 		optimizationPrintStream.close();
 	}
