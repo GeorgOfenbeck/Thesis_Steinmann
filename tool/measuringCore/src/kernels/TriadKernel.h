@@ -8,7 +8,7 @@
 #ifndef TRIADKERNEL_H_
 #define TRIADKERNEL_H_
 
-#include "generatedC/TriadKernelDescription.h"
+#include "sharedDOM/TriadKernelDescription.h"
 #include "baseClasses/KernelBase.h"
 
 class TriadKernel : public Kernel<TriadKernelDescription>{
