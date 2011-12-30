@@ -13,7 +13,7 @@ include kernelOptimization.mk
 BUILD_DIR=build
 
 # additional directories to search for includes
-INCLUDE_DIRS=-I"src"
+INCLUDE_DIRS=-I"src" -I"generated"
 
 # libraries for linking
 LIBS=-lpfm -lstdc++ -lpapi
@@ -37,7 +37,7 @@ KERNEL_DIR=./src/kernels
 sourcesToObjects=$(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(1))))
 
 # search for the source files in the ./src directory. Filter out the ignored source files
-ALL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.cpp" -path "./src/*"))
+ALL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.cpp" \( -path "./src/*" -o -path "./generated/*" \) -print))
 
 # remove the kernels from the normal sources 
 SOURCES=$(filter-out $(KERNEL_DIR)/%, $(ALL_SOURCES))

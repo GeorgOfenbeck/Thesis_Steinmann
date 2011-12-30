@@ -8,7 +8,7 @@
 #ifndef LOADMEMORYKERNEL_H_
 #define LOADMEMORYKERNEL_H_
 #include "baseClasses/KernelBase.h"
-#include "generatedC/MemoryLoadKernelDescription.h"
+#include "sharedDOM/MemoryLoadKernelDescription.h"
 
 class MemoryLoadKernel : public Kernel<MemoryLoadKernelDescription>{
 protected:

@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.services;
+package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,9 +23,16 @@ public class UpdatingFileOutputStream extends OutputStream {
 	 */
 	private boolean writing;
 
-	UpdatingFileOutputStream(File file) throws FileNotFoundException {
+	public UpdatingFileOutputStream(File file) throws FileNotFoundException {
 		this.file = file;
-		raf = new RandomAccessFile(file, "r");
+
+		if (file.exists()) {
+			raf = new RandomAccessFile(file, "r");
+		}
+		else {
+			raf = new RandomAccessFile(file, "rw");
+			writing = true;
+		}
 	}
 
 	@Override
@@ -43,7 +50,7 @@ public class UpdatingFileOutputStream extends OutputStream {
 			// check if the characters match
 			if (b != ch) {
 				// they don't match
-				switchToOutput();
+				switchToOutput(ch != -1);
 
 				// write character
 				raf.write(b);
@@ -56,11 +63,17 @@ public class UpdatingFileOutputStream extends OutputStream {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public void switchToOutput() throws FileNotFoundException, IOException {
+	public void switchToOutput(boolean decreasePosition)
+			throws FileNotFoundException, IOException {
 		writing = true;
 
 		// get current position
 		long position = raf.getFilePointer();
+
+		// since a character has been already read, decrease the position by one
+		if (decreasePosition && position > 0) {
+			position--;
+		}
 
 		// close input
 		raf.close();
@@ -77,6 +90,20 @@ public class UpdatingFileOutputStream extends OutputStream {
 
 	@Override
 	public void close() throws IOException {
+		// when writing, truncate the file
+		if (writing) {
+			raf.setLength(raf.getFilePointer());
+		}
+		else {
+			// check that we are at the end of the file
+			long position = raf.getFilePointer();
+			if (raf.length() != position) {
+				// truncate the file
+				switchToOutput(false);
+			}
+		}
+
+		// close the file
 		raf.close();
 	}
 }

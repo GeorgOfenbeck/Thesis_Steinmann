@@ -9,7 +9,7 @@
 #define LISTEVENTSMEASURER_H_
 
 #include "baseClasses/MeasurerBase.h"
-#include "generatedC/ListEventsMeasurerDescription.h"
+#include "sharedDOM/ListEventsMeasurerDescription.h"
 
 class ListEventsMeasurer: public Measurer<ListEventsMeasurerDescription>{
 	typedef Measurer<ListEventsMeasurerDescription> super;

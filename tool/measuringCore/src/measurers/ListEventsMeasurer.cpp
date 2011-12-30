@@ -6,7 +6,7 @@
  */
 
 #include "ListEventsMeasurer.h"
-#include "generatedC/ListEventsMeasurerOutput.h"
+#include "sharedDOM/ListEventsMeasurerOutput.h"
 #include "typeRegistry/TypeRegisterer.h"
 
 #include <perfmon/pfmlib.h>

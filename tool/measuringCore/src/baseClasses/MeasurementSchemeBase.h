@@ -8,10 +8,10 @@
 #ifndef MEASUREMENTSCHEMEBASE_H_
 #define MEASUREMENTSCHEMEBASE_H_
 
-#include "generatedC/MeasurementSchemeDescriptionBase.h"
+#include "sharedDOM/MeasurementSchemeDescriptionBase.h"
 #include "MeasurerBase.h"
 #include "KernelBase.h"
-#include "generatedC/MeasurerOutputBase.h"
+#include "sharedDOM/MeasurerOutputBase.h"
 
 class MeasurementSchemeBase {
 public:

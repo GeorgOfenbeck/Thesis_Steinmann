@@ -1,1 +1,1 @@
-KERNEL_NAME=Dummy
+KERNEL_NAME=Dumm

@@ -28,7 +28,7 @@
 								<option id="gnu.cpp.compiler.option.other.other.1258144006" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -pthread -std=c++0x" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.include.paths.924669418" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/sharedDOM}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/generated}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.419548340" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>

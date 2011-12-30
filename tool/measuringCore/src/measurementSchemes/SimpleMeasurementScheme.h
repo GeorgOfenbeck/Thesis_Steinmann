@@ -8,7 +8,7 @@
 #ifndef SIMPLEMEASUREMENTSCHEME_H_
 #define SIMPLEMEASUREMENTSCHEME_H_
 #include "baseClasses/MeasurementSchemeBase.h"
-#include "generatedC/SimpleMeasurementSchemeDescription.h"
+#include "sharedDOM/SimpleMeasurementSchemeDescription.h"
 
 template<class TKernel, class TMeasurer>
 class SimpleMeasurementScheme : public MeasurementScheme<SimpleMeasurementSchemeDescription,TKernel,TMeasurer>{

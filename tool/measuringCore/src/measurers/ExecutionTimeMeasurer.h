@@ -9,8 +9,8 @@
 #define EXECUTIONTIMEMEASURER_H_
 
 #include "baseClasses/MeasurerBase.h"
-#include "generatedC/ExecutionTimeMeasurerDescription.h"
-#include "generatedC/ExecutionTimeMeasurerOutput.h"
+#include "sharedDOM/ExecutionTimeMeasurerDescription.h"
+#include "sharedDOM/ExecutionTimeMeasurerOutput.h"
 #include "sys/time.h"
 class ExecutionTimeMeasurer: public Measurer<ExecutionTimeMeasurerDescription> {
 	timeval startTime;

@@ -18,11 +18,11 @@
 #include <typeinfo>
 #include "coreSwitchTest.hpp"
 #include "sharedDOM/MultiLanguageSerializationService.h"
-#include "generatedC/MultiLanguageTestClass.h"
-#include "generatedC/MemoryLoadKernelDescription.h"
-#include "generatedC/MeasurementDescription.h"
-#include "generatedC/MeasurerOutputCollection.h"
-#include "generatedC/MeasurementCommand.h"
+#include "sharedDOM/MultiLanguageTestClass.h"
+#include "sharedDOM/MemoryLoadKernelDescription.h"
+#include "sharedDOM/MeasurementDescription.h"
+#include "sharedDOM/MeasurerOutputCollection.h"
+#include "sharedDOM/MeasurementCommand.h"
 #include "typeRegistry/TypeRegistry.h"
 #include "typeRegistry/TypeRegistryEntry.h"
 #include "baseClasses/KernelBase.h"
@@ -84,7 +84,7 @@ int main() {
 */
 
 
-#include "generatedC/MemoryLoadKernelDescription.h"
+#include "sharedDOM/MemoryLoadKernelDescription.h"
 
 /*
  * Print a progress bar. Completed is the amount of work which is completed already,

@@ -8,8 +8,8 @@
 #ifndef MEASURERBASE_H_
 #define MEASURERBASE_H_
 
-#include "generatedC/MeasurerDescriptionBase.h"
-#include "generatedC/MeasurerOutputBase.h"
+#include "sharedDOM/MeasurerDescriptionBase.h"
+#include "sharedDOM/MeasurerOutputBase.h"
 #include "PolymorphicBase.h"
 
 class MeasurerBase : public PolymorphicBase{

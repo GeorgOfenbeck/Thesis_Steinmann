@@ -8,7 +8,7 @@
 #ifndef DUMMYKERNEL_H_
 #define DUMMYKERNEL_H_
 
-#include "generatedC/DummyKernelDescription.h"
+#include "sharedDOM/DummyKernelDescription.h"
 #include "baseClasses/KernelBase.h"
 
 class DummyKernel :public Kernel<DummyKernelDescription>{

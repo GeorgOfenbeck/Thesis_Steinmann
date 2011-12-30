@@ -20,6 +20,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.Pair;
+import ch.ethz.ruediste.roofline.measurementDriver.UpdatingFileOutputStream;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -68,6 +69,9 @@ public class MeasurementService {
 
 			// write optimization file
 			writeOptimizationFile(measurement, measuringCoreDir);
+
+			// write kernel name
+			writeKernelName(measurement, measuringCoreDir);
 
 			// create measurement scheme registration
 			writeMeasurementSchemeRegistration(measurement, measuringCoreDir);
@@ -124,7 +128,7 @@ public class MeasurementService {
 				measuringCoreDir,
 				"generated/MeasurementSchemeRegistration.cpp");
 		PrintStream measurementSchemeRegistrationStream = new PrintStream(
-				measurementSchemeRegistrationFile);
+				new UpdatingFileOutputStream(measurementSchemeRegistrationFile));
 
 		String schemeName = measurement.getScheme().getClass()
 				.getSimpleName();
@@ -170,8 +174,23 @@ public class MeasurementService {
 		PrintStream optimizationPrintStream = new PrintStream(
 				new UpdatingFileOutputStream(
 						optimizationFile));
-		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS = %s\n",
+		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS=%s\n",
 				measurement.getOptimization());
+		optimizationPrintStream.close();
+	}
+
+	public void writeKernelName(MeasurementDescription measurement,
+			File measuringCoreDir) throws FileNotFoundException {
+		System.out.println("writing kernel name");
+		File optimizationFile = new File(measuringCoreDir,
+				"kernelName.mk");
+		PrintStream optimizationPrintStream = new PrintStream(
+				new UpdatingFileOutputStream(
+						optimizationFile));
+		String kernelName = measurement.getKernel().getClass().getSimpleName();
+		kernelName = kernelName.substring(0, kernelName.length()
+				- "KernelDescription".length() - 1);
+		optimizationPrintStream.printf("KERNEL_NAME=%s\n", kernelName);
 		optimizationPrintStream.close();
 	}
 
@@ -180,6 +199,7 @@ public class MeasurementService {
 	 */
 	public void writeMacroDefinitions(MeasurementCommand command,
 			File measuringCoreDir) throws FileNotFoundException {
+		System.out.println("Writing macro definitions");
 		// create the directories for the macro definition headers
 		File macrosDir = new File(measuringCoreDir, "generated/macros");
 		macrosDir.mkdirs();
@@ -187,11 +207,13 @@ public class MeasurementService {
 		// load all macro definition keys
 		List<Pair<Class<?>, MacroKey>> macros = ClassFinder
 				.getStaticFieldValues(MacroKey.class,
-						"ch.ethz.ruediste.roofline.measurementDriver");
+						"ch.ethz.ruediste.roofline");
 
 		HashSet<File> presentFiles = new HashSet<File>();
 		// iterate over all keys and write definition file
 		for (Pair<Class<?>, MacroKey> pair : macros) {
+			System.out.printf("found macro %s\n", pair.getSecond()
+					.getMacroName());
 			MacroKey macro = pair.getSecond();
 
 			File outputFile = new File(macrosDir, macro.getMacroName() + ".h");

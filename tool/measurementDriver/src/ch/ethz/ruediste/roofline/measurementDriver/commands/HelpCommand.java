@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.commands;
 import java.io.InputStream;
 import java.util.List;
 
+import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKeyBase;
 import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
@@ -55,8 +56,9 @@ public class HelpCommand implements ICommand {
 		System.out.println("\nConfiguration Options:");
 		System.out.println("**********************");
 
-		for (Pair<Class<?>, ConfigurationKeyBase> entry : configuration
-				.getStaticFieldValues(ConfigurationKeyBase.class, "ch.ethz.ruediste.roofline.measurementDriver")) {
+		for (Pair<Class<?>, ConfigurationKeyBase> entry : ClassFinder
+				.getStaticFieldValues(ConfigurationKeyBase.class,
+						"ch.ethz.ruediste.roofline.measurementDriver")) {
 			System.out.printf("%s = %s   (=>%s / %s)\n\t%s\n",
 					// key
 					entry.getSecond().getKey(),

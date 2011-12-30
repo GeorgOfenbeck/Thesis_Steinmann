@@ -9,7 +9,7 @@
 #define EXECUTIONTIMEMEASURER_H_
 
 #include "baseClasses/MeasurerBase.h"
-#include "generatedC/PerfEventMeasurerDescription.h"
+#include "sharedDOM/PerfEventMeasurerDescription.h"
 
 #include "sys/time.h"
 #include <sys/ioctl.h>

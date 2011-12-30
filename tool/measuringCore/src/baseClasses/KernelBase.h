@@ -8,7 +8,7 @@
 #ifndef KERNELBASE_H_
 #define KERNELBASE_H_
 
-#include "generatedC/KernelDescriptionBase.h"
+#include "sharedDOM/KernelDescriptionBase.h"
 #include "PolymorphicBase.h"
 
 class KernelBase : public PolymorphicBase{

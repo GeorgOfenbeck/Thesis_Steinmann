@@ -6,7 +6,7 @@
  */
 
 #include "PerfEventMeasurer.h"
-#include "generatedC/PerfEventMeasurerOutput.h"
+#include "sharedDOM/PerfEventMeasurerOutput.h"
 #include "typeRegistry/TypeRegisterer.h"
 #include "baseClasses/SystemInitializer.h"
 

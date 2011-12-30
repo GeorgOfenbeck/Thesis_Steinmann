@@ -8,7 +8,7 @@
 #ifndef KERNELREGISTRY_H_
 #define KERNELREGISTRY_H_
 
-#include "generatedC/KernelDescriptionBase.h"
+#include "sharedDOM/KernelDescriptionBase.h"
 #include <vector>
 #include <list>
 #include <cstdio>
