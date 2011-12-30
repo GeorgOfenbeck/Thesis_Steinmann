@@ -3,12 +3,12 @@ package ch.ethz.ruediste.roofline.measurementDriver.commands;
 import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
+import ch.ethz.ruediste.roofline.measurementDriver.IAutoCompletionCommand;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
 
 import com.google.inject.Inject;
 
-public class ReMeasureCommand implements ICommand {
+public class ReMeasureCommand implements IAutoCompletionCommand {
 
 	@Inject
 	public MeasureCommand measureCommand;
@@ -28,6 +28,10 @@ public class ReMeasureCommand implements ICommand {
 		configuration.set(MeasurementAppController.useCachedResultsKey, false);
 
 		measureCommand.execute(args);
+	}
+
+	public void doAutoCompletion(String partialWord, List<String> args) {
+		measureCommand.doAutoCompletion(partialWord, args);
 	}
 
 }
