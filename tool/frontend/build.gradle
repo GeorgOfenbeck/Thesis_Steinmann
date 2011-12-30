@@ -64,10 +64,10 @@ assemble.dependsOn copyAndExpandConfigTemplates
 
 // install the starter shell script
 task copyShellScript (type: Copy){
-	from 'rmt.sh'
+	from 'rot.sh'
 	//into System.getProperty("user.home")+'/bin'
 	into 'build'
-	rename 'rmt.sh', 'rmt'
+	rename 'rot.sh', 'rot'
 	expand ('toolPath': rootProject.projectDir.absolutePath)
 }
 assemble.dependsOn copyShellScript

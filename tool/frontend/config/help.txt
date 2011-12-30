@@ -1,4 +1,4 @@
-usage: rmt [<options>] <command> [<command args>]
+usage: rot [<options>] <command> [<command args>]
 
 Measurement Driver compilation Options:
 -b	build Measurement Driver
