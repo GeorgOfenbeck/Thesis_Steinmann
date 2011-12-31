@@ -9,9 +9,9 @@
 #define ARITHMETICKERNEL_H_
 
 #include "baseClasses/KernelBase.h"
-#include "generatedC/ArithmeticKernelDescription.h"
+#include "sharedDOM/ArithmeticKernelDescription.h"
 #include <cmath>
-#include "configDef.h"
+#include "macros/RMT_ARITHMETIC_OPERATION.h"
 
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -24,10 +24,6 @@ enum ArithmeticOperation {
 enum Unroll {
 	Unroll_None, Unroll_2, Unroll_4, Unroll_8
 };
-
-#ifndef RMT_ARITHMETIC_OPERATION
-#define RMT_ARITHMETIC_OPERATION ArithmeticOperation_ADD
-#endif
 
 #ifndef RMT_UNROLL
 #define RMT_UNROLL Unroll_8
