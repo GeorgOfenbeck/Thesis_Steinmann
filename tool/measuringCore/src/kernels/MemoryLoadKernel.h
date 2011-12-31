@@ -10,21 +10,48 @@
 #include "baseClasses/KernelBase.h"
 #include "sharedDOM/MemoryLoadKernelDescription.h"
 
-class MemoryLoadKernel : public Kernel<MemoryLoadKernelDescription>{
+#ifdef __SSE__
+#include "xmmintrin.h"
+#endif
+
+class MemoryLoadKernel: public Kernel<MemoryLoadKernelDescription> {
 protected:
-	char *buffer;
-	char result;
+	float *buffer;
+
 public:
-	MemoryLoadKernel(MemoryLoadKernelDescription *description):Kernel(description){};
+	char result;
+	float fresult;
+	MemoryLoadKernel(MemoryLoadKernelDescription *description) :
+			Kernel(description) {
+	}
+	;
 
 	void initialize();
-	void run(){
-		result=0;
-		for (long p=0;p<1;p++){
-			for (long i=0; i<description->getBufferSize(); i++){
-				result=result^buffer[i];
-			}
+	void run() {
+#ifdef __SSE__
+		__m128 ch = _mm_setzero_ps();
+		for (long i = 0; i < description->getBufferSize(); i += 4) {
+			ch = _mm_xor_ps(ch, _mm_load_ps(&(buffer[i])));
 		}
+		float tmp[4];
+		_mm_storeu_ps(tmp, ch);
+
+		char *b = (char*) buffer;
+		result = 0;
+		for (unsigned int i = 0; i < 4 * sizeof(float); i++) {
+			result = result ^ b[i];
+		}
+#else
+		char *b=(char*) buffer;
+		char ch=0;
+		long bufferSize=description->getBufferSize();
+
+		for (unsigned long i = 0; i < bufferSize*sizeof(float); i++) {
+			ch = ch ^ b[i];
+		}
+
+		result = ch;
+#endif
 	}
 	void dispose();
 };
