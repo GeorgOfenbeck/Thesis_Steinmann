@@ -61,13 +61,13 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 	#if ($field.type == "bool")
 		int value;
 	#else
-		$field.getcItemType() value;
+		$field.getcType() value;
 	#end
 	
 	
 	#if ($field.typeDescriptor.reference)
 		## deserialize references
-		value=(${field.getcItemType()}) DeSerialize(input);
+		value=(${field.getcType()}) DeSerialize(input);
 	#else
 		getline(input,line);
 		#if ($field.type == "string")

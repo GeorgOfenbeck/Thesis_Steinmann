@@ -38,11 +38,11 @@ This is the paper's abstract \ldots
 \section{Introduction}
 In this thesis, we would like to analyze a substantial amount of diverse code using the roofline model presented in \cite{Roofline}. The code can come either in the form of a relatively isolated routine, typically containing a single kernel, or in the form of a larger program, containing multiple different kernels.
 
-While routines are typically treated as atomic unit, it is desireable to split the larger program into it's different algorithms and do the analysis for each algorithm separately. In the rest of this paper, we will use the term kernel for a routine or part of a program which is analyzed on it's own.
+While routines are treated as atomic unit, it is desireable to split the larger program into it's different algorithms and do the analysis for each algorithm separately. In the rest of this paper, we will use the term kernel for a routine or part of a program which is analyzed on it's own.
 
-To obtain the peak performance lines for the roofline model, we need to run various micro benchmarks. To get the data points for a kernel, we need to measure the performance and the operational intensity. 
+To obtain the peak performance lines for the roofline model, we need to run micro benchmarks. To get the data points for a kernel, we need to measure the performance and the operational intensity. 
 
-Performance is defined as amount of work per unit of time. The amount of work and how it is defined is determined by the actual kernel and does not need to be measured directly by the measurement tool. The time required to do the work has to be measured.
+Performance is defined as amount of work per unit of time. The amount of work and how it is defined is determined by the actual kernel and may not be need to be measured directly by the measurement tool. The time required to do the work has to be measured.
 
 Operational intensity is defined as operations per byte of data traffic. Since the operational intensity cannot be measured directly, we have to measure the operation count and the data traffic. Depending on the problem, different definitions of operation and data traffic make sense.
 
@@ -91,9 +91,9 @@ It is possible that the operating system moves a thread from one core to another
 \section{Measurement Tool Architecture}
 Performing measurements requires a kernel, a measurer and a measurement scheme. The kernel contains the code to be measured and can be either custom code or a wrapper around existing code. The measurer is responsible for the actual measuring and produces an output. The measurement scheme finally controls the kernel and the measurer. The three parts together form the Measuring Core.
 
-We decided that the Measuring Core is implemented in the C++ language. To simplify development and maintenance, we tried to keep the amount of C++ code as small as possible. The rest is written in Java.
+We decided that the Measuring Core should be implemented in the C++ language. To simplify development and maintenance, we tried to keep the amount of C++ code as small as possible. The rest is written in Java.
 
-To allow all possible optimizations, it must be possible to pass compile time arguments to the Measuring Core and recompile for each measuring.
+To allow all possible optimizations, it must be possible to pass compile time arguments to the Measuring Core and recompile for each measurement.
 
 \subsection{Component Collaboration}
 The tool consists of two main components: The Measuring Core, which performs the actual measurements, and the Measurement Driver, which controls the core.
@@ -102,7 +102,7 @@ A measurement is controlled by a measurement specific routine (one per measureme
 
 During the development of measurement control routines, it is expected that many changes do not affect the parameter points. To speed up repeated measurements after changes to the measurement driver, the measurement results are cached. Thus, as long as the measurement parameters are not changed, the measurement does not need to be repeated.
 
-The measurement tool is used to generate and display measurement results. Often, the measurement results lead to changes to the tool itself. Thus, switches between using the tool and developing the tool are frequent. To support these switches, a frontend program is provided. It compiles the measurement driver and executes it. It can be started using a shell script called "rmt", which has to be placed manually in a directory in the shell path. The result files of a measurement are placed in the current working directory.
+The measurement tool is used to generate and display measurement results. Often, the measurement results lead to changes to the tool itself. Thus, switches between using the tool and developing the tool are frequent. To support these switches, a frontend program is provided. It compiles the measurement driver and executes it. It can be started using a shell script called "rot". The result files of a measurement are placed in the current working directory.
 
 \umlDiagram{ToolComponents}
 
@@ -110,12 +110,12 @@ Data transfer between the measuring core and the measurement driver is archieved
 
 \umlDiagram{MultiLanguageClasses}
 
-Each MeasurementDescription describes how to perform a single measurement. It contains a MeasurementSchemeDescription, a KernelDescription and a MeasurerDescription. Each description contains all information required to set up the respective part of the Measuring Core (type, parameters, \ldots).
+Each MeasurementDescription describes how to perform a measurement. It contains a MeasurementSchemeDescription, a KernelDescription and a MeasurerDescription. Each description contains all information required to set up the respective part of the Measuring Core (type, parameters, \ldots).
 
-We intentionally directly describe Measuring Core parts in the SharedDOM. This allows the MeasuringCore to directly use the information contained therein and thus helps to keep the core simple.
+We intentionally directly describe Measuring Core parts in the multi language classes. This allows the MeasuringCore to directly use the information contained therein and thus helps to keep the core simple.
 
 \subsection{Multi Language Infrastructure}
-All classes in the SharedDOM are used by components written in Java. But some of them are also used by the Measuring Core, which is written in C++. To avoid having to manually synchronize two versions of the same classes, the source code for the C++ and the Java implementation is generated from an XML definition by the Multi Language Code Generator. The XML definition contains field definitions only, no code. If class specific code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
+The multi language classes are used from both C++ and Java. To avoid having to manually synchronize two versions of the same class, the source code for the C++ and the Java implementation is generated from an XML definition by the Multi Language Code Generator. The XML definition contains class and field definitions only, no code. If class specific code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
 
 Along with the source code for each class, the implementation of the MultiLanguageSerializationService is generated for both languages. This service allows to serialize to and deserialize from a simple text based serialization format. It supports the following primitive types:
 \begin{itemize}
@@ -130,7 +130,7 @@ References to other multi language classes are supported. The serializer does no
 
 Lists containing one of the supported primitive types as well as containing references to multi language classes are supported.
 
-The XML class representation is parsed using a serialization library called XStream. XStream maps classes to an XML representation. The serialized classes are shown in \umlRef{MultiLanguageClassDefinition}.
+The XML class representation is parsed using a serialization library called XStream. XStream maps classes to an XML representation. The classes used to describe the multi language classes are shown in \umlRef{MultiLanguageClassDefinition}.
 
 \umlFloat{MultiLanguageClassDefinition}{Elements representing a multi language class definition}
 
@@ -159,9 +159,9 @@ The following is an example of a class definition:
 
 After the definitions are loaded, Velocity templates are used to generate all source code.
 
-The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Shared DOM project. The generated C code is linked by the Measuring Core. The following Diagram shows the build dependencies:
+The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Measurement Driver project. The generated C code is linked by the Measuring Core. The following Diagram shows these dependencies:
 
-\umlDiagram{BuildDependencies}
+\umlDiagram{CodeGenerationDependencies}
 
 \subsection{How To}
 \subsubsection{Install}

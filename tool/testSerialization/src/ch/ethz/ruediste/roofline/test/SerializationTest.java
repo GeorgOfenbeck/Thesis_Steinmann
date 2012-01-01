@@ -97,9 +97,9 @@ public class SerializationTest {
 	public void testC() throws IOException, InterruptedException {
 		// setup input file
 		File inputFile = new File(
-				"../measuringCore/Debug/serializationTestInput");
+				"../measuringCore/build/serializationTestInput");
 		File outputFile = new File(
-				"../measuringCore/Debug/serializationTestOutput");
+				"../measuringCore/build/serializationTestOutput");
 
 		// serialize test object
 		FileOutputStream inputFileStream = new FileOutputStream(inputFile);
@@ -109,7 +109,7 @@ public class SerializationTest {
 
 		// run c code
 		System.out.println(new File(".").getAbsolutePath());
-		File workDir = new File("../measuringCore/Debug");
+		File workDir = new File("../measuringCore/build");
 		Process p = Runtime.getRuntime().exec(
 				new String[] { "bash", "-c",
 						"./measuringCore serializationTest" }, null, workDir);

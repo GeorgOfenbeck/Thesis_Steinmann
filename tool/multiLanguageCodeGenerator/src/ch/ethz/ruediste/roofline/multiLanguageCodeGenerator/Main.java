@@ -171,7 +171,7 @@ public class Main {
 		return xStream;
 	}
 
-	/** create type descirptors for supported primitive types */
+	/** create type descriptors for supported primitive types */
 	private static HashMap<String, FieldTypeDescriptor> createTypeDescriptorsForPrimitiveTypes() {
 		HashMap<String, FieldTypeDescriptor> typeDescriptors = new HashMap<String, FieldTypeDescriptor>();
 		typeDescriptors.put("int", new FieldTypeDescriptor("int", "int", "int",

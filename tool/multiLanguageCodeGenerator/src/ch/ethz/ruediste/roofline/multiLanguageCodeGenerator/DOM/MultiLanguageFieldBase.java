@@ -65,16 +65,6 @@ public abstract class MultiLanguageFieldBase {
 	 * @return
 	 */
 	public String getcType() {
-		return getcItemType();
-	}
-
-	/**
-	 * The type of an item of the list, if the field contains a list. The normal
-	 * field type otherwise
-	 * 
-	 * @return
-	 */
-	public String getcItemType() {
 		if (typeDescriptor.isReference()) {
 			return typeDescriptor.getcName() + "*";
 		}
@@ -89,7 +79,14 @@ public abstract class MultiLanguageFieldBase {
 		return typeDescriptor.getJavaName();
 	}
 
-	public String getJavaItemType() {
-		return typeDescriptor.getJavaName();
+	/**
+	 * the default value to be used in java
+	 */
+	public String getJavaDefault() {
+		return typeDescriptor.getJavaDefault();
+	}
+
+	public boolean hasJavaDefault() {
+		return typeDescriptor.hasJavaDefault();
 	}
 }

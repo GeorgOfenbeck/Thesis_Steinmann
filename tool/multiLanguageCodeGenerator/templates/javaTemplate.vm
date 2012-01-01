@@ -1,3 +1,9 @@
+## The generated java classes have a getter and a setter for each normal field. 
+## A list only has a setter. The JavaType is used both for the backing field,
+## the getter and the setter.
+##
+## A list always has a new list instance as default value.
+##
 package ch.ethz.ruediste.roofline.dom;
 
 import java.util.LinkedList;
@@ -6,29 +12,24 @@ import java.math.BigInteger;
 
 /** $class.comment */
 @SuppressWarnings("unused")
-public class ${class.javaName} #if ($class.hasJavaBaseType())	extends $class.javaBaseType #end {
+public class ${class.javaName} #if ($class.hasJavaBaseType()) extends $class.javaBaseType #end {
 
 ## iterate over all fields of the class
 #foreach($field in $class.fields)
-	#if ($field.class.simpleName == "MultiLanguageField")
-		#if ($field.typeDescriptor.hasJavaDefault())
-			private $field.typeDescriptor.javaName $field.name=$field.typeDescriptor.javaDefault;
-		#else
-			private $field.typeDescriptor.javaName $field.name;
-		#end
-		
+	#if ($field.hasJavaDefault())
+		private $field.javaType $field.name
+			=$field.javaDefault;
+	#else
+		private $field.javaType $field.name;
+	#end
+	
+	#if ($field.class.simpleName == "MultiLanguageField")		
 		## the setter is present only for normal fields
 		## a list needs no setter
 		/** $field.comment */	
 		public void set${field.nameUpperCamel}($field.getJavaType() value){
 			${field.name} = value;
 		}
-		
-	#elseif ($field.class.simpleName == "MultiLanguageList")
-		## initialize the list
-		/** $field.comment */
-		private LinkedList<$field.typeDescriptor.javaBoxedName> $field.name
-			=new LinkedList<$field.typeDescriptor.javaBoxedName>();
 	#end
  	
  	## the getter can be used for lists and normal fields
