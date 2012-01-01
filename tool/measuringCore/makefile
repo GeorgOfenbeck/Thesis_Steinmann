@@ -66,7 +66,6 @@ DEP_FILES=$(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*")
 
 # rule for the executable
 all: $(BUILD_DIR)/measuringCore
-	echo $(KERNEL_SOURCES)
 
 # rule for cleaning. just delete the build dir
 clean:
