@@ -1,11 +1,3 @@
-//============================================================================
-// Name        : tool.cpp
-// Author      : 
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
-
 #include <iostream>
 #include <pthread.h>
 #include <vector>
@@ -138,7 +130,6 @@ int doIt(int argc, char *argv[]){
 	if (argc==2 && strcmp(argv[1],"serializationTest")==0){
 		// run the serialization test
 		printf("Running Serialization Test\n");
-
 
 		// load input
 		printf("Loading input\n");
