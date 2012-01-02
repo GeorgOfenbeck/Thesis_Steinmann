@@ -70,11 +70,5 @@ public class CCodeGenerator extends CodeGeneratorBase {
 		String templateName = "cSerializationServiceTemplate.vm";
 		applyTemplate(outputFileName, templateName, context,
 				"cSerializationService");
-
-		// generate type enum
-		applyTemplate("generatedC/MultiLanguageTypeEnum.h",
-				"cMultiLanguageTypeEnumTemplate.vm", context,
-				"cMultiLanguageTypeEnum");
-
 	}
 }

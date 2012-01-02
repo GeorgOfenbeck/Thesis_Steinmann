@@ -9,13 +9,10 @@
 #define MULTILANGUAGEOBJECTBASE_H_
 
 #include <string>
-#include "sharedDOM/MultiLanguageTypeEnum.h"
 #include "baseClasses/PolymorphicBase.h"
 
 class MultiLanguageObjectBase: public PolymorphicBase {
 public:
-	virtual MultiLanguageTypeEnum getType()=0;
-	//MultiLanguageObjectBase();
 	virtual ~MultiLanguageObjectBase();
 };
 

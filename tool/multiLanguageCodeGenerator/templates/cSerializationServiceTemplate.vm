@@ -28,7 +28,7 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 	}
 	
 #foreach($class in $classes)
-	if (o->getType()== MULTI_LANGUAGE_TYPE_ENUM_$class.name ){
+	if (typeid(*o)==typeid($class.name)){
 		output << "$class.name" <<"\n";
 		#foreach($field in $class.allFields)
 			{

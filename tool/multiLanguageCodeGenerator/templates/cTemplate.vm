@@ -17,8 +17,6 @@
 
 /** $class.comment */
 class $class.name #if ($class.hascBaseType()) : public $class.cBaseType #end{
-	public:
-	MultiLanguageTypeEnum getType(){return MULTI_LANGUAGE_TYPE_ENUM_$class.name;}
 #foreach($field in $class.fields)
 	private: 
 	
