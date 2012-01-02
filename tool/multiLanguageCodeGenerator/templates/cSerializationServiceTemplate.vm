@@ -1,3 +1,5 @@
+## see the documentation for more information
+
 \#include "sharedDOM/MultiLanguageSerializationService.h"
 \#include "Exception.h"
 \#include <typeinfo>
@@ -58,17 +60,16 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 }
 
 #macro(deSerializeNonList $field )
-	#if ($field.type == "bool")
-		int value;
-	#else
-		$field.getcType() value;
-	#end
-	
-	
 	#if ($field.typeDescriptor.reference)
-		## deserialize references
-		value=(${field.getcType()}) DeSerialize(input);
+		${field.typeDescriptor.cName}* value
+			=(${field.typeDescriptor.cName}*) DeSerialize(input);
 	#else
+		#if ($field.type == "bool")
+			int value;
+		#else
+			${field.typeDescriptor.cName} value;
+		#end
+		
 		getline(input,line);
 		#if ($field.type == "string")
 			value=line;

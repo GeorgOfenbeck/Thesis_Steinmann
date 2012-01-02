@@ -117,22 +117,9 @@ We intentionally directly describe Measuring Core parts in the multi language cl
 \subsection{Multi Language Infrastructure}
 The multi language classes are used from both C++ and Java. To avoid having to manually synchronize two versions of the same class, the source code for the C++ and the Java implementation is generated from an XML definition by the Multi Language Code Generator. The XML definition contains class and field definitions only, no code. If class specific code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
 
-Along with the source code for each class, the implementation of the MultiLanguageSerializationService is generated for both languages. This service allows to serialize to and deserialize from a simple text based serialization format. It supports the following primitive types:
-\begin{itemize}
-\item double
-\item integer
-\item long integer
-\item boolean
-\item string
-\end{itemize}
+The multi language class definitions, written in XML, are parsed using a serialization library called XStream. XStream maps classes to an XML representation. The classes used to define the multi language classes are shown in \umlRef{MultiLanguageClassDefinition}.
 
-References to other multi language classes are supported. The serializer does not recognize if the same object can be reached multiple times within the same object graph. Each time it encounters an object, the object is serialized instead of referencing the previous serialization.
-
-Lists containing one of the supported primitive types as well as containing references to multi language classes are supported.
-
-The XML class representation is parsed using a serialization library called XStream. XStream maps classes to an XML representation. The classes used to describe the multi language classes are shown in \umlRef{MultiLanguageClassDefinition}.
-
-\umlFloat{MultiLanguageClassDefinition}{Elements representing a multi language class definition}
+\umlFloat{MultiLanguageClassDefinition}{Classes representing a multi language class definition}
 
 The following is an example of a class definition:
 \begin{verbatim}
@@ -162,6 +149,26 @@ After the definitions are loaded, Velocity templates are used to generate all so
 The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Measurement Driver project. The generated C code is linked by the Measuring Core. The following Diagram shows these dependencies:
 
 \umlDiagram{CodeGenerationDependencies}
+
+\subsubsection{Serialization and Deserialization}
+Along with the source code for each class, a service serializing and deserializing multi language objects to/from a simple text based format is generated for both languages. It supports the following primitive types:
+\begin{itemize}
+\item double
+\item integer
+\item long integer
+\item boolean
+\item string
+\end{itemize}
+
+References to other multi language classes are supported. The serializer does not recognize if the same object can be reached multiple times within the same object graph. Each time it encounters an object, the object is serialized instead of referencing the previous serialization.
+
+Lists containing one of the supported primitive types as well as containing references to multi language classes are supported.
+
+The service implementations for both languages follow the same structure. Each has two methods, one for serialization and one for deserialization. 
+
+The serialization method receives an object and an output stream. The  method body contains an if for each known serializable class, which checks if the class of the object received is equal to the serializable class. If true, the all fields of the class get serialized. For references, the  serialization method is called recursively with the same output stream and the  referenced object as parameters.
+
+The deserialization method works analogous to the serialization method. It receives an input stream. The method body contains an if for each known serializable class, which checks if the next line of the input names  the serializable class. If true, a new instance of the class is created and the value of all fields are read from the input and set on the created instance. If a reference is encountered, the deserialization method is called recursively with the same input, and the returned instance is used as field value.
 
 \subsection{How To}
 \subsubsection{Install}
@@ -200,7 +207,7 @@ The configuration is used to set various flags in the measurement driver.
 \item issue command
 \item the annotated assembly code can be found in tool/measuringCore/Debug/ass.s
 \item open the annotated assembly code in Eclipse
-\end{itemize|
+\end{itemize}
 \subsection{Measurement Driver}
 
 \subsection{Measuring Core}

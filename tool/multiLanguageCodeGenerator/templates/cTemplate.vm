@@ -1,3 +1,10 @@
+## The generated c++ classes have a getter and a setter for each normal field. 
+## A list only has a setter. The CType is used both for the backing field,
+## the getter and the setter.
+##
+## A list always has a new list instance as default value.
+##
+
 #ifndef ${class.name}_H
 \#define ${class.name}_H
 \#include "MultiLanguageIncludes.h"
@@ -31,12 +38,11 @@ class $class.name #if ($class.hascBaseType()) : public $class.cBaseType #end{
 		$field.getcType() get${field.nameUpperCamel}(){
 			return $field.name;
 		}
-		#if ($field.class.simpleName!="MultiLanguageDefine")
-			/** $field.comment */	
-			void set${field.nameUpperCamel}($field.getcType() value){
-				${field.name} = value;
-			}
-		#end
+		
+		/** $field.comment */	
+		void set${field.nameUpperCamel}($field.getcType() value){
+			${field.name} = value;
+		}
 	#end 
 #end
 };

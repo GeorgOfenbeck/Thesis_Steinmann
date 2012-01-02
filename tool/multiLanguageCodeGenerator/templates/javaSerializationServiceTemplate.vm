@@ -1,7 +1,4 @@
-##
-##
-##
-##
+## see the documentation for more information
 
 package ch.ethz.ruediste.roofline.dom;
 
@@ -13,11 +10,13 @@ import java.math.BigInteger;
 public class MultiLanguageSerializationService{
 
 	public void Serialize(Object o, OutputStream output){
+		// we use a print stream for serialization
 		PrintStream stream=new PrintStream(output);
 		SerializeImp(o, stream);
 	}
 	
 	public Object DeSerialize(InputStream input){
+		// we use a scanner for parsing the input
 		Scanner scanner=new Scanner(input);
 		return DeSerializeImp(scanner);
 	}
@@ -25,9 +24,11 @@ public class MultiLanguageSerializationService{
 ## Macro serializing a field known not to be a reference	
 #macro( serializeNonList $value )
 	#if ($field.typeDescriptor.reference)
+		// for references, recursively serialize the referenced object
 		SerializeImp($value,output);	
 	#else
 		#if ($field.type == "bool")
+			// booleans are serialized using ones and zeros
 			output.println(($value)?1:0);
 		#else
 			output.println($value);
@@ -36,6 +37,8 @@ public class MultiLanguageSerializationService{
 #end
  
 	private void SerializeImp(Object o, PrintStream output){
+		// check for null, and serialize with a string which 
+		// can not be a class name
 		if (o==null){
 			output.println("<null>");
 			return;
@@ -80,21 +83,28 @@ public class MultiLanguageSerializationService{
 #end
 
 private Object DeSerializeImp(Scanner scanner) {
+	// parse null values
 	if (scanner.hasNext("<null>")){
 		scanner.next("<null>");
 		scanner.nextLine();
 		return null;
 	}
 	
-	#foreach($class in $classes)		
+	#foreach($class in $classes)	
 		if (scanner.hasNext("$class.name")){
+			// instantiate the resulting class instance
 			$class.name result=new ${class.name}();
+			
+			// remove the class name
 			scanner.next("$class.name");
 			scanner.nextLine();
+			
 			#foreach($field in $class.allFields)
 			{
+				// remove the field name
 				scanner.next("${field.name}");
 				scanner.nextLine();
+				
 				#if ($field.class.simpleName=="MultiLanguageList")
 				{
 					long count=scanner.nextLong();
