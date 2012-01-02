@@ -30,6 +30,9 @@ public abstract class MultiLanguageClassBase {
 		super();
 	}
 
+	/**
+	 * Fields declared directly in this class
+	 */
 	public LinkedList<MultiLanguageFieldBase> getFields() {
 		if (fields == null)
 			return new LinkedList<MultiLanguageFieldBase>();
@@ -89,6 +92,10 @@ public abstract class MultiLanguageClassBase {
 		this.javaSuffix = javaSuffix;
 	}
 
+	/**
+	 * all fields of this class, including fields of eventual base classes,
+	 * transitively.
+	 */
 	public List<MultiLanguageFieldBase> getAllFields() {
 		return getFields();
 	}

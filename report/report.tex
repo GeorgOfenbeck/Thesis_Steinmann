@@ -146,6 +146,10 @@ The following is an example of a class definition:
 
 After the definitions are loaded, Velocity templates are used to generate all source code.
 
+A normal class has a C and a Java base type. The C base type has to directly or inderectly inherit from MultiLanguageObjectBase, which is a polymorphic class. This allows to use the RTTI (RunTime Type Information). Java base types have no such constraint (due to the implicit common base class Object). The base types are just included in the generated source code, but have no other effect on the code generation.
+
+A derived class names another multi language class as base type. The C and Java base types are set to that class. The fields of the base class are included in the serialization process. If just the C and Java base types would be set to the multi language class used as base class, the generated class would still derive from the base class, but the fields of the base class would not be included in the serialization process.
+
 The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Measurement Driver project. The generated C code is linked by the Measuring Core. The following Diagram shows these dependencies:
 
 \umlDiagram{CodeGenerationDependencies}
@@ -166,9 +170,9 @@ Lists containing one of the supported primitive types as well as containing refe
 
 The service implementations for both languages follow the same structure. Each has two methods, one for serialization and one for deserialization. 
 
-The serialization method receives an object and an output stream. The  method body contains an if for each known serializable class, which checks if the class of the object received is equal to the serializable class. If true, the all fields of the class get serialized. For references, the  serialization method is called recursively with the same output stream and the  referenced object as parameters.
+The serialization method receives an object and an output stream. The  method body contains an if for each known serializable class, which checks if the class of the object received is equal to the serializable class. If true, the value of all fields of the class and it's base classes get serialized. For references, the  serialization method is called recursively with the same output stream and the  referenced object as parameters.
 
-The deserialization method works analogous to the serialization method. It receives an input stream. The method body contains an if for each known serializable class, which checks if the next line of the input names  the serializable class. If true, a new instance of the class is created and the value of all fields are read from the input and set on the created instance. If a reference is encountered, the deserialization method is called recursively with the same input, and the returned instance is used as field value.
+The deserialization method works analogous to the serialization method. It receives an input stream. The method body contains an if for each known serializable class, which checks if the next line of the input names  the serializable class. If true, a new instance of the class is created and the value of all fields are read from the input and set on the created instance, including all fields declared in a base class. If a reference is encountered, the deserialization method is called recursively with the same input, and the returned instance is used as field value.
 
 \subsection{How To}
 \subsubsection{Install}

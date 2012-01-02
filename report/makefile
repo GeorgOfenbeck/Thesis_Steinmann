@@ -1,4 +1,4 @@
-ARGOUML_JAR=~/argouml-0.32.2/argouml.jar
+ARGOUML_JAR=~/argouml-0.34/argouml.jar
 .PHONY: report clean
 report: out/report.pdf
 
@@ -13,7 +13,7 @@ out/uml/timestamp: ../masterthesis.uml
 	-command "org.argouml.uml.ui.ActionSaveAllGraphics=out/uml"
 	touch out/uml/timestamp
 
-out/report.pdf: report.tex report.bib out/uml/timestamp
+out/report.pdf: report.tex report.bib # out/uml/timestamp
 	cd out &&\
 	pdflatex ../report.tex &&\
 	bibtex report &&\
