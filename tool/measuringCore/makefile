@@ -1,19 +1,7 @@
 # makefile for the measuring core
 
-# setup the default configuration
-KERNEL_NAME=Dummy
-
-#include the build configuration
-include kernelName.mk
-
-KERNEL_OPTIMIZATION_FLAGS=-O0
-include kernelOptimization.mk
-
 # build directory
 BUILD_DIR=build
-
-# additional directories to search for includes
-INCLUDE_DIRS=-I"src" -I"generated"
 
 # libraries for linking
 LIBS=-lpfm -lstdc++ -lpapi
@@ -21,15 +9,26 @@ LIBS=-lpfm -lstdc++ -lpapi
 # command for the compiler
 GCC=ccache gcc
 
-# flags for generating the .d files
-DEP_FLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
-
 # compilation flags
 CFLAGS=-std=c++0x -Wall -ggdb
 OPTIMIZATION_FLAGS=-O3
 
 # source files to be ignored. separated by space
 SOURCE_IGNORE_PATTERNS=./src/coreSwitchTest.cpp ./src/setAffinity.cpp
+
+# additional directories to search for includes
+INCLUDE_DIRS=-I"src" -I"generated"
+
+# flags for generating the .d files
+DEP_FLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
+
+# setup the kernel used
+KERNEL_NAME=Dummy
+include kernelName.mk
+
+# setup the kernel optimization flags
+KERNEL_OPTIMIZATION_FLAGS=-O0
+include kernelOptimization.mk
 
 # directory for the kenrels
 KERNEL_DIR=./src/kernels

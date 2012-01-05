@@ -12,10 +12,14 @@ out/uml/timestamp: ../masterthesis.uml
 	-command "org.argouml.uml.ui.ActionOpenProject=../masterthesis.uml" \
 	-command "org.argouml.uml.ui.ActionSaveAllGraphics=out/uml"
 	touch out/uml/timestamp
+out:
+	mkdir out
+	mkdir out/uml
 
-out/report.pdf: report.tex report.bib # out/uml/timestamp
+out/report.pdf: report.tex report.bib out # out/uml/timestamp
 	cd out &&\
 	pdflatex ../report.tex &&\
 	bibtex report &&\
+	makeindex referencedFiles &&\
 	pdflatex ../report.tex &&\
 	pdflatex ../report.tex

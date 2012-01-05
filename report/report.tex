@@ -1,8 +1,15 @@
 \documentclass[a4paper,12pt]{article}
+\usepackage{makeidx}
+
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
 \usepackage{graphicx} 
 
+\usepackage{../multind}
+\makeindex{referencedFiles}
+
 \newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[width=\textwidth]{uml/#1.png}\end{center}}
+
+\newcommand{\file}[2]{\marginpar{\footnotesize #2}\index{referencedFiles}{#1}}
 
 \newcommand{\umlFloat}[2]{
 \begin{figure}[tbh]
@@ -219,6 +226,21 @@ The configuration is used to set various flags in the measurement driver.
 The central classes of the Measuring Core are the measurement scheme, the kernel and the measurer. (\umlRef{CentralClasses}) The MeasurementScheme has template arguments for the kernel and the measurer type. The scheme contains nested instances of the kernel and the measurer. This disables polymorphic calls and allows the compiler to fully optimize the measure function of the measurer, including inlining methods of the kernel and the measurer.
 
 \subsubsection{Building}
+Each measurement can be performed with different compiler optimization flags and macro definitions. Therefore, the measuring core has to be rebuilt for each measurement, which makes rebuilding the measuring core a frequent operation. It should therefore be as fast as possible. This is archived by carefully tracking all build dependencies and by using ccache. 
+
+CCache is a compiler cache. Whenever the compiler is run, ccache hashes all input files, together with the compiler flags. It then checks if it's cache already contains an entry for the hash value. If this is not the case, ccache runs the compiler and stores the output together with the hash value of the input in it's cache. If the hash value is present already, it does not run the compiler but uses the compiler output stored in it's cache. This considerably speeds up recompilations.
+
+But ccache still has to build the hash values and copy the compiler output, which takes some time. This is where tracking the build dependencies comes in. The following parameters can change between measurements:
+\begin{description}
+\item[Macro definitions]
+Each macro definition is stored in a separate file, which is only updated by the measurement driver if the macro definition changes. Every source file which needs a macro definition includes the corresponding file. These inclusions are tracked and allow to only recompile the affected source files.
+\item[Compiler flags] 
+Only the measurer, measurement scheme and kernel need to be compiled using the compiler flags specified by the measurement. The compiler flags used for the rest of the measuring core do not affect the measurement results. The compiler flags are stored in a separate file. Whenever it is changed, the parts affected are recompiled.
+\item[Combination of measurer, measurement scheme and kernel]
+The measurement scheme has template parameters for the kernel and the measurer. The measurement driver stores the template instantiation used for a specific measurement in a separate file, which is recompiled whenever it is changed.
+\end{description}
+
+\file{measuringCore/makefile}{measuringCore/\-makefile}
 The build process is controlled using the make program \cite{make}.
 
 \subsubsection{Type Registry}
@@ -271,5 +293,7 @@ It is difficult to control the core frequency. But the frequency should at least
 
 \bibliographystyle{abbrv}
 \bibliography{../report.bib}
+
+\printindex{referencedFiles}{Referenced Files}
 
 \end{document}
