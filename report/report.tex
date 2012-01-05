@@ -223,10 +223,10 @@ The configuration is used to set various flags in the measurement driver.
 
 \subsection{Measuring Core}
 \umlFloat{CentralClasses}{Central classes of the measuring core}
-The central classes of the Measuring Core are the measurement scheme, the kernel and the measurer. (\umlRef{CentralClasses}) The MeasurementScheme has template arguments for the kernel and the measurer type. The scheme contains nested instances of the kernel and the measurer. This disables polymorphic calls and allows the compiler to fully optimize the measure function of the measurer, including inlining methods of the kernel and the measurer.
+The central classes of the Measuring Core are the measurement scheme, the kernel and the measurer. (\umlRef{CentralClasses}) The MeasurementScheme has template arguments for the kernel and the measurer type. The scheme contains nested instances of the kernel and the measurer. This avoids polymorphic calls and allows the compiler to fully optimize the measure function of the measurer, including inlining methods of the kernel and the measurer.
 
 \subsubsection{Building}
-Each measurement can be performed with different compiler optimization flags and macro definitions. Therefore, the measuring core has to be rebuilt for each measurement, which makes rebuilding the measuring core a frequent operation. It should therefore be as fast as possible. This is archived by carefully tracking all build dependencies and by using ccache. 
+Each measurement can be performed with different compiler optimization flags and macro definitions. Therefore, the measuring core has to be rebuilt for each measurement, which makes rebuilding the measuring core a frequent operation. It should therefore be as fast as possible. This is archieved by carefully tracking all build dependencies and by using ccache. 
 
 CCache is a compiler cache. Whenever the compiler is run, ccache hashes all input files, together with the compiler flags. It then checks if it's cache already contains an entry for the hash value. If this is not the case, ccache runs the compiler and stores the output together with the hash value of the input in it's cache. If the hash value is present already, it does not run the compiler but uses the compiler output stored in it's cache. This considerably speeds up recompilations.
 
@@ -241,7 +241,40 @@ The measurement scheme has template parameters for the kernel and the measurer. 
 \end{description}
 
 \file{measuringCore/makefile}{measuringCore/\-makefile}
-The build process is controlled using the make program \cite{make}.
+The build process is controlled using the gnu make utility \cite{make}. Make automatically determines which parts of a program have to be recompiled, based on rules stored in a makefile. Each rule consists of target files, prerequisite files and a recipe. Make checks the modification times of the target and the prerequisite files. If any prerequisite is newer than any target, the recipe is executed in order to update the traget files. The recipe is a sequence of shell commands.
+
+The makefile used for the measuring core first instructs make to use the find utility to get a list of all source files (with .cpp extension) in the measuringCore/src and measuringCore/generated directories.
+
+The list of all source files is split into the kernel sources and the normal sources. The kernel sources are the source files which are to be compiled using the optimization flags specific to the current measurement. The optimization flags for the normal source files do not depend on the measurement, and thus do not need to be recompiled when the optimization flags for the measurement change.
+
+Since every measurement requires exactly one kernel, not all kernels need to be built for every measurement. This is reflected in the makefile removing all files from the kernel sources but the MeasurementSchemeRegistration, the source file for the current kernel and all source files in a subdirectory named after the current kernel.
+
+From the normal sources and the kernel sources, the file names of the object files in the build directory are generated. The measuring core executable depends on these object files. Pattern rules are used to trigger the compile the source files into the object files.
+
+There is a rule without recipe with the kernel objects as target and the file containing the measurement specific optimization flags as prerequisite. This causes the file containing the optimization flags to be added as prerequisite for each kernel object file.
+
+In the C programming language, it is possible to include other files in a source file. Of course, the compilated code depends on the contents of the included files, too. To track these build dependencies, the compiler is instructed to generate rules without recipes with the object file as target and the source file together with the included files as prerequisites. The generated rules are stored in .d files in the build directory and are included in the makefile.
+
+If special compilation flags are required for a source file, a rule should be added near the end of the makefile.
+
+\subsubsection{System Initialization}
+We chose a modular approach to initialize the measuring core. Whenever a system part needs to run code when the program starts or shuts down, it can instantiate a class derived from SystemInitializer.
+\file{measuringCore/baseClasses/SystemInitializer.h}{measuringCore/\-baseClasses/\-SystemInitializer.h}
+This is preferably archieved by declaring a global static variable named dummy in a .cpp file. Example:
+\begin{verbatim}
+// define and register a system initializer.
+static class Initializer: public SystemInitializer{
+  void start(){
+    // code to be executed on startup
+  }
+
+  void stop(){
+    // code to be executed on shutdown
+  }
+} dummy;
+\end{verbatim}
+
+Whenever a SystemInitializer is instantiated, the instance is registered in a static global list. On system startup and shutdown, the start() respective stop() method of all registered SystemInitializers is called.
 
 \subsubsection{Type Registry}
 The Measuring Core receives kernel, measurement scheme and measurer descriptions and needs to instantiate the corresponding kernels, measurement schemes and measurers. Conceptually, each description class is associated to exactly one object class. The description describes instances of the associated object class. In code, the realtionships are represented using typedefs and they are checked using concept checking (\cite{siek01_concept_check}).

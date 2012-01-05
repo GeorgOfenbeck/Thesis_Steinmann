@@ -1,44 +1,55 @@
-/*
- * SystemInitializer.h
- *
- *  Created on: Nov 23, 2011
- *      Author: ruedi
- */
-
 #ifndef SYSTEMINITIALIZER_H_
 #define SYSTEMINITIALIZER_H_
 
 #include <vector>
 #include <cstddef>
 
+/*
+ * Helper class to implement a modular system initialization system.
+ * If a part of the program needs to run code on system startup or shutdown,
+ * it can implement a subclass of SystemInitializer and instantiate it using
+ * a static global variable.
+ */
 class SystemInitializer {
-	static std::vector<SystemInitializer*> &get_initializers(){
+	// returns the singleton system initializer list
+	static std::vector<SystemInitializer*> &get_initializers() {
 		// initialized during the first call to the method
 		// remains the same afterwards
 		static std::vector<SystemInitializer*> initializers;
 		return initializers;
 	}
+
 protected:
-	SystemInitializer(){
+	SystemInitializer() {
+		// register the system initializer instance
 		get_initializers().push_back(this);
 	}
 
 public:
 	virtual ~SystemInitializer();
 
+	// called on each system initializer during system startup
 	virtual void start()=0;
+
+	// called on each system initializer during sytem shutdown
 	virtual void stop()=0;
 
-	static void initialize(){
-		for (size_t i=0; i<get_initializers().size(); i++){
+	// called once durin system startup
+	static void initialize() {
+		// iterate over all registered system initializers and call
+		// the start method
+		for (size_t i = 0; i < get_initializers().size(); i++) {
 			get_initializers()[i]->start();
 		}
 	}
 
-	static void shutdown(){
-		for (size_t i=0; i<get_initializers().size(); i++){
-					get_initializers()[i]->stop();
-				}
+	// called once durin system shutdown
+	static void shutdown() {
+		// iterate overa all registered system initializers and
+		// call the stop method
+		for (size_t i = 0; i < get_initializers().size(); i++) {
+			get_initializers()[i]->stop();
+		}
 	}
 };
 

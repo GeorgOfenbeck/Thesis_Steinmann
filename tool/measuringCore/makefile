@@ -40,6 +40,7 @@ MEASUREMENT_SCHEME_REGISTRATION_FILE=./generated/MeasurementSchemeRegistration.c
 ALL_KERNEL_SOURCES_PATTERN=$(KERNEL_DIR)/% $(MEASUREMENT_SCHEME_REGISTRATION_FILE)
 
 sourcesToObjects=$(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(1))))
+sourcesToDeps=$(addprefix $(BUILD_DIR)/, $(addsuffix .d, $(basename $(1))))
 
 # search for the source files in the ./src directory. Filter out the ignored source files
 ALL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.cpp" \( -path "./src/*" -o -path "./generated/*" \) -print))
@@ -58,8 +59,13 @@ KERNEL_SOURCES=$(filter $(MEASUREMENT_SCHEME_REGISTRATION_FILE) $(KERNEL_DIR)/$(
 KERNEL_OBJECTS=$(call sourcesToObjects, $(KERNEL_SOURCES))
 
 # search for .d files in the build directories
-DEP_FILES=$(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*")
+PRESENT_DEP_FILES=$(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*")
 
+# generate .d file names from the source file names
+GENERATED_DEP_FILES=$(call sourcesToObjects, $(SOURCES) $(KERNEL_SOURCES))
+
+# keep only the .d files present which are required
+DEP_FILES=$(filter $(GENERATED_DEP_FILES), $(PRESENT_DEP_FILES))
 
 .PHONY: all clean clean_kernels
 

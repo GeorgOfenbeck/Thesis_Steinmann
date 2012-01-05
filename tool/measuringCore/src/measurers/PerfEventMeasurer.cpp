@@ -132,8 +132,10 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 	return output;
 }
 
-class Initializer: public SystemInitializer{
+// define and register a system initializer.
+static class Initializer: public SystemInitializer{
 	void start(){
+		printf("initializing LibPfm\n");
 		int ret;
 		/*
 		 * Initialize libpfm library (required before we can use it)
@@ -144,9 +146,7 @@ class Initializer: public SystemInitializer{
 	}
 
 	void stop(){
+		printf("terminating LibPfm\n");
 		pfm_terminate();
 	}
-};
-
-// instantiate initializer. this will cause it to be registered
-static Initializer dummy2;
+} dummy2;
