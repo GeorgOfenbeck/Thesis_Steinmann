@@ -1,9 +1,13 @@
 ARGOUML_JAR=~/argouml-0.34/argouml.jar
-.PHONY: report clean
+.PHONY: report clean quick
 report: out/report.pdf
 
 clean:
 	rm -rf out
+
+quick: 
+	cd out &&\
+	pdflatex ../report.tex
 
 out/uml/timestamp: ../masterthesis.uml
 	rm -rf out/uml
