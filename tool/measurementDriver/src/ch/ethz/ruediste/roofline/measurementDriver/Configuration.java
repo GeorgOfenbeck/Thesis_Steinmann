@@ -1,5 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,13 +13,23 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
 public class Configuration {
+	public static ConfigurationKey<String> userConfigFileKey = ConfigurationKey
+			.Create(String.class, "userConfigFile",
+					"location and filename of the user configuration file",
+					"~/.roofline/config");
+
 	CombinedConfiguration combinedConfiguration = new CombinedConfiguration();
 	MapConfiguration mapConfiguration = new MapConfiguration(
 			new HashMap<String, Object>());
 
+	private PropertiesConfiguration userConfiguration;
+
 	public Configuration() {
 		// add the map configuration with highest precedence
 		combinedConfiguration.addConfiguration(mapConfiguration);
+
+		userConfiguration = new PropertiesConfiguration();
+		combinedConfiguration.addConfiguration(userConfiguration);
 
 		// load the default configuration
 		PropertiesConfiguration defaultConfiguration = new PropertiesConfiguration();
@@ -35,6 +46,35 @@ public class Configuration {
 		}
 
 		combinedConfiguration.addConfiguration(defaultConfiguration);
+	}
+
+	/**
+	 * Load the user configuration. This should be called after the command line
+	 * options have been parsed to allow the location of the user configuration
+	 * to be modified through command line arguments.
+	 */
+	public void loadUserConfiguration() {
+		// retrieve the user configuration file
+		String userConfigFileString = get(userConfigFileKey);
+
+		// replace a starting tilde with the user home directory
+		if (userConfigFileString.startsWith("~")) {
+			userConfigFileString = System.getProperty("user.home")
+					+ userConfigFileString.substring(1);
+		}
+
+		// check if the user configuration file exists
+		File userConfigFile = new File(userConfigFileString);
+		if (userConfigFile.exists()) {
+
+			try {
+				// load the user configuration file
+				userConfiguration.load(userConfigFile);
+			} catch (ConfigurationException e) {
+				throw new Error(e);
+			}
+
+		}
 	}
 
 	/**

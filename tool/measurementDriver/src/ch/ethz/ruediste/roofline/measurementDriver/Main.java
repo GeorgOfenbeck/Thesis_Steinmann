@@ -54,6 +54,9 @@ public class Main {
 		// parse command line
 		List<String> parsedArgs = parseCommandLine(args);
 
+		// load user configuration
+		configuration.loadUserConfiguration();
+
 		if (parsedArgs.size() < 1) {
 			throw new Error("expected command name");
 		}
