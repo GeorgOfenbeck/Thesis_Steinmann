@@ -1,4 +1,5 @@
 \documentclass[a4paper,12pt]{article}
+%\usepackage{../stringstrings}
 \usepackage{makeidx}
 
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
@@ -9,7 +10,8 @@
 
 \newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[width=\textwidth]{uml/#1.png}\end{center}}
 
-\newcommand{\file}[2]{\marginpar{\footnotesize #2}\index{referencedFiles}{#1}}
+%\newcommand{\file}[1]{\marginpar{\footnotesize \convertword{#1}{/}{/ }}\index{referencedFiles}{\convertword{#1}{\-}{}@\convertword{#1}{/}{/ }}}
+\newcommand{\file}[1]{}
 
 \newcommand{\umlFloat}[2]{
 \begin{figure}[tbh]
@@ -219,7 +221,33 @@ The configuration is used to set various flags in the measurement driver.
 \item the annotated assembly code can be found in tool/measuringCore/Debug/ass.s
 \item open the annotated assembly code in Eclipse
 \end{itemize}
+
 \subsection{Measurement Driver}
+It was tried to follow best engineering practices for the design of the measurement driver. Unit tests, mocks, and dependency injection is used. Furthermore, a domain model (DOM) and stateless services are used as described in \cite{evans2004domain}. Describing all these concepts lies beyond the scope of this report. It is assumed that the reader has a basic understanding of the named concepts.
+
+\subsubsection{Configuration}
+The design goal was to create a configuration system which
+\begin{itemize}
+\item allows to set configuration flags from the command line and from configuration files
+\item can manage some form of comment for the flags
+\item makes the available flags transparent
+\item supports user specific configuration
+\end{itemize}
+
+\file{measurementDriver/src/ch/ethz/ruediste/roofline/measurementDriver/ConfigurationKey.java}
+The central class of our solution is the configuration key. A configuration key contains a string key which identifies the configuration flag it represents. In addition, it contains a description and the default value of the flag. It has a template parameter which defines the data type of the flag. This removes the necessity to use type casts when reading configuration flags. Configuration keys should be stored in public static variables. The help command scans all classes of the measurement driver for such configuration keys and prints the key string and the description. After the configuration is loaded, it is checked if a configuration key is defined for each configuration flag specified. If a configuration key is missing (or more likely, a configuration flag has been misspelled in the configuration) an error is generated.
+
+The following paragraphs describe the sources of configuration flag definitions in order of decreasing precedence. 
+
+The command line is scanned for arguments starting with a dash. Such arguments are expected to be in the form of "-$<$flag key$>$=$<$value$>$" and specifies that the configuration with the specified flag key should have the specified value. Configuration flag definitions on the command line have highest precedence.
+
+Next come two configuration files. They both have the same format: each line consists of the flag key, followed by an equal sign and the flag value. 
+
+The first file is the user configuration file. By default it is located under \textasciitilde/.roofline/config, but this can be changed using the "userConfigFile" configuration flag, in particular by overwriting the flag on the command line.
+
+The second file is the default configuration. It is located in the source code of the measurement driver, and can be loaded from the classpath. It contains some placeholders, which are expanded during the build process.
+
+Finally, the flag definitions with lowest precedence are the default values given in the configuration keys.
 
 \subsection{Measuring Core}
 \umlFloat{CentralClasses}{Central classes of the measuring core}
@@ -240,7 +268,7 @@ Only the measurer, measurement scheme and kernel need to be compiled using the c
 The measurement scheme has template parameters for the kernel and the measurer. The measurement driver stores the template instantiation used for a specific measurement in a separate file, which is recompiled whenever it is changed.
 \end{description}
 
-\file{measuringCore/makefile}{measuringCore/\-makefile}
+\file{measuringCore/makefile}
 The build process is controlled using the gnu make utility \cite{make}. Make automatically determines which parts of a program have to be recompiled, based on rules stored in a makefile. Each rule consists of target files, prerequisite files and a recipe. Make checks the modification times of the target and the prerequisite files. If any prerequisite is newer than any target, the recipe is executed in order to update the traget files. The recipe is a sequence of shell commands.
 
 The makefile used for the measuring core first instructs make to use the find utility to get a list of all source files (with .cpp extension) in the measuringCore/src and measuringCore/generated directories.
@@ -259,7 +287,7 @@ If special compilation flags are required for a source file, a rule should be ad
 
 \subsubsection{System Initialization}
 We chose a modular approach to initialize the measuring core. Whenever a system part needs to run code when the program starts or shuts down, it can instantiate a class derived from SystemInitializer.
-\file{measuringCore/baseClasses/SystemInitializer.h}{measuringCore/\-baseClasses/\-SystemInitializer.h}
+\file{measuringCore/baseClasses/SystemInitializer.h}
 This is preferably archieved by declaring a global static variable named dummy in a .cpp file. Example:
 \begin{verbatim}
 // define and register a system initializer.
