@@ -199,7 +199,9 @@ public class MeasurementService {
 	 */
 	public void writeMacroDefinitions(MeasurementCommand command,
 			File measuringCoreDir) throws FileNotFoundException {
+
 		System.out.println("Writing macro definitions");
+
 		// create the directories for the macro definition headers
 		File macrosDir = new File(measuringCoreDir, "generated/macros");
 		macrosDir.mkdirs();
@@ -220,7 +222,9 @@ public class MeasurementService {
 			presentFiles.add(outputFile);
 			PrintStream output = new PrintStream(new UpdatingFileOutputStream(
 					outputFile));
-			output.printf("#define %s %s\n", macro.getMacroName(),
+			output.printf("// %s\n#define %s %s\n",
+					macro.getDescription().replace("\n", "\n// "),
+					macro.getMacroName(),
 					command.getMeasurement().getMacroDefinition(macro));
 			output.close();
 		}

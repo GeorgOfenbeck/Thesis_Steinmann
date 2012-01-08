@@ -249,6 +249,11 @@ The second file is the default configuration. It is located in the source code o
 
 Finally, the flag definitions with lowest precedence are the default values given in the configuration keys.
 
+\subsubsection{Preporcessor Macros}
+Preprocessor macros are used to allow flexible compile time parameterization of the measuring core. The macros are defined by the measurement driver. Before the compilation of the measuring core, the measurement driver writes the definition of each macro to a separate include file. This allows the build system to track macro definition changes for and to recompile only the required parts.
+
+In the measurement driver, each macro is identified by a macro key, which contains the macro name, a description and the default value. Macro keys should be declared in public static variables. Macro definitions are associated with a measurement definition. If no definition is given for a macro, the default definition found in the macro key is used.
+
 \subsection{Measuring Core}
 \umlFloat{CentralClasses}{Central classes of the measuring core}
 The central classes of the Measuring Core are the measurement scheme, the kernel and the measurer. (\umlRef{CentralClasses}) The MeasurementScheme has template arguments for the kernel and the measurer type. The scheme contains nested instances of the kernel and the measurer. This avoids polymorphic calls and allows the compiler to fully optimize the measure function of the measurer, including inlining methods of the kernel and the measurer.
