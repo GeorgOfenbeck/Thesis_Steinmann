@@ -9,7 +9,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKeyBase;
 import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
 import ch.ethz.ruediste.roofline.measurementDriver.Pair;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
 
 import com.google.inject.Inject;
 
@@ -51,7 +51,7 @@ public class HelpCommand implements ICommand {
 
 		System.out.println("\nMeasurements:");
 		System.out.println("*************");
-		instantiator.listNamed(IMeasurement.class);
+		instantiator.listNamed(IMeasurementSeries.class);
 
 		System.out.println("\nConfiguration Options:");
 		System.out.println("**********************");

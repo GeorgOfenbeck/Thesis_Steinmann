@@ -5,7 +5,7 @@ import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.IAutoCompletionCommand;
 import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
 
 import com.google.inject.ConfigurationException;
 import com.google.inject.Inject;
@@ -36,18 +36,18 @@ public class MeasureCommand implements IAutoCompletionCommand {
 		// get the measurement name
 		String measurementName = args.get(0);
 
-		IMeasurement measurement = null;
+		IMeasurementSeries measurement = null;
 
 		// instantiate the measurement
 		try {
 			measurement = instantiator
-					.getInstance(Key.get(IMeasurement.class,
+					.getInstance(Key.get(IMeasurementSeries.class,
 							Names.named(measurementName)));
 		} catch (ConfigurationException e) {
 			System.out
 					.printf("Could not find the measurement named %s\nAvailable Measurements:\n",
 							measurementName);
-			instantiator.listNamed(IMeasurement.class);
+			instantiator.listNamed(IMeasurementSeries.class);
 			System.exit(1);
 		}
 
@@ -73,9 +73,9 @@ public class MeasureCommand implements IAutoCompletionCommand {
 		args.size() == 0
 				// part of a measurement has been entered already
 				|| (args.size() == 1 && !partialWord.isEmpty())) {
-			for (Class<? extends IMeasurement> clazz : instantiator
-					.getBoundClasses(IMeasurement.class)) {
-				IMeasurement measurement = instantiator.getInstance(clazz);
+			for (Class<? extends IMeasurementSeries> clazz : instantiator
+					.getBoundClasses(IMeasurementSeries.class)) {
+				IMeasurementSeries measurement = instantiator.getInstance(clazz);
 				if (measurement.getName().startsWith(partialWord)) {
 					System.out.println(measurement.getName());
 				}

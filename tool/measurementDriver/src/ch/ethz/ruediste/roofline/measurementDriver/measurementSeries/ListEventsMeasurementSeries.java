@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.measurements;
+package ch.ethz.ruediste.roofline.measurementDriver.measurementSeries;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -15,11 +15,11 @@ import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
 
 import com.google.inject.Inject;
 
-public class ListEventsMeasurement implements IMeasurement {
+public class ListEventsMeasurementSeries implements IMeasurementSeries {
 
 	public static ConfigurationKey<String> architectureKey = ConfigurationKey
 			.Create(

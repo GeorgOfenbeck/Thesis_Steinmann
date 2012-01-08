@@ -3,7 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver;
 import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.INamed;
 
 import com.google.inject.AbstractModule;
@@ -36,7 +36,7 @@ public class MainModule extends AbstractModule {
 				"ch.ethz.ruediste.roofline.measurementDriver.appControllers");
 
 		// setup measurements and commands
-		bindNamed(IMeasurement.class,
+		bindNamed(IMeasurementSeries.class,
 				"ch.ethz.ruediste.roofline.measurementDriver.measurements");
 
 		bindNamed(ICommand.class,

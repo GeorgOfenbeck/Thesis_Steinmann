@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.measurements;
+package ch.ethz.ruediste.roofline.measurementDriver.measurementSeries;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -24,11 +24,11 @@ import ch.ethz.ruediste.roofline.dom.TriadKernelDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.Pair;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
 
 import com.google.inject.Inject;
 
-public class PerformanceEventScreeningMeasurement implements IMeasurement {
+public class PerformanceEventScreeningMeasurementSeries implements IMeasurementSeries {
 
 	public String getName() {
 		return "performanceEventScreening";
@@ -56,7 +56,7 @@ public class PerformanceEventScreeningMeasurement implements IMeasurement {
 			measurement.addMacro(
 					ListEventsMeasurerDescription.architectureMacro,
 					configuration
-							.get(ListEventsMeasurement.architectureKey));
+							.get(ListEventsMeasurementSeries.architectureKey));
 
 			result = measurementAppController.measure(
 					measurement, 1);

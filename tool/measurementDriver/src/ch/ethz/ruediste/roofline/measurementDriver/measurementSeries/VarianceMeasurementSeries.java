@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.measurements;
+package ch.ethz.ruediste.roofline.measurementDriver.measurementSeries;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurement;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.IAxis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.KernelAxis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.MeasurementSchemeAxis;
@@ -28,7 +28,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
 
 import com.google.inject.Inject;
 
-public class VarianceMeasurement implements IMeasurement {
+public class VarianceMeasurementSeries implements IMeasurementSeries {
 
 	public String getName() {
 		return "variance";

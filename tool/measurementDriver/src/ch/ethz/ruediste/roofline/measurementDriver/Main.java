@@ -185,7 +185,7 @@ public class Main {
 				String[] argParts = arg.substring(1).split("=");
 				if (argParts.length != 2) {
 					throw new Error(
-							"Expected configuration definition in the format of <key>=<value>, got "
+							"Expected configuration definition in the format of -<key>=<value>, got "
 									+ arg);
 				}
 				configuration.set(argParts[0], argParts[1]);
