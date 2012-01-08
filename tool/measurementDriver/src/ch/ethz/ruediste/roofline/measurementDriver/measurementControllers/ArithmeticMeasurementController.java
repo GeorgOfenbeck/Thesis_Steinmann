@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.measurementSeries;
+package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
@@ -12,11 +12,11 @@ import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 
 import com.google.inject.Inject;
 
-public class ArithmeticMeasurementSeries implements IMeasurementSeries {
+public class ArithmeticMeasurementController implements IMeasurementController {
 
 	public String getName() {
 		return "arithmetic";

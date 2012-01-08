@@ -2,8 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.util.List;
 
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.INamed;
 
 import com.google.inject.AbstractModule;
@@ -16,13 +16,6 @@ public class MainModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		// setup configuration
-		bind(Configuration.class).asEagerSingleton();
-
-		bind(Instantiator.class).in(Singleton.class);
-
-		bind(Main.class);
-
 		// setup XStream
 		XStream xStream = new XStream(new DomDriver());
 		bind(XStream.class).toInstance(xStream);
@@ -36,11 +29,11 @@ public class MainModule extends AbstractModule {
 				"ch.ethz.ruediste.roofline.measurementDriver.appControllers");
 
 		// setup measurements and commands
-		bindNamed(IMeasurementSeries.class,
-				"ch.ethz.ruediste.roofline.measurementDriver.measurements");
+		bindNamed(IMeasurementController.class,
+				"ch.ethz.ruediste.roofline.measurementDriver.measurementControllers");
 
-		bindNamed(ICommand.class,
-				"ch.ethz.ruediste.roofline.measurementDriver.commands");
+		bindNamed(ICommandController.class,
+				"ch.ethz.ruediste.roofline.measurementDriver.commandControllers");
 
 	}
 

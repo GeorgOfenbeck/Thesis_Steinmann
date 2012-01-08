@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.commands;
+package ch.ethz.ruediste.roofline.measurementDriver.commandControllers;
 
 import java.io.InputStream;
 import java.util.List;
@@ -8,12 +8,17 @@ import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKeyBase;
 import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
 import ch.ethz.ruediste.roofline.measurementDriver.Pair;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 
 import com.google.inject.Inject;
 
-public class HelpCommand implements ICommand {
+/**
+ * The help command prints the help text to the standard output. This includes a
+ * list of commands, measurement series and available configuration flags.
+ * 
+ */
+public class HelpCommandController implements ICommandController {
 
 	@Inject
 	public Instantiator instantiator;
@@ -47,13 +52,13 @@ public class HelpCommand implements ICommand {
 		System.out.println("\nCommands:");
 		System.out.println("*********");
 
-		instantiator.listNamed(ICommand.class);
+		instantiator.listNamed(ICommandController.class);
 
-		System.out.println("\nMeasurements:");
+		System.out.println("\nMeasurement Series:");
 		System.out.println("*************");
-		instantiator.listNamed(IMeasurementSeries.class);
+		instantiator.listNamed(IMeasurementController.class);
 
-		System.out.println("\nConfiguration Options:");
+		System.out.println("\nConfiguration Flags:");
 		System.out.println("**********************");
 
 		for (Pair<Class<?>, ConfigurationKeyBase> entry : ClassFinder

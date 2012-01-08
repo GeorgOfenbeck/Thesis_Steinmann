@@ -1,17 +1,17 @@
-package ch.ethz.ruediste.roofline.measurementDriver.commands;
+package ch.ethz.ruediste.roofline.measurementDriver.commandControllers;
 
 import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.IAutoCompletionCommand;
+import ch.ethz.ruediste.roofline.measurementDriver.IAutoCompletionAwareCommandController;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 
 import com.google.inject.Inject;
 
-public class ReMeasureCommand implements IAutoCompletionCommand {
+public class ReMeasureCommandController implements IAutoCompletionAwareCommandController {
 
 	@Inject
-	public MeasureCommand measureCommand;
+	public MeasureCommandController measureCommand;
 
 	@Inject
 	public Configuration configuration;

@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.measurementSeries;
+package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
@@ -12,13 +12,13 @@ import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementSeries;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
 import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 
 import com.google.inject.Inject;
 
-public class MemoryLoadMeasurementSeries implements IMeasurementSeries {
+public class MemoryLoadMeasurementController implements IMeasurementController {
 
 	public String getName() {
 		return "memoryLoad";

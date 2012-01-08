@@ -12,6 +12,9 @@ import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public class Configuration {
 	public static ConfigurationKey<String> userConfigFileKey = ConfigurationKey
 			.Create(String.class, "userConfigFile",

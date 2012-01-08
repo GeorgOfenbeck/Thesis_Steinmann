@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.apache.commons.exec.CommandLine;
 
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommand;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
 
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -65,16 +65,16 @@ public class Main {
 			String commandName = parsedArgs.get(0);
 
 			// get the command
-			ICommand command = null;
+			ICommandController command = null;
 			try {
 				command = instantiator
-						.getInstance(Key.get(ICommand.class,
+						.getInstance(Key.get(ICommandController.class,
 								Names.named(commandName)));
 			} catch (ConfigurationException e) {
 				System.out
 						.printf("Could not find the command named %s\nAvailable Commands:\n",
 								commandName);
-				instantiator.listNamed(ICommand.class);
+				instantiator.listNamed(ICommandController.class);
 			}
 
 			if (command != null) {
@@ -139,9 +139,9 @@ public class Main {
 						.isEmpty())) {
 
 			// propose all commands
-			for (Class<? extends ICommand> clazz : instantiator
-					.getBoundClasses(ICommand.class)) {
-				ICommand cmd = instantiator.getInstance(clazz);
+			for (Class<? extends ICommandController> clazz : instantiator
+					.getBoundClasses(ICommandController.class)) {
+				ICommandController cmd = instantiator.getInstance(clazz);
 				if (partialWord.isEmpty()
 						|| cmd.getName().startsWith(partialWord)) {
 					System.out.println(cmd.getName());
@@ -155,18 +155,18 @@ public class Main {
 		// the command is set already, thus we have to ask the command for
 		// completion
 		if (filteredCompletionArgs.size() >= 1) {
-			ICommand command = null;
+			ICommandController command = null;
 			try {
 				command = instantiator
-						.getInstance(Key.get(ICommand.class,
+						.getInstance(Key.get(ICommandController.class,
 								Names.named(filteredCompletionArgs.get(0))));
 			} catch (ConfigurationException e) {
 				// swallow
 			}
 
-			if (command != null && command instanceof IAutoCompletionCommand) {
+			if (command != null && command instanceof IAutoCompletionAwareCommandController) {
 				filteredCompletionArgs.remove(0);
-				((IAutoCompletionCommand) command)
+				((IAutoCompletionAwareCommandController) command)
 						.doAutoCompletion(partialWord, filteredCompletionArgs);
 			}
 		}

@@ -223,7 +223,20 @@ The configuration is used to set various flags in the measurement driver.
 \end{itemize}
 
 \subsection{Measurement Driver}
-It was tried to follow best engineering practices for the design of the measurement driver. Unit tests, mocks, and dependency injection is used. Furthermore, a domain model (DOM) and stateless services are used as described in \cite{evans2004domain}. Describing all these concepts lies beyond the scope of this report. It is assumed that the reader has a basic understanding of the named concepts.
+It was tried to follow best engineering practices for the design of the measurement driver. Unit tests (junit), mocks (jmock), and dependency injection  (guice) are used. Furthermore, a domain model (DOM), controllers and stateless services are used as described in \cite{evans2004domain}. Describing all these concepts lies beyond the scope of this report. It is assumed that the reader has a basic understanding of the named concepts.
+
+\subsubsection{Commands}
+A command is represented by a class deriving from ICommandController and should be placed in the commands package. A command has a name and a description, which should be the return value of the getName() respectivley getDescription() methods of the command. The measurement driver expects a command name as first argument. The name is matched against the names of all available commands. If a command matches, the execute() method of a new instance of the corresponding class is called with the remaining command line arguments as parameter.
+
+\subsubsection{Dependency Injection Configuration}
+Generally, a convention over configuration approach was chosen for the configuration of the dependency injection. The conventions as well as optional exceptions are defined in the MainModule. 
+The convetions are:
+\begin{description}
+\item[Services] all classes in the services package are bound to themselves as singletons
+\item[Application Controllers] all classes in the appControllers package are bound to themselves as singletons
+\item[Measurement Series] all classes deriving form IMeasurementSeries in the measurement series package are bound to the IMeasurementSeries interface annotated with their name
+\item[Commands] all classes deriving from ICommand in the commands package are bound to the ICommand interface annotated with their name
+\end{description}
 
 \subsubsection{Configuration}
 The design goal was to create a configuration system which
