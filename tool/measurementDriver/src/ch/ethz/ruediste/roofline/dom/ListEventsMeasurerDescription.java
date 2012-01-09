@@ -9,6 +9,6 @@ public class ListEventsMeasurerDescription extends
 			MacroKey.Create(
 					"RMT_PERF_EVENT_ARCHITECTURE",
 					"architecture to be listed by the list events measurer. " +
-							"listed in pfmlib.h. Passed to libpfm4",
+							"possible values listed in pfmlib.h. Passed to libpfm4",
 					"PFM_PMU_PERF_EVENT");
 }

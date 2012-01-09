@@ -43,6 +43,7 @@ public class ListEventsMeasurementController implements IMeasurementController {
 	MeasurementAppController measurementAppController;
 
 	public void measure(String outputName) throws IOException {
+		// list all available performance counters
 		ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
 
 		MeasurementDescription measurement = new MeasurementDescription();

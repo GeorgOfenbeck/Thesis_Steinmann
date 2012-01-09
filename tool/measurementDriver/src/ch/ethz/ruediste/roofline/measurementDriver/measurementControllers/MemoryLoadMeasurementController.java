@@ -45,7 +45,7 @@ public class MemoryLoadMeasurementController implements IMeasurementController {
 
 		PerfEventMeasurerDescription measurer = new
 				PerfEventMeasurerDescription();
-		measurer.addEvent("event", "coreduo::L2_LINES_IN:SELF:ANY");
+		measurer.addEvent("event", "core::L2_LINES_IN:SELF:ANY");
 		// measurer.addEvent("event", "coreduo::BUS_DRDY_CLOCKS:THIS_AGENT:u");
 		// measurer.addEvent("event", "coreduo::INSTRUCTION_RETIRED");
 		// measurer.addEvent("event", "coreduo::UNHALTED_CORE_CYCLES");

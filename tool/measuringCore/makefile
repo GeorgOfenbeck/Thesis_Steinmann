@@ -4,7 +4,7 @@
 BUILD_DIR=build
 
 # libraries for linking
-LIBS=-lpfm -lstdc++ -lpapi
+LIBS=-lpfm -lstdc++ #-lpapi
 
 # command for the compiler
 GCC=ccache gcc
@@ -59,10 +59,10 @@ KERNEL_SOURCES=$(filter $(MEASUREMENT_SCHEME_REGISTRATION_FILE) $(KERNEL_DIR)/$(
 KERNEL_OBJECTS=$(call sourcesToObjects, $(KERNEL_SOURCES))
 
 # search for .d files in the build directories
-PRESENT_DEP_FILES=$(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*")
+PRESENT_DEP_FILES=$(patsubst ./build/%, build/./%, $(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*"))
 
 # generate .d file names from the source file names
-GENERATED_DEP_FILES=$(call sourcesToObjects, $(SOURCES) $(KERNEL_SOURCES))
+GENERATED_DEP_FILES=$(call sourcesToDeps, $(SOURCES) $(KERNEL_SOURCES))
 
 # keep only the .d files present which are required
 DEP_FILES=$(filter $(GENERATED_DEP_FILES), $(PRESENT_DEP_FILES))
