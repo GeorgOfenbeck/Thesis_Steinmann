@@ -1,6 +1,6 @@
 ARGOUML_JAR=~/argouml-0.34/argouml.jar
 .PHONY: report clean quick
-report: out/report.pdf
+report: report.pdf
 
 clean:
 	rm -rf out
@@ -19,6 +19,9 @@ out/uml/timestamp: ../masterthesis.uml
 out:
 	mkdir out
 	mkdir out/uml
+
+report.pdf: out/report.pdf
+	cp out/report.pdf report.pdf
 
 out/report.pdf: report.tex report.bib out # out/uml/timestamp
 	cd out &&\
