@@ -155,16 +155,22 @@ public class PerformanceEventScreeningMeasurementController implements
 				e.printStackTrace();
 			}
 
-			if (result != null) {
+			if (result == null) {
+				out.printf("%s: %s: failed\n", eventDefinition,
+						pair.getSecond());
+
+			}else{
 				DescriptiveStatistics statistics = PerfEventMeasurerOutput
 						.getStatistics("event", result);
 
+				double min=statistics.getMin();
 				out.printf("%s: %s: %g %g\n", eventDefinition,
-						pair.getSecond(), statistics.getMin(),
-						statistics.getPercentile(50) / statistics.getMin());
+						pair.getSecond(), min,
+						statistics.getPercentile(50) / (min<0.1?1:min));
 
-				out.flush();
+				
 			}
+			out.flush();
 		}
 	}
 }
