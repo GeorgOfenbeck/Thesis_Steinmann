@@ -76,7 +76,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
 						unrollAxis, iterationsAxis
-				// ,operationAxis
+						, operationAxis
 				))) {
 			MeasurementDescription measurement = new MeasurementDescription(
 					coordinate);

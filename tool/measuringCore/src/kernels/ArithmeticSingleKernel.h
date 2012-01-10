@@ -8,6 +8,7 @@
 #ifndef ARITHMETICSINGLEKERNEL_H_
 #define ARITHMETICSINGLEKERNEL_H_
 
+#include "macros/RMT_ARITHMETIC_OPERATION.h"
 #include "baseClasses/KernelBase.h"
 #include "sharedDOM/ArithmeticSingleKernelDescription.h"
 #include <cmath>
@@ -24,13 +25,6 @@ enum Unroll {
 	Unroll_None, Unroll_2, Unroll_4, Unroll_8, Unroll_16, Unroll_32
 };
 
-#ifndef RMT_ARITHMETIC_OPERATION
-#define RMT_ARITHMETIC_OPERATION ArithmeticOperation_ADD
-#endif
-
-#ifndef RMT_UNROLL
-#define RMT_UNROLL Unroll_8
-#endif
 class ArithmeticSingleKernel: public Kernel<ArithmeticSingleKernelDescription> {
 	// solves base**exponent=result, with b unknown
 	static double getBase(double exponent, double result);
@@ -278,7 +272,7 @@ class ArithmeticSingleKernel: public Kernel<ArithmeticSingleKernelDescription> {
 		}
 	};
 
-	static const int maxUnroll = 64;
+	static const int maxUnroll = 128;
 public:
 	double result;
 	ArithmeticSingleKernel(ArithmeticSingleKernelDescription * description) :
