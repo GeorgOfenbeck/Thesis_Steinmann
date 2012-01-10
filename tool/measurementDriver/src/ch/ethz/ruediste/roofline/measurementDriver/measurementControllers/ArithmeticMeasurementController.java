@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
-import ch.ethz.ruediste.roofline.dom.ArithmeticSingleKernelDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
@@ -36,8 +35,8 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 	private void measure(String outputName, int iterations) {
 		measure(outputName, iterations, "ArithmeticOperation_ADD");
-		measure(outputName, iterations, "ArithmeticOperation_MUL");
-		measure(outputName, iterations, "ArithmeticOperation_MULADD");
+		// measure(outputName, iterations, "ArithmeticOperation_MUL");
+		// measure(outputName, iterations, "ArithmeticOperation_MULADD");
 	}
 
 	private void measure(String outputName, int iterations, String operation) {
@@ -50,18 +49,19 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		measure(outputName, iterations, operation, use_sse, 1);
 		measure(outputName, iterations, operation, use_sse, 2);
 		measure(outputName, iterations, operation, use_sse, 4);
-		measure(outputName, iterations, operation, use_sse, 8);
-		measure(outputName, iterations, operation, use_sse, 16);
-		measure(outputName, iterations, operation, use_sse, 32);
-		measure(outputName, iterations, operation, use_sse, 64);
+		// measure(outputName, iterations, operation, use_sse, 8);
+		// measure(outputName, iterations, operation, use_sse, 16);
+		// measure(outputName, iterations, operation, use_sse, 32);
+		// measure(outputName, iterations, operation, use_sse, 64);
 	}
 
 	private void measure(String outputName, int iterations, String operation,
 			boolean use_sse, int unroll) {
 
-		// ArithmeticKernelDescription kernel = new
-		// ArithmeticKernelDescription();
-		ArithmeticSingleKernelDescription kernel = new ArithmeticSingleKernelDescription();
+		ArithmeticKernelDescription kernel = new
+				ArithmeticKernelDescription();
+		// ArithmeticSingleKernelDescription kernel = new
+		// ArithmeticSingleKernelDescription();
 		kernel.setIterations(iterations);
 		kernel.setUnroll(unroll);
 

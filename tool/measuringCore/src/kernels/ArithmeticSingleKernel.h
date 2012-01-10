@@ -9,9 +9,8 @@
 #define ARITHMETICSINGLEKERNEL_H_
 
 #include "baseClasses/KernelBase.h"
-#include "generatedC/ArithmeticSingleKernelDescription.h"
+#include "sharedDOM/ArithmeticSingleKernelDescription.h"
 #include <cmath>
-#include "configDef.h"
 
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -274,7 +273,8 @@ class ArithmeticSingleKernel: public Kernel<ArithmeticSingleKernelDescription> {
 			if (unroll == 4) {
 				return T<4>::doIt(iterations);
 			}
-			throw "unsupported unroll specified";
+			printf("Unroll: %i\n", unroll);
+			throw "unsupported unroll specified -->" + unroll;
 		}
 	};
 
@@ -295,43 +295,45 @@ public:
 
 		if (RMT_ARITHMETIC_OPERATION == ArithmeticOperation_ADD) {
 
-			if (unroll == 1 || unroll == 2) {
+			if (unroll < 4) {
 				double r = 1;
 				for (long i = 0; i < iterations; i++) {
 					r += 1;
 				}
 				result = r;
+			} else {
+				result = invocationHelper<addHelper, maxUnroll>::doIt(
+						description->getUnroll(), iterations);
 			}
-
-			result = invocationHelper<addHelper, maxUnroll>::doIt(
-					description->getUnroll(), iterations);
 		}
 
 		if (RMT_ARITHMETIC_OPERATION == ArithmeticOperation_MUL) {
 			double base = getBase(iterations, 4);
-			if (unroll == 1 || unroll == 2) {
+			if (unroll < 4) {
 				double r = 1;
 				for (long i = 0; i < iterations; i++) {
 					r *= base;
 				}
 				result = r;
+			} else {
+				result = invocationHelper<mulHelper, maxUnroll>::doIt(
+						description->getUnroll(), iterations);
 			}
-			result = invocationHelper<mulHelper, maxUnroll>::doIt(
-					description->getUnroll(), iterations);
 		}
 
 		if (RMT_ARITHMETIC_OPERATION == ArithmeticOperation_MULADD) {
 			double base = getBase(iterations, 4);
-			if (unroll == 1 || unroll == 2) {
+			if (unroll < 4) {
 				double r = 1, ra = 1;
 				for (long i = 0; i < iterations; i++) {
 					r *= base;
 					ra += 1;
 				}
 				result = r + ra;
+			} else {
+				result = invocationHelper<addMulHelper, maxUnroll>::doIt(
+						description->getUnroll(), iterations);
 			}
-			result = invocationHelper<addMulHelper, maxUnroll>::doIt(
-					description->getUnroll(), iterations);
 		}
 	}
 	void dispose() {

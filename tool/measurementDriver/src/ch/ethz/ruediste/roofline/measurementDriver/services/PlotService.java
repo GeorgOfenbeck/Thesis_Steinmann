@@ -3,11 +3,18 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.lang.StringUtils;
 
+import ch.ethz.ruediste.roofline.measurementDriver.dom.Bandwidth;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.Histogram;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.HistogramPlot;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.Performance;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.RooflinePlot;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.RooflinePoint;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
 
 import com.google.inject.Inject;
@@ -75,6 +82,67 @@ public class PlotService {
 					plot.getOutputName());
 			// output.printf("pause mouse\n");
 
+			output.close();
+		}
+
+		// show output
+		commandService.runCommand(new File("."), "gnuplot",
+				new String[] { plot.getOutputName() + ".gnuplot" });
+	}
+
+	/**
+	 * plot a roofline plot
+	 */
+	public void plot(RooflinePlot plot) throws ExecuteException, IOException {
+		// print data file
+		final PrintStream outputFile = new PrintStream(plot.getOutputName()
+				+ ".data");
+
+		for (RooflinePoint point : plot.getPoints()) {
+			outputFile.printf("%e %e\n\n\n", point.getOperationalIntensity(),
+					point.getPerformance());
+		}
+
+		outputFile.close();
+
+		// write gnuplot file
+		{
+			PrintStream output = new PrintStream(plot.getOutputName()
+					+ ".gnuplot");
+			output.printf("set title '%s'\n", plot.getTitle());
+			output.printf("set terminal postscript color\n");
+			output.printf("set output '%s.ps'\n", plot.getOutputName());
+
+			output.println("set log x");
+			output.println("set log y");
+			output.println("set xrange [0.001:1]");
+			output.printf("set xlabel '%s [%s]'\n", plot.getxLabel(),
+					plot.getxUnit());
+			output.printf("set ylabel '%s [%s]'\n", plot.getyLabel(),
+					plot.getyUnit());
+
+			output.println("plot \\");
+
+			List<String> plotLines = new ArrayList<String>();
+			for (Performance peak : plot.getPeakPerformances()) {
+				plotLines.add(String.format("%e title '%s'",
+						peak.getPerformance(), peak.getName()));
+			}
+
+			for (Bandwidth peak : plot.getPeakBandwiths()) {
+				plotLines.add(String.format("%e*x title '%s'",
+						peak.getBandwidth(), peak.getName()));
+			}
+
+			for (int i = 0; i < plot.getPoints().size(); i++) {
+				RooflinePoint point = plot.getPoints().get(i);
+
+				plotLines.add(String.format(
+						"'%s.data' index %d title '%s' with points \n",
+						plot.getOutputName(), i, point.getName()));
+			}
+
+			output.print(StringUtils.join(plotLines, ",\\\n"));
 			output.close();
 		}
 
