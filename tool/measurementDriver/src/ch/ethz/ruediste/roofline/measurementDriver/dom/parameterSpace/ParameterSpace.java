@@ -25,14 +25,14 @@ public class ParameterSpace implements
 	 * 
 	 */
 	public static class Coordinate {
-		private Map<Class<? extends IAxisBase>, Object> coordinates;
+		private Map<Axis<?>, Object> coordinates;
 
 		/**
 		 * create a new coordinate based on the values provided
 		 */
-		public Coordinate(Map<Class<? extends IAxisBase>, Object> values) {
+		public Coordinate(Map<Axis<?>, Object> values) {
 			// copy the provided values
-			coordinates = new HashMap<Class<? extends IAxisBase>, Object>(
+			coordinates = new HashMap<Axis<?>, Object>(
 					values);
 		}
 
@@ -40,7 +40,7 @@ public class ParameterSpace implements
 		 * get the value of the specified axis
 		 */
 		@SuppressWarnings("unchecked")
-		public <T> T get(Class<? extends IAxis<T>> axis) {
+		public <T> T get(Axis<T> axis) {
 			return (T) coordinates.get(axis);
 		}
 
@@ -63,14 +63,13 @@ public class ParameterSpace implements
 		 * return the projection of this coordinate to the specified axes. The
 		 * axes not specified are discarded.
 		 */
-		@SuppressWarnings("rawtypes")
-		public Coordinate project(Class... axes) {
-			HashSet<Class> selectedAxes = new HashSet<Class>(
+		public Coordinate project(Axis<?>... axes) {
+			HashSet<Axis<?>> selectedAxes = new HashSet<Axis<?>>(
 					Arrays.asList(axes));
 
-			Map<Class<? extends IAxisBase>, Object> newCoordinates = new HashMap<Class<? extends IAxisBase>, Object>();
+			Map<Axis<?>, Object> newCoordinates = new HashMap<Axis<?>, Object>();
 
-			for (Entry<Class<? extends IAxisBase>, Object> entry : coordinates
+			for (Entry<Axis<?>, Object> entry : coordinates
 					.entrySet()) {
 				if (selectedAxes.contains(entry.getKey())) {
 					newCoordinates.put(entry.getKey(), entry.getValue());
@@ -81,7 +80,7 @@ public class ParameterSpace implements
 		}
 	}
 
-	private Map<Class<? extends IAxisBase>, List<Object>> axisValueSets = new HashMap<Class<? extends IAxisBase>, List<Object>>();
+	private Map<Axis<?>, List<Object>> axisValueSets = new HashMap<Axis<?>, List<Object>>();
 
 	/**
 	 * Add a value to an axis
@@ -91,7 +90,7 @@ public class ParameterSpace implements
 	 * @param value
 	 *            the value to add to the axis
 	 */
-	public <T> void add(Class<? extends IAxis<T>> axis, T value) {
+	public <T> void add(Axis<T> axis, T value) {
 		List<Object> list = getValueListOfAxis(axis);
 
 		list.add(value);
@@ -105,7 +104,7 @@ public class ParameterSpace implements
 	 * @param value
 	 *            values to add to the axis
 	 */
-	public void add(Class<? extends IAxisBase> axis,
+	public void add(Axis<?> axis,
 			Collection<? extends Object> value) {
 		List<Object> list = getValueListOfAxis(axis);
 
@@ -116,26 +115,26 @@ public class ParameterSpace implements
 	 * Returns an iterator over all coordinates in the space
 	 */
 	public Iterator<Coordinate> iterator() {
-		List<Entry<Class<? extends IAxisBase>, List<Object>>> axisValueSetsList = new ArrayList<Map.Entry<Class<? extends IAxisBase>, List<Object>>>(
+		List<Entry<Axis<?>, List<Object>>> axisValueSetsList = new ArrayList<Map.Entry<Axis<?>, List<Object>>>(
 				axisValueSets.entrySet());
 
 		List<Coordinate> coordinates = new ArrayList<ParameterSpace.Coordinate>();
 
 		fillCoordinateList(coordinates, axisValueSetsList, 0,
-				new HashMap<Class<? extends IAxisBase>, Object>());
+				new HashMap<Axis<?>, Object>());
 
 		return coordinates.iterator();
 	}
 
-	@SuppressWarnings("rawtypes")
-	public ParameterSpace project(Class... axes) {
+	public ParameterSpace project(Axis<?>... axes) {
 		ParameterSpace result = new ParameterSpace();
 
 		// build a set from the provided axes, for fast access
-		HashSet<Class> selectedAxes = new HashSet<Class>(Arrays.asList(axes));
+		HashSet<Axis<?>> selectedAxes = new HashSet<Axis<?>>(
+				Arrays.asList(axes));
 
 		// iterate over all axes of the parameter space
-		for (Entry<Class<? extends IAxisBase>, List<Object>> entry : axisValueSets
+		for (Entry<Axis<?>, List<Object>> entry : axisValueSets
 				.entrySet()) {
 			// if the axis is selected, the axis and all its values to the
 			// result
@@ -162,9 +161,9 @@ public class ParameterSpace implements
 	 */
 	private void fillCoordinateList(
 			List<Coordinate> coordinates,
-			List<Entry<Class<? extends IAxisBase>, List<Object>>> axisValueSetsList,
+			List<Entry<Axis<?>, List<Object>>> axisValueSetsList,
 			int axisValueSetIndex,
-			Map<Class<? extends IAxisBase>, Object> values) {
+			Map<Axis<?>, Object> values) {
 
 		// if the last axis has been processed already (and a value was added
 		// for it to values),
@@ -175,7 +174,7 @@ public class ParameterSpace implements
 		}
 
 		// get the axis to be processed, along with it's values
-		Entry<Class<? extends IAxisBase>, List<Object>> axisValuesPair = axisValueSetsList
+		Entry<Axis<?>, List<Object>> axisValuesPair = axisValueSetsList
 				.get(axisValueSetIndex);
 
 		// iterate over all values for the axis
@@ -199,7 +198,7 @@ public class ParameterSpace implements
 	 * @param axis
 	 * @return
 	 */
-	private <T> List<Object> getValueListOfAxis(Class<? extends IAxisBase> axis) {
+	private <T> List<Object> getValueListOfAxis(Axis<?> axis) {
 		List<Object> list;
 		// if the list for the axis exists already, return it
 		if (axisValueSets.containsKey(axis)) {

@@ -9,9 +9,9 @@
 #define KBESTMEASUREMENTSCHEME_H_
 
 #include "baseClasses/MeasurementSchemeBase.h"
-#include "generatedC/KBestMeasurementSchemeDescription.h"
-#include "generatedC/PerfEventMeasurerDescription.h"
-#include "generatedC/PerfEventMeasurerOutput.h"
+#include "sharedDOM/KBestMeasurementSchemeDescription.h"
+#include "sharedDOM/PerfEventMeasurerDescription.h"
+#include "sharedDOM/PerfEventMeasurerOutput.h"
 #include "typeRegistry/TypeRegistry.h"
 
 template<class TKernel, class TMeasurer>

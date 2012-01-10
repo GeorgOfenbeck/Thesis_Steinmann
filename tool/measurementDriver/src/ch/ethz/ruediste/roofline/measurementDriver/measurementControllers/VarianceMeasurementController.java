@@ -10,17 +10,17 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.KBestMeasurementSchemeDescription;
+import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
+import ch.ethz.ruediste.roofline.dom.MeasurementSchemeDescriptionBase;
+import ch.ethz.ruediste.roofline.dom.MeasurerDescriptionBase;
 import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.IAxis;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.KernelAxis;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.MeasurementSchemeAxis;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.MeasurerAxis;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
@@ -44,51 +44,52 @@ public class VarianceMeasurementController implements IMeasurementController {
 	@Inject
 	public CommandService commandService;
 
-	private class BufferSizeAxis implements IAxis<Long> {
-
-	}
-
 	public void measure(String outputName) throws IOException {
+		Axis<MeasurementSchemeDescriptionBase> measurementSchemeAxis = new Axis<MeasurementSchemeDescriptionBase>();
+		Axis<KernelDescriptionBase> kernelAxis = new Axis<KernelDescriptionBase>();
+		Axis<MeasurerDescriptionBase> measurerAxis = new Axis<MeasurerDescriptionBase>();
+		Axis<Long> bufferSizeAxis = new Axis<Long>();
+
 		ParameterSpace parameterSpace = new ParameterSpace();
 
 		// create schemes
 		KBestMeasurementSchemeDescription kBestScheme = new KBestMeasurementSchemeDescription();
 		kBestScheme.setWarmCaches(true);
-		parameterSpace.add(MeasurementSchemeAxis.class, kBestScheme);
+		parameterSpace.add(measurementSchemeAxis, kBestScheme);
 
 		SimpleMeasurementSchemeDescription simpleScheme = new SimpleMeasurementSchemeDescription();
 		simpleScheme.setWarmCaches(true);
-		parameterSpace.add(MeasurementSchemeAxis.class, simpleScheme);
+		parameterSpace.add(measurementSchemeAxis, simpleScheme);
 
 		// create kernel
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
 		kernel.setOptimization("-O0");
-		parameterSpace.add(KernelAxis.class, kernel);
+		parameterSpace.add(kernelAxis, kernel);
 
 		// create measurers
 		PerfEventMeasurerDescription perfEventMeasurer = new PerfEventMeasurerDescription();
 		perfEventMeasurer.addEvent("cycles", "perf::PERF_COUNT_HW_BUS_CYCLES");
-		parameterSpace.add(MeasurerAxis.class, perfEventMeasurer);
+		parameterSpace.add(measurerAxis, perfEventMeasurer);
 		ExecutionTimeMeasurerDescription timeMeasurer = new ExecutionTimeMeasurerDescription();
-		parameterSpace.add(MeasurerAxis.class, timeMeasurer);
+		parameterSpace.add(measurerAxis, timeMeasurer);
 
-		// set block sizes
+		// add block sizes
 		for (long blockSize = 1; blockSize < 1e4; blockSize = blockSize << 1) {
-			parameterSpace.add(BufferSizeAxis.class, blockSize);
+			parameterSpace.add(bufferSizeAxis, blockSize);
 		}
 
 		// create output streams
-		HashMap<Coordinate, PrintStream> outputStreams = new HashMap<ParameterSpace.Coordinate, PrintStream>();
+		HashMap<Coordinate, PrintStream> outputStreams = new HashMap<Coordinate, PrintStream>();
 		for (Coordinate coordinate : parameterSpace.project(
-				MeasurementSchemeAxis.class,
-				MeasurerAxis.class)) {
+				measurementSchemeAxis,
+				measurerAxis)) {
 
 			String streamName = outputName;
 			streamName += (coordinate
-					.get(MeasurerAxis.class) == perfEventMeasurer ? "perf"
+					.get(measurerAxis) == perfEventMeasurer ? "perf"
 					: "time");
 			streamName += (coordinate
-					.get(MeasurementSchemeAxis.class) == kBestScheme ? "Best"
+					.get(measurementSchemeAxis) == kBestScheme ? "Best"
 					: "Simple");
 
 			outputStreams
@@ -97,10 +98,10 @@ public class VarianceMeasurementController implements IMeasurementController {
 
 		for (Coordinate coordinate : parameterSpace) {
 			MeasurementDescription measurement = new MeasurementDescription();
-			measurement.setKernel(coordinate.get(KernelAxis.class));
-			measurement.setMeasurer(coordinate.get(MeasurerAxis.class));
-			measurement.setScheme(coordinate.get(MeasurementSchemeAxis.class));
-			kernel.setBufferSize(coordinate.get(BufferSizeAxis.class));
+			measurement.setKernel(coordinate.get(kernelAxis));
+			measurement.setMeasurer(coordinate.get(measurerAxis));
+			measurement.setScheme(coordinate.get(measurementSchemeAxis));
+			kernel.setBufferSize(coordinate.get(bufferSizeAxis));
 
 			// perform measurement
 			MeasurementResult result = measurementRepository
@@ -122,10 +123,10 @@ public class VarianceMeasurementController implements IMeasurementController {
 			// append to output
 			outputStreams.get(
 					coordinate.project(
-							MeasurementSchemeAxis.class,
-							MeasurerAxis.class))
+							measurementSchemeAxis,
+							measurerAxis))
 					.printf("%d\t%e\t%e\t%e\t%e\t%e\n",
-							coordinate.get(BufferSizeAxis.class),
+							coordinate.get(bufferSizeAxis),
 							statistics.getMean(),
 							statistics.getStandardDeviation(),
 							statistics.getPercentile(50),
