@@ -83,10 +83,10 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		measurement.setMeasurer(measurer);
 
 		if (use_sse) {
-			measurement.setOptimization("-O3 -msse2");
+			kernel.setOptimization("-O3 -msse2");
 		}
 		else {
-			measurement.setOptimization("-O3");
+			kernel.setOptimization("-O3");
 		}
 
 		measurement.addMacro(ArithmeticKernelDescription.operationMacro,

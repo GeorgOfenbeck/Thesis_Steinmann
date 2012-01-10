@@ -176,7 +176,7 @@ public class MeasurementService {
 				new UpdatingFileOutputStream(
 						optimizationFile));
 		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS=%s\n",
-				measurement.getOptimization());
+				measurement.getKernel().getOptimization());
 		optimizationPrintStream.close();
 	}
 

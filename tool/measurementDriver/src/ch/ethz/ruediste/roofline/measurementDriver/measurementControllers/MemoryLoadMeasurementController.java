@@ -57,7 +57,7 @@ public class MemoryLoadMeasurementController implements IMeasurementController {
 		measurement.setKernel(kernel);
 		measurement.setScheme(scheme);
 		measurement.setMeasurer(measurer);
-		measurement.setOptimization("-O3 -msse");
+		kernel.setOptimization("-O3 -msse");
 
 		// perform measurement
 		MeasurementResult result = measurementRepository.getMeasurementResults(

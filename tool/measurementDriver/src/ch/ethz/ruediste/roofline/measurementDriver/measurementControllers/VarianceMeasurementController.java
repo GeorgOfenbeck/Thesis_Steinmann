@@ -62,6 +62,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 
 		// create kernel
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+		kernel.setOptimization("-O0");
 		parameterSpace.add(KernelAxis.class, kernel);
 
 		// create measurers
@@ -96,7 +97,6 @@ public class VarianceMeasurementController implements IMeasurementController {
 
 		for (Coordinate coordinate : parameterSpace) {
 			MeasurementDescription measurement = new MeasurementDescription();
-			measurement.setOptimization("-O0");
 			measurement.setKernel(coordinate.get(KernelAxis.class));
 			measurement.setMeasurer(coordinate.get(MeasurerAxis.class));
 			measurement.setScheme(coordinate.get(MeasurementSchemeAxis.class));

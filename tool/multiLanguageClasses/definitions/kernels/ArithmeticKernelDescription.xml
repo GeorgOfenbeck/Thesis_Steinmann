@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class
+<derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="ArithmeticKernelDescription" 
-	cBaseType="KernelDescriptionBase"
-	javaBaseType="KernelDescriptionBase"
+	baseType="KernelDescriptionBase"
 	javaSuffix="Data"
 	comment="Kernel doing artithmetic operations"> 
 	<field name="iterations" type="long" comment="number of times the operation is performed"/>
 	<field name="unroll" type="int" comment="number of results to be computed"/>
-</class>
+</derivedClass>

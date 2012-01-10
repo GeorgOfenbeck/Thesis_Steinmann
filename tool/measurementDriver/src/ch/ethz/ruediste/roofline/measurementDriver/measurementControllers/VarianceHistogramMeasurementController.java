@@ -20,7 +20,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 
 import com.google.inject.Inject;
 
-public class VarianceHistogramMeasurementController implements IMeasurementController {
+public class VarianceHistogramMeasurementController implements
+		IMeasurementController {
 
 	public String getName() {
 		return "varianceHist";
@@ -51,6 +52,8 @@ public class VarianceHistogramMeasurementController implements IMeasurementContr
 
 		// create kernel
 		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+		kernel.setOptimization("-O0");
+		kernel.setBufferSize(2048);
 
 		// create measurers
 		PerfEventMeasurerDescription perfEventMeasurer = new PerfEventMeasurerDescription();
@@ -59,12 +62,9 @@ public class VarianceHistogramMeasurementController implements IMeasurementContr
 
 		// measurement
 		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setOptimization("-O0");
 		measurement.setKernel(kernel);
-
 		measurement.setScheme(simpleScheme);
 		measurement.setMeasurer(perfEventMeasurer);
-		kernel.setBufferSize(2048);
 
 		// perform measurement
 		// measurementCacheService.deleteFromCache(measurement);

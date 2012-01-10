@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class
+<derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="DummyKernelDescription" 
-	cBaseType="KernelDescriptionBase"
-	javaBaseType="KernelDescriptionBase"
+	baseType="KernelDescriptionBase"
 	comment="empty kernel">
-</class>
+</derivedClass>
