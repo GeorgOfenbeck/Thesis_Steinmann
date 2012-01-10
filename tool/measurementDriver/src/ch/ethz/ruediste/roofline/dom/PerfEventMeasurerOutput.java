@@ -1,5 +1,7 @@
 package ch.ethz.ruediste.roofline.dom;
 
+import java.io.PrintStream;
+
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.statistics.IAddValue;
@@ -25,6 +27,27 @@ public class PerfEventMeasurerOutput extends PerfEventMeasurerOutputData {
 		addValues(name, result, statistics);
 
 		return statistics;
+	}
+
+	/**
+	 * prints a raw value dump into the specified stream
+	 */
+	public static void printRaw(String name,
+			MeasurementResult result, PrintStream out) {
+		out.printf("Event: %s, <raw> <enabled> <running> <scaled>\n", name);
+
+		// iterate over all outputs
+		for (MeasurerOutputBase outputBase : result.getOutputs()) {
+			// check if the output comes from the PerfEvent measurer
+			if (outputBase instanceof PerfEventMeasurerOutput) {
+				PerfEventMeasurerOutput output = (PerfEventMeasurerOutput) outputBase;
+				PerfEventCount count = output.getEventCount(name);
+
+				out.printf("%s %s %s %g\n", count.getRawCount(),
+						count.getTimeEnabled(), count.getTimeRunning(),
+						count.getScaledCount());
+			}
+		}
 	}
 
 	public static void addValues(String name, MeasurementResult result,
