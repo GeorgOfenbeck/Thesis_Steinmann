@@ -1,7 +1,8 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
+import ch.ethz.ruediste.roofline.statistics.IAddValue;
 
-public class HistogramPlot extends Plot {
+public class HistogramPlot extends Plot implements IAddValue {
 	private final Histogram histogram;
 
 	public HistogramPlot() {

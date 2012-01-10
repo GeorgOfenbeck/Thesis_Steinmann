@@ -1,8 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
-import ch.ethz.ruediste.roofline.statistics.IAddValue;
 
-public abstract class Plot implements IAddValue {
+public abstract class Plot {
 
 	private String outputName;
 	private String title;
