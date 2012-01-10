@@ -11,6 +11,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.MapConfiguration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.inject.Singleton;
 
@@ -151,7 +152,7 @@ public class Configuration {
 		for (Pair<Class<?>, ConfigurationKeyBase> pair : ClassFinder
 				.getStaticFieldValues(
 						ConfigurationKeyBase.class, packageName)) {
-			map.put(pair.getSecond().getKey(), pair.getSecond());
+			map.put(pair.getRight().getKey(), pair.getRight());
 		}
 		return map;
 	}

@@ -3,11 +3,12 @@ package ch.ethz.ruediste.roofline.measurementDriver.commandControllers;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKeyBase;
 import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
-import ch.ethz.ruediste.roofline.measurementDriver.Pair;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 
@@ -66,15 +67,15 @@ public class HelpCommandController implements ICommandController {
 						"ch.ethz.ruediste.roofline.measurementDriver")) {
 			System.out.printf("%s = %s   (=>%s / %s)\n\t%s\n",
 					// key
-					entry.getSecond().getKey(),
+					entry.getRight().getKey(),
 					// current value
-					configuration.get(entry.getSecond()),
+					configuration.get(entry.getRight()),
 					// declaring class
-					entry.getFirst().getSimpleName(),
+					entry.getLeft().getSimpleName(),
 					// type of the value
-					entry.getSecond().getValueType().getSimpleName(),
+					entry.getRight().getValueType().getSimpleName(),
 					// description
-					entry.getSecond()
+					entry.getRight()
 							.getDescription()
 							.replace("\n", "\t\n"));
 		}

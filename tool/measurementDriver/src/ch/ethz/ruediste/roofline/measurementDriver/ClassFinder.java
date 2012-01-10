@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 public class ClassFinder {
 	/**
 	 * Scans all classes accessible from the context class loader which belong
@@ -210,7 +213,7 @@ public class ClassFinder {
 								.get(null);
 
 						// add the configuration key to the result list
-						values.add(new Pair<Class<?>, T>(
+						values.add(ImmutablePair.<Class<?>, T> of(
 								clazz, key));
 					} catch (IllegalArgumentException e) {
 						// ignore
@@ -222,5 +225,4 @@ public class ClassFinder {
 		}
 		return values;
 	}
-
 }

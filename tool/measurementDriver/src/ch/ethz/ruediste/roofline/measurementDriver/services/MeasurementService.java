@@ -10,6 +10,8 @@ import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
@@ -19,7 +21,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
-import ch.ethz.ruediste.roofline.measurementDriver.Pair;
 import ch.ethz.ruediste.roofline.measurementDriver.UpdatingFileOutputStream;
 
 import com.google.inject.Inject;
@@ -207,16 +208,16 @@ public class MeasurementService {
 		macrosDir.mkdirs();
 
 		// load all macro definition keys
-		List<Pair<Class<?>, MacroKey>> macros = ClassFinder
+		List<org.apache.commons.lang3.tuple.Pair<Class<?>, MacroKey>> macros = ClassFinder
 				.getStaticFieldValues(MacroKey.class,
 						"ch.ethz.ruediste.roofline");
 
 		HashSet<File> presentFiles = new HashSet<File>();
 		// iterate over all keys and write definition file
 		for (Pair<Class<?>, MacroKey> pair : macros) {
-			System.out.printf("found macro %s\n", pair.getSecond()
+			System.out.printf("found macro %s\n", pair.getRight()
 					.getMacroName());
-			MacroKey macro = pair.getSecond();
+			MacroKey macro = pair.getRight();
 
 			File outputFile = new File(macrosDir, macro.getMacroName() + ".h");
 			presentFiles.add(outputFile);

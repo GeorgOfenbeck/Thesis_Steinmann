@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
 
@@ -96,9 +97,9 @@ public class Main {
 			for (Pair<Class<?>, ConfigurationKeyBase> pair : ClassFinder
 					.getStaticFieldValues(ConfigurationKeyBase.class,
 							"ch.ethz.ruediste.roofline.measurementDriver")) {
-				if (pair.getSecond().getKey()
+				if (pair.getRight().getKey()
 						.startsWith(partialWord.substring(1))) {
-					System.out.println("-" + pair.getSecond().getKey());
+					System.out.println("-" + pair.getRight().getKey());
 				}
 			}
 			// we're done
@@ -164,7 +165,8 @@ public class Main {
 				// swallow
 			}
 
-			if (command != null && command instanceof IAutoCompletionAwareCommandController) {
+			if (command != null
+					&& command instanceof IAutoCompletionAwareCommandController) {
 				filteredCompletionArgs.remove(0);
 				((IAutoCompletionAwareCommandController) command)
 						.doAutoCompletion(partialWord, filteredCompletionArgs);
