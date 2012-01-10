@@ -24,8 +24,8 @@ import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.dom.TriadKernelDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
 import com.google.inject.Inject;
 
@@ -44,7 +44,7 @@ public class PerformanceEventScreeningMeasurementController implements
 	Configuration configuration;
 
 	@Inject
-	MeasurementAppController measurementAppController;
+	MeasurementRepository measurementRepository;
 
 	public void measure(String outputName) throws IOException {
 		MeasurementResult result;
@@ -59,7 +59,8 @@ public class PerformanceEventScreeningMeasurementController implements
 							configuration
 									.get(ListEventsMeasurementController.architectureKey));
 
-			result = measurementAppController.measure(measurement, 1);
+			result = measurementRepository
+					.getMeasurementResults(measurement, 1);
 		}
 
 		PrintStream out = new PrintStream(outputName + ".txt");
@@ -150,7 +151,8 @@ public class PerformanceEventScreeningMeasurementController implements
 
 			MeasurementResult result = null;
 			try {
-				result = measurementAppController.measure(measurement, 20);
+				result = measurementRepository.getMeasurementResults(
+						measurement, 20);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}

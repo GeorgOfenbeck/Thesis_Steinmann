@@ -11,9 +11,9 @@ import ch.ethz.ruediste.roofline.dom.PerfEventCount;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 
 import com.google.inject.Inject;
@@ -29,7 +29,7 @@ public class MemoryLoadMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementAppController measurementAppController;
+	public MeasurementRepository measurementRepository;
 
 	@Inject
 	public PlotService plotService;
@@ -60,7 +60,7 @@ public class MemoryLoadMeasurementController implements IMeasurementController {
 		measurement.setOptimization("-O3 -msse");
 
 		// perform measurement
-		MeasurementResult result = measurementAppController.measure(
+		MeasurementResult result = measurementRepository.getMeasurementResults(
 				measurement, 40);
 
 		if (false) {

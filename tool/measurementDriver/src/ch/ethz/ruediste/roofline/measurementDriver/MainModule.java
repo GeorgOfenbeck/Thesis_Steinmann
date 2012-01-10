@@ -28,6 +28,10 @@ public class MainModule extends AbstractModule {
 		bindAllAsSingletons(Object.class,
 				"ch.ethz.ruediste.roofline.measurementDriver.appControllers");
 
+		// setup repositories
+		bindAllAsSingletons(Object.class,
+				"ch.ethz.ruediste.roofline.measurementDriver.repositories");
+
 		// setup measurements and commands
 		bindNamed(IMeasurementController.class,
 				"ch.ethz.ruediste.roofline.measurementDriver.measurementControllers");

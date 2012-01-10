@@ -11,8 +11,8 @@ import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
 import com.google.inject.Inject;
 
@@ -27,7 +27,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementAppController measurementAppController;
+	public MeasurementRepository measurementRepository;
 
 	public void measure(String outputName) throws IOException {
 		measure(outputName, 10000);
@@ -92,7 +92,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		measurement.addMacro(ArithmeticKernelDescription.operationMacro,
 				operation);
 
-		MeasurementResult result = measurementAppController.measure(
+		MeasurementResult result = measurementRepository.getMeasurementResults(
 				measurement, 10);
 		DescriptiveStatistics statistics = PerfEventMeasurerOutput
 				.getStatistics("cycles", result);

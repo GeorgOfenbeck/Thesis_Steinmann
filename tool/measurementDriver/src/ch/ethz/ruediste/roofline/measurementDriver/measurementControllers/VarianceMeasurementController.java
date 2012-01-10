@@ -16,7 +16,6 @@ import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.IAxis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.KernelAxis;
@@ -24,6 +23,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Measuremen
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.MeasurerAxis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
 
 import com.google.inject.Inject;
@@ -39,7 +39,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementAppController measurementAppController;
+	public MeasurementRepository measurementRepository;
 
 	@Inject
 	public CommandService commandService;
@@ -103,8 +103,9 @@ public class VarianceMeasurementController implements IMeasurementController {
 			kernel.setBufferSize(coordinate.get(BufferSizeAxis.class));
 
 			// perform measurement
-			MeasurementResult result = measurementAppController.measure(
-					measurement, 10);
+			MeasurementResult result = measurementRepository
+					.getMeasurementResults(
+							measurement, 10);
 
 			// create statistics
 			DescriptiveStatistics statistics = null;

@@ -13,9 +13,9 @@ import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 
@@ -32,7 +32,7 @@ public class RawDataMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementAppController measurementAppController;
+	public MeasurementRepository measurementAppController;
 
 	@Inject
 	public MeasurementCacheService measurementCacheService;
@@ -72,8 +72,9 @@ public class RawDataMeasurementController implements IMeasurementController {
 		measurement.setMeasurer(perfEventMeasurer);
 
 		// perform measurement
-		MeasurementResult result = measurementAppController.measure(
-				measurement, 20);
+		MeasurementResult result = measurementAppController
+				.getMeasurementResults(
+						measurement, 20);
 
 		// create plot
 		SimplePlot plot = new SimplePlot();

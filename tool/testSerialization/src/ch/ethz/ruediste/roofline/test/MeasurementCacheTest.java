@@ -15,7 +15,7 @@ import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
@@ -90,7 +90,7 @@ public class MeasurementCacheTest extends TestBase {
 		final MeasurementService measurementService = context
 				.mock(MeasurementService.class);
 
-		MeasurementAppController controller = new MeasurementAppController();
+		MeasurementRepository controller = new MeasurementRepository();
 		controller.cacheService = cacheService;
 		controller.measurementService = measurementService;
 		controller.configuration=injector.getInstance(Configuration.class);
@@ -118,7 +118,7 @@ public class MeasurementCacheTest extends TestBase {
 			}
 		});
 
-		controller.measure(measurement, 10);
+		controller.getMeasurementResults(measurement, 10);
 
 		context.assertIsSatisfied();
 

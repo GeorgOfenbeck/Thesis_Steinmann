@@ -14,8 +14,8 @@ import ch.ethz.ruediste.roofline.dom.PerfEventDescription;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
 import com.google.inject.Inject;
 
@@ -40,7 +40,7 @@ public class ListEventsMeasurementController implements IMeasurementController {
 	Configuration configuration;
 
 	@Inject
-	MeasurementAppController measurementAppController;
+	MeasurementRepository measurementRepository;
 
 	public void measure(String outputName) throws IOException {
 		// list all available performance counters
@@ -56,7 +56,7 @@ public class ListEventsMeasurementController implements IMeasurementController {
 				ListEventsMeasurerDescription.architectureMacro,
 				configuration.get(architectureKey));
 
-		MeasurementResult result = measurementAppController.measure(
+		MeasurementResult result = measurementRepository.getMeasurementResults(
 				measurement, 1);
 
 		PrintStream out = new PrintStream("events_"

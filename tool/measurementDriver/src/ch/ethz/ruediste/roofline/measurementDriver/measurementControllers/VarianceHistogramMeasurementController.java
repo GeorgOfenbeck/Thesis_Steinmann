@@ -11,9 +11,9 @@ import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.HistogramPlot;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
@@ -31,7 +31,7 @@ public class VarianceHistogramMeasurementController implements IMeasurementContr
 	}
 
 	@Inject
-	public MeasurementAppController measurementAppController;
+	public MeasurementRepository measurementRepository;
 
 	@Inject
 	public MeasurementCacheService measurementCacheService;
@@ -68,7 +68,7 @@ public class VarianceHistogramMeasurementController implements IMeasurementContr
 
 		// perform measurement
 		// measurementCacheService.deleteFromCache(measurement);
-		MeasurementResult result = measurementAppController.measure(
+		MeasurementResult result = measurementRepository.getMeasurementResults(
 				measurement, 100);
 
 		// create statistics

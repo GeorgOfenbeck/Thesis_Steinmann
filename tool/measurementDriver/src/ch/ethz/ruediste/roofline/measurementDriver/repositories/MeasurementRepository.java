@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.appControllers;
+package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
 import java.util.ArrayList;
 
@@ -13,7 +13,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.Inject;
 
-public class MeasurementAppController {
+public class MeasurementRepository {
 	public final static ConfigurationKey<Boolean> useCachedResultsKey = ConfigurationKey
 			.Create(Boolean.class, "useCachedResults",
 					"indicates if the cached results should be used", true);
@@ -27,7 +27,7 @@ public class MeasurementAppController {
 	@Inject
 	public Configuration configuration;
 
-	public MeasurementResult measure(MeasurementDescription measurement,
+	public MeasurementResult getMeasurementResults(MeasurementDescription measurement,
 			int numberOfMeasurements) {
 
 		ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
