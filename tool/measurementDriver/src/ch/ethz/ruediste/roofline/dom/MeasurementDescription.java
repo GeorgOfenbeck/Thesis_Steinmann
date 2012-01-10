@@ -4,16 +4,66 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 public class MeasurementDescription extends MeasurementDescriptionData {
+	public static final Axis<MeasurementSchemeDescriptionBase> measurementSchemeAxis = new Axis<MeasurementSchemeDescriptionBase>(
+			"scheme");
+	public static final Axis<KernelDescriptionBase> kernelAxis = new Axis<KernelDescriptionBase>(
+			"kernel");
+	public static final Axis<MeasurerDescriptionBase> measurerAxis = new Axis<MeasurerDescriptionBase>(
+			"axis");
+	public static final Axis<Long> bufferSizeAxis = new Axis<Long>(
+			"bufferSize",
+			(long) 1024 * 1024);
+
+	public static final Axis<Long> iterationsAxis = new Axis<Long>(
+			"iterations",
+			(long) 1024 * 1024);
+
+	public static final Axis<Integer> unrollAxis = new Axis<Integer>("unroll",
+			1);
+
+	public static final Axis<String> operationAxis = new Axis<String>(
+			"operation",
+			"ArithmeticOperation_ADD");
+
+	public static final Axis<String> optimizationAxis = new Axis<String>(
+			"optimization",
+			"-O3");
+
+	public MeasurementDescription() {
+	}
+
+	public MeasurementDescription(Coordinate coordinate) {
+		initialize(coordinate);
+	}
+
 	@Override
 	public String toString() {
 		return String.format("%s:%s:%s",
 				toString(getKernel()),
 				toString(getMeasurer()),
 				toString(getScheme())
-
 				);
+	}
+
+	public void initialize(Coordinate coordinate) {
+		setMeasurer(coordinate.get(measurerAxis));
+		if (getMeasurer() != null) {
+			getMeasurer().initialize(coordinate);
+		}
+
+		setScheme(coordinate.get(measurementSchemeAxis));
+		if (getScheme() != null) {
+			getScheme().initialize(coordinate);
+		}
+		setKernel(coordinate.get(kernelAxis));
+		if (getKernel() != null) {
+			getKernel().initialize(coordinate);
+		}
+
 	}
 
 	private String toString(Object o) {

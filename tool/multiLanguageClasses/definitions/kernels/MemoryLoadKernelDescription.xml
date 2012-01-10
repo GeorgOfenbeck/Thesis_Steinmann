@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="shared.xsd"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="MemoryLoadKernelDescription" 
 	baseType="KernelDescriptionBase"
+	javaSuffix="Data"
 	comment="Kernel just loading a memory block into memory">
   <field  name="bufferSize" type="long" comment="The size of the buffer to be loaded from memory"/>
 </derivedClass>

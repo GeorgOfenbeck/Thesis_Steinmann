@@ -9,6 +9,7 @@ import org.jmock.Expectations;
 import org.jmock.Sequence;
 import org.junit.Test;
 
+import ch.ethz.ruediste.roofline.dom.DummyKernelDescription;
 import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
@@ -43,7 +44,7 @@ public class MeasurementCacheTest extends TestBase {
 		// setup measurements
 		MeasurementDescription measurement1 = new MeasurementDescription();
 		MeasurementDescription measurement2 = new MeasurementDescription();
-		measurement2.setOptimization("foo");
+		measurement2.setKernel(new DummyKernelDescription());
 
 		// delete existing cache entry if present
 		service.deleteFromCache(measurement1);
@@ -93,7 +94,7 @@ public class MeasurementCacheTest extends TestBase {
 		MeasurementRepository controller = new MeasurementRepository();
 		controller.cacheService = cacheService;
 		controller.measurementService = measurementService;
-		controller.configuration=injector.getInstance(Configuration.class);
+		controller.configuration = injector.getInstance(Configuration.class);
 
 		final Sequence seq = context.sequence("sequence");
 

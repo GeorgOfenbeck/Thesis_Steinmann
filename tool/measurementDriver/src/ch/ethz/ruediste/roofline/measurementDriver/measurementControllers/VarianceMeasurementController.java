@@ -1,5 +1,10 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.bufferSizeAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.kernelAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.measurementSchemeAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.measurerAxis;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -10,17 +15,13 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.KBestMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MeasurementSchemeDescriptionBase;
-import ch.ethz.ruediste.roofline.dom.MeasurerDescriptionBase;
 import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
@@ -45,11 +46,6 @@ public class VarianceMeasurementController implements IMeasurementController {
 	public CommandService commandService;
 
 	public void measure(String outputName) throws IOException {
-		Axis<MeasurementSchemeDescriptionBase> measurementSchemeAxis = new Axis<MeasurementSchemeDescriptionBase>();
-		Axis<KernelDescriptionBase> kernelAxis = new Axis<KernelDescriptionBase>();
-		Axis<MeasurerDescriptionBase> measurerAxis = new Axis<MeasurerDescriptionBase>();
-		Axis<Long> bufferSizeAxis = new Axis<Long>();
-
 		ParameterSpace parameterSpace = new ParameterSpace();
 
 		// create schemes
@@ -80,7 +76,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 
 		// create output streams
 		HashMap<Coordinate, PrintStream> outputStreams = new HashMap<Coordinate, PrintStream>();
-		for (Coordinate coordinate : parameterSpace.project(
+		for (Coordinate coordinate : parameterSpace.getProjection(
 				measurementSchemeAxis,
 				measurerAxis)) {
 
@@ -97,11 +93,8 @@ public class VarianceMeasurementController implements IMeasurementController {
 		}
 
 		for (Coordinate coordinate : parameterSpace) {
-			MeasurementDescription measurement = new MeasurementDescription();
-			measurement.setKernel(coordinate.get(kernelAxis));
-			measurement.setMeasurer(coordinate.get(measurerAxis));
-			measurement.setScheme(coordinate.get(measurementSchemeAxis));
-			kernel.setBufferSize(coordinate.get(bufferSizeAxis));
+			MeasurementDescription measurement = new MeasurementDescription(
+					coordinate);
 
 			// perform measurement
 			MeasurementResult result = measurementRepository
@@ -122,7 +115,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 
 			// append to output
 			outputStreams.get(
-					coordinate.project(
+					coordinate.getProjection(
 							measurementSchemeAxis,
 							measurerAxis))
 					.printf("%d\t%e\t%e\t%e\t%e\t%e\n",

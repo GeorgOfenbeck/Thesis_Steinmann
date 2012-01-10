@@ -1,16 +1,25 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.iterationsAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.kernelAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.measurementSchemeAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.operationAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.optimizationAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.unrollAxis;
+
 import java.io.IOException;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
+import ch.ethz.ruediste.roofline.dom.ArithmeticSingleKernelDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
 import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
 import com.google.inject.Inject;
@@ -29,77 +38,61 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 	public MeasurementRepository measurementRepository;
 
 	public void measure(String outputName) throws IOException {
-		measure(outputName, 10000);
-		measure(outputName, 100000);
-	}
+		ParameterSpace space = new ParameterSpace();
+		space.add(iterationsAxis, 10000L);
+		space.add(iterationsAxis, 100000L);
 
-	private void measure(String outputName, int iterations) {
-		measure(outputName, iterations, "ArithmeticOperation_ADD");
-		// measure(outputName, iterations, "ArithmeticOperation_MUL");
-		// measure(outputName, iterations, "ArithmeticOperation_MULADD");
-	}
+		// space.add(kernelAxis, new ArithmeticKernelDescription());
+		space.add(kernelAxis, new ArithmeticSingleKernelDescription());
+		space.add(measurementSchemeAxis,
+				new SimpleMeasurementSchemeDescription());
 
-	private void measure(String outputName, int iterations, String operation) {
-		measure(outputName, iterations, operation, false);
-		measure(outputName, iterations, operation, true);
-	}
-
-	private void measure(String outputName, int iterations, String operation,
-			boolean use_sse) {
-		measure(outputName, iterations, operation, use_sse, 1);
-		measure(outputName, iterations, operation, use_sse, 2);
-		measure(outputName, iterations, operation, use_sse, 4);
-		// measure(outputName, iterations, operation, use_sse, 8);
-		// measure(outputName, iterations, operation, use_sse, 16);
-		// measure(outputName, iterations, operation, use_sse, 32);
-		// measure(outputName, iterations, operation, use_sse, 64);
-	}
-
-	private void measure(String outputName, int iterations, String operation,
-			boolean use_sse, int unroll) {
-
-		ArithmeticKernelDescription kernel = new
-				ArithmeticKernelDescription();
-		// ArithmeticSingleKernelDescription kernel = new
-		// ArithmeticSingleKernelDescription();
-		kernel.setIterations(iterations);
-		kernel.setUnroll(unroll);
-
-		PerfEventMeasurerDescription measurer = new
-				PerfEventMeasurerDescription();
-		measurer.addEvent("cycles",
-				"coreduo::UNHALTED_CORE_CYCLES");
-		// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE");
-		// "coreduo::FP_COMP_INSTR_RET");
-		// "coreduo::INSTR_RET");
-		// "coreduo::UNHALTED_REFERENCE_CYCLES");
-
-		// ExecutionTimeMeasurerDescription measurer = new
-		// ExecutionTimeMeasurerDescription();
-
-		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setKernel(kernel);
-		measurement.setScheme(new SimpleMeasurementSchemeDescription());
-		measurement.setMeasurer(measurer);
-
-		if (use_sse) {
-			kernel.setOptimization("-O3 -msse2");
-		}
-		else {
-			kernel.setOptimization("-O3");
+		{
+			space.add(MeasurementDescription.measurerAxis,
+					new PerfEventMeasurerDescription(
+							"cycles", "coreduo::UNHALTED_CORE_CYCLES"
+					// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE"
+					// "coreduo::FP_COMP_INSTR_RET"
+					// "coreduo::INSTR_RET"
+					// "coreduo::UNHALTED_REFERENCE_CYCLES"
+					));
 		}
 
-		kernel.setOperation(operation);
+		space.add(operationAxis, "ArithmeticOperation_ADD");
+		space.add(operationAxis, "ArithmeticOperation_MUL");
+		space.add(operationAxis, "ArithmeticOperation_MULADD");
 
-		MeasurementResult result = measurementRepository.getMeasurementResults(
-				measurement, 10);
-		DescriptiveStatistics statistics = PerfEventMeasurerOutput
-				.getStatistics("cycles", result);
-		// = ExecutionTimeMeasurerOutput.getStatistics(result);
+		space.add(optimizationAxis, "-O3 -msse2");
+		space.add(optimizationAxis, "-O3");
 
-		System.out.printf("%s %s %s %s: %g %g\n", operation, iterations,
-				unroll, use_sse ? "SSE" : "NoSSE",
-				statistics.getMin(),
-				statistics.getPercentile(50) / statistics.getMin());
+		space.add(unrollAxis, 1);
+		space.add(unrollAxis, 2);
+		space.add(unrollAxis, 4);
+		space.add(unrollAxis, 8);
+		space.add(unrollAxis, 16);
+		space.add(unrollAxis, 32);
+		space.add(unrollAxis, 64);
+
+		for (Coordinate coordinate : space.getAllPoints(space
+				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
+						unrollAxis, iterationsAxis
+				// ,operationAxis
+				))) {
+			MeasurementDescription measurement = new MeasurementDescription(
+					coordinate);
+
+			MeasurementResult result = measurementRepository
+					.getMeasurementResults(
+							measurement, 10);
+			DescriptiveStatistics statistics = PerfEventMeasurerOutput
+					.getStatistics("cycles", result);
+			// = ExecutionTimeMeasurerOutput.getStatistics(result);
+
+			System.out.printf("%s: %g %g\n",
+					coordinate.toString(operationAxis, iterationsAxis,
+							unrollAxis, optimizationAxis),
+					statistics.getMin(),
+					statistics.getPercentile(50) / statistics.getMin());
+		}
 	}
 }

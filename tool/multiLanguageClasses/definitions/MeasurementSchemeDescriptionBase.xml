@@ -5,6 +5,7 @@
 	name="MeasurementSchemeDescriptionBase" 
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType="MacroDefinitionContainer"
+	javaSuffix="Data"
 	comment="Describes a Measurement Scheme">
 	
 	<field name="warmCaches" type="bool" comment="if true, warm caches, if false, clear caches before running the kernel"/>

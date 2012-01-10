@@ -5,6 +5,7 @@
 	name="MeasurerDescriptionBase" 
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType="MacroDefinitionContainer"
+	javaSuffix="Data"
 	comment="Describes a Measurer">
 	
 </class>

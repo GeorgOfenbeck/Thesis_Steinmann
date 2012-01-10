@@ -3,7 +3,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="ArithmeticSingleKernelDescription" 
-	baseType="KernelDescriptionBase"
+	baseType="ArithmeticKernelDescription"
+	javaSuffix="Data"
 	comment="Kernel doing single precision artithmetic operations"> 
 	<field name="iterations" type="long" comment="number of times the operation is performed"/>
 	<field name="unroll" type="int" comment="number of results to be computed"/>

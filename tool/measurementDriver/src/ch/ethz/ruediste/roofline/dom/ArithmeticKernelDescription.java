@@ -1,6 +1,7 @@
 package ch.ethz.ruediste.roofline.dom;
 
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 public class ArithmeticKernelDescription extends
 		ArithmeticKernelDescriptionData {
@@ -19,5 +20,13 @@ public class ArithmeticKernelDescription extends
 
 	public void setOperation(String operation) {
 		setMacroDefinition(operationMacro, operation);
+	}
+
+	@Override
+	public void initialize(Coordinate coordinate) {
+		super.initialize(coordinate);
+		setIterations(coordinate.get(MeasurementDescription.iterationsAxis));
+		setOperation(coordinate.get(MeasurementDescription.operationAxis));
+		setUnroll(coordinate.get(MeasurementDescription.unrollAxis));
 	}
 }
