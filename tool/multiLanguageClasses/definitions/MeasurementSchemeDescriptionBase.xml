@@ -4,7 +4,7 @@
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="MeasurementSchemeDescriptionBase" 
 	cBaseType="MultiLanguageObjectBase"
-	javaBaseType=""
+	javaBaseType="MacroDefinitionContainer"
 	comment="Describes a Measurement Scheme">
 	
 	<field name="warmCaches" type="bool" comment="if true, warm caches, if false, clear caches before running the kernel"/>

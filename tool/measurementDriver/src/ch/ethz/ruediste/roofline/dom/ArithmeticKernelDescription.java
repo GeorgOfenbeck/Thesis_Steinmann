@@ -8,9 +8,16 @@ public class ArithmeticKernelDescription extends
 	/**
 	 * name of the operation to be used
 	 */
-	public static final MacroKey operationMacro = MacroKey.Create(
+	private static final MacroKey operationMacro = MacroKey.Create(
 			"RMT_ARITHMETIC_OPERATION",
 			"specifies the arithmetic operation to be used",
 			"ArithmeticOperation_ADD");
 
+	public String getOperation() {
+		return getMacroDefinition(operationMacro);
+	}
+
+	public void setOperation(String operation) {
+		setMacroDefinition(operationMacro, operation);
+	}
 }

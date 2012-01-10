@@ -55,6 +55,7 @@ public class RawDataMeasurementController implements IMeasurementController {
 		ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 		kernel.setIterations(100000);
 		kernel.setUnroll(2);
+		kernel.setOperation("ArithmeticOperation_ADD");
 		kernel.setOptimization("-O3 -msse -msse2 -msse3");
 
 		// create measurers
@@ -64,9 +65,6 @@ public class RawDataMeasurementController implements IMeasurementController {
 
 		// measurement
 		MeasurementDescription measurement = new MeasurementDescription();
-
-		measurement.addMacro(ArithmeticKernelDescription.operationMacro,
-				"ArithmeticOperation_ADD");
 		measurement.setKernel(kernel);
 		measurement.setScheme(simpleScheme);
 		measurement.setMeasurer(perfEventMeasurer);

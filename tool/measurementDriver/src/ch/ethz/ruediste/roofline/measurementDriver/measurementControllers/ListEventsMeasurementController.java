@@ -45,15 +45,12 @@ public class ListEventsMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		// list all available performance counters
 		ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
+		measurer.setArchitecture(configuration.get(architectureKey));
 
 		MeasurementDescription measurement = new MeasurementDescription();
 		measurement.setKernel(new DummyKernelDescription());
 		measurement.setMeasurer(measurer);
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
-
-		measurement.addMacro(
-				ListEventsMeasurerDescription.architectureMacro,
-				configuration.get(architectureKey));
 
 		MeasurementResult result = measurementRepository.getMeasurementResults(
 				measurement, 1);

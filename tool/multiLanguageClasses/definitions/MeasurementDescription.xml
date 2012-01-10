@@ -4,13 +4,11 @@
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="MeasurementDescription" 
 	cBaseType="MultiLanguageObjectBase"
-	javaBaseType=""
+	javaBaseType="MacroDefinitionContainer"
 	javaSuffix="Data"
 	comment="Describes a Measurement">
 	
 	<field name="scheme" type="MeasurementSchemeDescriptionBase" comment="describes the measurement scheme to be used"/>
 	<field name="kernel" type="KernelDescriptionBase" comment="describes the kernel to be used"/>
 	<field name="measurer" type="MeasurerDescriptionBase" comment="describes the measurer to be used"/>
-
-	<list name="macros" type="PreprocessorMacro" comment="macro definitions to be used for this measurement"/>
 </class>

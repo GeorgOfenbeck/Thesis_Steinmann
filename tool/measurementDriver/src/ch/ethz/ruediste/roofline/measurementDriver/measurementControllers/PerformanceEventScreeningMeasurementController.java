@@ -51,13 +51,11 @@ public class PerformanceEventScreeningMeasurementController implements
 		{
 			MeasurementDescription measurement = new MeasurementDescription();
 			measurement.setKernel(new DummyKernelDescription());
-			measurement.setMeasurer(new ListEventsMeasurerDescription());
+			ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
+			measurer.setArchitecture(configuration
+					.get(ListEventsMeasurementController.architectureKey));
+			measurement.setMeasurer(measurer);
 			measurement.setScheme(new SimpleMeasurementSchemeDescription());
-			measurement
-					.addMacro(
-							ListEventsMeasurerDescription.architectureMacro,
-							configuration
-									.get(ListEventsMeasurementController.architectureKey));
 
 			result = measurementRepository
 					.getMeasurementResults(measurement, 1);
@@ -122,6 +120,7 @@ public class PerformanceEventScreeningMeasurementController implements
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 			kernel.setIterations(1024 * 1024);
 			kernel.setUnroll(8);
+			kernel.setOperation("ArithmeticOperation_ADD");
 			kernels.add(Pair.of((KernelDescriptionBase) kernel,
 					"Arithmetic " + kernel.getIterations()));
 		}
@@ -146,8 +145,6 @@ public class PerformanceEventScreeningMeasurementController implements
 			measurement.setScheme(new SimpleMeasurementSchemeDescription());
 			measurement.setKernel(pair.getLeft());
 			measurement.setMeasurer(measurer);
-			measurement.addMacro(ArithmeticKernelDescription.operationMacro,
-					"ArithmeticOperation_ADD");
 
 			MeasurementResult result = null;
 			try {

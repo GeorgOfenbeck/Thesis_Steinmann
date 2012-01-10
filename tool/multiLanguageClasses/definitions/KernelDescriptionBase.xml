@@ -4,7 +4,7 @@
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="KernelDescriptionBase" 
 	cBaseType="MultiLanguageObjectBase"
-	javaBaseType=""
+	javaBaseType="MacroDefinitionContainer"
 	comment="Describes a Kernel">
 	
 	<field name="optimization" type="string" comment="optimization flags to be used for compiling the kernel"/>

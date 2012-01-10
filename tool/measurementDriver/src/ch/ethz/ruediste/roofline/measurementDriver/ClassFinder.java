@@ -207,6 +207,8 @@ public class ClassFinder {
 				{
 					// the field contains a configuration key
 					try {
+						field.setAccessible(true);
+
 						// retrieve the configuration key object
 						@SuppressWarnings("unchecked")
 						T key = (T) field

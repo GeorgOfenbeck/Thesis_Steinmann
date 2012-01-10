@@ -89,8 +89,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 			kernel.setOptimization("-O3");
 		}
 
-		measurement.addMacro(ArithmeticKernelDescription.operationMacro,
-				operation);
+		kernel.setOperation(operation);
 
 		MeasurementResult result = measurementRepository.getMeasurementResults(
 				measurement, 10);
