@@ -2,14 +2,9 @@ package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
 import java.util.ArrayList;
 
-import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MeasurerOutputBase;
-import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
-import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
-import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
+import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.*;
+import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 import com.google.inject.Inject;
 
@@ -27,7 +22,13 @@ public class MeasurementRepository {
 	@Inject
 	public Configuration configuration;
 
-	public MeasurementResult getMeasurementResults(MeasurementDescription measurement,
+	/**
+	 * Return the specified number of measurement results of the specified
+	 * measurement. If available, cached values are reused. Otherwise the
+	 * measuring core is started
+	 */
+	public MeasurementResult getMeasurementResults(
+			MeasurementDescription measurement,
 			int numberOfMeasurements) {
 
 		ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();

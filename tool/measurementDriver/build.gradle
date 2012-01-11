@@ -78,7 +78,7 @@ jar {
     }
 }
 
-// make sure multi language classes are built before the measurement driver
+// make sure multi language classes are generated before the measurement driver
 compileJava.dependsOn ':multiLanguageCodeGenerator:generateMultiLanguageClasses'
 
 // create a runnable jar file for the measuringDriver

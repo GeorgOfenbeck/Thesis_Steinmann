@@ -1,17 +1,10 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.io.*;
+import java.security.*;
 
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
+import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.*;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -31,6 +24,9 @@ public class MeasurementCacheService {
 					"Algorithm used to build the hash keys in the measurement cache",
 					"MD5");
 
+	/**
+	 * Output stream discarding everything
+	 */
 	private class NullOutputStream extends OutputStream {
 
 		@Override

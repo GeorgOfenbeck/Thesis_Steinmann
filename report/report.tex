@@ -225,7 +225,7 @@ The configuration is used to set various flags in the measurement driver.
 \end{itemize}
 
 \subsection{Measurement Driver}
-It was tried to follow best engineering practices for the design of the measurement driver. Unit tests (junit), mocks (jmock), and dependency injection  (guice) are used. Furthermore, a domain model (DOM), controllers and stateless services are used as described in \cite{evans2004domain}. Describing all these concepts lies beyond the scope of this report. It is assumed that the reader has a basic understanding of the named concepts.
+It was tried to follow best engineering practices for the design of the measurement driver. Unit tests (junit), mocks (jmock), and dependency injection  (guice) are used. Furthermore, a domain model (DOM), controllers, repositories and stateless services are used as described in \cite{evans2004domain}. Describing all these concepts lies beyond the scope of this report. It is assumed that the reader has a basic understanding of the named concepts.
 
 \subsubsection{Commands}
 A command is represented by a class deriving from ICommandController and should be placed in the commands package. A command has a name and a description, which should be the return value of the getName() respectivley getDescription() methods of the command. The measurement driver expects a command name as first argument. The name is matched against the names of all available commands. If a command matches, the execute() method of a new instance of the corresponding class is called with the remaining command line arguments as parameter.
@@ -272,6 +272,22 @@ In the measurement driver, each macro is identified by a macro key, which contai
 When the measuring core is configured to perform a measurement, the macro keys are collected from the classes of the measurement driver using reflection. Then the macro definitions are extracted from the measurement definition and referenced objects. If no definition is given for a macro, the default definition found in the macro key is used. If contradicting definitions are found, an error is raised.
 
 \umlDiagram{MacroDefinitions}
+
+\subsubsection{Measurement Controllers}
+The operation of the measurement driver is controlled by the measurement controllers. They define which measurements to perform and how to process the output. The measure command instantiates a measurement controller and calls the measure() method.
+
+\subsubsection{Measurement Result Caching}
+The measurement controllers mix the definition of the measurement parameters and the processing of the output. Thus, if the output processing logic needs to be modified, the measurements have to be performed again. This causes a delay, which is avoided by cachin the measurement results. 
+
+All parameters of a measurement are contained within the measurement description and the referenced objects. Therefore, if the measurement description is identical to a measurement description of a previous measurement, the result of the previous measurement can be reused. 
+
+The cache mechanism works using a hash function on the XML representation of the measurement description. After a measurement has been performed, a file named after the hash value of the measurement desciption of the measurement is created and the measurement results are stored therein. Before a measurement is performed, the hash value is computed. If a corresponding file is found, the previous measurement results are reused.
+
+\subsubsection{Parameter Space}
+
+\subsubsection{Auto Completion}
+
+\subsubsection{Plotting}
 
 \subsection{Measuring Core}
 \umlFloat{CentralClasses}{Central classes of the measuring core}

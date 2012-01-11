@@ -1,24 +1,14 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.iterationsAxis;
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.kernelAxis;
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.measurementSchemeAxis;
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.operationAxis;
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.optimizationAxis;
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.unrollAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.*;
 
 import java.io.IOException;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.dom.ArithmeticSingleKernelDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
