@@ -1,22 +1,10 @@
 package ch.ethz.ruediste.roofline.frontend;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
-import org.apache.commons.configuration.CombinedConfiguration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.configuration.*;
+import org.apache.commons.exec.*;
 
 public class Main {
 	private static final String classPathKey = "classPath";
@@ -26,6 +14,7 @@ public class Main {
 	private static final String showBuildOutputKey = "showBuildOutput";
 	private static final String cleanKey = "clean";
 	private static final String restartGradleDaemonKey = "restartGradleDaemon";
+	private static final String userConfigFileKey = "userConfigFile";
 
 	private static CombinedConfiguration configuration;
 	private static boolean showHelp = false;
@@ -43,7 +32,7 @@ public class Main {
 			Collections.addAll(argList, args);
 
 			// execute the measurement Driver
-			execute(argList);
+			startMeasurementDriver(argList);
 
 			// exit
 			return;
@@ -81,13 +70,15 @@ public class Main {
 
 		System.out.println("starting tool");
 
-		execute(unhandledParameters);
+		startMeasurementDriver(unhandledParameters);
 	}
 
+	/**
+	 * parse the command line and setup the configuration
+	 * 
+	 */
 	private static List<String> setupConfiguration(String args[]) {
 		List<String> unhandledParameters = new ArrayList<String>();
-
-		configuration = new CombinedConfiguration();
 
 		Map<String, String> map = new HashMap<String, String>();
 		// parse command line
@@ -128,11 +119,19 @@ public class Main {
 				continue;
 			}
 
+			if (args[parameterNumber].startsWith("-ucf")) {
+				if (!args[parameterNumber].startsWith("-ucf=")) {
+					throw new Error("expected -ucf=<user config file>");
+				}
+				map.put(userConfigFileKey,
+						args[parameterNumber].substring("-ucf=".length()));
+				continue;
+			}
+
 			// the parameter has not been hadled, add it to the unhandled
 			// parameters
 			unhandledParameters.add(args[parameterNumber]);
 		}
-		configuration.addConfiguration(new MapConfiguration(map));
 
 		// load default configuration compiled into jar
 		PropertiesConfiguration defaultConfiguration = new PropertiesConfiguration();
@@ -143,12 +142,51 @@ public class Main {
 		} catch (ConfigurationException e) {
 			throw new Error(e);
 		}
+
+		// load user configuration
+		PropertiesConfiguration userConfiguration = new PropertiesConfiguration();
+
+		// get the file name of the user configuration from the configuration
+		String userConfigFileName = null;
+		if (defaultConfiguration.containsKey(userConfigFileKey))
+			userConfigFileName = defaultConfiguration
+					.getString(userConfigFileKey);
+		if (map.containsKey(userConfigFileKey))
+			userConfigFileName = map.get(userConfigFileKey);
+		if (userConfigFileName != null) {
+			// replace a starting tilde with the user home directory
+			if (userConfigFileName.startsWith("~")) {
+				userConfigFileName = System.getProperty("user.home")
+						+ userConfigFileName.substring(1);
+			}
+
+			// check if the user configuration file exists
+			File userConfigFile = new File(userConfigFileName);
+			if (userConfigFile.exists() && userConfigFile.isFile()) {
+				try {
+					// load the user configuration file
+					userConfiguration.load(userConfigFile);
+				} catch (ConfigurationException e) {
+					throw new Error(e);
+				}
+
+			}
+		}
+
+		// setup the combined configuration
+		configuration = new CombinedConfiguration();
+
+		configuration.addConfiguration(new MapConfiguration(map));
+		configuration.addConfiguration(userConfiguration);
 		configuration.addConfiguration(defaultConfiguration);
 
 		return unhandledParameters;
 	}
 
-	private static void execute(List<String> args)
+	/**
+	 * start the measuremend driver
+	 */
+	private static void startMeasurementDriver(List<String> args)
 			throws ExecuteException, IOException {
 		// setup command line
 		CommandLine cmdLine = new CommandLine("java");
@@ -174,6 +212,9 @@ public class Main {
 		}
 	}
 
+	/**
+	 * restart the gradle daemon
+	 */
 	private static void restartGradleDaemon() throws ExecuteException,
 			IOException {
 		// setup command line
@@ -192,6 +233,9 @@ public class Main {
 		executor.execute(cmdLine);
 	}
 
+	/**
+	 * build the measurement driver
+	 */
 	private static void build() throws ExecuteException, IOException {
 		// setup command line
 		CommandLine cmdLine = new CommandLine("./gradlew");

@@ -1,15 +1,9 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
-import org.apache.commons.configuration.CombinedConfiguration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.MapConfiguration;
-import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -69,7 +63,7 @@ public class Configuration {
 
 		// check if the user configuration file exists
 		File userConfigFile = new File(userConfigFileString);
-		if (userConfigFile.exists()) {
+		if (userConfigFile.exists() && userConfigFile.isFile()) {
 
 			try {
 				// load the user configuration file
