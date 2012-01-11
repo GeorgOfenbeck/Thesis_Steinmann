@@ -79,18 +79,12 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 	}
 
 	/**
-	 * return the definition of the macro identified by key. If the macro was
+	 * Return the definition of the macro identified by key. If the macro was
 	 * not defined in this measurement description, return the default
-	 * definition.
+	 * definition. If contradicting definitions are found, raise an error
 	 */
 	public String getMacroDefinition(MacroKey key) {
 		List<String> availableDefinitions = new ArrayList<String>();
-
-		// add the macro definition if it is defined on the measurement
-		// description
-		if (isMacroDefined(key)) {
-			availableDefinitions.add(super.getMacroDefinition(key));
-		}
 
 		// check the kernel for a definition
 		if (getKernel() != null && getKernel().isMacroDefined(key)) {
