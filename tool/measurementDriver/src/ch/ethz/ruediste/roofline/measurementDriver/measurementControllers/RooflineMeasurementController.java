@@ -47,17 +47,38 @@ public class RooflineMeasurementController implements IMeasurementController {
 
 		{
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(1024 * 10);
+			kernel.setIterations(10000);
 			kernel.setOptimization("-O3");
 			kernel.setUnroll(4);
+			kernel.setOperation("ArithmeticOperation_MULADD");
 			plot.addPeakPerformance(rooflineService.getPerformance(
-					"Arithmetic", kernel));
+					"Balanced", kernel));
+		}
+
+		{
+			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+			kernel.setIterations(10000);
+			kernel.setOptimization("-O3");
+			kernel.setUnroll(4);
+			kernel.setOperation("ArithmeticOperation_ADD");
+			plot.addPeakPerformance(rooflineService.getPerformance(
+					"Additions", kernel));
+		}
+
+		{
+			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+			kernel.setIterations(10000);
+			kernel.setOptimization("-O3");
+			kernel.setUnroll(4);
+			kernel.setOperation("ArithmeticOperation_MUL");
+			plot.addPeakPerformance(rooflineService.getPerformance(
+					"Multiplications", kernel));
 		}
 
 		{
 			TriadKernelDescription kernel = new TriadKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 2);
-			kernel.setOptimization("-O3");
+			kernel.setOptimization("-O3 -msse2");
 			plot.addPoint(rooflineService.getRooflinePoint("Triad", kernel));
 		}
 
