@@ -159,6 +159,8 @@ A normal class has a C and a Java base type. The C base type has to directly or 
 
 A derived class names another multi language class as base type. The C and Java base types are set to that class. The fields of the base class are included in the serialization process. If just the C and Java base types would be set to the multi language class used as base class, the generated class would still derive from the base class, but the fields of the base class would not be included in the serialization process.
 
+Often it is necessary to mix hand written code with the generated code. To support this, a suffix can be specified, which is added to the name of the generated class. Only the name of the generated class is affected, not the type name used for references to the class. A class named without the specified suffix has to be provided manually, and should derive from the generated class. Any additional code as well as additional fields can be included in the hand written class.
+
 The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Measurement Driver project. The generated C code is linked by the Measuring Core. The following Diagram shows these dependencies:
 
 \umlDiagram{CodeGenerationDependencies}
@@ -265,7 +267,11 @@ Finally, the flag definitions with lowest precedence are the default values give
 \subsubsection{Preporcessor Macros}
 Preprocessor macros are used to allow flexible compile time parameterization of the measuring core. The macros are defined by the measurement driver. Before the compilation of the measuring core, the measurement driver writes the definition of each macro to a separate include file. This allows the build system to track macro definition changes for and to recompile only the required parts.
 
-In the measurement driver, each macro is identified by a macro key, which contains the macro name, a description and the default value. Macro keys should be declared in public static variables. Macro definitions are associated with a measurement definition. If no definition is given for a macro, the default definition found in the macro key is used.
+In the measurement driver, each macro is identified by a macro key, which contains the macro name, a description and the default value. The macro definitions are stored in classes deriving from MacroDefinitionContainer. The classes should define macro keys by placing them in private static variables. To access the macro definition, getters and setters have to be provided. 
+
+When the measuring core is configured to perform a measurement, the macro keys are collected from the classes of the measurement driver using reflection. Then the macro definitions are extracted from the measurement definition and referenced objects. If no definition is given for a macro, the default definition found in the macro key is used. If contradicting definitions are found, an error is raised.
+
+\umlDiagram{MacroDefinitions}
 
 \subsection{Measuring Core}
 \umlFloat{CentralClasses}{Central classes of the measuring core}
