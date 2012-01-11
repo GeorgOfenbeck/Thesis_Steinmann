@@ -8,6 +8,7 @@ clean:
 quick: 
 	cd out &&\
 	pdflatex ../report.tex
+	cp out/report.pdf report.pdf
 
 out/uml/timestamp: ../masterthesis.uml
 	rm -rf out/uml
