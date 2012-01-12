@@ -72,6 +72,9 @@ public class Configuration {
 				throw new Error(e);
 			}
 
+			// check if the configuration is still valid after loading the user
+			// configuration
+			checkConfiguration();
 		}
 	}
 
@@ -80,13 +83,15 @@ public class Configuration {
 	 * key
 	 */
 	public void checkConfiguration() throws Error {
-		// check if all configuration properties found correspond to a
-		// configuration key
-		Iterator<?> it = combinedConfiguration.getKeys();
-
+		// find all declared configuration keys
 		Map<String, ConfigurationKeyBase> configurationKeyMap = getConfigurationKeyMap("ch.ethz.ruediste.roofline.measurementDriver");
+
+		// iterate over all defined configuration flags
+		Iterator<?> it = combinedConfiguration.getKeys();
 		while (it.hasNext()) {
+
 			Object key = it.next();
+			System.out.println("found flag " + key);
 			if (!configurationKeyMap.containsKey(key)) {
 				String availableKeys = StringUtils.join(
 						configurationKeyMap.keySet(), "\n");
@@ -144,8 +149,7 @@ public class Configuration {
 			String packageName) {
 		HashMap<String, ConfigurationKeyBase> map = new HashMap<String, ConfigurationKeyBase>();
 		for (Pair<Class<?>, ConfigurationKeyBase> pair : ClassFinder
-				.getStaticFieldValues(
-						ConfigurationKeyBase.class, packageName)) {
+				.getStaticFieldValues(ConfigurationKeyBase.class, packageName)) {
 			map.put(pair.getRight().getKey(), pair.getRight());
 		}
 		return map;
