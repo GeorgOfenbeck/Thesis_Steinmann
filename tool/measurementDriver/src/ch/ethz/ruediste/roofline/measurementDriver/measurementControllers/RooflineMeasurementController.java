@@ -6,6 +6,7 @@ import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
 import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
 import ch.ethz.ruediste.roofline.dom.TriadKernelDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.Performance;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.RooflinePlot;
 import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 import ch.ethz.ruediste.roofline.measurementDriver.services.RooflineService;
@@ -45,20 +46,25 @@ public class RooflineMeasurementController implements IMeasurementController {
 					kernel));
 		}
 
+		String optimization = "-O3 -mtune=core2";
+		
 		{
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(10000);
-			kernel.setOptimization("-O3");
-			kernel.setUnroll(4);
+			kernel.setIterations(1000000);
+			kernel.setOptimization(optimization);
+			kernel.setUnroll(3);
 			kernel.setOperation("ArithmeticOperation_MULADD");
-			plot.addPeakPerformance(rooflineService.getPerformance(
-					"Balanced", kernel));
+			Performance performance = rooflineService.getPerformance(
+					"Balanced", kernel);
+			plot.addPeakPerformance(performance);
+			plot.addPeakPerformance(new Performance("thBal",kernel.getIterations()*kernel.getUnroll()*3, performance.getTime()));
 		}
 
 		{
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(10000);
-			kernel.setOptimization("-O3");
+			kernel.setIterations(1000000);
+			
+			kernel.setOptimization(optimization);
 			kernel.setUnroll(4);
 			kernel.setOperation("ArithmeticOperation_ADD");
 			plot.addPeakPerformance(rooflineService.getPerformance(
@@ -67,8 +73,8 @@ public class RooflineMeasurementController implements IMeasurementController {
 
 		{
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(10000);
-			kernel.setOptimization("-O3");
+			kernel.setIterations(1000000);
+			kernel.setOptimization(optimization);
 			kernel.setUnroll(4);
 			kernel.setOperation("ArithmeticOperation_MUL");
 			plot.addPeakPerformance(rooflineService.getPerformance(

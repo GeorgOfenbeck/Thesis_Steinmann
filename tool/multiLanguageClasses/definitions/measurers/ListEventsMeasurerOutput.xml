@@ -7,6 +7,5 @@
 	javaBaseType="MeasurerOutputBase"
 	comment="result of the list events measurer">
 	
-	<list name="events" type="PerfEventDescription" comment="list of the available events"/>
-	<field name="pmuName" type="string" comment="name of the PMU"/>
+	<list name="pmus" type="PmuDescription" comment="list of the available PMUs"/>
 </class>

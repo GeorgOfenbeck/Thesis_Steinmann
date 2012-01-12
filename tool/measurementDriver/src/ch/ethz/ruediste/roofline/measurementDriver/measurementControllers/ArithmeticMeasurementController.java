@@ -29,18 +29,18 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		ParameterSpace space = new ParameterSpace();
-		space.add(iterationsAxis, 10000L);
+		//space.add(iterationsAxis, 10000L);
 		space.add(iterationsAxis, 100000L);
 
-		// space.add(kernelAxis, new ArithmeticKernelDescription());
-		space.add(kernelAxis, new ArithmeticSingleKernelDescription());
+		 space.add(kernelAxis, new ArithmeticKernelDescription());
+		//space.add(kernelAxis, new ArithmeticSingleKernelDescription());
 		space.add(measurementSchemeAxis,
 				new SimpleMeasurementSchemeDescription());
 
 		{
 			space.add(MeasurementDescription.measurerAxis,
 					new PerfEventMeasurerDescription(
-							"cycles", "coreduo::UNHALTED_CORE_CYCLES"
+							"cycles", "core::UNHALTED_CORE_CYCLES"
 					// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE"
 					// "coreduo::FP_COMP_INSTR_RET"
 					// "coreduo::INSTR_RET"
@@ -48,20 +48,20 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 					));
 		}
 
-		space.add(operationAxis, "ArithmeticOperation_ADD");
-		space.add(operationAxis, "ArithmeticOperation_MUL");
+		//space.add(operationAxis, "ArithmeticOperation_ADD");
+		//space.add(operationAxis, "ArithmeticOperation_MUL");
 		space.add(operationAxis, "ArithmeticOperation_MULADD");
 
-		space.add(optimizationAxis, "-O3 -msse2");
 		space.add(optimizationAxis, "-O3");
+		//space.add(optimizationAxis, "-O3");
 
-		space.add(unrollAxis, 1);
-		space.add(unrollAxis, 2);
-		space.add(unrollAxis, 4);
-		space.add(unrollAxis, 8);
-		space.add(unrollAxis, 16);
-		space.add(unrollAxis, 32);
-		space.add(unrollAxis, 64);
+		//space.add(unrollAxis, 1);
+		//space.add(unrollAxis, 2);
+		space.add(unrollAxis, 3);
+		//space.add(unrollAxis, 8);
+		//space.add(unrollAxis, 16);
+		//space.add(unrollAxis, 32);
+		//space.add(unrollAxis, 64);
 
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,

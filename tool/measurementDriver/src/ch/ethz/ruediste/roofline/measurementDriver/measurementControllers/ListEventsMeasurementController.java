@@ -11,6 +11,7 @@ import ch.ethz.ruediste.roofline.dom.MeasurementResult;
 import ch.ethz.ruediste.roofline.dom.MeasurerOutputBase;
 import ch.ethz.ruediste.roofline.dom.PerfEventAttributeDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventDescription;
+import ch.ethz.ruediste.roofline.dom.PmuDescription;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
@@ -20,20 +21,12 @@ import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepos
 import com.google.inject.Inject;
 
 public class ListEventsMeasurementController implements IMeasurementController {
-
-	public static ConfigurationKey<String> architectureKey = ConfigurationKey
-			.Create(
-					String.class,
-					"eventArchitecture",
-					"performance event architecture to list events for. see pfmlib.h for a list",
-					"PFM_PMU_PERF_EVENT");
-
 	public String getName() {
 		return "listEvents";
 	}
 
 	public String getDescription() {
-		return "lists all events of a given architecture";
+		return "lists all events avaiable on the machine";
 	}
 
 	@Inject
@@ -45,7 +38,6 @@ public class ListEventsMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		// list all available performance counters
 		ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
-		measurer.setArchitecture(configuration.get(architectureKey));
 
 		MeasurementDescription measurement = new MeasurementDescription();
 		measurement.setKernel(new DummyKernelDescription());
@@ -55,25 +47,33 @@ public class ListEventsMeasurementController implements IMeasurementController {
 		MeasurementResult result = measurementRepository.getMeasurementResults(
 				measurement, 1);
 
-		PrintStream out = new PrintStream("events_"
-				+ configuration.get(architectureKey) + ".txt");
-		for (MeasurerOutputBase outputBase : result.getOutputs()) {
-			ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) outputBase;
+		ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) result
+				.getOutputs().get(0);
 
-			for (PerfEventDescription event : output.getEvents()) {
-				out.printf("%s::%s\n%s\n", output.getPmuName(),
-						event.getName(), event.getDescription());
+		for (PmuDescription pmu : output.getPmus()) {
+			if (!pmu.getIsPresent())
+				continue;
+			
+			if (!pmu.getIsDefaultPmu()){
+				System.out.println("The default PMU is "+pmu.getPmuName());
+			}
+
+			PrintStream out = new PrintStream("events_" + pmu.getPmuName()
+					+ ".txt");
+
+			for (PerfEventDescription event : pmu.getEvents()) {
+				out.printf("%s::%s\n%s\n", pmu.getPmuName(), event.getName(),
+						event.getDescription());
 
 				for (PerfEventAttributeDescription attribute : event
 						.getAttributes()) {
 					out.printf("  %s %s: %s\n", attribute.getAttributeType(),
-							attribute.getName(),
-							attribute.getDescription());
+							attribute.getName(), attribute.getDescription());
 				}
 				out.println();
 			}
-		}
-		out.close();
-	}
 
+			out.close();
+		}
+	}
 }
