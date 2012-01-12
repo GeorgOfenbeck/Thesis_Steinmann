@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.CodeGeneratorBase;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.Utility;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageFieldBase;
 
@@ -18,7 +19,11 @@ public class CCodeGenerator extends CodeGeneratorBase {
 		// clear output directory
 		{
 			File outputDirectory = new File("generatedC");
-			outputDirectory.delete();
+			System.out.println("output directory is "
+					+ outputDirectory.getAbsolutePath());
+			if (outputDirectory.exists()) {
+				Utility.deleteDirectory(outputDirectory);
+			}
 		}
 
 		// generate java code for all classes
@@ -27,8 +32,7 @@ public class CCodeGenerator extends CodeGeneratorBase {
 			VelocityContext context = new VelocityContext();
 			context.put("class", multiLanguageClass);
 			String outputFileName = "generatedC/"
-					+ multiLanguageClass.getName()
-					+ ".h";
+					+ multiLanguageClass.getName() + ".h";
 			String templateName = "cTemplate.vm";
 
 			// collect all referenced classes
@@ -38,8 +42,7 @@ public class CCodeGenerator extends CodeGeneratorBase {
 
 				if (baseType.equals("MultiLanguageObjectBase")) {
 					referencedClasses.add("sharedDOM/" + baseType);
-				}
-				else {
+				} else {
 					referencedClasses.add(baseType);
 				}
 			}

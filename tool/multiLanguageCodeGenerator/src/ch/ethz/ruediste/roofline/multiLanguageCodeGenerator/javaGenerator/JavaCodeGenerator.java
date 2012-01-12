@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.velocity.VelocityContext;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.CodeGeneratorBase;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.Utility;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
 
 /** Generates Java for a list of multi language classes */
@@ -18,9 +19,11 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 	public void generate(List<MultiLanguageClassBase> multiLanguageClasses) {
 		// clear output directory
 		{
-			File outputDirectory = new File("generatedjava");
-			// TODO: does not work
-			outputDirectory.delete();
+			File outputDirectory = new File("generatedJava");
+			System.out.println("output directory is "+outputDirectory.getAbsolutePath());
+			if (outputDirectory.exists()) {
+				Utility.deleteDirectory(outputDirectory);
+			}
 		}
 
 		// generate java code for all classes
