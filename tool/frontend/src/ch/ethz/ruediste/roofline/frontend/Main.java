@@ -7,13 +7,51 @@ import org.apache.commons.configuration.*;
 import org.apache.commons.exec.*;
 
 public class Main {
+	/*
+	 * Configuration keys
+	 */
+
+	/**
+	 * class path to be used to start the measurement driver
+	 */
 	private static final String classPathKey = "classPath";
+
+	/**
+	 * path of the tool, used for building
+	 */
 	private static final String toolPathKey = "toolPath";
+
+	/**
+	 * flag indicating if the measurement driver should be built before starting
+	 * it
+	 */
 	private static final String buildKey = "doBuild";
+
+	/**
+	 * flag indicating if the gradle build daemon should be used
+	 */
 	private static final String useDaemonKey = "useDaemon";
+
+	/**
+	 * flag indicating if the output of the build process should be shown on the
+	 * console
+	 */
 	private static final String showBuildOutputKey = "showBuildOutput";
+
+	/**
+	 * flag indicating if the measurement driver should be cleaned before
+	 * building it
+	 */
 	private static final String cleanKey = "clean";
+
+	/**
+	 * flag indicating if the gradle daemon should be restarted
+	 */
 	private static final String restartGradleDaemonKey = "restartGradleDaemon";
+
+	/**
+	 * location of the user configuration file
+	 */
 	private static final String userConfigFileKey = "userConfigFile";
 
 	private static CombinedConfiguration configuration;

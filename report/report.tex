@@ -225,6 +225,13 @@ The configuration is used to set various flags in the measurement driver.
 \end{itemize}
 
 \subsection{Frontend}
+The measurement tool is a console tool controlled using command line options. Measurement results are either directly dispalyed on the console, dumped to a data file or processed, usually for generating a graph. The graph is typically stored as a file. But unlike normal tools, the source code of the tool is expected to change frequently, and the user likely switches often between coding and using the tool.
+
+To support this usage pattern, the build process has been integrated into the normal tool operation. The frontend is used to first trigger the build process and then invoke the measurement driver. Otherwise, the user would have to keep to console windowses open, one for building and one for measuring, and not to forget building to see the changes made to the source code.
+
+After building, the frontend starts the the measurement driver, forwarding it's own command line. Certain flags are used to control the operation of the fronted. These are not forwarded.
+
+The frontend has a configuration system. The known configuration keys are defined at the top of the Main class. There are three configuration sources. The default configuration stored in a configuration file. It contains templates which are expanded during the build process. The result is included as resource in the generated JAR file. Flags of the default configuration can be overwritten using a user configuration file, which is located by default under "~/.roofline/frontendconfig". This location can be changed using a command line argument. Finally, the command line options known by the frontend are used to modify the configuration flags after they have been loaded. 
 
 \subsection{Measurement Driver}
 It was tried to follow best engineering practices for the design of the measurement driver. Unit tests (junit), mocks (jmock), and dependency injection  (guice) are used. Furthermore, a domain model (DOM), controllers, repositories and stateless services are used as described in \cite{evans2004domain}. Describing all these concepts lies beyond the scope of this report. It is assumed that the reader has a basic understanding of the named concepts.

@@ -1,21 +1,12 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang.StringUtils;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.Bandwidth;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.Histogram;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.HistogramPlot;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.Performance;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.RooflinePlot;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.RooflinePoint;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 
 import com.google.inject.Inject;
 
@@ -115,7 +106,7 @@ public class PlotService {
 
 			output.println("set log x");
 			output.println("set log y");
-			output.println("set xrange [0.001:1]");
+			output.println("set xrange [0.01:1]");
 			output.printf("set xlabel '%s [%s]'\n", plot.getxLabel(),
 					plot.getxUnit());
 			output.printf("set ylabel '%s [%s]'\n", plot.getyLabel(),
