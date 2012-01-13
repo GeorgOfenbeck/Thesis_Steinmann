@@ -7,6 +7,7 @@
 
 #include "ListEventsMeasurer.h"
 #include "sharedDOM/ListEventsMeasurerOutput.h"
+#include "sharedDOM/PmuDescription.h"
 #include "typeRegistry/TypeRegisterer.h"
 
 #include <perfmon/pfmlib.h>
@@ -15,13 +16,12 @@
 #include <vector>
 #include <cstring>
 #include "err.h"
-#include "macros/RMT_PERF_EVENT_ARCHITECTURE.h"
 static TypeRegisterer<ListEventsMeasurer> dummy;
 
 using namespace std;
 
-ListEventsMeasurerOutput *list_pmu_events(pfm_pmu_t pmu) {
-	ListEventsMeasurerOutput *result = new ListEventsMeasurerOutput();
+PmuDescription *list_pmu_events(pfm_pmu_t pmu) {
+	PmuDescription *result = new PmuDescription();
 
 	pfm_event_info_t info;
 	pfm_pmu_info_t pinfo;
@@ -34,10 +34,16 @@ ListEventsMeasurerOutput *list_pmu_events(pfm_pmu_t pmu) {
 	pinfo.size = sizeof(pinfo);
 
 	ret = pfm_get_pmu_info(pmu, &pinfo);
-	if (ret != PFM_SUCCESS)
-		errx(1, "cannot get pmu info");
+	if (ret != PFM_SUCCESS) {
+		printf("cannot get pmu info");
+		return NULL;
+	}
 
 	result->setPmuName(pinfo.name);
+	result->setIsDefaultPmu(pinfo.is_dfl);
+	result->setIsPresent(pinfo.is_present);
+	result->setNumberOfCounters(pinfo.num_cntrs);
+	result->setNumberOfFixedCounters(pinfo.num_fixed_cntrs);
 
 	for (i = pinfo.first_event; i != -1; i = pfm_get_event_next(i)) {
 		ret = pfm_get_event_info(i, PFM_OS_PERF_EVENT_EXT, &info);
@@ -90,24 +96,24 @@ ListEventsMeasurerOutput *list_pmu_events(pfm_pmu_t pmu) {
 				attributeDescription->setDescription(attr_info.desc);
 
 				switch (attr_info.type) {
-					case PFM_ATTR_NONE: /* no attribute */
-						attributeDescription->setAttributeType("NONE");
-						break;
-					case PFM_ATTR_UMASK: /* unit mask */
-						attributeDescription->setAttributeType("UMASK");
-						break;
-					case PFM_ATTR_MOD_BOOL: /* register modifier */
-						attributeDescription->setAttributeType("MOD_BOOL");
-						break;
-					case PFM_ATTR_MOD_INTEGER: /* register modifier */
-						attributeDescription->setAttributeType("MOD_INTEGER");
-						break;
-					case PFM_ATTR_RAW_UMASK: /* raw umask (not user visible) */
-						attributeDescription->setAttributeType("RAW_UMASK");
-						break;
-					default:
-						// do nothing
-						break;
+				case PFM_ATTR_NONE: /* no attribute */
+					attributeDescription->setAttributeType("NONE");
+					break;
+				case PFM_ATTR_UMASK: /* unit mask */
+					attributeDescription->setAttributeType("UMASK");
+					break;
+				case PFM_ATTR_MOD_BOOL: /* register modifier */
+					attributeDescription->setAttributeType("MOD_BOOL");
+					break;
+				case PFM_ATTR_MOD_INTEGER: /* register modifier */
+					attributeDescription->setAttributeType("MOD_INTEGER");
+					break;
+				case PFM_ATTR_RAW_UMASK: /* raw umask (not user visible) */
+					attributeDescription->setAttributeType("RAW_UMASK");
+					break;
+				default:
+					// do nothing
+					break;
 				}
 			}
 		}
@@ -118,7 +124,13 @@ ListEventsMeasurerOutput *list_pmu_events(pfm_pmu_t pmu) {
 }
 
 MeasurerOutputBase *ListEventsMeasurer::read() {
-	return list_pmu_events(
-			RMT_PERF_EVENT_ARCHITECTURE
-			);
+	ListEventsMeasurerOutput *result = new ListEventsMeasurerOutput();
+
+	for (int pmu = 0; pmu < PFM_PMU_MAX; pmu++) {
+		PmuDescription *pmuDescription = list_pmu_events((pfm_pmu_t) pmu);
+		if (pmuDescription != NULL) {
+			result->getPmus().push_back(pmuDescription);
+		}
+	}
+	return result;
 }

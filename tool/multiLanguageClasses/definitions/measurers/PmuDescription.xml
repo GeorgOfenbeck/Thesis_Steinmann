@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="PmuDescription" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	comment="describes a pmu">
+	
+	<list name="events" type="PerfEventDescription" comment="list of the available events"/>
+	<field name="pmuName" type="string" comment="name of the PMU"/>
+	<field name="numberOfCounters" type="int" comment="This field contains the number of generic counters supported by the PMU. A counter is generic if it can count more than one event. When it is not possible to determine the number of generic counters, this field contains -1."/>
+	<field name="numberOfFixedCounters" type="int" comment="This field contains the number of fixed counters supported by the PMU. A counter is fixed if it hardwired to count only one event. When it is not possible to determine the number of generic counters, this field contains -1."/>
+	<field name="isPresent" type="bool" comment="true if the PMU is present on the system"/>
+	<field name="isDefaultPmu" type="bool" comment="true if this is the default PMU on the system"/>
+</class>

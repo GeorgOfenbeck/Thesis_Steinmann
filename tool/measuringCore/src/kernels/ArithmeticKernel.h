@@ -187,24 +187,27 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 		}
 #else
 		double r[UNROLL];
-		double ar[UNROLL];
+		double ar[UNROLL*2];
 		double t = 1.1;
 		for (int i = 0; i < UNROLL; i++) {
 			r[i] = t;
-			ar[i] = r[1];
+			ar[2*i] = r[1];
+			ar[2*i+1] = r[1];
 			t += 0.1;
 		}
 		for (long i = 0; i < iterations; i++) {
 			for (int j = 0; j < UNROLL; j++) {
 				r[j] *= base;
-				ar[j] += 1;
+				ar[j*2] += 1;
+				ar[j*2+1] += 1;
 			}
 
 		}
 		result = 0;
 		for (int i = 0; i < UNROLL; i++) {
 			result += r[i];
-			result += ar[i];
+			result += ar[i*2];
+			result += ar[i*2+1];
 		}
 
 #endif
@@ -277,6 +280,9 @@ public:
 			if (description->getUnroll()==2) {
 				addMulHelper<2>(iterations);
 			}
+			if (description->getUnroll()==3) {
+							addMulHelper<3>(iterations);
+						}
 			if (description->getUnroll()==4) {
 				addMulHelper<4>(iterations);
 			}

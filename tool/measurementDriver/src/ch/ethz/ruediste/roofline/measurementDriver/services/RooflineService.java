@@ -14,14 +14,22 @@ import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepos
 import com.google.inject.Inject;
 
 public class RooflineService {
+	//private static final String memEvent = "coreduo::BUS_TRANS_MEM";
+	//private static final String cycleEvent = "coreduo::UNHALTED_CORE_CYCLES";
+	//private static final String operationEvent = "coreduo::FP_COMPS_OP_RET";
+	
+	private static final String memEvent = "core::BUS_TRANS_MEM";
+	private static final String cycleEvent = "core::UNHALTED_CORE_CYCLES";
+	private static final String operationEvent = "core::FP_COMP_OPS_EXE";
+	
 	@Inject
 	MeasurementRepository measurementRepository;
 
 	public Performance getPerformance(String name,
 			KernelDescriptionBase kernel) {
 		System.out.printf("Measuring Performance of %s\n", name);
-		double operations = measureEvent("coreduo::FP_COMPS_OP_EXE", kernel);
-		double time = measureEvent("coreduo::UNHALTED_CORE_CYCLES", kernel);
+		double operations = measureEvent(operationEvent, kernel);
+		double time = measureEvent(cycleEvent, kernel);
 
 		return new Performance(name, operations, time);
 	}
@@ -30,8 +38,8 @@ public class RooflineService {
 			KernelDescriptionBase kernel) {
 		System.out.printf("Measuring MemoryBandwidth of %s\n", name);
 
-		double bytes = measureEvent("coreduo::BUS_TRANS_MEM", kernel) * 64;
-		double time = measureEvent("coreduo::UNHALTED_CORE_CYCLES", kernel);
+		double bytes = measureEvent(memEvent, kernel) * 64;
+		double time = measureEvent(cycleEvent, kernel);
 
 		return new Bandwidth(name, bytes, time);
 	}

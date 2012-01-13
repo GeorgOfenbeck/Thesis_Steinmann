@@ -21,6 +21,7 @@ import ch.ethz.ruediste.roofline.dom.PerfEventAttributeDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
 import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
+import ch.ethz.ruediste.roofline.dom.PmuDescription;
 import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
 import ch.ethz.ruediste.roofline.dom.TriadKernelDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
@@ -52,8 +53,6 @@ public class PerformanceEventScreeningMeasurementController implements
 			MeasurementDescription measurement = new MeasurementDescription();
 			measurement.setKernel(new DummyKernelDescription());
 			ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
-			measurer.setArchitecture(configuration
-					.get(ListEventsMeasurementController.architectureKey));
 			measurement.setMeasurer(measurer);
 			measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
@@ -64,12 +63,15 @@ public class PerformanceEventScreeningMeasurementController implements
 		PrintStream out = new PrintStream(outputName + ".txt");
 		out.println("<Event>: <Kernel>: <minimal count> <median/min>");
 
+		
 		// iterate over available performance events and attributes
-		for (MeasurerOutputBase outputBase : result.getOutputs()) {
-			ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) outputBase;
-
-			for (PerfEventDescription event : output.getEvents()) {
-				measure(out, output.getPmuName(), event, null);
+		ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) result.getOutputs().get(0);
+		
+		for (PmuDescription pmu : output.getPmus()) {
+			if (!pmu.getIsPresent())
+				continue;
+			for (PerfEventDescription event : pmu.getEvents()) {
+				measure(out, pmu.getPmuName(), event, null);
 				/*
 				 * for (PerfEventAttributeDescription attribute : event
 				 * .getAttributes()) { if
