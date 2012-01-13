@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-public class MacroKey {
+public class MacroKey implements Comparable<MacroKey> {
 	private final String defaultValue;
 	private final String macroName;
 	private final String description;
@@ -27,5 +27,9 @@ public class MacroKey {
 	public static MacroKey Create(
 			String key, String description, String defaultValue) {
 		return new MacroKey(key, description, defaultValue);
+	}
+
+	public int compareTo(MacroKey o) {
+		return macroName.compareTo(o.macroName);
 	}
 }

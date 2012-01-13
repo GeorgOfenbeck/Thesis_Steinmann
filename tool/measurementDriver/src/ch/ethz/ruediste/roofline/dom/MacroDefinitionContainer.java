@@ -1,7 +1,6 @@
 package ch.ethz.ruediste.roofline.dom;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 
@@ -13,7 +12,7 @@ public class MacroDefinitionContainer extends AttachedPropertyContainer {
 	/**
 	 * map containing the macro definition of this object
 	 */
-	private final Map<MacroKey, String> macroDefinitions = new HashMap<MacroKey, String>();
+	private final Map<MacroKey, String> macroDefinitions = new TreeMap<MacroKey, String>();
 
 	/**
 	 * return the macro definition map
