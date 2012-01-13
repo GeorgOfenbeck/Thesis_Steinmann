@@ -1,10 +1,9 @@
 package ch.ethz.ruediste.roofline.dom;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 public class MeasurementDescription extends MeasurementDescriptionData {
@@ -23,6 +22,8 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 			(long) 1024 * 1024);
 
 	public static final Axis<Integer> unrollAxis = new Axis<Integer>("unroll",
+			1);
+	public static final Axis<Integer> dlpAxis = new Axis<Integer>("dlp",
 			1);
 
 	public static final Axis<String> operationAxis = new Axis<String>(

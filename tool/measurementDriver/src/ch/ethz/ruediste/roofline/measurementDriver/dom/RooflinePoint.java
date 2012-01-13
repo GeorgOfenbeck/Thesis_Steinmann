@@ -54,4 +54,10 @@ public class RooflinePoint {
 	public double getPerformance() {
 		return operations / time;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Point: [%g : %g]", getOperationalIntensity(),
+				getPerformance());
+	}
 }

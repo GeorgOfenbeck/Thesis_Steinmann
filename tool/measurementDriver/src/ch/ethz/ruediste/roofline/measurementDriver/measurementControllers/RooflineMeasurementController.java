@@ -2,14 +2,10 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
-import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
-import ch.ethz.ruediste.roofline.dom.TriadKernelDescription;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.Performance;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.RooflinePlot;
-import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
-import ch.ethz.ruediste.roofline.measurementDriver.services.RooflineService;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 import com.google.inject.Inject;
 
@@ -46,26 +42,32 @@ public class RooflineMeasurementController implements IMeasurementController {
 					kernel));
 		}
 
-		String optimization = "-O3 -mtune=core2";
-		
-		{
-			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(1000000);
-			kernel.setOptimization(optimization);
-			kernel.setUnroll(3);
-			kernel.setOperation("ArithmeticOperation_MULADD");
-			Performance performance = rooflineService.getPerformance(
-					"Balanced", kernel);
-			plot.addPeakPerformance(performance);
-			plot.addPeakPerformance(new Performance("thBal",kernel.getIterations()*kernel.getUnroll()*3, performance.getTime()));
-		}
+		String optimization = "-O3";
 
 		{
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 			kernel.setIterations(1000000);
-			
 			kernel.setOptimization(optimization);
-			kernel.setUnroll(4);
+			kernel.setDlp(2);
+			kernel.setUnroll(8);
+			kernel.setOperation("ArithmeticOperation_MULADD");
+			Performance performance = rooflineService.getPerformance(
+					"Balanced", kernel);
+			plot.addPeakPerformance(performance);
+			/*
+			 * plot.addPeakPerformance(new Performance("thBal", kernel
+			 * .getIterations() * kernel.getUnroll() * 3 kernel.getDlp(),
+			 * performance .getTime()));
+			 */
+		}
+
+		{
+			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+			kernel.setIterations(100000);
+
+			kernel.setOptimization(optimization);
+			kernel.setUnroll(8);
+			kernel.setDlp(6);
 			kernel.setOperation("ArithmeticOperation_ADD");
 			plot.addPeakPerformance(rooflineService.getPerformance(
 					"Additions", kernel));
@@ -73,9 +75,10 @@ public class RooflineMeasurementController implements IMeasurementController {
 
 		{
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(1000000);
+			kernel.setIterations(100000);
 			kernel.setOptimization(optimization);
-			kernel.setUnroll(4);
+			kernel.setDlp(3);
+			kernel.setUnroll(8);
 			kernel.setOperation("ArithmeticOperation_MUL");
 			plot.addPeakPerformance(rooflineService.getPerformance(
 					"Multiplications", kernel));
@@ -84,11 +87,13 @@ public class RooflineMeasurementController implements IMeasurementController {
 		{
 			TriadKernelDescription kernel = new TriadKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 2);
-			kernel.setOptimization("-O3 -msse2");
-			plot.addPoint(rooflineService.getRooflinePoint("Triad", kernel));
+			kernel.setOptimization("-O3");
+			RooflinePoint rooflinePoint = rooflineService.getRooflinePoint(
+					"Triad", kernel);
+			plot.addPoint(rooflinePoint);
+			System.out.println(rooflinePoint);
 		}
 
 		plotService.plot(plot);
 	}
-
 }

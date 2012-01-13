@@ -1,27 +1,12 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.HashSet;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MeasurerOutputCollection;
-import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
-import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
-import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
-import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
-import ch.ethz.ruediste.roofline.measurementDriver.UpdatingFileOutputStream;
+import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.*;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -208,16 +193,26 @@ public class MeasurementService {
 		macrosDir.mkdirs();
 
 		// load all macro definition keys
-		List<org.apache.commons.lang3.tuple.Pair<Class<?>, MacroKey>> macros = ClassFinder
+		List<Pair<Class<?>, MacroKey>> macros = ClassFinder
 				.getStaticFieldValues(MacroKey.class,
 						"ch.ethz.ruediste.roofline");
 
+		TreeSet<MacroKey> keySet = new TreeSet<MacroKey>();
+
 		HashSet<File> presentFiles = new HashSet<File>();
+
 		// iterate over all keys and write definition file
 		for (Pair<Class<?>, MacroKey> pair : macros) {
 			System.out.printf("found macro %s\n", pair.getRight()
 					.getMacroName());
 			MacroKey macro = pair.getRight();
+
+			// check if macro keys are unique
+			if (keySet.contains(macro)) {
+				throw new Error("Macro named " + macro.getMacroName()
+						+ " defined multiple times");
+			}
+			keySet.add(macro);
 
 			File outputFile = new File(macrosDir, macro.getMacroName() + ".h");
 			presentFiles.add(outputFile);

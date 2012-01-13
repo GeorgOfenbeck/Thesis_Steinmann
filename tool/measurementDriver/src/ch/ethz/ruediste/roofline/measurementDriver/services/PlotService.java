@@ -106,7 +106,7 @@ public class PlotService {
 
 			output.println("set log x");
 			output.println("set log y");
-			output.println("set xrange [0.01:1]");
+			output.println("set xrange [0.01:10]");
 			output.printf("set xlabel '%s [%s]'\n", plot.getxLabel(),
 					plot.getxUnit());
 			output.printf("set ylabel '%s [%s]'\n", plot.getyLabel(),

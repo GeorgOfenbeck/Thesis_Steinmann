@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
@@ -22,6 +22,8 @@ public class MeasurementRepository {
 	@Inject
 	public Configuration configuration;
 
+	private HashSet<String> newMeasurements = new HashSet<String>();
+
 	/**
 	 * Return the specified number of measurement results of the specified
 	 * measurement. If available, cached values are reused. Otherwise the
@@ -34,7 +36,9 @@ public class MeasurementRepository {
 		ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
 
 		// check cache
-		if (configuration.get(useCachedResultsKey))
+		if (configuration.get(useCachedResultsKey)
+				|| newMeasurements.contains(cacheService
+						.getCacheKey(measurement)))
 		{
 			MeasurementResult cachedResult = cacheService
 					.loadFromCache(measurement);
@@ -63,6 +67,8 @@ public class MeasurementRepository {
 
 			// store combined outputs in cache
 			cacheService.storeInCache(newResult);
+
+			newMeasurements.add(cacheService.getCacheKey(measurement));
 		}
 
 		if (outputs.size() < numberOfMeasurements) {

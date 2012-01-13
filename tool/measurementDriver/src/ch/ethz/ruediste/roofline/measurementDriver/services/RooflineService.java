@@ -1,27 +1,20 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.Bandwidth;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.Performance;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.RooflinePoint;
+import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
 import com.google.inject.Inject;
 
 public class RooflineService {
-	//private static final String memEvent = "coreduo::BUS_TRANS_MEM";
-	//private static final String cycleEvent = "coreduo::UNHALTED_CORE_CYCLES";
-	//private static final String operationEvent = "coreduo::FP_COMPS_OP_RET";
-	
-	private static final String memEvent = "core::BUS_TRANS_MEM";
-	private static final String cycleEvent = "core::UNHALTED_CORE_CYCLES";
-	private static final String operationEvent = "core::FP_COMP_OPS_EXE";
-	
+	private static final String memEvent = "coreduo::BUS_TRANS_MEM";
+	private static final String cycleEvent = "coreduo::UNHALTED_CORE_CYCLES";
+	private static final String operationEvent = "coreduo::FP_COMP_INSTR_RET";
+
+	// private static final String memEvent = "core::BUS_TRANS_MEM";
+	// private static final String cycleEvent = "core::UNHALTED_CORE_CYCLES";
+	// private static final String operationEvent = "core::FP_COMP_OPS_EXE";
+
 	@Inject
 	MeasurementRepository measurementRepository;
 
