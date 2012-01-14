@@ -49,30 +49,16 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		}
 
 		space.add(operationAxis, "ArithmeticOperation_ADD");
-		// space.add(operationAxis, "ArithmeticOperation_MUL");
-		// space.add(operationAxis, "ArithmeticOperation_MULADD");
+		space.add(operationAxis, "ArithmeticOperation_MUL");
+		space.add(operationAxis, "ArithmeticOperation_MULADD");
 
 		space.add(optimizationAxis, "-O3");
 		// space.add(optimizationAxis, "-O3");
 
-		space.add(unrollAxis, 1);
-		space.add(unrollAxis, 2);
-		space.add(unrollAxis, 4);
-		space.add(unrollAxis, 8);
-		space.add(unrollAxis, 16);
-		// space.add(unrollAxis, 32);
-		// space.add(unrollAxis, 64);
-
-		space.add(dlpAxis, 1);
-		space.add(dlpAxis, 2);
-		space.add(dlpAxis, 3);
-		space.add(dlpAxis, 4);
-		space.add(dlpAxis, 5);
-		space.add(dlpAxis, 6);
-		space.add(dlpAxis, 7);
-		space.add(dlpAxis, 8);
-		space.add(dlpAxis, 16);
-		// space.add(dlpAxis, 32);
+		for (int i = 1; i <= 20; i++)
+			space.add(unrollAxis, i);
+		for (int i = 1; i <= 20; i++)
+			space.add(dlpAxis, i);
 
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,

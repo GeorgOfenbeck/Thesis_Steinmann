@@ -7,4 +7,7 @@
 	javaSuffix="Data"
 	comment="Kernel doing artithmetic operations"> 
 	<field name="iterations" type="long" comment="number of times the operation is performed"/>
+	<field name="unroll" type="int" comment="number of results to be computed"/>
+	<field name="dlp" type="int" comment="DataLevelParallelism: number of values that should be computed concurrently"/>
+	
 </derivedClass>
