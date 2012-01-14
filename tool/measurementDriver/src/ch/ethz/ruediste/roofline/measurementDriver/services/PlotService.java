@@ -121,8 +121,9 @@ public class PlotService {
 			}
 
 			for (Bandwidth peak : plot.getPeakBandwiths()) {
-				plotLines.add(String.format("%e*x title '%s'",
-						peak.getBandwidth(), peak.getName()));
+				plotLines.add(String.format("%e*x title '%s (%g bytes/cycle)'",
+						peak.getBandwidth(), peak.getName(),
+						peak.getBandwidth()));
 			}
 
 			for (int i = 0; i < plot.getPoints().size(); i++) {

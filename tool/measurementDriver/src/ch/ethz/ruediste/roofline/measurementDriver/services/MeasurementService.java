@@ -33,7 +33,7 @@ public class MeasurementService {
 		try {
 			MeasurementDescription measurement = command.getMeasurement();
 
-			System.out.println("Performing Measurements");
+			System.out.println("Performing Measurement");
 
 			// loading the measuring Core directory
 			File measuringCoreDir = new File(
@@ -46,9 +46,11 @@ public class MeasurementService {
 								+ measuringCoreDir.getAbsolutePath());
 			}
 
-			System.out.println("processing the following measurement:");
-			xStream.toXML(command.getMeasurement(), System.out);
-			System.out.println();
+			/*
+			 * System.out.println("processing the following measurement:");
+			 * xStream.toXML(command.getMeasurement(), System.out);
+			 * System.out.println();
+			 */
 
 			// write macro definitions
 			writeMacroDefinitions(command, measuringCoreDir);

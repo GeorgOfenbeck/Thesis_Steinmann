@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
 import java.util.*;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
@@ -85,4 +87,19 @@ public class MeasurementRepository {
 		return result;
 	}
 
+	public DescriptiveStatistics getStatistics(String event,
+			KernelDescriptionBase kernel, int numberOfResults) {
+		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+		measurer.addEvent("event", event);
+
+		MeasurementDescription measurement = new MeasurementDescription();
+		measurement.setKernel(kernel);
+		measurement.setMeasurer(measurer);
+		measurement.setScheme(new SimpleMeasurementSchemeDescription());
+
+		MeasurementResult result = getMeasurementResults(
+				measurement, 10);
+
+		return PerfEventMeasurerOutput.getStatistics("event", result);
+	}
 }

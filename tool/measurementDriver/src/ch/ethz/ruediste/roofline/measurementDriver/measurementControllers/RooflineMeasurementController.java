@@ -66,8 +66,8 @@ public class RooflineMeasurementController implements IMeasurementController {
 			kernel.setIterations(100000);
 
 			kernel.setOptimization(optimization);
-			kernel.setUnroll(8);
-			kernel.setDlp(6);
+			kernel.setUnroll(13);
+			kernel.setDlp(9);
 			kernel.setOperation("ArithmeticOperation_ADD");
 			plot.addPeakPerformance(rooflineService.getPerformance(
 					"Additions", kernel));
@@ -78,7 +78,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			kernel.setIterations(100000);
 			kernel.setOptimization(optimization);
 			kernel.setDlp(3);
-			kernel.setUnroll(8);
+			kernel.setUnroll(17);
 			kernel.setOperation("ArithmeticOperation_MUL");
 			plot.addPeakPerformance(rooflineService.getPerformance(
 					"Multiplications", kernel));

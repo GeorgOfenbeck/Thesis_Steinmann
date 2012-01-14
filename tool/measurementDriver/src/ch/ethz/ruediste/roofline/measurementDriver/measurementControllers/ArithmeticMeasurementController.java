@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.*;
 
-import java.io.IOException;
+import java.io.*;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
@@ -49,17 +49,22 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		}
 
 		space.add(operationAxis, "ArithmeticOperation_ADD");
-		space.add(operationAxis, "ArithmeticOperation_MUL");
-		space.add(operationAxis, "ArithmeticOperation_MULADD");
+		// space.add(operationAxis, "ArithmeticOperation_MUL");
+		// space.add(operationAxis, "ArithmeticOperation_MULADD");
 
 		space.add(optimizationAxis, "-O3");
 		// space.add(optimizationAxis, "-O3");
 
-		for (int i = 1; i <= 20; i++)
+		for (int i = 1; i < 20; i++)
 			space.add(unrollAxis, i);
-		for (int i = 1; i <= 20; i++)
+		for (int i = 1; i < 20; i++)
 			space.add(dlpAxis, i);
 
+		double minCyclef = Double.POSITIVE_INFINITY;
+		int minUnroll = 0;
+		int minDlp = 0;
+
+		PrintStream out = new PrintStream(outputName + ".data");
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
 						operationAxis,
@@ -77,17 +82,29 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 					.getStatistics("cycles", result);
 			// = ExecutionTimeMeasurerOutput.getStatistics(result);
 
+			double cyclef = statistics.getMin()
+					/ (coordinate.get(iterationsAxis)
+							* coordinate.get(unrollAxis) * coordinate
+								.get(dlpAxis));
+			if (cyclef < minCyclef) {
+				minCyclef = cyclef;
+				minUnroll = coordinate.get(unrollAxis);
+				minDlp = coordinate.get(dlpAxis);
+			}
 			System.out.printf(
 					"%s: %g %g %g\n",
 					coordinate.toString(operationAxis, iterationsAxis,
 							unrollAxis, dlpAxis),
 					statistics.getMin(),
 					statistics.getPercentile(50) / statistics.getMin(),
-					statistics.getMin()
-							/ (coordinate.get(iterationsAxis)
-									* coordinate.get(unrollAxis) * coordinate
-										.get(dlpAxis))
+					cyclef
 					);
+			out.printf("%d %d %g\n", coordinate.get(dlpAxis),
+					coordinate.get(unrollAxis), cyclef);
 		}
+		out.close();
+
+		System.out.printf("Fastes Cycles/Flop: %g, unroll: %d dlp: %d\n",
+				minCyclef, minUnroll, minDlp);
 	}
 }

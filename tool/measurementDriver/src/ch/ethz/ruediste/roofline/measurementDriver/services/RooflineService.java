@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
@@ -49,20 +49,7 @@ public class RooflineService {
 
 	private double measureEvent(String event,
 			KernelDescriptionBase kernel) {
-		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
-		measurer.addEvent("event", event);
-
-		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setKernel(kernel);
-		measurement.setMeasurer(measurer);
-		measurement.setScheme(new SimpleMeasurementSchemeDescription());
-
-		MeasurementResult result = measurementRepository.getMeasurementResults(
-				measurement, 10);
-
-		PerfEventMeasurerOutput.printRaw("event", result, System.out);
-
-		return PerfEventMeasurerOutput.getStatistics("event", result)
+		return measurementRepository.getStatistics(event, kernel, 10)
 				.getMin();
 
 	}

@@ -225,7 +225,7 @@ The configuration is used to set various flags in the measurement driver.
 \end{itemize}
 
 \subsection{Frontend}
-The measurement tool is a console tool controlled using command line options. Measurement results are either directly dispalyed on the console, dumped to a data file or processed, usually for generating a graph. The graph is typically stored as a file. But unlike normal tools, the source code of the tool is expected to change frequently, and the user likely switches often between coding and using the tool.
+The measurement tool is a console tool controlled using command line options. Measurement results are either directly dispalyed on the console, dumped to a data file or processed, usually for generating a graph. The graph is typically stored as a file. But unlike normal tools, the source code is expected to change frequently, and the user likely switches often between coding and using the tool.
 
 To support this usage pattern, the build process has been integrated into the normal tool operation. The frontend is used to first trigger the build process and then invoke the measurement driver. Otherwise, the user would have to keep to console windowses open, one for building and one for measuring, and not to forget building to see the changes made to the source code.
 

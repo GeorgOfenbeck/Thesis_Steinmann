@@ -30,13 +30,13 @@ public:
 	void run() {
 #ifdef __SSE__
 		__m128 ch = _mm_setzero_ps();
-		for (long i = 0; i < description->getBufferSize(); i += 4) {
+		for (long i = 0; i < description->getBufferSize(); i += 4*2) {
 			ch = _mm_xor_ps(ch, _mm_load_ps(&(buffer[i])));
 		}
 		float tmp[4];
 		_mm_storeu_ps(tmp, ch);
 
-		char *b = (char*) buffer;
+		char *b = (char*) tmp;
 		result = 0;
 		for (unsigned int i = 0; i < 4 * sizeof(float); i++) {
 			result = result ^ b[i];
