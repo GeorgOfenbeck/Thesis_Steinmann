@@ -2,11 +2,10 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="ExecutionTimeMeasurerOutput" 
+	name="CombinedMeasurerOutput" 
 	baseType="MeasurerOutputBase"
-	javaSuffix="Data"
-	comment="result of the execution time measurer">
+	javaSuffix=""
+	comment="result of the combined measurer">
 	
-	<field name="uSecs" type="long" comment="execution time in micro seconds (1e-6)"/>
-	
+	<list name="outputs" type="MeasurerOutputBase" comment="outputs of the measurers"/>
 </derivedClass>
