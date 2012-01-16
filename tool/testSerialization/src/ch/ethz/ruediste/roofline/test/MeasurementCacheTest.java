@@ -62,7 +62,7 @@ public class MeasurementCacheTest extends TestBase {
 		result2.getOutputs().add(new ExecutionTimeMeasurerOutput());
 
 		// store first result
-		service.storeInCache(result1);
+		service.store(result1);
 
 		// check
 		assertNotNull(service.loadFromCache(measurement1));
@@ -70,7 +70,7 @@ public class MeasurementCacheTest extends TestBase {
 		assertEquals(0, service.loadFromCache(measurement1).getOutputs().size());
 
 		// store second result
-		service.storeInCache(result2);
+		service.store(result2);
 
 		// check
 		assertNotNull(service.loadFromCache(measurement1));
@@ -110,10 +110,10 @@ public class MeasurementCacheTest extends TestBase {
 				oneOf(cacheService).loadFromCache(with(same(measurement)));
 				will(returnValue(null));
 
-				oneOf(cacheService).storeInCache(
+				oneOf(cacheService).store(
 						with(any(MeasurementResult.class)));
 
-				oneOf(measurementService).measure(
+				oneOf(measurementService).performMeasurement(
 						with(any(MeasurementCommand.class)));
 				will(returnValue(result));
 			}

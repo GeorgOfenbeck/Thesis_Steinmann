@@ -1,22 +1,11 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 
-import ch.ethz.ruediste.roofline.dom.DummyKernelDescription;
-import ch.ethz.ruediste.roofline.dom.ListEventsMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.ListEventsMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MeasurerOutputBase;
-import ch.ethz.ruediste.roofline.dom.PerfEventAttributeDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventDescription;
-import ch.ethz.ruediste.roofline.dom.PmuDescription;
-import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKey;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.Inject;
 
@@ -33,7 +22,7 @@ public class ListEventsMeasurementController implements IMeasurementController {
 	Configuration configuration;
 
 	@Inject
-	MeasurementRepository measurementRepository;
+	MeasurementService measurementService;
 
 	public void measure(String outputName) throws IOException {
 		// list all available performance counters
@@ -44,18 +33,18 @@ public class ListEventsMeasurementController implements IMeasurementController {
 		measurement.setMeasurer(measurer);
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
-		MeasurementResult result = measurementRepository.getMeasurementResults(
-				measurement, 1);
+		MeasurementResult result = measurementService.measure(measurement, 1);
 
 		ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) result
 				.getOutputs().get(0);
 
 		for (PmuDescription pmu : output.getPmus()) {
-			if (!pmu.getIsPresent())
+			if (!pmu.getIsPresent()) {
 				continue;
-			
-			if (!pmu.getIsDefaultPmu()){
-				System.out.println("The default PMU is "+pmu.getPmuName());
+			}
+
+			if (!pmu.getIsDefaultPmu()) {
+				System.out.println("The default PMU is " + pmu.getPmuName());
 			}
 
 			PrintStream out = new PrintStream("events_" + pmu.getPmuName()

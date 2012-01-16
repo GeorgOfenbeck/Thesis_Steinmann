@@ -4,9 +4,11 @@ import java.io.*;
 import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -28,8 +30,78 @@ public class MeasurementService {
 	@Inject
 	public Configuration configuration;
 
-	public MeasurementResult measure(MeasurementCommand command)
-	{
+	@Inject
+	public MeasurementRepository measurementRepository;
+
+	/**
+	 * Return the specified number of measurement results of the specified
+	 * measurement. If available, cached values are reused. Otherwise the
+	 * measuring core is started
+	 */
+	public MeasurementResult measure(MeasurementDescription measurement,
+			int numberOfMeasurements) {
+
+		ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
+
+		// load stored results if available
+		MeasurementResult cachedResult = measurementRepository
+				.getMeasurementResult(measurement);
+		if (cachedResult != null) {
+			outputs.addAll(cachedResult.getOutputs());
+		}
+
+		// do we need more results?
+		if (numberOfMeasurements > outputs.size()) {
+			// create measurement command
+			MeasurementCommand command = new MeasurementCommand();
+			command.setMeasurement(measurement);
+			command.setNumberOfMeasurements(numberOfMeasurements
+					- outputs.size());
+
+			// perform measurement
+			MeasurementResult newResult = performMeasurement(command);
+
+			// combine outputs
+			newResult.getOutputs().addAll(outputs);
+
+			// overwrite outputs with combined results
+			outputs.clear();
+			outputs.addAll(newResult.getOutputs());
+
+			// store combined outputs in cache
+			measurementRepository.store(newResult);
+		}
+
+		if (outputs.size() < numberOfMeasurements) {
+			throw new Error("unable to retrieve enough results");
+		}
+
+		// create the result to be returned
+		MeasurementResult result = new MeasurementResult();
+		result.setMeasurement(measurement);
+		for (int i = 0; i < numberOfMeasurements; i++) {
+			result.getOutputs().add(outputs.get(i));
+		}
+
+		return result;
+	}
+
+	public DescriptiveStatistics getStatistics(String event,
+			KernelDescriptionBase kernel, int numberOfResults) {
+		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+		measurer.addEvent("event", event);
+
+		MeasurementDescription measurement = new MeasurementDescription();
+		measurement.setKernel(kernel);
+		measurement.setMeasurer(measurer);
+		measurement.setScheme(new SimpleMeasurementSchemeDescription());
+
+		MeasurementResult result = measure(measurement, 10);
+
+		return PerfEventMeasurerOutput.getStatistics("event", result);
+	}
+
+	public MeasurementResult performMeasurement(MeasurementCommand command) {
 		try {
 			MeasurementDescription measurement = command.getMeasurement();
 
@@ -66,8 +138,8 @@ public class MeasurementService {
 
 			// build
 			System.out.println("building measuring core");
-			commandService.runCommand(measuringCoreDir, "make",
-					new String[] { "-j2", "all" }, 0, true);
+			commandService.runCommand(measuringCoreDir, "make", new String[] {
+					"-j2", "all" }, 0, true);
 
 			// open the build directory
 			File buildDir = new File(measuringCoreDir, "build");
@@ -110,20 +182,16 @@ public class MeasurementService {
 	public void writeMeasurementSchemeRegistration(
 			MeasurementDescription measurement, File measuringCoreDir)
 			throws FileNotFoundException {
-		System.out
-				.println("creating MeasurementScheme registration file");
-		File measurementSchemeRegistrationFile = new File(
-				measuringCoreDir,
+		System.out.println("creating MeasurementScheme registration file");
+		File measurementSchemeRegistrationFile = new File(measuringCoreDir,
 				"generated/MeasurementSchemeRegistration.cpp");
 		PrintStream measurementSchemeRegistrationStream = new PrintStream(
 				new UpdatingFileOutputStream(measurementSchemeRegistrationFile));
 
-		String schemeName = measurement.getScheme().getClass()
-				.getSimpleName();
+		String schemeName = measurement.getScheme().getClass().getSimpleName();
 		schemeName = schemeName.substring(0, schemeName.length()
 				- "Description".length());
-		String kernelName = measurement.getKernel().getClass()
-				.getSimpleName();
+		String kernelName = measurement.getKernel().getClass().getSimpleName();
 		kernelName = kernelName.substring(0, kernelName.length()
 				- "Description".length());
 		String measurerName = measurement.getMeasurer().getClass()
@@ -131,21 +199,14 @@ public class MeasurementService {
 		measurerName = measurerName.substring(0, measurerName.length()
 				- "Description".length());
 
-		measurementSchemeRegistrationStream
-				.printf(
-						"#include \"measurementSchemes/%s.h\"\n"
-								+ "#include \"kernels/%s.h\"\n"
-								+ "#include \"measurers/%s.h\"\n"
-								+ "#include \"typeRegistry/TypeRegisterer.h\"\n"
-								+ "static TypeRegisterer<%s<%s,%s>,%s,%s > dummy;\n",
-						schemeName,
-						kernelName,
-						measurerName,
-						schemeName,
-						kernelName,
-						measurerName,
-						kernelName,
-						measurerName);
+		measurementSchemeRegistrationStream.printf(
+				"#include \"measurementSchemes/%s.h\"\n"
+						+ "#include \"kernels/%s.h\"\n"
+						+ "#include \"measurers/%s.h\"\n"
+						+ "#include \"typeRegistry/TypeRegisterer.h\"\n"
+						+ "static TypeRegisterer<%s<%s,%s>,%s,%s > dummy;\n",
+				schemeName, kernelName, measurerName, schemeName, kernelName,
+				measurerName, kernelName, measurerName);
 		measurementSchemeRegistrationStream.close();
 	}
 
@@ -160,8 +221,7 @@ public class MeasurementService {
 		File optimizationFile = new File(measuringCoreDir,
 				"kernelOptimization.mk");
 		PrintStream optimizationPrintStream = new PrintStream(
-				new UpdatingFileOutputStream(
-						optimizationFile));
+				new UpdatingFileOutputStream(optimizationFile));
 		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS=%s\n",
 				measurement.getKernel().getOptimization());
 		optimizationPrintStream.close();
@@ -170,11 +230,9 @@ public class MeasurementService {
 	public void writeKernelName(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 		System.out.println("writing kernel name");
-		File optimizationFile = new File(measuringCoreDir,
-				"kernelName.mk");
+		File optimizationFile = new File(measuringCoreDir, "kernelName.mk");
 		PrintStream optimizationPrintStream = new PrintStream(
-				new UpdatingFileOutputStream(
-						optimizationFile));
+				new UpdatingFileOutputStream(optimizationFile));
 		String kernelName = measurement.getKernel().getClass().getSimpleName();
 		kernelName = kernelName.substring(0, kernelName.length()
 				- "KernelDescription".length());
@@ -220,10 +278,9 @@ public class MeasurementService {
 			presentFiles.add(outputFile);
 			PrintStream output = new PrintStream(new UpdatingFileOutputStream(
 					outputFile));
-			output.printf("// %s\n#define %s %s\n",
-					macro.getDescription().replace("\n", "\n// "),
-					macro.getMacroName(),
-					command.getMeasurement().getMacroDefinition(macro));
+			output.printf("// %s\n#define %s %s\n", macro.getDescription()
+					.replace("\n", "\n// "), macro.getMacroName(), command
+					.getMeasurement().getMacroDefinition(macro));
 			output.close();
 		}
 
@@ -234,8 +291,7 @@ public class MeasurementService {
 	/**
 	 * remove all files in dir which are not in presentFiles
 	 */
-	private void removeFilesNotInSet(File dir,
-			final HashSet<File> presentFiles) {
+	private void removeFilesNotInSet(File dir, final HashSet<File> presentFiles) {
 
 		// load all files not in presentFiles
 		File[] filesToDelete = dir.listFiles(new FileFilter() {

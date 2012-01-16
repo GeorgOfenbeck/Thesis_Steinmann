@@ -1,31 +1,17 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.bufferSizeAxis;
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.kernelAxis;
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.measurementSchemeAxis;
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.measurerAxis;
+import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.HashMap;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.KBestMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
-import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
+import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 import com.google.inject.Inject;
 
@@ -40,7 +26,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementRepository measurementRepository;
+	public MeasurementService measurementService;
 
 	@Inject
 	public CommandService commandService;
@@ -77,15 +63,12 @@ public class VarianceMeasurementController implements IMeasurementController {
 		// create output streams
 		HashMap<Coordinate, PrintStream> outputStreams = new HashMap<Coordinate, PrintStream>();
 		for (Coordinate coordinate : parameterSpace.getProjection(
-				measurementSchemeAxis,
-				measurerAxis)) {
+				measurementSchemeAxis, measurerAxis)) {
 
 			String streamName = outputName;
-			streamName += (coordinate
-					.get(measurerAxis) == perfEventMeasurer ? "perf"
+			streamName += (coordinate.get(measurerAxis) == perfEventMeasurer ? "perf"
 					: "time");
-			streamName += (coordinate
-					.get(measurementSchemeAxis) == kBestScheme ? "Best"
+			streamName += (coordinate.get(measurementSchemeAxis) == kBestScheme ? "Best"
 					: "Simple");
 
 			outputStreams
@@ -97,37 +80,29 @@ public class VarianceMeasurementController implements IMeasurementController {
 					coordinate);
 
 			// perform measurement
-			MeasurementResult result = measurementRepository
-					.getMeasurementResults(
-							measurement, 10);
+			MeasurementResult result = measurementService.measure(measurement,
+					10);
 
 			// create statistics
 			DescriptiveStatistics statistics = null;
 			if (measurement.getMeasurer() instanceof PerfEventMeasurerDescription) {
-				statistics = PerfEventMeasurerOutput.getStatistics(
-						"cycles", result);
+				statistics = PerfEventMeasurerOutput.getStatistics("cycles",
+						result);
 			}
 
 			if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {
-				statistics = ExecutionTimeMeasurerOutput
-						.getStatistics(result);
+				statistics = ExecutionTimeMeasurerOutput.getStatistics(result);
 			}
 
 			// append to output
 			outputStreams.get(
-					coordinate.getProjection(
-							measurementSchemeAxis,
-							measurerAxis))
-					.printf("%d\t%e\t%e\t%e\t%e\t%e\n",
-							coordinate.get(bufferSizeAxis),
-							statistics.getMean(),
-							statistics.getStandardDeviation(),
-							statistics.getPercentile(50),
-							statistics
-									.getPercentile(50 - 68.2689492137 / 2),
-							statistics
-									.getPercentile(50 + 68.2689492137 / 2)
-					);
+					coordinate.getProjection(measurementSchemeAxis,
+							measurerAxis)).printf("%d\t%e\t%e\t%e\t%e\t%e\n",
+					coordinate.get(bufferSizeAxis), statistics.getMean(),
+					statistics.getStandardDeviation(),
+					statistics.getPercentile(50),
+					statistics.getPercentile(50 - 68.2689492137 / 2),
+					statistics.getPercentile(50 + 68.2689492137 / 2));
 		}
 
 		// close outputs
@@ -137,8 +112,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 
 		// write gnuplot files
 		{
-			PrintStream output = new PrintStream(outputName
-					+ "stdev.gnuplot");
+			PrintStream output = new PrintStream(outputName + "stdev.gnuplot");
 			output.printf("set title 'Mean/Stdev'\n");
 			output.printf("set terminal postscript color\n");
 			output.printf("set output '%s'\n", outputName + "stdev.ps");
@@ -184,11 +158,9 @@ public class VarianceMeasurementController implements IMeasurementController {
 
 		// show output
 		commandService.runCommand(new File("."), "gnuplot",
-				new String[] { outputName
-						+ "stdev.gnuplot" });
+				new String[] { outputName + "stdev.gnuplot" });
 		commandService.runCommand(new File("."), "gnuplot",
-				new String[] { outputName
-						+ "percentiles.gnuplot" });
+				new String[] { outputName + "percentiles.gnuplot" });
 	}
 
 	static void printSummary(DescriptiveStatistics summary) {
@@ -200,8 +172,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 		System.out.print("stddev:");
 		System.out.println(summary.getStandardDeviation());
 		System.out.print("relative:");
-		System.out.println(summary.getStandardDeviation()
-				/ summary.getMean());
+		System.out.println(summary.getStandardDeviation() / summary.getMean());
 		System.out.print("median:");
 		System.out.println(summary.getPercentile(50));
 		System.out.print("min:");

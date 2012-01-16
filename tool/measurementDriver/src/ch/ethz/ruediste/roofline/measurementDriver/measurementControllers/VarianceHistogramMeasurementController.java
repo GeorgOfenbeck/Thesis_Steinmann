@@ -2,21 +2,10 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.KBestMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.HistogramPlot;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
-import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
-import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
-import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
+import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 import com.google.inject.Inject;
 
@@ -32,10 +21,7 @@ public class VarianceHistogramMeasurementController implements
 	}
 
 	@Inject
-	public MeasurementRepository measurementRepository;
-
-	@Inject
-	public MeasurementCacheService measurementCacheService;
+	public MeasurementService measurementService;
 
 	@Inject
 	public CommandService commandService;
@@ -68,8 +54,7 @@ public class VarianceHistogramMeasurementController implements
 
 		// perform measurement
 		// measurementCacheService.deleteFromCache(measurement);
-		MeasurementResult result = measurementRepository.getMeasurementResults(
-				measurement, 100);
+		MeasurementResult result = measurementService.measure(measurement, 100);
 
 		// create statistics
 		HistogramPlot plot = new HistogramPlot();
@@ -81,10 +66,8 @@ public class VarianceHistogramMeasurementController implements
 			ExecutionTimeMeasurerOutput.addValues(result, plot);
 		}
 
-		plot.setTitle("%d:%s", kernel.getBufferSize(),
-				measurement.toString());
-		plot.setOutputName("%s:%d:%s:%s", outputName,
-				kernel.getBufferSize(),
+		plot.setTitle("%d:%s", kernel.getBufferSize(), measurement.toString());
+		plot.setOutputName("%s:%d:%s:%s", outputName, kernel.getBufferSize(),
 				measurement.toString(),
 				measurement.getScheme().getWarmCaches() ? "warm" : "cold");
 		plotService.plot(plot);

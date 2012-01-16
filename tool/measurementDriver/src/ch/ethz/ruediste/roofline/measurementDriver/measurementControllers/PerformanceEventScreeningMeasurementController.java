@@ -1,32 +1,15 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
-import ch.ethz.ruediste.roofline.dom.DummyKernelDescription;
-import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
-import ch.ethz.ruediste.roofline.dom.ListEventsMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.ListEventsMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.MeasurerOutputBase;
-import ch.ethz.ruediste.roofline.dom.MemoryLoadKernelDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventAttributeDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.PmuDescription;
-import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.dom.TriadKernelDescription;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.Inject;
 
@@ -45,7 +28,7 @@ public class PerformanceEventScreeningMeasurementController implements
 	Configuration configuration;
 
 	@Inject
-	MeasurementRepository measurementRepository;
+	MeasurementService measurementService;
 
 	public void measure(String outputName) throws IOException {
 		MeasurementResult result;
@@ -56,20 +39,20 @@ public class PerformanceEventScreeningMeasurementController implements
 			measurement.setMeasurer(measurer);
 			measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
-			result = measurementRepository
-					.getMeasurementResults(measurement, 1);
+			result = measurementService.measure(measurement, 1);
 		}
 
 		PrintStream out = new PrintStream(outputName + ".txt");
 		out.println("<Event>: <Kernel>: <minimal count> <median/min>");
 
-		
 		// iterate over available performance events and attributes
-		ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) result.getOutputs().get(0);
-		
+		ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) result
+				.getOutputs().get(0);
+
 		for (PmuDescription pmu : output.getPmus()) {
-			if (!pmu.getIsPresent())
+			if (!pmu.getIsPresent()) {
 				continue;
+			}
 			for (PerfEventDescription event : pmu.getEvents()) {
 				measure(out, pmu.getPmuName(), event, null);
 				/*
@@ -93,15 +76,15 @@ public class PerformanceEventScreeningMeasurementController implements
 		{
 			MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 2);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel,
-					"MemoryLoad " + kernel.getBufferSize()));
+			kernels.add(Pair.of((KernelDescriptionBase) kernel, "MemoryLoad "
+					+ kernel.getBufferSize()));
 		}
 
 		{
 			MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 4);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel,
-					"MemoryLoad " + kernel.getBufferSize()));
+			kernels.add(Pair.of((KernelDescriptionBase) kernel, "MemoryLoad "
+					+ kernel.getBufferSize()));
 		}
 
 		{
@@ -123,16 +106,16 @@ public class PerformanceEventScreeningMeasurementController implements
 			kernel.setIterations(1024 * 1024);
 			kernel.setUnroll(8);
 			kernel.setOperation("ArithmeticOperation_ADD");
-			kernels.add(Pair.of((KernelDescriptionBase) kernel,
-					"Arithmetic " + kernel.getIterations()));
+			kernels.add(Pair.of((KernelDescriptionBase) kernel, "Arithmetic "
+					+ kernel.getIterations()));
 		}
 
 		{
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 			kernel.setIterations(1024 * 1024 * 2);
 			kernel.setUnroll(8);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel,
-					"Arithmetic " + kernel.getIterations()));
+			kernels.add(Pair.of((KernelDescriptionBase) kernel, "Arithmetic "
+					+ kernel.getIterations()));
 		}
 
 		for (Pair<KernelDescriptionBase, String> pair : kernels) {
@@ -150,24 +133,22 @@ public class PerformanceEventScreeningMeasurementController implements
 
 			MeasurementResult result = null;
 			try {
-				result = measurementRepository.getMeasurementResults(
-						measurement, 20);
+				result = measurementService.measure(measurement, 20);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 
 			if (result == null) {
-				out.printf("%s: %s: failed\n", eventDefinition,
-						pair.getRight());
+				out.printf("%s: %s: failed\n", eventDefinition, pair.getRight());
 
 			} else {
 				DescriptiveStatistics statistics = PerfEventMeasurerOutput
 						.getStatistics("event", result);
 
 				double min = statistics.getMin();
-				out.printf("%s: %s: %g %g\n", eventDefinition,
-						pair.getRight(), min,
-						statistics.getPercentile(50) / (min < 0.1 ? 1 : min));
+				out.printf("%s: %s: %g %g\n", eventDefinition, pair.getRight(),
+						min, statistics.getPercentile(50)
+								/ (min < 0.1 ? 1 : min));
 
 			}
 			out.flush();

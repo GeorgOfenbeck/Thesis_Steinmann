@@ -2,24 +2,23 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 
 import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
 import com.google.inject.Inject;
 
 public class RooflineService {
-	private static final String memEvent = "coreduo::BUS_TRANS_MEM";
-	private static final String cycleEvent = "coreduo::UNHALTED_CORE_CYCLES";
-	private static final String operationEvent = "coreduo::FP_COMP_INSTR_RET";
+	// private static final String memEvent = "coreduo::BUS_TRANS_MEM";
+	// private static final String cycleEvent = "coreduo::UNHALTED_CORE_CYCLES";
+	// private static final String operationEvent =
+	// "coreduo::FP_COMP_INSTR_RET";
 
-	// private static final String memEvent = "core::BUS_TRANS_MEM";
-	// private static final String cycleEvent = "core::UNHALTED_CORE_CYCLES";
-	// private static final String operationEvent = "core::FP_COMP_OPS_EXE";
+	private static final String memEvent = "core::BUS_TRANS_MEM";
+	private static final String cycleEvent = "core::UNHALTED_CORE_CYCLES";
+	private static final String operationEvent = "core::FP_COMP_OPS_EXE";
 
 	@Inject
-	MeasurementRepository measurementRepository;
+	MeasurementService measurementService;
 
-	public Performance getPerformance(String name,
-			KernelDescriptionBase kernel) {
+	public Performance getPerformance(String name, KernelDescriptionBase kernel) {
 		System.out.printf("Measuring Performance of %s\n", name);
 		double operations = measureEvent(operationEvent, kernel);
 		double time = measureEvent(cycleEvent, kernel);
@@ -47,10 +46,8 @@ public class RooflineService {
 				bandwidth.getTransferredBytes(), performance.getTime());
 	}
 
-	private double measureEvent(String event,
-			KernelDescriptionBase kernel) {
-		return measurementRepository.getStatistics(event, kernel, 10)
-				.getMin();
+	private double measureEvent(String event, KernelDescriptionBase kernel) {
+		return measurementService.getStatistics(event, kernel, 10).getMin();
 
 	}
 }

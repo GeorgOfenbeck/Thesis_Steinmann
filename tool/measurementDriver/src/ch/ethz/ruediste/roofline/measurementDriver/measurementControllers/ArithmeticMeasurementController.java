@@ -10,7 +10,7 @@ import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.Inject;
 
@@ -25,7 +25,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementRepository measurementRepository;
+	MeasurementService measurementService;
 
 	public void measure(String outputName) throws IOException {
 		ParameterSpace space = new ParameterSpace();
@@ -39,8 +39,8 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 		{
 			space.add(MeasurementDescription.measurerAxis,
-					new PerfEventMeasurerDescription(
-							"cycles", "coreduo::UNHALTED_CORE_CYCLES"
+					new PerfEventMeasurerDescription("cycles",
+							"core::UNHALTED_CORE_CYCLES"
 					// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE"
 					// "coreduo::FP_COMP_INSTR_RET"
 					// "coreduo::INSTR_RET"
@@ -48,17 +48,19 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 					));
 		}
 
-		space.add(operationAxis, "ArithmeticOperation_ADD");
+		// space.add(operationAxis, "ArithmeticOperation_ADD");
 		// space.add(operationAxis, "ArithmeticOperation_MUL");
-		// space.add(operationAxis, "ArithmeticOperation_MULADD");
+		space.add(operationAxis, "ArithmeticOperation_MULADD");
 
 		space.add(optimizationAxis, "-O3");
 		// space.add(optimizationAxis, "-O3");
 
-		for (int i = 1; i < 20; i++)
+		for (int i = 1; i < 20; i++) {
 			space.add(unrollAxis, i);
-		for (int i = 1; i < 20; i++)
+		}
+		for (int i = 1; i < 20; i++) {
 			space.add(dlpAxis, i);
+		}
 
 		double minCyclef = Double.POSITIVE_INFINITY;
 		int minUnroll = 0;
@@ -67,17 +69,14 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		PrintStream out = new PrintStream(outputName + ".data");
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
-						operationAxis,
-						dlpAxis,
-						unrollAxis, iterationsAxis
+						operationAxis, dlpAxis, unrollAxis, iterationsAxis
 
 				))) {
 			MeasurementDescription measurement = new MeasurementDescription(
 					coordinate);
 
-			MeasurementResult result = measurementRepository
-					.getMeasurementResults(
-							measurement, 10);
+			MeasurementResult result = measurementService.measure(measurement,
+					10);
 			DescriptiveStatistics statistics = PerfEventMeasurerOutput
 					.getStatistics("cycles", result);
 			// = ExecutionTimeMeasurerOutput.getStatistics(result);
@@ -91,14 +90,10 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 				minUnroll = coordinate.get(unrollAxis);
 				minDlp = coordinate.get(dlpAxis);
 			}
-			System.out.printf(
-					"%s: %g %g %g\n",
-					coordinate.toString(operationAxis, iterationsAxis,
-							unrollAxis, dlpAxis),
-					statistics.getMin(),
-					statistics.getPercentile(50) / statistics.getMin(),
-					cyclef
-					);
+			System.out.printf("%s: %g %g %g\n", coordinate.toString(
+					operationAxis, iterationsAxis, unrollAxis, dlpAxis),
+					statistics.getMin(), statistics.getPercentile(50)
+							/ statistics.getMin(), cyclef);
 			out.printf("%d %d %g\n", coordinate.get(dlpAxis),
 					coordinate.get(unrollAxis), cyclef);
 		}

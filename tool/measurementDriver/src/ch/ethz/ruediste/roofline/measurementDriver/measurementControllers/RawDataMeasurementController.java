@@ -4,20 +4,10 @@ import java.io.IOException;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
-import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.KBestMeasurementSchemeDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerDescription;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.SimpleMeasurementSchemeDescription;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
-import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
-import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
+import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 import com.google.inject.Inject;
 
@@ -32,10 +22,7 @@ public class RawDataMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementRepository measurementAppController;
-
-	@Inject
-	public MeasurementCacheService measurementCacheService;
+	public MeasurementService measurementService;
 
 	@Inject
 	public PlotService plotService;
@@ -70,9 +57,7 @@ public class RawDataMeasurementController implements IMeasurementController {
 		measurement.setMeasurer(perfEventMeasurer);
 
 		// perform measurement
-		MeasurementResult result = measurementAppController
-				.getMeasurementResults(
-						measurement, 20);
+		MeasurementResult result = measurementService.measure(measurement, 20);
 
 		// create plot
 		SimplePlot plot = new SimplePlot();
@@ -85,14 +70,12 @@ public class RawDataMeasurementController implements IMeasurementController {
 		}
 
 		plot.setTitle("%d:%s",
-				// kernel.getBufferSize(),
-				kernel.getIterations(),
-				measurement.toString());
+		// kernel.getBufferSize(),
+				kernel.getIterations(), measurement.toString());
 		plot.setOutputName("%s:%d:%s:%s", outputName,
-				// kernel.getBufferSize(),
-				kernel.getIterations(),
-				measurement.toString(),
-				measurement.getScheme().getWarmCaches() ? "warm" : "cold");
+		// kernel.getBufferSize(),
+				kernel.getIterations(), measurement.toString(), measurement
+						.getScheme().getWarmCaches() ? "warm" : "cold");
 
 		plotService.plot(plot);
 	}
@@ -106,8 +89,7 @@ public class RawDataMeasurementController implements IMeasurementController {
 		System.out.print("stddev:");
 		System.out.println(summary.getStandardDeviation());
 		System.out.print("relative:");
-		System.out.println(summary.getStandardDeviation()
-				/ summary.getMean());
+		System.out.println(summary.getStandardDeviation() / summary.getMean());
 		System.out.print("median:");
 		System.out.println(summary.getPercentile(50));
 		System.out.print("min:");
