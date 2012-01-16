@@ -79,6 +79,10 @@ public class MeasurementService {
 		// create the result to be returned
 		MeasurementResult result = new MeasurementResult();
 		result.setMeasurement(measurement);
+
+		// add exactly the number of measurements required to the output
+		// it might be that there were more results in the repository than
+		// needed
 		for (int i = 0; i < numberOfMeasurements; i++) {
 			result.getOutputs().add(outputs.get(i));
 		}
