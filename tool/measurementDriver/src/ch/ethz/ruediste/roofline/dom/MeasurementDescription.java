@@ -12,27 +12,23 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 	public static final Axis<KernelDescriptionBase> kernelAxis = new Axis<KernelDescriptionBase>(
 			"kernel");
 	public static final Axis<MeasurerDescriptionBase> measurerAxis = new Axis<MeasurerDescriptionBase>(
-			"axis");
+			"measurer", null, Axis.classNameFormatter);
+
 	public static final Axis<Long> bufferSizeAxis = new Axis<Long>(
-			"bufferSize",
-			(long) 1024 * 1024);
+			"bufferSize", (long) 1024 * 1024);
 
 	public static final Axis<Long> iterationsAxis = new Axis<Long>(
-			"iterations",
-			(long) 1024 * 1024);
+			"iterations", (long) 1024 * 1024);
 
 	public static final Axis<Integer> unrollAxis = new Axis<Integer>("unroll",
 			1);
-	public static final Axis<Integer> dlpAxis = new Axis<Integer>("dlp",
-			1);
+	public static final Axis<Integer> dlpAxis = new Axis<Integer>("dlp", 1);
 
 	public static final Axis<String> operationAxis = new Axis<String>(
-			"operation",
-			"ArithmeticOperation_ADD");
+			"operation", "ArithmeticOperation_ADD");
 
 	public static final Axis<String> optimizationAxis = new Axis<String>(
-			"optimization",
-			"-O3");
+			"optimization", "-O3");
 
 	public MeasurementDescription() {
 	}
@@ -43,11 +39,8 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 
 	@Override
 	public String toString() {
-		return String.format("%s:%s:%s",
-				toString(getKernel()),
-				toString(getMeasurer()),
-				toString(getScheme())
-				);
+		return String.format("%s:%s:%s", toString(getKernel()),
+				toString(getMeasurer()), toString(getScheme()));
 	}
 
 	public void initialize(Coordinate coordinate) {
@@ -68,8 +61,9 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 	}
 
 	private String toString(Object o) {
-		if (o == null)
+		if (o == null) {
 			return "null";
+		}
 
 		String result = o.getClass().getSimpleName();
 		if (result.endsWith("Description")) {

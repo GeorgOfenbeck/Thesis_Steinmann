@@ -1,21 +1,9 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.FieldTypeDescriptor;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClass;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageDerivedClass;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageField;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageFieldBase;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageList;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.*;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.cGenerator.CCodeGenerator;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.javaGenerator.JavaCodeGenerator;
 
@@ -48,9 +36,7 @@ public class Main {
 			multiLanguageClass.setTypeDescriptors(typeDescriptors);
 			if (multiLanguageClass instanceof MultiLanguageDerivedClass) {
 				MultiLanguageDerivedClass derivedClass = (MultiLanguageDerivedClass) multiLanguageClass;
-				derivedClass.setBaseClass(findBaseClass(
-						derivedClass,
-						classes));
+				derivedClass.setBaseClass(findBaseClass(derivedClass, classes));
 			}
 		}
 
@@ -59,8 +45,7 @@ public class Main {
 				new CCodeGenerator() };
 
 		// generate code
-		for (CodeGeneratorBase generator : generators)
-		{
+		for (CodeGeneratorBase generator : generators) {
 			generator.generate(classes);
 		}
 	}
@@ -78,8 +63,9 @@ public class Main {
 			MultiLanguageDerivedClass multiLanguageClass,
 			List<MultiLanguageClassBase> classes) {
 		// if there is no base type, there is no base class
-		if (multiLanguageClass.getBaseType() == null)
+		if (multiLanguageClass.getBaseType() == null) {
 			return null;
+		}
 
 		// iterate over all available classes and return the first matching one
 		for (MultiLanguageClassBase baseClass : classes) {
@@ -145,17 +131,14 @@ public class Main {
 		}
 
 		// add files in the current directory
-		Collections.addAll(
-				inputFiles,
-				classDefinitionDirectory
-						.listFiles(new FileFilter() {
-							public boolean accept(File pathname) {
-								// get all .xml files
-								return !pathname.isDirectory()
-										&& pathname.getName().endsWith(
-												".xml");
-							}
-						}));
+		Collections.addAll(inputFiles,
+				classDefinitionDirectory.listFiles(new FileFilter() {
+					public boolean accept(File pathname) {
+						// get all .xml files
+						return !pathname.isDirectory()
+								&& pathname.getName().endsWith(".xml");
+					}
+				}));
 
 		return inputFiles.toArray(new File[] {});
 	}
@@ -174,23 +157,22 @@ public class Main {
 	/** create type descriptors for supported primitive types */
 	private static HashMap<String, FieldTypeDescriptor> createTypeDescriptorsForPrimitiveTypes() {
 		HashMap<String, FieldTypeDescriptor> typeDescriptors = new HashMap<String, FieldTypeDescriptor>();
-		typeDescriptors.put("int", new FieldTypeDescriptor("int", "int", "int",
-				"%d", "nextInt", "Integer", "0", null));
-		typeDescriptors.put("long", new FieldTypeDescriptor("long", "long",
+		typeDescriptors.put("int", new FieldTypeDescriptor("int", "int32_t",
+				"int", "%d", "nextInt", "Integer", "0", null));
+		typeDescriptors.put("long", new FieldTypeDescriptor("long", "int64_t",
 				"long", "%ld", "nextLong", "Long", "0", null));
 		typeDescriptors.put("bool", new FieldTypeDescriptor("bool", "bool",
 				"boolean", "%d", "nextInt", "Boolean", "0", null));
 		typeDescriptors
-				.put("double", new FieldTypeDescriptor("double",
-						"double", "double", "%lf", "nextDouble", "Double",
-						"0.0", null));
+				.put("double", new FieldTypeDescriptor("double", "double",
+						"double", "%lf", "nextDouble", "Double", "0.0", null));
 
 		typeDescriptors.put("string", new FieldTypeDescriptor("string",
 				"std::string", "String", "%c", "nextLine", "String", "\"\"",
 				"\"\""));
 
 		typeDescriptors.put("ulong", new FieldTypeDescriptor("ulong",
-				"unsigned long", "BigInteger", "%lu", "nextBigInteger",
+				"uint64_t", "BigInteger", "%Lu", "nextBigInteger",
 				"BigInteger", "0", "BigInteger.ZERO"));
 
 		return typeDescriptors;

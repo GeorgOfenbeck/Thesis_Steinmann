@@ -1,14 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,8 +11,7 @@ import org.apache.commons.lang.StringUtils;
  * IAxis&lt;T>. T is the type of the values of the axis
  * 
  */
-public class ParameterSpace implements
-		Iterable<ParameterSpace.Coordinate> {
+public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 
 	/**
 	 * Represents a coordinate in a ParameterSpace. For each axis present in the
@@ -28,15 +19,14 @@ public class ParameterSpace implements
 	 * 
 	 */
 	public static class Coordinate {
-		private Map<Axis<?>, Object> coordinates;
+		private final Map<Axis<?>, Object> coordinates;
 
 		/**
 		 * create a new coordinate based on the values provided
 		 */
 		public Coordinate(Map<Axis<?>, Object> values) {
 			// copy the provided values
-			coordinates = new HashMap<Axis<?>, Object>(
-					values);
+			coordinates = new HashMap<Axis<?>, Object>(values);
 		}
 
 		public final static Coordinate EMPTY;
@@ -81,8 +71,7 @@ public class ParameterSpace implements
 
 			Map<Axis<?>, Object> newCoordinates = new HashMap<Axis<?>, Object>();
 
-			for (Entry<Axis<?>, Object> entry : coordinates
-					.entrySet()) {
+			for (Entry<Axis<?>, Object> entry : coordinates.entrySet()) {
 				if (selectedAxes.contains(entry.getKey())) {
 					newCoordinates.put(entry.getKey(), entry.getValue());
 				}
@@ -126,14 +115,17 @@ public class ParameterSpace implements
 		public String toString(Axis<?>... axes) {
 			ArrayList<String> parts = new ArrayList<String>();
 			for (Axis<?> axis : axes) {
-				parts.add(String.format("%s=%s", axis,
-						get(axis)));
+				parts.add(String.format("%s=%s", axis, formattedValue(axis)));
 			}
 			return StringUtils.join(parts, ", ");
 		}
+
+		public <T> String formattedValue(Axis<T> axis) {
+			return axis.format(get(axis));
+		}
 	}
 
-	private Map<Axis<?>, List<Object>> axisValueSets = new HashMap<Axis<?>, List<Object>>();
+	private final Map<Axis<?>, List<Object>> axisValueSets = new HashMap<Axis<?>, List<Object>>();
 
 	/**
 	 * Add a value to an axis
@@ -157,8 +149,7 @@ public class ParameterSpace implements
 	 * @param value
 	 *            values to add to the axis
 	 */
-	public void add(Axis<?> axis,
-			Collection<? extends Object> value) {
+	public void add(Axis<?> axis, Collection<? extends Object> value) {
 		List<Object> list = getValueListOfAxis(axis);
 
 		list.addAll(value);
@@ -183,8 +174,7 @@ public class ParameterSpace implements
 				Arrays.asList(axes));
 
 		// iterate over all axes of the parameter space
-		for (Entry<Axis<?>, List<Object>> entry : axisValueSets
-				.entrySet()) {
+		for (Entry<Axis<?>, List<Object>> entry : axisValueSets.entrySet()) {
 			// if the axis is selected, the axis and all its values to the
 			// result
 			if (selectedAxes.contains(entry.getKey())) {
@@ -223,8 +213,9 @@ public class ParameterSpace implements
 		axes.removeAll(new HashSet<Axis<?>>(result));
 
 		// append the missing axes to the result
-		for (Axis<?> axis : axes)
+		for (Axis<?> axis : axes) {
 			result.add(axis);
+		}
 
 		return result;
 	}
@@ -249,8 +240,9 @@ public class ParameterSpace implements
 		result.removeAll(new HashSet<Axis<?>>(lsAxesList));
 
 		// append the least significant axes to the result
-		for (Axis<?> axis : lsAxes)
+		for (Axis<?> axis : lsAxes) {
 			result.add(axis);
+		}
 
 		return result;
 	}
@@ -270,8 +262,9 @@ public class ParameterSpace implements
 		Iterator<Axis<?>> it = orderedAxes.iterator();
 		Axis<?> orderedAxesHead = it.next();
 		List<Axis<?>> orderedAxesTail = new ArrayList<Axis<?>>();
-		while (it.hasNext())
+		while (it.hasNext()) {
 			orderedAxesTail.add(it.next());
+		}
 
 		// get all points in the subspace
 		List<Coordinate> subSpacePoints = getProjection(orderedAxesTail)
@@ -285,8 +278,7 @@ public class ParameterSpace implements
 				// add a single point for each value if the subspace is emtpy
 				result.add(Coordinate.EMPTY.getExtendedPoint(
 						(Axis<Object>) orderedAxesHead, value));
-			}
-			else {
+			} else {
 				// add the value of the first axis to each point of the subspace
 				for (Coordinate subSpacePoint : subSpacePoints) {
 					result.add(subSpacePoint.getExtendedPoint(
@@ -310,9 +302,7 @@ public class ParameterSpace implements
 		// if the list for the axis exists already, return it
 		if (axisValueSets.containsKey(axis)) {
 			list = axisValueSets.get(axis);
-		}
-		else
-		{
+		} else {
 			// otherwise create a new list and store it in the map
 			list = new ArrayList<Object>();
 			axisValueSets.put(axis, list);

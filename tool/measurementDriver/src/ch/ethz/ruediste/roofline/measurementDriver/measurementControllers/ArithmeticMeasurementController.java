@@ -47,18 +47,20 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 					// "coreduo::UNHALTED_REFERENCE_CYCLES"
 					));
 		}
+		space.add(MeasurementDescription.measurerAxis,
+				new TscMeasurerDescription());
 
-		// space.add(operationAxis, "ArithmeticOperation_ADD");
+		space.add(operationAxis, "ArithmeticOperation_ADD");
 		// space.add(operationAxis, "ArithmeticOperation_MUL");
-		space.add(operationAxis, "ArithmeticOperation_MULADD");
+		// space.add(operationAxis, "ArithmeticOperation_MULADD");
 
 		space.add(optimizationAxis, "-O3");
 		// space.add(optimizationAxis, "-O3");
 
-		for (int i = 1; i < 20; i++) {
+		for (int i = 1; i < 5; i++) {
 			space.add(unrollAxis, i);
 		}
-		for (int i = 1; i < 20; i++) {
+		for (int i = 1; i < 5; i++) {
 			space.add(dlpAxis, i);
 		}
 
@@ -69,7 +71,8 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		PrintStream out = new PrintStream(outputName + ".data");
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
-						operationAxis, dlpAxis, unrollAxis, iterationsAxis
+						measurerAxis, operationAxis, dlpAxis, unrollAxis,
+						iterationsAxis
 
 				))) {
 			MeasurementDescription measurement = new MeasurementDescription(
@@ -77,8 +80,15 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 			MeasurementResult result = measurementService.measure(measurement,
 					10);
-			DescriptiveStatistics statistics = PerfEventMeasurerOutput
-					.getStatistics("cycles", result);
+
+			DescriptiveStatistics statistics = null;
+			if (coordinate.get(measurerAxis) instanceof PerfEventMeasurerDescription) {
+
+				statistics = PerfEventMeasurerOutput.getStatistics("cycles",
+						result);
+			} else {
+				statistics = TscMeasurerOutput.getStatistics(result);
+			}
 			// = ExecutionTimeMeasurerOutput.getStatistics(result);
 
 			double cyclef = statistics.getMin()
@@ -91,9 +101,9 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 				minDlp = coordinate.get(dlpAxis);
 			}
 			System.out.printf("%s: %g %g %g\n", coordinate.toString(
-					operationAxis, iterationsAxis, unrollAxis, dlpAxis),
-					statistics.getMin(), statistics.getPercentile(50)
-							/ statistics.getMin(), cyclef);
+					operationAxis, measurerAxis, iterationsAxis, unrollAxis,
+					dlpAxis), statistics.getMin(), statistics.getPercentile(50)
+					/ statistics.getMin(), cyclef);
 			out.printf("%d %d %g\n", coordinate.get(dlpAxis),
 					coordinate.get(unrollAxis), cyclef);
 		}
