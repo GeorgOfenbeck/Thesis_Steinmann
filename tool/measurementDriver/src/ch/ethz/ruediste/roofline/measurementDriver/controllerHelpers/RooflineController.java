@@ -1,11 +1,12 @@
-package ch.ethz.ruediste.roofline.measurementDriver.services;
+package ch.ethz.ruediste.roofline.measurementDriver.controllerHelpers;
 
 import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 
 import com.google.inject.Inject;
 
-public class RooflineService {
+public class RooflineController {
 	// private static final String memEvent = "coreduo::BUS_TRANS_MEM";
 	// private static final String cycleEvent = "coreduo::UNHALTED_CORE_CYCLES";
 	// private static final String operationEvent =
@@ -16,7 +17,7 @@ public class RooflineService {
 	private static final String operationEvent = "core::FP_COMP_OPS_EXE";
 
 	@Inject
-	MeasurementService measurementService;
+	MeasurementAppController measurementAppController;
 
 	public Performance getPerformance(String name, KernelDescriptionBase kernel) {
 		System.out.printf("Measuring Performance of %s\n", name);
@@ -47,7 +48,8 @@ public class RooflineService {
 	}
 
 	private double measureEvent(String event, KernelDescriptionBase kernel) {
-		return measurementService.getStatistics(event, kernel, 10).getMin();
+		return measurementAppController.getStatistics(event, kernel, 10)
+				.getMin();
 
 	}
 }

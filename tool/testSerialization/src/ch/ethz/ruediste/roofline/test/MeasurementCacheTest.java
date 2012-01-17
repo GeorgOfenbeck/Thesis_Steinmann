@@ -1,24 +1,17 @@
 package ch.ethz.ruediste.roofline.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.io.IOException;
 
 import org.jmock.Expectations;
-import org.jmock.Sequence;
 import org.junit.Test;
 
-import ch.ethz.ruediste.roofline.dom.DummyKernelDescription;
-import ch.ethz.ruediste.roofline.dom.ExecutionTimeMeasurerOutput;
-import ch.ethz.ruediste.roofline.dom.MeasurementCommand;
-import ch.ethz.ruediste.roofline.dom.MeasurementDescription;
-import ch.ethz.ruediste.roofline.dom.MeasurementResult;
-import ch.ethz.ruediste.roofline.dom.PerfEventMeasurerOutput;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
-import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementCacheService;
-import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementResultRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 public class MeasurementCacheTest extends TestBase {
 
@@ -26,20 +19,22 @@ public class MeasurementCacheTest extends TestBase {
 	public void testKeyGeneration() {
 		MeasurementDescription measurement = new MeasurementDescription();
 
-		MeasurementCacheService service = injector
-				.getInstance(MeasurementCacheService.class);
+		HashService service = injector.getInstance(HashService.class);
 
-		String key = service.getCacheKey(measurement);
+		MeasurementHash key = service.getMeasurementHash(measurement);
 		System.out.printf("Key: %s", key);
 
-		assertTrue(key.length() >= 8);
+		assertTrue(key.getValue().length() >= 8);
 	}
 
 	@Test
 	public void testCRUD() {
 		// setup cache service
-		MeasurementCacheService service = injector
-				.getInstance(MeasurementCacheService.class);
+		MeasurementResultRepository measurementResultRepository = injector
+				.getInstance(MeasurementResultRepository.class);
+
+		// setup cache service
+		HashService hashService = injector.getInstance(HashService.class);
 
 		// setup measurements
 		MeasurementDescription measurement1 = new MeasurementDescription();
@@ -47,11 +42,16 @@ public class MeasurementCacheTest extends TestBase {
 		measurement2.setKernel(new DummyKernelDescription());
 
 		// delete existing cache entry if present
-		service.deleteFromCache(measurement1);
+		measurementResultRepository.delete(hashService
+				.getMeasurementHash(measurement1));
+		measurementResultRepository.delete(hashService
+				.getMeasurementHash(measurement2));
 
 		// check if nothing is present yet
-		assertNull(service.loadFromCache(measurement1));
-		assertNull(service.loadFromCache(measurement2));
+		assertNull(measurementResultRepository.getMeasurementResult(hashService
+				.getMeasurementHash(measurement1)));
+		assertNull(measurementResultRepository.getMeasurementResult(hashService
+				.getMeasurementHash(measurement2)));
 
 		// setup results
 		MeasurementResult result1 = new MeasurementResult();
@@ -62,64 +62,110 @@ public class MeasurementCacheTest extends TestBase {
 		result2.getOutputs().add(new ExecutionTimeMeasurerOutput());
 
 		// store first result
-		service.store(result1);
+		measurementResultRepository.store(result1,
+				hashService.getMeasurementHash(measurement1));
 
 		// check
-		assertNotNull(service.loadFromCache(measurement1));
-		assertNull(service.loadFromCache(measurement2));
-		assertEquals(0, service.loadFromCache(measurement1).getOutputs().size());
+		assertNotNull(measurementResultRepository
+				.getMeasurementResult(hashService
+						.getMeasurementHash(measurement1)));
+		assertNull(measurementResultRepository.getMeasurementResult(hashService
+				.getMeasurementHash(measurement2)));
+		assertEquals(
+				0,
+				measurementResultRepository
+						.getMeasurementResult(
+								hashService.getMeasurementHash(measurement1))
+						.getOutputs().size());
 
 		// store second result
-		service.store(result2);
+		measurementResultRepository.store(result2,
+				hashService.getMeasurementHash(measurement2));
 
 		// check
-		assertNotNull(service.loadFromCache(measurement1));
-		assertEquals(1, service.loadFromCache(measurement1).getOutputs().size());
+		assertNotNull(measurementResultRepository
+				.getMeasurementResult(hashService
+						.getMeasurementHash(measurement1)));
+		assertEquals(
+				0,
+				measurementResultRepository
+						.getMeasurementResult(
+								hashService.getMeasurementHash(measurement1))
+						.getOutputs().size());
+		assertNotNull(measurementResultRepository
+				.getMeasurementResult(hashService
+						.getMeasurementHash(measurement2)));
 
 		// delete
-		service.deleteFromCache(measurement1);
+		measurementResultRepository.delete(hashService
+				.getMeasurementHash(measurement1));
+		measurementResultRepository.delete(hashService
+				.getMeasurementHash(measurement2));
 
 		// assert that nothing is present
-		assertNull(service.loadFromCache(measurement1));
-		assertNull(service.loadFromCache(measurement2));
+		assertNull(measurementResultRepository.getMeasurementResult(hashService
+				.getMeasurementHash(measurement1)));
+		assertNull(measurementResultRepository.getMeasurementResult(hashService
+				.getMeasurementHash(measurement2)));
+
 	}
 
 	@Test
-	public void testMeasurementAppController() {
-		final MeasurementCacheService cacheService = context
-				.mock(MeasurementCacheService.class);
+	public void testMeasurementAppController() throws IOException {
+		final MeasurementResultRepository measurementResultRepository = context
+				.mock(MeasurementResultRepository.class);
 		final MeasurementService measurementService = context
 				.mock(MeasurementService.class);
 
-		MeasurementRepository controller = new MeasurementRepository();
-		controller.cacheService = cacheService;
+		final HashService hashService = context.mock(HashService.class);
+
+		final MeasurementAppController controller = new MeasurementAppController();
+		controller.measurementResultRepository = measurementResultRepository;
 		controller.measurementService = measurementService;
 		controller.configuration = injector.getInstance(Configuration.class);
+		controller.hashService = hashService;
 
-		final Sequence seq = context.sequence("sequence");
-
+		// setup a measurement
 		final MeasurementDescription measurement = new MeasurementDescription();
+
+		// setup a measurement result
 		final MeasurementResult result = new MeasurementResult();
 		for (int i = 0; i < 10; i++) {
 			result.getOutputs().add(new PerfEventMeasurerOutput());
 		}
 		result.setMeasurement(measurement);
 
+		// calculate measurement hash
+		final MeasurementHash measurementHash = new MeasurementHash("abc");
+		final CoreHash coreHash = new CoreHash("def");
+
 		context.checking(new Expectations() {
 			{
-				oneOf(cacheService).loadFromCache(with(same(measurement)));
+
+				oneOf(measurementResultRepository).getMeasurementResult(
+						with(equal(measurementHash)));
 				will(returnValue(null));
 
-				oneOf(cacheService).store(
-						with(any(MeasurementResult.class)));
+				oneOf(measurementResultRepository).store(
+						with(any(MeasurementResult.class)),
+						with(equal(measurementHash)));
 
-				oneOf(measurementService).performMeasurement(
+				oneOf(measurementService).buildMeasuringCore(
+						with(same(measurement)));
+
+				oneOf(hashService).getMeasurementHash(with(same(measurement)));
+				will(returnValue(measurementHash));
+
+				oneOf(hashService).getMeasuringCoreHash();
+				will(returnValue(coreHash));
+
+				oneOf(measurementService).runMeasuringCore(
 						with(any(MeasurementCommand.class)));
 				will(returnValue(result));
 			}
 		});
 
-		controller.getMeasurementResults(measurement, 10);
+		controller.measure(measurement, 10);
 
 		context.assertIsSatisfied();
 

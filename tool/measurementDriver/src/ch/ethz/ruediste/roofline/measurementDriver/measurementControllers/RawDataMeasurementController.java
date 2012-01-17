@@ -5,9 +5,10 @@ import java.io.IOException;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
-import ch.ethz.ruediste.roofline.measurementDriver.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 
 import com.google.inject.Inject;
 
@@ -22,7 +23,7 @@ public class RawDataMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementService measurementService;
+	MeasurementAppController measurementAppController;
 
 	@Inject
 	public PlotService plotService;
@@ -57,7 +58,8 @@ public class RawDataMeasurementController implements IMeasurementController {
 		measurement.setMeasurer(perfEventMeasurer);
 
 		// perform measurement
-		MeasurementResult result = measurementService.measure(measurement, 20);
+		MeasurementResult result = measurementAppController.measure(
+				measurement, 20);
 
 		// create plot
 		SimplePlot plot = new SimplePlot();

@@ -3,26 +3,17 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementRepository;
 
 import com.google.inject.Inject;
-import com.thoughtworks.xstream.XStream;
 
 public class MeasurementService {
-	public static final ConfigurationKey<String> measuringCorePathKey = ConfigurationKey
-			.Create(String.class, "measurement.corePath",
-					"Path to the measuring core", ".");
-
 	@Inject
 	public MultiLanguageSerializationService serializationService;
-
-	@Inject
-	public XStream xStream;
 
 	@Inject
 	public CommandService commandService;
@@ -31,151 +22,65 @@ public class MeasurementService {
 	public Configuration configuration;
 
 	@Inject
-	public MeasurementRepository measurementRepository;
+	MeasuringCoreLocationService measuringCoreLocationService;
 
 	/**
-	 * Return the specified number of measurement results of the specified
-	 * measurement. If available, cached values are reused. Otherwise the
-	 * measuring core is started
+	 * run the measuring core. it has to be built already
+	 * 
 	 */
-	public MeasurementResult measure(MeasurementDescription measurement,
-			int numberOfMeasurements) {
+	public MeasurementResult runMeasuringCore(MeasurementCommand command)
+			throws IOException, FileNotFoundException, ExecuteException {
 
-		ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
+		File buildDir = measuringCoreLocationService.getBuildDir();
+		// write command
+		serializeCommand(command, buildDir);
 
-		// load stored results if available
-		MeasurementResult cachedResult = measurementRepository
-				.getMeasurementResult(measurement);
-		if (cachedResult != null) {
-			outputs.addAll(cachedResult.getOutputs());
-		}
+		// remove old output file
+		System.out.println("removing output file");
+		File outputFile = new File(buildDir, "output");
+		outputFile.delete();
 
-		// do we need more results?
-		if (numberOfMeasurements > outputs.size()) {
-			// create measurement command
-			MeasurementCommand command = new MeasurementCommand();
-			command.setMeasurement(measurement);
-			command.setNumberOfMeasurements(numberOfMeasurements
-					- outputs.size());
+		// run measurement
+		System.out.println("running measurement");
+		commandService.runCommand(buildDir, measuringCoreLocationService
+				.getMeasuringCoreExecutable().getAbsolutePath(),
+				new String[] {});
 
-			// perform measurement
-			MeasurementResult newResult = performMeasurement(command);
+		// parse measurer output
+		System.out.println("parsing measurement output");
+		FileInputStream output = new FileInputStream(outputFile);
+		MeasurerOutputCollection outputs = (MeasurerOutputCollection) serializationService
+				.DeSerialize(output);
 
-			// combine outputs
-			newResult.getOutputs().addAll(outputs);
-
-			// overwrite outputs with combined results
-			outputs.clear();
-			outputs.addAll(newResult.getOutputs());
-
-			// store combined outputs in cache
-			measurementRepository.store(newResult);
-		}
-
-		if (outputs.size() < numberOfMeasurements) {
-			throw new Error("unable to retrieve enough results");
-		}
-
-		// create the result to be returned
+		// create result
 		MeasurementResult result = new MeasurementResult();
-		result.setMeasurement(measurement);
-
-		// add exactly the number of measurements required to the output
-		// it might be that there were more results in the repository than
-		// needed
-		for (int i = 0; i < numberOfMeasurements; i++) {
-			result.getOutputs().add(outputs.get(i));
-		}
-
+		result.setMeasurement(command.getMeasurement());
+		result.add(outputs);
 		return result;
 	}
 
-	public DescriptiveStatistics getStatistics(String event,
-			KernelDescriptionBase kernel, int numberOfResults) {
-		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
-		measurer.addEvent("event", event);
+	public void buildMeasuringCore(MeasurementDescription measurement)
+			throws FileNotFoundException, ExecuteException, IOException {
 
-		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setKernel(kernel);
-		measurement.setMeasurer(measurer);
-		measurement.setScheme(new SimpleMeasurementSchemeDescription());
+		File measuringCoreDir = measuringCoreLocationService
+				.getMeasuringCoreDir();
 
-		MeasurementResult result = measure(measurement, 10);
+		// write macro definitions
+		writeMacroDefinitions(measurement, measuringCoreDir);
 
-		return PerfEventMeasurerOutput.getStatistics("event", result);
-	}
+		// write optimization file
+		writeOptimizationFile(measurement, measuringCoreDir);
 
-	public MeasurementResult performMeasurement(MeasurementCommand command) {
-		try {
-			MeasurementDescription measurement = command.getMeasurement();
+		// write kernel name
+		writeKernelName(measurement, measuringCoreDir);
 
-			System.out.println("Performing Measurement");
+		// create measurement scheme registration
+		writeMeasurementSchemeRegistration(measurement, measuringCoreDir);
 
-			// loading the measuring Core directory
-			File measuringCoreDir = new File(
-					configuration.get(measuringCorePathKey));
-
-			// check if the core directory exists
-			if (!measuringCoreDir.exists()) {
-				throw new Error(
-						"Could not find the measuring core. The configured file is: "
-								+ measuringCoreDir.getAbsolutePath());
-			}
-
-			/*
-			 * System.out.println("processing the following measurement:");
-			 * xStream.toXML(command.getMeasurement(), System.out);
-			 * System.out.println();
-			 */
-
-			// write macro definitions
-			writeMacroDefinitions(command, measuringCoreDir);
-
-			// write optimization file
-			writeOptimizationFile(measurement, measuringCoreDir);
-
-			// write kernel name
-			writeKernelName(measurement, measuringCoreDir);
-
-			// create measurement scheme registration
-			writeMeasurementSchemeRegistration(measurement, measuringCoreDir);
-
-			// build
-			System.out.println("building measuring core");
-			commandService.runCommand(measuringCoreDir, "make", new String[] {
-					"-j2", "all" }, 0, true);
-
-			// open the build directory
-			File buildDir = new File(measuringCoreDir, "build");
-
-			// write command
-			serializeCommand(command, buildDir);
-
-			// remove output file
-			System.out.println("removing output file");
-			File outputFile = new File(buildDir, "output");
-			outputFile.delete();
-
-			// run measurement
-			System.out.println("running measurement");
-			commandService.runCommand(buildDir, "./measuringCore",
-					new String[] {});
-
-			// parse measurer output
-			System.out.println("parsing measurement output");
-			FileInputStream output = new FileInputStream(outputFile);
-			MeasurerOutputCollection outputs = (MeasurerOutputCollection) serializationService
-					.DeSerialize(output);
-
-			// create result
-			MeasurementResult result = new MeasurementResult();
-			result.setMeasurement(measurement);
-			result.add(outputs);
-
-			return result;
-		} catch (IOException e) {
-			throw new Error("Error occured during mesurement", e);
-		}
+		// build
+		System.out.println("building measuring core");
+		commandService.runCommand(measuringCoreDir, "make", new String[] {
+				"-j2", "all" }, 0, true);
 	}
 
 	/**
@@ -183,7 +88,7 @@ public class MeasurementService {
 	 * @param measuringCoreDir
 	 * @throws FileNotFoundException
 	 */
-	public void writeMeasurementSchemeRegistration(
+	private void writeMeasurementSchemeRegistration(
 			MeasurementDescription measurement, File measuringCoreDir)
 			throws FileNotFoundException {
 		System.out.println("creating MeasurementScheme registration file");
@@ -219,7 +124,7 @@ public class MeasurementService {
 	 * @param measuringCoreDir
 	 * @throws FileNotFoundException
 	 */
-	public void writeOptimizationFile(MeasurementDescription measurement,
+	private void writeOptimizationFile(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 		System.out.println("creating optimization file");
 		File optimizationFile = new File(measuringCoreDir,
@@ -231,7 +136,7 @@ public class MeasurementService {
 		optimizationPrintStream.close();
 	}
 
-	public void writeKernelName(MeasurementDescription measurement,
+	private void writeKernelName(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 		System.out.println("writing kernel name");
 		File optimizationFile = new File(measuringCoreDir, "kernelName.mk");
@@ -247,7 +152,7 @@ public class MeasurementService {
 	/**
 	 * writes the macro definitions
 	 */
-	public void writeMacroDefinitions(MeasurementCommand command,
+	private void writeMacroDefinitions(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 
 		System.out.println("Writing macro definitions");
@@ -283,8 +188,8 @@ public class MeasurementService {
 			PrintStream output = new PrintStream(new UpdatingFileOutputStream(
 					outputFile));
 			output.printf("// %s\n#define %s %s\n", macro.getDescription()
-					.replace("\n", "\n// "), macro.getMacroName(), command
-					.getMeasurement().getMacroDefinition(macro));
+					.replace("\n", "\n// "), macro.getMacroName(), measurement
+					.getMacroDefinition(macro));
 			output.close();
 		}
 
@@ -313,7 +218,7 @@ public class MeasurementService {
 	/**
 	 * serialized the command
 	 */
-	public void serializeCommand(MeasurementCommand command,
+	private void serializeCommand(MeasurementCommand command,
 			File measuringCoreDir) throws IOException, FileNotFoundException {
 		File configFile = new File(measuringCoreDir, "config");
 

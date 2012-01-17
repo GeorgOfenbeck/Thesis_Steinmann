@@ -1,11 +1,11 @@
 package ch.ethz.ruediste.roofline.dom;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class MeasurementResult {
 	private MeasurementDescription measurement;
-	private List<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
+	private final List<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
+	private CoreHash coreHash;
 
 	public List<MeasurerOutputBase> getOutputs() {
 		return outputs;
@@ -21,6 +21,14 @@ public class MeasurementResult {
 
 	public void add(MeasurerOutputCollection outputCollection) {
 		getOutputs().addAll(outputCollection.getMeasurerOutputs());
+	}
+
+	public CoreHash getCoreHash() {
+		return coreHash;
+	}
+
+	public void setCoreHash(CoreHash coreHash) {
+		this.coreHash = coreHash;
 	}
 
 }

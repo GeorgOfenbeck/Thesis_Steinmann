@@ -4,8 +4,9 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.controllerHelpers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
-import ch.ethz.ruediste.roofline.measurementDriver.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 
 import com.google.inject.Inject;
 
@@ -20,7 +21,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	RooflineService rooflineService;
+	RooflineController rooflineService;
 
 	@Inject
 	PlotService plotService;
@@ -69,8 +70,8 @@ public class RooflineMeasurementController implements IMeasurementController {
 			kernel.setUnroll(19);
 			kernel.setDlp(7);
 			kernel.setOperation("ArithmeticOperation_ADD");
-			plot.addPeakPerformance(rooflineService.getPerformance(
-					"Additions", kernel));
+			plot.addPeakPerformance(rooflineService.getPerformance("Additions",
+					kernel));
 		}
 
 		{

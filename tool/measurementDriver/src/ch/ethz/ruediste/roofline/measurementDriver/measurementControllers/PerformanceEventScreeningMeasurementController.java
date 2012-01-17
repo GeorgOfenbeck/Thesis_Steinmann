@@ -8,8 +8,8 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.Inject;
 
@@ -28,7 +28,7 @@ public class PerformanceEventScreeningMeasurementController implements
 	Configuration configuration;
 
 	@Inject
-	MeasurementService measurementService;
+	MeasurementAppController measurementAppController;
 
 	public void measure(String outputName) throws IOException {
 		MeasurementResult result;
@@ -39,7 +39,7 @@ public class PerformanceEventScreeningMeasurementController implements
 			measurement.setMeasurer(measurer);
 			measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
-			result = measurementService.measure(measurement, 1);
+			result = measurementAppController.measure(measurement, 1);
 		}
 
 		PrintStream out = new PrintStream(outputName + ".txt");
@@ -133,7 +133,7 @@ public class PerformanceEventScreeningMeasurementController implements
 
 			MeasurementResult result = null;
 			try {
-				result = measurementService.measure(measurement, 20);
+				result = measurementAppController.measure(measurement, 20);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}

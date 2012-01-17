@@ -8,10 +8,11 @@ import java.util.HashMap;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.services.CommandService;
 
 import com.google.inject.Inject;
 
@@ -26,7 +27,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	public MeasurementService measurementService;
+	MeasurementAppController measurementAppController;
 
 	@Inject
 	public CommandService commandService;
@@ -80,8 +81,8 @@ public class VarianceMeasurementController implements IMeasurementController {
 					coordinate);
 
 			// perform measurement
-			MeasurementResult result = measurementService.measure(measurement,
-					10);
+			MeasurementResult result = measurementAppController.measure(
+					measurement, 10);
 
 			// create statistics
 			DescriptiveStatistics statistics = null;

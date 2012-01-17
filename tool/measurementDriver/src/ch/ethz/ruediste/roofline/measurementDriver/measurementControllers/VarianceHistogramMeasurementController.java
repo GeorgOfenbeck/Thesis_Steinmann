@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.HistogramPlot;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
@@ -21,7 +22,7 @@ public class VarianceHistogramMeasurementController implements
 	}
 
 	@Inject
-	public MeasurementService measurementService;
+	MeasurementAppController measurementAppController;
 
 	@Inject
 	public CommandService commandService;
@@ -54,7 +55,8 @@ public class VarianceHistogramMeasurementController implements
 
 		// perform measurement
 		// measurementCacheService.deleteFromCache(measurement);
-		MeasurementResult result = measurementService.measure(measurement, 100);
+		MeasurementResult result = measurementAppController.measure(
+				measurement, 100);
 
 		// create statistics
 		HistogramPlot plot = new HistogramPlot();

@@ -7,10 +7,10 @@ import java.io.*;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 
 import com.google.inject.Inject;
 
@@ -25,7 +25,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	MeasurementService measurementService;
+	MeasurementAppController measurementAppController;
 
 	public void measure(String outputName) throws IOException {
 		ParameterSpace space = new ParameterSpace();
@@ -78,8 +78,8 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 			MeasurementDescription measurement = new MeasurementDescription(
 					coordinate);
 
-			MeasurementResult result = measurementService.measure(measurement,
-					10);
+			MeasurementResult result = measurementAppController.measure(
+					measurement, 10);
 
 			DescriptiveStatistics statistics = null;
 			if (coordinate.get(measurerAxis) instanceof PerfEventMeasurerDescription) {
