@@ -38,7 +38,7 @@ public class MeasuringCoreLocationService {
 	}
 
 	public File getMeasuringCoreExecutable() {
-		File result = new File(getBuildDir() + "measuringCore");
+		File result = new File(getBuildDir(), "measuringCore");
 		if (!result.exists()) {
 			throw new Error("could not find measuringCore: "
 					+ result.getAbsolutePath());
