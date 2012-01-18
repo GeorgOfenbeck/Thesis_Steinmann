@@ -1,20 +1,12 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.io.*;
+import java.lang.reflect.*;
+import java.net.*;
+import java.util.*;
+import java.util.jar.*;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.*;
 
 public class ClassFinder {
 	/**
