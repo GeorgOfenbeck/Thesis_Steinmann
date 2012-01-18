@@ -1,5 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.appControllers;
 
+import java.io.IOException;
 import java.util.*;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
@@ -11,7 +12,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 import com.google.inject.Inject;
 
-public class MeasurementAppController {
+public class MeasurementAppController implements IMeasurementFacilility {
 
 	public final static ConfigurationKey<Boolean> useCachedResultsKey = ConfigurationKey
 			.Create(Boolean.class, "useCachedResults",
@@ -52,10 +53,8 @@ public class MeasurementAppController {
 	 */
 	private final HashMap<MeasurementHash, CoreHash> measurementHashToCoreHash = new HashMap<MeasurementHash, CoreHash>();
 
-	/**
-	 * Return the specified number of measurement results of the specified
-	 * measurement. If available, cached values are reused. Otherwise the
-	 * measuring core is started
+	/* (non-Javadoc)
+	 * @see ch.ethz.ruediste.roofline.measurementDriver.appControllers.IMeasurementFacilility#measure(ch.ethz.ruediste.roofline.dom.MeasurementDescription, int)
 	 */
 	public MeasurementResult measure(MeasurementDescription measurement,
 			int numberOfMeasurements) {
@@ -66,24 +65,13 @@ public class MeasurementAppController {
 			MeasurementHash measurementHash = hashService
 					.getMeasurementHash(measurement);
 
-			// get the core hash if it has already been seen in this session
-			CoreHash coreHash = measurementHashToCoreHash.get(measurementHash);
-
-			if (coreHash == null) {
-				// build the core
-				buildMeasuringCore(measurement, measurementHash);
-
-				// get the hash of the measuring core
-				coreHash = hashService.getMeasuringCoreHash();
-
-				// store it in the known hashes
-				measurementHashToCoreHash.put(measurementHash, coreHash);
-			}
+			// get the hash of the core for the measurement
+			CoreHash coreHash = getCoreHash(measurement, measurementHash);
 
 			if (
 			// should we use cached results?
 			configuration.get(useCachedResultsKey)
-			// or was the measurement alredy measured in this run?
+					// or was the measurement alredy measured in this run?
 					|| measuredMeasurements.contains(measurementHash)) {
 				// load stored results
 				MeasurementResult cachedResult = measurementResultRepository
@@ -91,7 +79,7 @@ public class MeasurementAppController {
 				if (
 				// were there results?
 				cachedResult != null
-				// and were they created for the current measuring core?
+						// and were they created for the current measuring core?
 						&& coreHash.equals(cachedResult.getCoreHash())) {
 
 					// use the stored results
@@ -144,6 +132,29 @@ public class MeasurementAppController {
 		}
 
 		return result;
+	}
+
+	/**
+	 * either gets the core hash from measurementHashToCoreHash or builds the
+	 * core and hashes the executable. The core hash is stored in
+	 * measurementHashToCoreHash upon return.
+	 */
+	public CoreHash getCoreHash(MeasurementDescription measurement,
+			MeasurementHash measurementHash) throws Exception, IOException {
+		// get the core hash if it has already been seen in this session
+		CoreHash coreHash = measurementHashToCoreHash.get(measurementHash);
+
+		if (coreHash == null) {
+			// build the core
+			buildMeasuringCore(measurement, measurementHash);
+
+			// get the hash of the measuring core
+			coreHash = hashService.getMeasuringCoreHash();
+
+			// store it in the known hashes
+			measurementHashToCoreHash.put(measurementHash, coreHash);
+		}
+		return coreHash;
 	}
 
 	public DescriptiveStatistics getStatistics(String event,

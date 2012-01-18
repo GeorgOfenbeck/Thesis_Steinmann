@@ -8,10 +8,11 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.IMeasurementFacilility;
 
 import com.google.inject.Inject;
 
-public class MeasurementService {
+public class MeasurementService implements IMeasurementFacilility {
 	@Inject
 	public MultiLanguageSerializationService serializationService;
 
@@ -23,6 +24,9 @@ public class MeasurementService {
 
 	@Inject
 	MeasuringCoreLocationService measuringCoreLocationService;
+
+	@Inject
+	IMeasurementFacilility measurementFacilility;
 
 	/**
 	 * run the measuring core. it has to be built already
@@ -226,6 +230,14 @@ public class MeasurementService {
 		FileOutputStream config = new FileOutputStream(configFile);
 		serializationService.Serialize(command, config);
 		config.close();
+	}
+
+	/**
+	 * Pass the request to the MeasurementAppController
+	 */
+	public MeasurementResult measure(MeasurementDescription measurement,
+			int numberOfMeasurements) {
+		return measurementFacilility.measure(measurement, numberOfMeasurements);
 	}
 
 }

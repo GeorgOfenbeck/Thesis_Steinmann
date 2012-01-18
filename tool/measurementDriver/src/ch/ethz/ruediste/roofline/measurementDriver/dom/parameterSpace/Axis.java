@@ -1,6 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace;
 
 import ch.ethz.ruediste.roofline.dom.MeasurerDescriptionBase;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryFunction;
 
 public class Axis<T> {
 
