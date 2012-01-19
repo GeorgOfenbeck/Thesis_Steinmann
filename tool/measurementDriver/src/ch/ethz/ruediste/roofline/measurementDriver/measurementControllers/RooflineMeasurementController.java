@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllerHelpers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Performance;
 import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
 
 import com.google.inject.Inject;
@@ -21,7 +21,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	RooflineController rooflineService;
+	ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController rooflineController;
 
 	@Inject
 	PlotService plotService;
@@ -39,7 +39,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 2);
 			kernel.setOptimization("-O3 -msse");
-			plot.addPeakBandwidth(rooflineService.getMemoryBandwidth("MemLoad",
+			plot.addPeakBandwidth(rooflineController.getMemoryBandwidth("MemLoad",
 					kernel));
 		}
 
@@ -52,7 +52,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			kernel.setDlp(2);
 			kernel.setUnroll(6);
 			kernel.setOperation("ArithmeticOperation_MULADD");
-			Performance performance = rooflineService.getPerformance(
+			Performance performance = rooflineController.getPerformance(
 					"Balanced", kernel);
 			plot.addPeakPerformance(performance);
 			/*
@@ -70,7 +70,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			kernel.setUnroll(19);
 			kernel.setDlp(7);
 			kernel.setOperation("ArithmeticOperation_ADD");
-			plot.addPeakPerformance(rooflineService.getPerformance("Additions",
+			plot.addPeakPerformance(rooflineController.getPerformance("Additions",
 					kernel));
 		}
 
@@ -81,7 +81,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			kernel.setDlp(16);
 			kernel.setUnroll(18);
 			kernel.setOperation("ArithmeticOperation_MUL");
-			plot.addPeakPerformance(rooflineService.getPerformance(
+			plot.addPeakPerformance(rooflineController.getPerformance(
 					"Multiplications", kernel));
 		}
 
@@ -89,7 +89,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			TriadKernelDescription kernel = new TriadKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 2);
 			kernel.setOptimization("-O3");
-			RooflinePoint rooflinePoint = rooflineService.getRooflinePoint(
+			RooflinePoint rooflinePoint = rooflineController.getRooflinePoint(
 					"Triad", kernel);
 			plot.addPoint(rooflinePoint);
 			System.out.println(rooflinePoint);

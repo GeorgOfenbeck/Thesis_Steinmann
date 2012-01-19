@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.*;
+import static ch.ethz.ruediste.roofline.dom.Axes.*;
 
 import java.io.*;
 import java.util.HashMap;

@@ -5,8 +5,10 @@ import java.util.*;
 
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 
 import com.google.inject.Inject;
 
@@ -115,15 +117,15 @@ public class PlotService {
 			output.println("plot \\");
 
 			List<String> plotLines = new ArrayList<String>();
-			for (Performance peak : plot.getPeakPerformances()) {
+			for (Pair<String, Performance> peak : plot.getPeakPerformances()) {
 				plotLines.add(String.format("%e title '%s'",
-						peak.getPerformance(), peak.getName()));
+						peak.getRight().getValue(), peak.getLeft()));
 			}
 
-			for (Bandwidth peak : plot.getPeakBandwiths()) {
+			for (Pair<String, Throughput> peak : plot.getPeakBandwiths()) {
 				plotLines.add(String.format("%e*x title '%s (%g bytes/cycle)'",
-						peak.getBandwidth(), peak.getName(),
-						peak.getBandwidth()));
+						peak.getRight().getValue(), peak.getLeft(),
+						peak.getRight().getValue()));
 			}
 
 			for (int i = 0; i < plot.getPoints().size(); i++) {

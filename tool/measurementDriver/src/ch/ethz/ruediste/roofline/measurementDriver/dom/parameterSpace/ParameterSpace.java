@@ -40,7 +40,7 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 		 */
 		@SuppressWarnings("unchecked")
 		public <T> T get(Axis<T> axis) {
-			if (coordinates.containsKey(axis)) {
+			if (contains(axis)) {
 				return (T) coordinates.get(axis);
 			}
 			return axis.getDefaultValue();
@@ -122,6 +122,10 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 
 		public <T> String formattedValue(Axis<T> axis) {
 			return axis.format(get(axis));
+		}
+
+		public <T> boolean contains(Axis<T> axis) {
+			return coordinates.containsKey(axis);
 		}
 	}
 

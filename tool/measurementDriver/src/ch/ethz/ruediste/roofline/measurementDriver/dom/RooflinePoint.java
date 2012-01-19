@@ -1,58 +1,30 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
-public class RooflinePoint {
-	private String name;
-	private double operations;
-	private double transferredBytes;
-	private double time;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 
-	public RooflinePoint(String name, double operations,
-			double transferredBytes, double time) {
+public class RooflinePoint {
+	final private String name;
+	final private OperationalIntensity operationalIntensity;
+	final private Performance performance;
+
+	public RooflinePoint(String name,
+			OperationalIntensity operationalIntensity, Performance performance) {
 		super();
 		this.name = name;
-		this.operations = operations;
-		this.transferredBytes = transferredBytes;
-		this.time = time;
-	}
-
-	public double getOperations() {
-		return operations;
-	}
-
-	public void setOperations(double operations) {
-		this.operations = operations;
-	}
-
-	public double getTransferredBytes() {
-		return transferredBytes;
-	}
-
-	public void setTransferredBytes(double transferredBytes) {
-		this.transferredBytes = transferredBytes;
-	}
-
-	public double getTime() {
-		return time;
-	}
-
-	public void setTime(double time) {
-		this.time = time;
+		this.operationalIntensity = operationalIntensity;
+		this.performance = performance;
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public OperationalIntensity getOperationalIntensity() {
+		return operationalIntensity;
 	}
 
-	public double getOperationalIntensity() {
-		return operations / transferredBytes;
-	}
-
-	public double getPerformance() {
-		return operations / time;
+	public Performance getPerformance() {
+		return performance;
 	}
 
 	@Override

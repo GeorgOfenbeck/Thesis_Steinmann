@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.MeasurementDescription.*;
+import static ch.ethz.ruediste.roofline.dom.Axes.*;
 
 import java.io.*;
 
@@ -38,7 +38,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 				new SimpleMeasurementSchemeDescription());
 
 		{
-			space.add(MeasurementDescription.measurerAxis,
+			space.add(measurerAxis,
 					new PerfEventMeasurerDescription("cycles",
 							"core::UNHALTED_CORE_CYCLES"
 					// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE"
@@ -47,7 +47,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 					// "coreduo::UNHALTED_REFERENCE_CYCLES"
 					));
 		}
-		space.add(MeasurementDescription.measurerAxis,
+		space.add(measurerAxis,
 				new TscMeasurerDescription());
 
 		space.add(operationAxis, "ArithmeticOperation_ADD");

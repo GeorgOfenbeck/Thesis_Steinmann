@@ -2,12 +2,10 @@ package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.util.List;
 
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.INamed;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.*;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.*;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 import com.google.inject.name.Names;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -19,6 +17,8 @@ public class MainModule extends AbstractModule {
 		// setup XStream
 		XStream xStream = new XStream(new DomDriver());
 		bind(XStream.class).toInstance(xStream);
+
+		bind(IMeasurementFacilility.class).to(MeasurementAppController.class);
 
 		// setup services
 		bindAllAsSingletons(Object.class,
@@ -47,6 +47,8 @@ public class MainModule extends AbstractModule {
 						baseType, basePackage);
 		// bind the classes found
 		for (Class<? extends T> clazz : classes) {
+			if (clazz.isInterface())
+				continue;
 			bind(clazz).in(Singleton.class);
 		}
 	}
