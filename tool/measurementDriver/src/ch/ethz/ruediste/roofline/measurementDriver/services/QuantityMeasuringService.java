@@ -54,6 +54,14 @@ public class QuantityMeasuringService {
 	public static final Axis<Quantity> quantityAxis = new Axis<Quantity>(
 			"quantity");
 
+	public OperationalIntensity measureOperationalIntensity(
+			KernelDescriptionBase kernel, MemoryTransferBorder border,
+			Operation operation) {
+		return new OperationalIntensity(
+				measureTransferredBytes(kernel, border), measureOperationCount(
+						kernel, operation));
+	}
+
 	public Performance measurePerformance(
 			KernelDescriptionBase kernel, Operation operation,
 			ClockType clockType) {
@@ -85,8 +93,13 @@ public class QuantityMeasuringService {
 		case ALL:
 			throw new Error("should not happen");
 		case SSE:
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
-					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED"));
+			measurer.addEvent(
+					"ops",
+					pmuRepository
+							.getAvailableEvent(
+							// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE:SCALAR_SINGLE:PACKED_DOUBLE:SCALAR_DOUBLE"
+							"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE"
+							));
 			break;
 		case x87:
 			measurer.addEvent("ops", pmuRepository.getAvailableEvent(

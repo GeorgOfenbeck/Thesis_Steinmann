@@ -8,25 +8,30 @@ import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 import com.google.inject.Inject;
 
+/**
+ * Repository giving access to the descriptions of the Performance Measuring
+ * Units (PMUs) available on the system
+ */
 public class PmuRepository {
 	@Inject
 	MeasurementService measurementService;
 
 	private List<PmuDescription> allPmusImp;
+	private Iterable<PmuDescription> presentPmusImp;
 
 	public String getAvailableEvent(String... events) {
 		return IterableUtils.single(events, new IUnaryPredicate<String>() {
 
 			public Boolean apply(String event) {
 				String[] eventParts = event.split("::");
-				return getPMU(eventParts[0]) != null;
+				return getPresentPMU(eventParts[0]) != null;
 			}
 		});
 	}
 
 	public List<PmuDescription> getAllPmus() {
 		if (allPmusImp == null) {
-			allPmusImp = readPMUs();
+			allPmusImp = readPMUs(false);
 		}
 		return allPmusImp;
 	}
@@ -40,9 +45,20 @@ public class PmuRepository {
 				});
 	}
 
-	private List<PmuDescription> readPMUs() {
+	public PmuDescription getPresentPMU(final String pmuName) {
+		return IterableUtils.singleOrDefault(getAllPmus(),
+				new IUnaryPredicate<PmuDescription>() {
+					public Boolean apply(PmuDescription pmu) {
+						return pmu.getIsPresent()
+								&& pmu.getPmuName().equals(pmuName);
+					}
+				});
+	}
+
+	private List<PmuDescription> readPMUs(Boolean onlyPresent) {
 		// list all available performance counters
 		ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
+		measurer.setOnlyPresent(onlyPresent);
 
 		MeasurementDescription measurement = new MeasurementDescription();
 		measurement.setKernel(new DummyKernelDescription());
@@ -59,11 +75,25 @@ public class PmuRepository {
 	}
 
 	public Iterable<PmuDescription> getPresentPmus() {
-		return IterableUtils.where(getAllPmus(),
-				new IUnaryPredicate<PmuDescription>() {
-					public Boolean apply(PmuDescription pmu) {
-						return pmu.getIsPresent();
-					}
-				});
+		// have the present pmus been accessed already?
+		if (presentPmusImp == null) {
+			// are all pmus loaded already?
+			if (allPmusImp != null) {
+				// get list of present pmus from list of all pmus
+				presentPmusImp = IterableUtils.where(getAllPmus(),
+						new IUnaryPredicate<PmuDescription>() {
+							public Boolean apply(PmuDescription pmu) {
+								return pmu.getIsPresent();
+							}
+						});
+			}
+			else {
+				// only retrieve the present pmus
+				presentPmusImp = readPMUs(true);
+			}
+		}
+
+		// return the list of present pmus
+		return presentPmusImp;
 	}
 }

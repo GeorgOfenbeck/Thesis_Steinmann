@@ -146,7 +146,7 @@ static class Initializer: public SystemInitializer{
 	}
 
 	void stop(){
-		printf("terminating LibPfm\n");
+		printf("terminating LibPfm4\n");
 		pfm_terminate();
 	}
 } dummy2;

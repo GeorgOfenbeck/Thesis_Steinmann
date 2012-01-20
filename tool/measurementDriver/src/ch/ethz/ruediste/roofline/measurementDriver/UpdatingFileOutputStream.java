@@ -1,10 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 
 /**
  * A file output stream which only writes to the file when changes are detected.
@@ -31,13 +27,13 @@ public class UpdatingFileOutputStream extends OutputStream {
 		}
 		else {
 			raf = new RandomAccessFile(file, "rw");
-			writing = true;
+			this.writing = true;
 		}
 	}
 
 	@Override
 	public void write(int b) throws IOException {
-		if (writing) {
+		if (isWriting()) {
 			// if output is set already, we found a difference
 			// previously. So directly forward b to the output
 			raf.write(b);
@@ -63,9 +59,9 @@ public class UpdatingFileOutputStream extends OutputStream {
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public void switchToOutput(boolean decreasePosition)
+	private void switchToOutput(boolean decreasePosition)
 			throws FileNotFoundException, IOException {
-		writing = true;
+		this.writing = true;
 
 		// get current position
 		long position = raf.getFilePointer();
@@ -91,7 +87,7 @@ public class UpdatingFileOutputStream extends OutputStream {
 	@Override
 	public void close() throws IOException {
 		// when writing, truncate the file
-		if (writing) {
+		if (isWriting()) {
 			raf.setLength(raf.getFilePointer());
 		}
 		else {
@@ -105,5 +101,9 @@ public class UpdatingFileOutputStream extends OutputStream {
 
 		// close the file
 		raf.close();
+	}
+
+	public boolean isWriting() {
+		return writing;
 	}
 }

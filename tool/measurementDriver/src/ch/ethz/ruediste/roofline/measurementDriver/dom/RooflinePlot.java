@@ -12,7 +12,7 @@ public class RooflinePlot extends Plot2D {
 	private final ArrayList<Pair<String, Performance>> peakPerformances = new ArrayList<Pair<String, Performance>>();
 	private final ArrayList<RooflinePoint> points = new ArrayList<RooflinePoint>();
 
-	public void addPeakBandwidth(String name, Throughput peak) {
+	public void addPeakThroughput(String name, Throughput peak) {
 		peakBandwidths.add(Pair.of(name, peak));
 	}
 

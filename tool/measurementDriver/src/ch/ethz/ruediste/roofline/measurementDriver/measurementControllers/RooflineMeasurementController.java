@@ -2,11 +2,13 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.TriadKernelDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Performance;
-import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.InstructionSet;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
 
 import com.google.inject.Inject;
 
@@ -21,80 +23,39 @@ public class RooflineMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController rooflineController;
-
-	@Inject
-	PlotService plotService;
+	RooflineController rooflineController;
 
 	public void measure(String outputName) throws IOException {
-		RooflinePlot plot = new RooflinePlot();
-		plot.setOutputName("roofline");
-		plot.setTitle("A Roofline Plot");
-		plot.setxLabel("Operational Intensity");
-		plot.setxUnit("Operations/Byte");
-		plot.setyLabel("Performance");
-		plot.setyUnit("flops/cycle");
+		rooflineController.addPeakPerformance("ADD x87", Algorithm.Add,
+				InstructionSet.x87);
+		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
+				InstructionSet.SSEScalar);
+		rooflineController.addPeakPerformance("ADD SSE", Algorithm.Add,
+				InstructionSet.SSEScalar);
+		rooflineController.addPeakPerformance("MUL x87", Algorithm.Mul,
+				InstructionSet.x87);
+		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
+				InstructionSet.SSEScalar);
+		rooflineController.addPeakPerformance("MUL SSE", Algorithm.Mul,
+				InstructionSet.SSEScalar);
+		rooflineController.addPeakPerformance("ABal x87",
+				Algorithm.ArithBalanced, InstructionSet.x87);
+		rooflineController.addPeakPerformance("ABal", Algorithm.ArithBalanced,
+				InstructionSet.SSEScalar);
+		rooflineController.addPeakPerformance("ABal SSE",
+				Algorithm.ArithBalanced, InstructionSet.SSEScalar);
 
-		{
-			MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
-			kernel.setBufferSize(1024 * 1024 * 2);
-			kernel.setOptimization("-O3 -msse");
-			plot.addPeakBandwidth(rooflineController.getMemoryBandwidth("MemLoad",
-					kernel));
-		}
-
-		String optimization = "-O3";
-
-		{
-			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(1000000);
-			kernel.setOptimization(optimization);
-			kernel.setDlp(2);
-			kernel.setUnroll(6);
-			kernel.setOperation("ArithmeticOperation_MULADD");
-			Performance performance = rooflineController.getPerformance(
-					"Balanced", kernel);
-			plot.addPeakPerformance(performance);
-			/*
-			 * plot.addPeakPerformance(new Performance("thBal", kernel
-			 * .getIterations() * kernel.getUnroll() * 3 kernel.getDlp(),
-			 * performance .getTime()));
-			 */
-		}
-
-		{
-			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(100000);
-
-			kernel.setOptimization(optimization);
-			kernel.setUnroll(19);
-			kernel.setDlp(7);
-			kernel.setOperation("ArithmeticOperation_ADD");
-			plot.addPeakPerformance(rooflineController.getPerformance("Additions",
-					kernel));
-		}
-
-		{
-			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
-			kernel.setIterations(100000);
-			kernel.setOptimization(optimization);
-			kernel.setDlp(16);
-			kernel.setUnroll(18);
-			kernel.setOperation("ArithmeticOperation_MUL");
-			plot.addPeakPerformance(rooflineController.getPerformance(
-					"Multiplications", kernel));
-		}
+		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
+				MemoryTransferBorder.LlcRam);
 
 		{
 			TriadKernelDescription kernel = new TriadKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 2);
 			kernel.setOptimization("-O3");
-			RooflinePoint rooflinePoint = rooflineController.getRooflinePoint(
-					"Triad", kernel);
-			plot.addPoint(rooflinePoint);
-			System.out.println(rooflinePoint);
+			rooflineController.addRooflinePoint("Triad", kernel, Operation.x87,
+					MemoryTransferBorder.LlcRam);
 		}
 
-		plotService.plot(plot);
+		rooflineController.plot();
 	}
 }

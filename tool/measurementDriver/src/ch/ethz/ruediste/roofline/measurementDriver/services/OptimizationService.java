@@ -29,7 +29,7 @@ public class OptimizationService {
 				minCoordinate = coordinate;
 			}
 		}
-
+		System.out.println(minCoordinate);
 		return minCoordinate;
 	}
 }

@@ -92,8 +92,9 @@ public class PlotService {
 				+ ".data");
 
 		for (RooflinePoint point : plot.getPoints()) {
-			outputFile.printf("%e %e\n\n\n", point.getOperationalIntensity(),
-					point.getPerformance());
+			outputFile.printf("%e %e\n\n\n", point.getOperationalIntensity()
+					.getValue(),
+					point.getPerformance().getValue());
 		}
 
 		outputFile.close();

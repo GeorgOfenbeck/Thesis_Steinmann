@@ -63,28 +63,42 @@ public class MeasurementService implements IMeasurementFacilility {
 		return result;
 	}
 
-	public void buildMeasuringCore(MeasurementDescription measurement)
+	public void buildPreparedMeasuringCore(MeasurementDescription measurement)
 			throws FileNotFoundException, ExecuteException, IOException {
-
-		File measuringCoreDir = measuringCoreLocationService
-				.getMeasuringCoreDir();
-
-		// write macro definitions
-		writeMacroDefinitions(measurement, measuringCoreDir);
-
-		// write optimization file
-		writeOptimizationFile(measurement, measuringCoreDir);
-
-		// write kernel name
-		writeKernelName(measurement, measuringCoreDir);
-
-		// create measurement scheme registration
-		writeMeasurementSchemeRegistration(measurement, measuringCoreDir);
 
 		// build
 		System.out.println("building measuring core");
-		commandService.runCommand(measuringCoreDir, "make", new String[] {
+		commandService.runCommand(measuringCoreLocationService
+				.getMeasuringCoreDir(), "make", new String[] {
 				"-j2", "all" }, 0, true);
+	}
+
+	/**
+	 * prepares the measuring core for the building to perform the specified
+	 * measurement. Returns true if anything changed.
+	 */
+	public boolean perpareMeasuringCoreBuilding(
+			MeasurementDescription measurement)
+			throws Error, FileNotFoundException {
+		File measuringCoreDir = measuringCoreLocationService
+				.getMeasuringCoreDir();
+
+		boolean anythingChanged = false;
+
+		// write macro definitions
+		anythingChanged |= writeMacroDefinitions(measurement, measuringCoreDir);
+
+		// write optimization file
+		anythingChanged |= writeOptimizationFile(measurement, measuringCoreDir);
+
+		// write kernel name
+		anythingChanged |= writeKernelName(measurement, measuringCoreDir);
+
+		// create measurement scheme registration
+		anythingChanged |= writeMeasurementSchemeRegistration(measurement,
+				measuringCoreDir);
+
+		return anythingChanged;
 	}
 
 	/**
@@ -92,14 +106,16 @@ public class MeasurementService implements IMeasurementFacilility {
 	 * @param measuringCoreDir
 	 * @throws FileNotFoundException
 	 */
-	private void writeMeasurementSchemeRegistration(
+	private boolean writeMeasurementSchemeRegistration(
 			MeasurementDescription measurement, File measuringCoreDir)
 			throws FileNotFoundException {
 		System.out.println("creating MeasurementScheme registration file");
 		File measurementSchemeRegistrationFile = new File(measuringCoreDir,
 				"generated/MeasurementSchemeRegistration.cpp");
+		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
+				measurementSchemeRegistrationFile);
 		PrintStream measurementSchemeRegistrationStream = new PrintStream(
-				new UpdatingFileOutputStream(measurementSchemeRegistrationFile));
+				updatingStream);
 
 		String schemeName = measurement.getScheme().getClass().getSimpleName();
 		schemeName = schemeName.substring(0, schemeName.length()
@@ -121,43 +137,54 @@ public class MeasurementService implements IMeasurementFacilility {
 				schemeName, kernelName, measurerName, schemeName, kernelName,
 				measurerName, kernelName, measurerName);
 		measurementSchemeRegistrationStream.close();
+
+		return updatingStream.isWriting();
 	}
 
 	/**
-	 * @param measurement
-	 * @param measuringCoreDir
-	 * @throws FileNotFoundException
+	 * write the optimization file. return true if modified
 	 */
-	private void writeOptimizationFile(MeasurementDescription measurement,
+	private boolean writeOptimizationFile(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 		System.out.println("creating optimization file");
 		File optimizationFile = new File(measuringCoreDir,
 				"kernelOptimization.mk");
+		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
+				optimizationFile);
 		PrintStream optimizationPrintStream = new PrintStream(
-				new UpdatingFileOutputStream(optimizationFile));
+				updatingStream);
 		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS=%s\n",
 				measurement.getKernel().getOptimization());
 		optimizationPrintStream.close();
+		return updatingStream.isWriting();
 	}
 
-	private void writeKernelName(MeasurementDescription measurement,
+	/**
+	 * configure the kernel name. return true if changed
+	 */
+	private boolean writeKernelName(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 		System.out.println("writing kernel name");
 		File optimizationFile = new File(measuringCoreDir, "kernelName.mk");
+		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
+				optimizationFile);
 		PrintStream optimizationPrintStream = new PrintStream(
-				new UpdatingFileOutputStream(optimizationFile));
+				updatingStream);
 		String kernelName = measurement.getKernel().getClass().getSimpleName();
 		kernelName = kernelName.substring(0, kernelName.length()
 				- "KernelDescription".length());
 		optimizationPrintStream.printf("KERNEL_NAME=%s\n", kernelName);
 		optimizationPrintStream.close();
+		return updatingStream.isWriting();
 	}
 
 	/**
 	 * writes the macro definitions
 	 */
-	private void writeMacroDefinitions(MeasurementDescription measurement,
+	private boolean writeMacroDefinitions(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
+
+		boolean anythingChanged = false;
 
 		System.out.println("Writing macro definitions");
 
@@ -189,22 +216,28 @@ public class MeasurementService implements IMeasurementFacilility {
 
 			File outputFile = new File(macrosDir, macro.getMacroName() + ".h");
 			presentFiles.add(outputFile);
-			PrintStream output = new PrintStream(new UpdatingFileOutputStream(
-					outputFile));
+			UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
+					outputFile);
+			PrintStream output = new PrintStream(updatingStream);
 			output.printf("// %s\n#define %s %s\n", macro.getDescription()
 					.replace("\n", "\n// "), macro.getMacroName(), measurement
 					.getMacroDefinition(macro));
 			output.close();
+			anythingChanged |= updatingStream.isWriting();
 		}
 
 		// remove spurious files
-		removeFilesNotInSet(macrosDir, presentFiles);
+		anythingChanged |= removeFilesNotInSet(macrosDir, presentFiles);
+
+		return anythingChanged;
 	}
 
 	/**
-	 * remove all files in dir which are not in presentFiles
+	 * remove all files in dir which are not in presentFiles. Returns true if
+	 * any file has been deleted
 	 */
-	private void removeFilesNotInSet(File dir, final HashSet<File> presentFiles) {
+	private boolean removeFilesNotInSet(File dir,
+			final HashSet<File> presentFiles) {
 
 		// load all files not in presentFiles
 		File[] filesToDelete = dir.listFiles(new FileFilter() {
@@ -213,10 +246,12 @@ public class MeasurementService implements IMeasurementFacilility {
 			}
 		});
 
+		boolean anythingChanged = false;
 		// delete the files
 		for (File file : filesToDelete) {
-			file.delete();
+			anythingChanged |= file.delete();
 		}
+		return anythingChanged;
 	}
 
 	/**

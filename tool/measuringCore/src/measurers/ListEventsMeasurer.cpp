@@ -129,7 +129,9 @@ MeasurerOutputBase *ListEventsMeasurer::read() {
 	for (int pmu = 0; pmu < PFM_PMU_MAX; pmu++) {
 		PmuDescription *pmuDescription = list_pmu_events((pfm_pmu_t) pmu);
 		if (pmuDescription != NULL) {
-			result->getPmus().push_back(pmuDescription);
+			if (!description->getOnlyPresent() || pmuDescription->getIsPresent()){
+				result->getPmus().push_back(pmuDescription);
+			}
 		}
 	}
 	return result;

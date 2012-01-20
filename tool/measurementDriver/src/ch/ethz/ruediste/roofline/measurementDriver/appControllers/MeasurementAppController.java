@@ -12,6 +12,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 import com.google.inject.Inject;
 
+/**
+ * Controller for the measuring core. Assumes exclusive access to the core.
+ */
 public class MeasurementAppController implements IMeasurementFacilility {
 
 	public final static ConfigurationKey<Boolean> useCachedResultsKey = ConfigurationKey
@@ -39,6 +42,11 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	private MeasurementHash currentlyCompiledMeasurementHash;
 
 	/**
+	 * contains the hash of the currently compiled core
+	 */
+	private CoreHash currentlyCompiledCoreHash;
+
+	/**
 	 * contains all measurement hashes which have been measured already in this
 	 * session
 	 */
@@ -53,8 +61,12 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	 */
 	private final HashMap<MeasurementHash, CoreHash> measurementHashToCoreHash = new HashMap<MeasurementHash, CoreHash>();
 
-	/* (non-Javadoc)
-	 * @see ch.ethz.ruediste.roofline.measurementDriver.appControllers.IMeasurementFacilility#measure(ch.ethz.ruediste.roofline.dom.MeasurementDescription, int)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ch.ethz.ruediste.roofline.measurementDriver.appControllers.
+	 * IMeasurementFacilility
+	 * #measure(ch.ethz.ruediste.roofline.dom.MeasurementDescription, int)
 	 */
 	public MeasurementResult measure(MeasurementDescription measurement,
 			int numberOfMeasurements) {
@@ -149,10 +161,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			buildMeasuringCore(measurement, measurementHash);
 
 			// get the hash of the measuring core
-			coreHash = hashService.getMeasuringCoreHash();
-
-			// store it in the known hashes
-			measurementHashToCoreHash.put(measurementHash, coreHash);
+			coreHash = currentlyCompiledCoreHash;
 		}
 		return coreHash;
 	}
@@ -195,6 +204,9 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				hashService.getMeasurementHash(measurement));
 	}
 
+	/**
+	 * after return, the currently built core hash is always known
+	 */
 	public void buildMeasuringCore(MeasurementDescription measurement,
 			MeasurementHash measurementHash) throws Exception {
 
@@ -203,10 +215,24 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			return;
 		}
 
-		// build the core
-		measurementService.buildMeasuringCore(measurement);
+		// prepare the core
+		boolean coreChanged = measurementService
+				.perpareMeasuringCoreBuilding(measurement);
+
+		// do we need to update the core?
+		if (currentlyCompiledCoreHash == null || coreChanged) {
+			// build the core
+			measurementService.buildPreparedMeasuringCore(measurement);
+
+			// update the core hash
+			currentlyCompiledCoreHash = hashService.getMeasuringCoreHash();
+		}
 
 		// set the compiled measurement
 		currentlyCompiledMeasurementHash = measurementHash;
+
+		// store the current mapping
+		measurementHashToCoreHash.put(currentlyCompiledMeasurementHash,
+				currentlyCompiledCoreHash);
 	}
 }

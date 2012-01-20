@@ -150,7 +150,10 @@ public class MeasurementCacheTest extends TestBase {
 						with(any(MeasurementResult.class)),
 						with(equal(measurementHash)));
 
-				oneOf(measurementService).buildMeasuringCore(
+				oneOf(measurementService).perpareMeasuringCoreBuilding(
+						with(same(measurement)));
+
+				oneOf(measurementService).buildPreparedMeasuringCore(
 						with(same(measurement)));
 
 				oneOf(hashService).getMeasurementHash(with(same(measurement)));

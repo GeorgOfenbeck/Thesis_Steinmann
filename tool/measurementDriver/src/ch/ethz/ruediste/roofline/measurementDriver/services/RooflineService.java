@@ -6,7 +6,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineControlle
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.InstructionSet;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Performance;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 
 import com.google.inject.Inject;
 
@@ -18,7 +20,7 @@ public class RooflineService {
 	public OptimizationService optimizationService;
 
 	public Performance measurePeakPerformance(Algorithm algorithm,
-			InstructionSet instructionSet) throws Error {
+			InstructionSet instructionSet, ClockType clockType) throws Error {
 		CoordinateBuilder kernelParameters = new CoordinateBuilder();
 
 		// set the operation for arithmetic kernels
@@ -30,7 +32,7 @@ public class RooflineService {
 			kernelParameters.set(operationAxis, "ArithmeticOperation_MULADD");
 			break;
 		case Mul:
-			kernelParameters.set(operationAxis, "ArithmeticOperation_Mul");
+			kernelParameters.set(operationAxis, "ArithmeticOperation_MUL");
 			break;
 		case Load:
 		case MemBalanced:
@@ -43,8 +45,7 @@ public class RooflineService {
 				.createCoordinate()
 				.set(QuantityMeasuringService.quantityAxis,
 						QuantityMeasuringService.Quantity.Performance)
-				.set(QuantityMeasuringService.clockTypeAxis,
-						QuantityMeasuringService.ClockType.CoreCycles);
+				.set(QuantityMeasuringService.clockTypeAxis, clockType);
 
 		// set the optimization
 		switch (instructionSet) {
@@ -95,9 +96,7 @@ public class RooflineService {
 		// apply the best parameters
 		kernel.initialize(bestParams);
 
-		// set the kernel
-		kernelParameters.set(Axes.kernelAxis, kernel);
-
+		// measure the performance
 		Performance performance = quantityMeasuringService.measurePerformance(
 				kernel,
 				measurementCoordinate
@@ -105,5 +104,36 @@ public class RooflineService {
 				measurementCoordinate
 						.get(QuantityMeasuringService.clockTypeAxis));
 		return performance;
+	}
+
+	public Throughput measurePeakThroughput(Algorithm algorithm,
+			MemoryTransferBorder border, ClockType clockType) {
+		KernelDescriptionBase kernel = null;
+		CoordinateBuilder kernelParameters = new CoordinateBuilder();
+
+		// create the kernel
+		switch (algorithm) {
+		case Load:
+			kernel = new MemoryLoadKernelDescription();
+			kernelParameters.set(optimizationAxis, "-O3 -msse");
+			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 10);
+			break;
+		case Add:
+		case ArithBalanced:
+		case Mul:
+		case MemBalanced:
+		case Store:
+			throw new Error("Algorithm not supported for peak throughput");
+		}
+
+		// initialize the kernel
+		kernel.initialize(kernelParameters.build());
+
+		// measure the throughput
+		Throughput throughput = quantityMeasuringService.measureThroughput(
+				kernel,
+				border,
+				clockType);
+		return throughput;
 	}
 }

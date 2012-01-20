@@ -91,6 +91,8 @@ public class Configuration {
 		while (it.hasNext()) {
 
 			Object key = it.next();
+			if (key instanceof String && ((String) key).startsWith("log4j."))
+				continue;
 			System.out.println("found flag " + key);
 			if (!configurationKeyMap.containsKey(key)) {
 				String availableKeys = StringUtils.join(
