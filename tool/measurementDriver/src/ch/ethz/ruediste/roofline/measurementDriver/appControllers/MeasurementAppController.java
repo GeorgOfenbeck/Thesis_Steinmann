@@ -37,11 +37,6 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	public HashService hashService;
 
 	/**
-	 * contains the measurement which the core is currently compiled for
-	 */
-	private MeasurementHash currentlyCompiledMeasurementHash;
-
-	/**
 	 * contains the hash of the currently compiled core
 	 */
 	private CoreHash currentlyCompiledCoreHash;
@@ -77,13 +72,10 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			MeasurementHash measurementHash = hashService
 					.getMeasurementHash(measurement);
 
-			// get the hash of the core for the measurement
-			CoreHash coreHash = getCoreHash(measurement, measurementHash);
-
 			if (
 			// should we use cached results?
 			configuration.get(useCachedResultsKey)
-					// or was the measurement alredy measured in this run?
+					// or was the measurement already measured in this run?
 					|| measuredMeasurements.contains(measurementHash)) {
 				// load stored results
 				MeasurementResult cachedResult = measurementResultRepository
@@ -92,7 +84,8 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				// were there results?
 				cachedResult != null
 						// and were they created for the current measuring core?
-						&& coreHash.equals(cachedResult.getCoreHash())) {
+						&& getCoreHash(measurement, measurementHash).equals(
+								cachedResult.getCoreHash())) {
 
 					// use the stored results
 					outputs.addAll(cachedResult.getOutputs());
@@ -119,7 +112,8 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				outputs.addAll(newResult.getOutputs());
 
 				// set the core hash of the results
-				newResult.setCoreHash(coreHash);
+				newResult
+						.setCoreHash(getCoreHash(measurement, measurementHash));
 
 				// store combined outputs in cache
 				measurementResultRepository.store(newResult, measurementHash);
@@ -211,7 +205,11 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			MeasurementHash measurementHash) throws Exception {
 
 		// check if the measuring core is already compiled for the measurement
-		if (measurementHash.equals(currentlyCompiledMeasurementHash)) {
+		if (measurementHashToCoreHash.containsKey(measurementHash)
+				&& currentlyCompiledCoreHash != null
+				&& measurementHashToCoreHash.get(measurementHash).equals(
+						currentlyCompiledCoreHash))
+		{
 			return;
 		}
 
@@ -220,19 +218,25 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				.perpareMeasuringCoreBuilding(measurement);
 
 		// do we need to update the core?
-		if (currentlyCompiledCoreHash == null || coreChanged) {
+		if (coreChanged) {
 			// build the core
 			measurementService.buildPreparedMeasuringCore(measurement);
 
-			// update the core hash
-			currentlyCompiledCoreHash = hashService.getMeasuringCoreHash();
+			// do we already know the hash from a previous measurement?
+			if (measurementHashToCoreHash.containsKey(measurementHash)) {
+				// reuse the previous core hash
+				currentlyCompiledCoreHash = measurementHashToCoreHash
+						.get(measurementHash);
+			}
+			else {
+				// calculate and update the core hash
+				currentlyCompiledCoreHash = hashService.getMeasuringCoreHash();
+
+				// store the new mapping
+				measurementHashToCoreHash.put(measurementHash,
+						currentlyCompiledCoreHash);
+			}
 		}
 
-		// set the compiled measurement
-		currentlyCompiledMeasurementHash = measurementHash;
-
-		// store the current mapping
-		measurementHashToCoreHash.put(currentlyCompiledMeasurementHash,
-				currentlyCompiledCoreHash);
 	}
 }

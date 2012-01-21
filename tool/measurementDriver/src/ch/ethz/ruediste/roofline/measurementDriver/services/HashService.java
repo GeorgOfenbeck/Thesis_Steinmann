@@ -35,6 +35,15 @@ public class HashService {
 			// discard everything
 		}
 
+		@Override
+		public void write(byte[] b) throws IOException {
+			// discard everything
+		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			// discard everything
+		}
 	}
 
 	/**

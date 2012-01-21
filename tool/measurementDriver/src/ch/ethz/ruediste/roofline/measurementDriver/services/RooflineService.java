@@ -1,6 +1,9 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
 import static ch.ethz.ruediste.roofline.dom.Axes.*;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.InstructionSet;
@@ -87,14 +90,14 @@ public class RooflineService {
 				.build();
 
 		// do the minimization
-		Coordinate bestParams = optimizationService
-				.minimize(
+		Pair<Coordinate, Quantity> maximum = optimizationService
+				.maximize(
 						kernel,
 						optimzationSpace,
 						measurementCoordinate);
 
 		// apply the best parameters
-		kernel.initialize(bestParams);
+		kernel.initialize(maximum.getLeft());
 
 		// measure the performance
 		Performance performance = quantityMeasuringService.measurePerformance(

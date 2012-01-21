@@ -207,7 +207,9 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 		List<Axis<?>> result = new ArrayList<Axis<?>>();
 		for (Axis<?> axis : msAxes) {
 			if (!axisValueSets.containsKey(axis)) {
-				throw new Error("axis not part of the parameter space");
+				throw new Error(String.format(
+						"axis %s not part of the parameter space %s", axis,
+						this));
 			}
 			result.add(axis);
 		}
@@ -234,7 +236,9 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 		List<Axis<?>> lsAxesList = new ArrayList<Axis<?>>();
 		for (Axis<?> axis : lsAxes) {
 			if (!axisValueSets.containsKey(axis)) {
-				throw new Error("axis not part of the parameter space");
+				throw new Error(String.format(
+						"axis %s not part of the parameter space %s", axis,
+						this));
 			}
 			lsAxesList.add(axis);
 		}
@@ -312,5 +316,10 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 			axisValueSets.put(axis, list);
 		}
 		return list;
+	}
+
+	@Override
+	public String toString() {
+		return StringUtils.join(axisValueSets.keySet(), ",");
 	}
 }
