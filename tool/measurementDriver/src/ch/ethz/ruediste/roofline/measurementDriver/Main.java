@@ -1,22 +1,19 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.log4j.*;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
 
-import com.google.inject.ConfigurationException;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Key;
+import com.google.inject.*;
 import com.google.inject.name.Names;
 
 public class Main {
+	static private Logger log = Logger.getLogger(Main.class);
 
 	@Inject
 	public Instantiator instantiator;
@@ -58,6 +55,9 @@ public class Main {
 		// load user configuration
 		configuration.loadUserConfiguration();
 
+		// initialize log4j
+		PropertyConfigurator.configure(configuration.toProperties());
+
 		if (parsedArgs.size() < 1) {
 			throw new Error("expected command name");
 		}
@@ -72,9 +72,10 @@ public class Main {
 						.getInstance(Key.get(ICommandController.class,
 								Names.named(commandName)));
 			} catch (ConfigurationException e) {
-				System.out
-						.printf("Could not find the command named %s\nAvailable Commands:\n",
-								commandName);
+				log.fatal(String
+						.format(
+								"Could not find the command named %s\nAvailable Commands:\n",
+								commandName));
 				instantiator.listNamed(ICommandController.class);
 			}
 

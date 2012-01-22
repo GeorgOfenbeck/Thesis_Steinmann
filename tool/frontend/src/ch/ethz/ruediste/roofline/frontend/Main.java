@@ -231,6 +231,7 @@ public class Main {
 		cmdLine.addArgument("-cp");
 		cmdLine.addArgument(configuration.getString(classPathKey));
 		cmdLine.addArgument("ch.ethz.ruediste.roofline.measurementDriver.Main");
+
 		for (String arg : args) {
 			cmdLine.addArgument(arg);
 		}

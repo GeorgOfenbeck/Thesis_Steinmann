@@ -11,6 +11,7 @@ import com.google.inject.Singleton;
 
 @Singleton
 public class Configuration {
+
 	public static ConfigurationKey<String> userConfigFileKey = ConfigurationKey
 			.Create(String.class, "userConfigFile",
 					"location and filename of the user configuration file",
@@ -159,5 +160,22 @@ public class Configuration {
 
 	public void set(String key, Object value) {
 		mapConfiguration.setProperty(key, value);
+	}
+
+	/**
+	 * returns a properties object containing all configured entries. Does not
+	 * contain the default values provided by the ConfigurationKeys
+	 */
+	public Properties toProperties() {
+		Properties result = new Properties();
+		Iterator<?> it = combinedConfiguration.getKeys();
+		while (it.hasNext()) {
+			String key = (String) it.next();
+			Object value = combinedConfiguration.getProperty(key);
+			System.out.printf("%s=%s\n", key, value);
+
+			result.put(key, value);
+		}
+		return result;
 	}
 }
