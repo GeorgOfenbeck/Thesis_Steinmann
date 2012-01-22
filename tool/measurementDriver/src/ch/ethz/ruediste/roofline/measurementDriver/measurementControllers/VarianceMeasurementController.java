@@ -164,23 +164,4 @@ public class VarianceMeasurementController implements IMeasurementController {
 				new String[] { outputName + "percentiles.gnuplot" });
 	}
 
-	static void printSummary(DescriptiveStatistics summary) {
-		System.out.println("Measurement");
-		System.out.print("number of outputs: ");
-		System.out.println(summary.getN());
-		System.out.print("mean:");
-		System.out.println(summary.getMean());
-		System.out.print("stddev:");
-		System.out.println(summary.getStandardDeviation());
-		System.out.print("relative:");
-		System.out.println(summary.getStandardDeviation() / summary.getMean());
-		System.out.print("median:");
-		System.out.println(summary.getPercentile(50));
-		System.out.print("min:");
-		System.out.println(summary.getMin());
-		System.out.print("max:");
-		System.out.println(summary.getMax());
-		System.out.println();
-	}
-
 }
