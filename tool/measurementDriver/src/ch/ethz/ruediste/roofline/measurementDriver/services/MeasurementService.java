@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
@@ -13,6 +14,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.appControllers.IMeasurementFa
 import com.google.inject.Inject;
 
 public class MeasurementService implements IMeasurementFacilility {
+	static private Logger log = Logger.getLogger(MeasurementService.class);
+
 	@Inject
 	public MultiLanguageSerializationService serializationService;
 
@@ -40,18 +43,18 @@ public class MeasurementService implements IMeasurementFacilility {
 		serializeCommand(command, buildDir);
 
 		// remove old output file
-		System.out.println("removing output file");
+		log.trace("removing output file");
 		File outputFile = new File(buildDir, "output");
 		outputFile.delete();
 
 		// run measurement
-		System.out.println("running measurement");
+		log.trace("running measurement");
 		commandService.runCommand(buildDir, measuringCoreLocationService
 				.getMeasuringCoreExecutable().getAbsolutePath(),
-				new String[] {});
+				new String[] {}, 0, false);
 
 		// parse measurer output
-		System.out.println("parsing measurement output");
+		log.trace("parsing measurement output");
 		FileInputStream output = new FileInputStream(outputFile);
 		MeasurerOutputCollection outputs = (MeasurerOutputCollection) serializationService
 				.DeSerialize(output);
@@ -67,17 +70,17 @@ public class MeasurementService implements IMeasurementFacilility {
 			throws FileNotFoundException, ExecuteException, IOException {
 
 		// build
-		System.out.println("building measuring core");
+		log.trace("building measuring core");
 		commandService.runCommand(measuringCoreLocationService
 				.getMeasuringCoreDir(), "make", new String[] {
-				"-j2", "all" }, 0, true);
+				"-j2", "all" }, 0, false);
 	}
 
 	/**
 	 * prepares the measuring core for the building to perform the specified
 	 * measurement. Returns true if anything changed.
 	 */
-	public boolean perpareMeasuringCoreBuilding(
+	public boolean prepareMeasuringCoreBuilding(
 			MeasurementDescription measurement)
 			throws Error, FileNotFoundException {
 		File measuringCoreDir = measuringCoreLocationService
@@ -109,7 +112,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	private boolean writeMeasurementSchemeRegistration(
 			MeasurementDescription measurement, File measuringCoreDir)
 			throws FileNotFoundException {
-		System.out.println("creating MeasurementScheme registration file");
+		log.trace("creating MeasurementScheme registration file");
 		File measurementSchemeRegistrationFile = new File(measuringCoreDir,
 				"generated/MeasurementSchemeRegistration.cpp");
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
@@ -146,7 +149,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	 */
 	private boolean writeOptimizationFile(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
-		System.out.println("creating optimization file");
+		log.trace("creating optimization file");
 		File optimizationFile = new File(measuringCoreDir,
 				"kernelOptimization.mk");
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
@@ -164,7 +167,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	 */
 	private boolean writeKernelName(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
-		System.out.println("writing kernel name");
+		log.trace("writing kernel name");
 		File optimizationFile = new File(measuringCoreDir, "kernelName.mk");
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
 				optimizationFile);
@@ -186,7 +189,7 @@ public class MeasurementService implements IMeasurementFacilility {
 
 		boolean anythingChanged = false;
 
-		System.out.println("Writing macro definitions");
+		log.trace("Writing macro definitions");
 
 		// create the directories for the macro definition headers
 		File macrosDir = new File(measuringCoreDir, "generated/macros");
@@ -203,8 +206,8 @@ public class MeasurementService implements IMeasurementFacilility {
 
 		// iterate over all keys and write definition file
 		for (Pair<Class<?>, MacroKey> pair : macros) {
-			System.out.printf("found macro %s\n", pair.getRight()
-					.getMacroName());
+			log.debug(String.format("found macro %s\n", pair.getRight()
+					.getMacroName()));
 			MacroKey macro = pair.getRight();
 
 			// check if macro keys are unique

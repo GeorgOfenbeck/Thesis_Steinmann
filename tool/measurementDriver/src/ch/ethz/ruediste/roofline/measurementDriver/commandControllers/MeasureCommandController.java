@@ -3,16 +3,18 @@ package ch.ethz.ruediste.roofline.measurementDriver.commandControllers;
 import java.io.IOException;
 import java.util.List;
 
-import ch.ethz.ruediste.roofline.measurementDriver.IAutoCompletionAwareCommandController;
-import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
+import org.apache.log4j.Logger;
+
+import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 
-import com.google.inject.ConfigurationException;
-import com.google.inject.Inject;
-import com.google.inject.Key;
+import com.google.inject.*;
 import com.google.inject.name.Names;
 
-public class MeasureCommandController implements IAutoCompletionAwareCommandController {
+public class MeasureCommandController implements
+		IAutoCompletionAwareCommandController {
+	private static Logger log = Logger
+			.getLogger(MeasureCommandController.class);
 
 	public String getName() {
 		return "measure";
@@ -29,7 +31,8 @@ public class MeasureCommandController implements IAutoCompletionAwareCommandCont
 	public void execute(List<String> args) {
 		// check if measurement name has been provided
 		if (args.size() < 1) {
-			System.out.printf("Usage: %s %s\n", getName(), getDescription());
+			log.fatal(String.format("Usage: %s %s\n", getName(),
+					getDescription()));
 			System.exit(0);
 		}
 
@@ -75,7 +78,8 @@ public class MeasureCommandController implements IAutoCompletionAwareCommandCont
 				|| (args.size() == 1 && !partialWord.isEmpty())) {
 			for (Class<? extends IMeasurementController> clazz : instantiator
 					.getBoundClasses(IMeasurementController.class)) {
-				IMeasurementController measurement = instantiator.getInstance(clazz);
+				IMeasurementController measurement = instantiator
+						.getInstance(clazz);
 				if (measurement.getName().startsWith(partialWord)) {
 					System.out.println(measurement.getName());
 				}
