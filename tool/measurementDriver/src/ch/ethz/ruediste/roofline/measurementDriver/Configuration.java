@@ -85,7 +85,7 @@ public class Configuration {
 	 */
 	public void checkConfiguration() throws Error {
 		// find all declared configuration keys
-		Map<String, ConfigurationKeyBase> configurationKeyMap = getConfigurationKeyMap("ch.ethz.ruediste.roofline.measurementDriver");
+		Map<String, ConfigurationKeyBase> configurationKeyMap = getConfigurationKeyMap();
 
 		// iterate over all defined configuration flags
 		Iterator<?> it = combinedConfiguration.getKeys();
@@ -139,8 +139,7 @@ public class Configuration {
 	}
 
 	public <T> void set(ConfigurationKey<T> key, T value) {
-		mapConfiguration.clearProperty(key.getKey());
-		mapConfiguration.addProperty(key.getKey(), value);
+		mapConfiguration.setProperty(key.getKey(), value);
 	}
 
 	/**
@@ -148,8 +147,8 @@ public class Configuration {
 	 * package and subpackages. The key in the map is the key of the
 	 * configuration key, the value is the configuration key object.
 	 */
-	public Map<String, ConfigurationKeyBase> getConfigurationKeyMap(
-			String packageName) {
+	public Map<String, ConfigurationKeyBase> getConfigurationKeyMap() {
+		String packageName = "ch.ethz.ruediste.roofline.measurementDriver";
 		HashMap<String, ConfigurationKeyBase> map = new HashMap<String, ConfigurationKeyBase>();
 		for (Pair<Class<?>, ConfigurationKeyBase> pair : ClassFinder
 				.getStaticFieldValues(ConfigurationKeyBase.class, packageName)) {

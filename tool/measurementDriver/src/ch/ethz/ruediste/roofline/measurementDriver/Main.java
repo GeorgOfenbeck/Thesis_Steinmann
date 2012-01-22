@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import org.apache.commons.exec.CommandLine;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.*;
 
@@ -13,6 +14,18 @@ import com.google.inject.*;
 import com.google.inject.name.Names;
 
 public class Main {
+	public static ConfigurationKey<Boolean> debugOutputKey = ConfigurationKey
+			.Create(Boolean.class,
+					"debug",
+					"if set to true, the debug log statements are printed to the console",
+					false);
+
+	public static ConfigurationKey<String> logLevelKey = ConfigurationKey
+			.Create(String.class,
+					"logLevel",
+					"logLevel to be used for console logging",
+					"INFO");
+
 	static private Logger log = Logger.getLogger(Main.class);
 
 	@Inject
@@ -57,6 +70,16 @@ public class Main {
 
 		// initialize log4j
 		PropertyConfigurator.configure(configuration.toProperties());
+
+		// set the loglevel
+		Logger.getRootLogger().setLevel(
+				Level.toLevel(configuration.get(logLevelKey)));
+
+		// set debug loglevel
+		if (configuration.get(debugOutputKey)) {
+			// System.out.println("set loglevel to debug");
+			Logger.getRootLogger().setLevel((Level) Level.DEBUG);
+		}
 
 		if (parsedArgs.size() < 1) {
 			throw new Error("expected command name");
@@ -190,16 +213,55 @@ public class Main {
 				arg = arg.substring(0, arg.length() - 1);
 
 			if (arg.startsWith("-")) {
-
 				// it's a configuration
-				String[] argParts = arg.substring(1).split("=");
-				if (argParts.length != 2) {
-					throw new Error(
-							"Expected configuration definition in the format of -<key>=<value>, got "
-									+ arg);
-				}
 
-				configuration.set(argParts[0], argParts[1]);
+				// is it a boolean which should be toggled?
+				if (!arg.contains("=")) {
+					Map<String, ConfigurationKeyBase> configurationKeyMap = configuration
+							.getConfigurationKeyMap();
+
+					// find the key for the argument
+					ConfigurationKeyBase key = configurationKeyMap.get(arg
+							.substring(1));
+
+					// throw error if key does not exist
+					if (key == null) {
+						throw new Error(
+								String.format(
+										"could not find configuration key named %s. Available keys:\n%s",
+										arg.substring(1),
+										StringUtils.join(
+												configurationKeyMap.keySet(),
+												"\n")));
+					}
+
+					// check if key is a boolean
+					if (!Boolean.class.isAssignableFrom(key.getValueType())) {
+						throw new Error(
+								String.format(
+										"key %s of type %s is not a boolean, which could be toggled",
+										key.getKey(), key.getValueType()
+												.getName()));
+					}
+
+					@SuppressWarnings("unchecked")
+					ConfigurationKey<Boolean> boolKey = (ConfigurationKey<Boolean>) key;
+
+					// System.out.println("toggling " + boolKey.getKey());
+					// toggle the boolean
+					configuration.set(boolKey, !configuration.get(boolKey));
+				}
+				else {
+					// it's a normal configuration
+					String[] argParts = arg.substring(1).split("=");
+					if (argParts.length != 2) {
+						throw new Error(
+								"Expected configuration definition in the format of -<key>=<value>, got "
+										+ arg);
+					}
+
+					configuration.set(argParts[0], argParts[1]);
+				}
 			}
 			else {
 				// it's a normal argument

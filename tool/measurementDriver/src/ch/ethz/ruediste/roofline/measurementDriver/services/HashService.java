@@ -3,6 +3,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 import java.io.*;
 import java.security.*;
 
+import org.apache.log4j.Logger;
+
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 
@@ -10,6 +12,8 @@ import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
 
 public class HashService {
+	private static Logger log = Logger.getLogger(HashService.class);
+
 	public static final ConfigurationKey<String> messageDigestKey = ConfigurationKey
 			.Create(String.class,
 					"cache.messageDigest",
@@ -52,6 +56,8 @@ public class HashService {
 	 * @throws IOException
 	 */
 	public String hashFile(File file) throws IOException {
+		log.debug("hashing file " + file.getAbsolutePath());
+
 		DigestOutputStream digestOutputStream = openDigestOutputStream(new NullOutputStream());
 
 		FileInputStream input = new FileInputStream(file);
