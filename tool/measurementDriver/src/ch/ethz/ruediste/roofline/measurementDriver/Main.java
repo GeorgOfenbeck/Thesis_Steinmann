@@ -181,7 +181,14 @@ public class Main {
 	private List<String> parseCommandLine(String[] args) {
 		ArrayList<String> unhandledArgs = new ArrayList<String>();
 
-		for (String arg : args) {
+		for (String rawArg : args) {
+			// remove starting and trailing double quotes
+			String arg = rawArg;
+			if (arg.startsWith("\""))
+				arg = arg.substring(1);
+			if (arg.endsWith("\""))
+				arg = arg.substring(0, arg.length() - 1);
+
 			if (arg.startsWith("-")) {
 
 				// it's a configuration
@@ -191,6 +198,7 @@ public class Main {
 							"Expected configuration definition in the format of -<key>=<value>, got "
 									+ arg);
 				}
+
 				configuration.set(argParts[0], argParts[1]);
 			}
 			else {

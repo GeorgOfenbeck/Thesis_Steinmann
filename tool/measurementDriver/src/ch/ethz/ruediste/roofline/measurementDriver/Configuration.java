@@ -94,7 +94,7 @@ public class Configuration {
 			Object key = it.next();
 			if (key instanceof String && ((String) key).startsWith("log4j."))
 				continue;
-			System.out.println("found flag " + key);
+			// System.out.println("found flag " + key);
 			if (!configurationKeyMap.containsKey(key)) {
 				String availableKeys = StringUtils.join(
 						configurationKeyMap.keySet(), "\n");
@@ -172,7 +172,7 @@ public class Configuration {
 		while (it.hasNext()) {
 			String key = (String) it.next();
 			Object value = combinedConfiguration.getProperty(key);
-			System.out.printf("%s=%s\n", key, value);
+			// System.out.printf("%s=%s\n", key, value);
 
 			result.put(key, value);
 		}

@@ -117,12 +117,14 @@ public class MeasurementCacheTest extends TestBase {
 		final MeasurementService measurementService = context
 				.mock(MeasurementService.class);
 
+		final Configuration configuration = context.mock(Configuration.class);
+
 		final HashService hashService = context.mock(HashService.class);
 
 		final MeasurementAppController controller = new MeasurementAppController();
 		controller.measurementResultRepository = measurementResultRepository;
 		controller.measurementService = measurementService;
-		controller.configuration = injector.getInstance(Configuration.class);
+		controller.configuration = configuration;
 		controller.hashService = hashService;
 
 		// setup a measurement
@@ -150,14 +152,19 @@ public class MeasurementCacheTest extends TestBase {
 						with(any(MeasurementResult.class)),
 						with(equal(measurementHash)));
 
-				oneOf(measurementService).perpareMeasuringCoreBuilding(
+				oneOf(measurementService).prepareMeasuringCoreBuilding(
 						with(same(measurement)));
+				will(returnValue(false));
 
 				oneOf(measurementService).buildPreparedMeasuringCore(
 						with(same(measurement)));
 
 				oneOf(hashService).getMeasurementHash(with(same(measurement)));
 				will(returnValue(measurementHash));
+
+				oneOf(configuration).get(
+						MeasurementAppController.useCachedResultsKey);
+				will(returnValue(true));
 
 				oneOf(hashService).getMeasuringCoreHash();
 				will(returnValue(coreHash));

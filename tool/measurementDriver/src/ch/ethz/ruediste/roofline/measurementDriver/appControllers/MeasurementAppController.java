@@ -1,19 +1,24 @@
 package ch.ethz.ruediste.roofline.measurementDriver.appControllers;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.MeasurementResultRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 
 import com.google.inject.Inject;
 
 /**
- * Controller for the measuring core. Assumes exclusive access to the core.
+ * Controller for the measuring core.
+ * 
+ * We expect that the source code is not modified externally while the
+ * measurement driver runs, thus once we have compiled the core for a
+ * measurement, following compilations for the same measurement will yield the
+ * same measuring core
  */
 public class MeasurementAppController implements IMeasurementFacilility {
 
@@ -34,27 +39,12 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	public MeasurementService measurementService;
 
 	@Inject
+	public MeasurementHashRepository measurementHashRepository;
+
+	@Inject
 	public HashService hashService;
 
-	/**
-	 * contains the hash of the currently compiled core
-	 */
-	private CoreHash currentlyCompiledCoreHash;
-
-	/**
-	 * contains all measurement hashes which have been measured already in this
-	 * session
-	 */
-	private final HashSet<MeasurementHash> measuredMeasurements = new HashSet<MeasurementHash>();
-
-	/**
-	 * Maps measurement hashes to core hashes for measurements which have
-	 * already been seen in this session. We expect that the source code is not
-	 * modified externally while the measurement driver runs, thus once we have
-	 * compiled the core for a measurement, following compilations for the same
-	 * measurement will yield the same measuring core
-	 */
-	private final HashMap<MeasurementHash, CoreHash> measurementHashToCoreHash = new HashMap<MeasurementHash, CoreHash>();
+	private MeasurementHash currentlyCompiledMeasurementHash;
 
 	/*
 	 * (non-Javadoc)
@@ -76,7 +66,8 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			// should we use cached results?
 			configuration.get(useCachedResultsKey)
 					// or was the measurement already measured in this run?
-					|| measuredMeasurements.contains(measurementHash)) {
+					|| measurementHashRepository
+							.hasMeasurementBeenSeen(measurementHash)) {
 				// load stored results
 				MeasurementResult cachedResult = measurementResultRepository
 						.getMeasurementResult(measurementHash);
@@ -147,15 +138,27 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	 */
 	public CoreHash getCoreHash(MeasurementDescription measurement,
 			MeasurementHash measurementHash) throws Exception, IOException {
-		// get the core hash if it has already been seen in this session
-		CoreHash coreHash = measurementHashToCoreHash.get(measurementHash);
+
+		// get the core hash if it has already been computed
+		CoreHash coreHash = measurementHashRepository
+				.getCoreHash(measurementHash);
 
 		if (coreHash == null) {
 			// build the core
 			buildMeasuringCore(measurement, measurementHash);
+		}
 
-			// get the hash of the measuring core
-			coreHash = currentlyCompiledCoreHash;
+		// get the core hash if it is known now
+		coreHash = measurementHashRepository
+				.getCoreHash(measurementHash);
+
+		if (coreHash == null) {
+			// calculate the hash
+			coreHash = hashService.getMeasuringCoreHash();
+
+			// store the mapping
+			measurementHashRepository.setCoreHash(measurementHash,
+					coreHash);
 		}
 		return coreHash;
 	}
@@ -183,6 +186,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 
 	public MeasurementResult performMeasurement(MeasurementCommand command,
 			MeasurementHash measurementHash) throws Exception {
+
 		// make sure the core is built
 		buildMeasuringCore(command.getMeasurement(), measurementHash);
 
@@ -198,45 +202,35 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				hashService.getMeasurementHash(measurement));
 	}
 
-	/**
-	 * after return, the currently built core hash is always known
-	 */
 	public void buildMeasuringCore(MeasurementDescription measurement,
 			MeasurementHash measurementHash) throws Exception {
 
-		// check if the measuring core is already compiled for the measurement
-		if (measurementHashToCoreHash.containsKey(measurementHash)
-				&& currentlyCompiledCoreHash != null
-				&& measurementHashToCoreHash.get(measurementHash).equals(
-						currentlyCompiledCoreHash))
-		{
+		// is the right core compiled already?
+		if (currentlyCompiledMeasurementHash != null
+				&& measurementHashRepository.areCoresEqual(
+						currentlyCompiledMeasurementHash, measurementHash)) {
 			return;
 		}
 
 		// prepare the core
 		boolean coreChanged = measurementService
-				.perpareMeasuringCoreBuilding(measurement);
+				.prepareMeasuringCoreBuilding(measurement);
 
-		// do we need to update the core?
 		if (coreChanged) {
 			// build the core
 			measurementService.buildPreparedMeasuringCore(measurement);
-
-			// do we already know the hash from a previous measurement?
-			if (measurementHashToCoreHash.containsKey(measurementHash)) {
-				// reuse the previous core hash
-				currentlyCompiledCoreHash = measurementHashToCoreHash
-						.get(measurementHash);
-			}
-			else {
-				// calculate and update the core hash
-				currentlyCompiledCoreHash = hashService.getMeasuringCoreHash();
-
-				// store the new mapping
-				measurementHashToCoreHash.put(measurementHash,
-						currentlyCompiledCoreHash);
+		}
+		else
+		{
+			// nothing changed, so the measurement has the same core
+			// as the measurement compiled before
+			if (currentlyCompiledMeasurementHash != null) {
+				measurementHashRepository.setHaveEqualCores(
+						currentlyCompiledMeasurementHash, measurementHash);
 			}
 		}
 
+		// update the compiled measurement hash
+		currentlyCompiledMeasurementHash = measurementHash;
 	}
 }
