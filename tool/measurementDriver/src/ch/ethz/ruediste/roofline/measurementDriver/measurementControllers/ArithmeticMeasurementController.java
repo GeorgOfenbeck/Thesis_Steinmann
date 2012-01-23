@@ -4,6 +4,8 @@ import static ch.ethz.ruediste.roofline.dom.Axes.*;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
@@ -17,6 +19,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringSer
 import com.google.inject.Inject;
 
 public class ArithmeticMeasurementController implements IMeasurementController {
+	private static Logger log = Logger
+			.getLogger(ArithmeticMeasurementController.class);
 
 	public String getName() {
 		return "arithmetic";
@@ -33,6 +37,8 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 	QuantityMeasuringService quantityMeasuringService;
 
 	public void measure(String outputName) throws IOException {
+
+		log.debug("entering arithmetic measurement controller");
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(iterationsAxis, 10000L);
@@ -55,13 +61,13 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		Performance maxPerformance = null;
 		Coordinate maxCoordinate = null;
 
+		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
 						operationAxis, dlpAxis, unrollAxis,
 						iterationsAxis
 
 				))) {
-
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 			kernel.initialize(coordinate);
 			Performance performance = quantityMeasuringService

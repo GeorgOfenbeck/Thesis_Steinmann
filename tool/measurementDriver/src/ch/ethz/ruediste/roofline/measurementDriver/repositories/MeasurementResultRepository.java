@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
 import java.io.*;
 
+import org.apache.log4j.Logger;
+
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
@@ -10,6 +12,8 @@ import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
 
 public class MeasurementResultRepository {
+	private static Logger log = Logger
+			.getLogger(MeasurementResultRepository.class);
 	public static final ConfigurationKey<String> cacheLocationKey = ConfigurationKey
 			.Create(String.class, "cache.location",
 					"directory containing the cached results of measurements",
@@ -27,24 +31,32 @@ public class MeasurementResultRepository {
 	@Inject
 	public HashService hashService;
 
+	@Inject
+	public RuntimeMonitor runtimeMonitor;
+
 	/**
 	 * load the measurement result form the cache. return null if no cache entry
 	 * was found
 	 */
 	public MeasurementResult getMeasurementResult(
 			MeasurementHash measurementHash) {
+		log.debug("loading result from cache");
+		try {
+			runtimeMonitor.loadMeasurementResultsCategory.enter();
+			// get the cache file
+			File cacheFile = getCacheFile(measurementHash);
 
-		// get the cache file
-		File cacheFile = getCacheFile(measurementHash);
+			// check if the value in the cache
+			if (cacheFile.exists()) {
+				// if a cached value is present, deserialize it and return
+				return (MeasurementResult) xStream.fromXML(cacheFile);
+			}
 
-		// check if the value in the cache
-		if (cacheFile.exists()) {
-			// if a cached value is present, deserialize it and return
-			return (MeasurementResult) xStream.fromXML(cacheFile);
+			// if no cached value is found, return null;
+			return null;
+		} finally {
+			runtimeMonitor.loadMeasurementResultsCategory.leave();
 		}
-
-		// if no cached value is found, return null;
-		return null;
 	}
 
 	/**

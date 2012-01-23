@@ -29,6 +29,9 @@ public class HashService {
 	@Inject
 	public MeasuringCoreLocationService measuringCoreLocationService;
 
+	@Inject
+	RuntimeMonitor runtimeMonitor;
+
 	/**
 	 * Output stream discarding everything
 	 */
@@ -57,6 +60,7 @@ public class HashService {
 	 */
 	public String hashFile(File file) throws IOException {
 		log.debug("hashing file " + file.getAbsolutePath());
+		runtimeMonitor.hashingCategory.enter();
 
 		DigestOutputStream digestOutputStream = openDigestOutputStream(new NullOutputStream());
 
@@ -65,19 +69,24 @@ public class HashService {
 		while ((ch = input.read()) != -1) {
 			digestOutputStream.write(ch);
 		}
-		return getHash(digestOutputStream);
+		String hash = getHash(digestOutputStream);
+		runtimeMonitor.hashingCategory.leave();
+		return hash;
 	}
 
 	/**
 	 * hash an object
 	 */
 	public String hashObject(Object obj) {
+		runtimeMonitor.hashingCategory.enter();
 		DigestOutputStream digestOutputStream = openDigestOutputStream(new NullOutputStream());
 
 		// digest the serialized xml
 		xStream.toXML(obj, digestOutputStream);
 
-		return getHash(digestOutputStream);
+		String hash = getHash(digestOutputStream);
+		runtimeMonitor.hashingCategory.leave();
+		return hash;
 	}
 
 	private String getHash(DigestOutputStream digestOutputStream) {

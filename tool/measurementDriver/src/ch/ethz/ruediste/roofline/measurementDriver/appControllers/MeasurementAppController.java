@@ -218,7 +218,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 
 		if (coreChanged) {
 			// build the core
-			measurementService.buildPreparedMeasuringCore(measurement);
+			measurementService.compilePreparedMeasuringCore(measurement);
 		}
 		else
 		{

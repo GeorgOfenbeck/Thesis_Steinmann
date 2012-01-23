@@ -34,6 +34,9 @@ public class Main {
 	@Inject
 	public Configuration configuration;
 
+	@Inject
+	public RuntimeMonitor runtimeMonitor;
+
 	public static void main(String args[]) throws IOException {
 		// setup dependency Injection
 		Injector injector = Guice.createInjector(new MainModule());
@@ -62,6 +65,9 @@ public class Main {
 			return;
 		}
 
+		runtimeMonitor.rootCategory.enter();
+		runtimeMonitor.startupCategory.enter();
+
 		// parse command line
 		List<String> parsedArgs = parseCommandLine(args);
 
@@ -80,6 +86,8 @@ public class Main {
 			// System.out.println("set loglevel to debug");
 			Logger.getRootLogger().setLevel((Level) Level.DEBUG);
 		}
+
+		runtimeMonitor.startupCategory.leave();
 
 		if (parsedArgs.size() < 1) {
 			throw new Error("expected command name");
@@ -108,6 +116,8 @@ public class Main {
 				command.execute(parsedArgs);
 			}
 		}
+		runtimeMonitor.rootCategory.leave();
+		runtimeMonitor.print();
 	}
 
 	private void doAutocompetion(String[] args) {

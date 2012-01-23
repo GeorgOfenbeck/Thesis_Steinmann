@@ -26,10 +26,13 @@ public class MeasurementService implements IMeasurementFacilility {
 	public Configuration configuration;
 
 	@Inject
-	MeasuringCoreLocationService measuringCoreLocationService;
+	public MeasuringCoreLocationService measuringCoreLocationService;
 
 	@Inject
-	IMeasurementFacilility measurementFacilility;
+	public IMeasurementFacilility measurementFacilility;
+
+	@Inject
+	public RuntimeMonitor runtimeMonitor;
 
 	/**
 	 * run the measuring core. it has to be built already
@@ -37,7 +40,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	 */
 	public MeasurementResult runMeasuringCore(MeasurementCommand command)
 			throws IOException, FileNotFoundException, ExecuteException {
-
+		runtimeMonitor.runMeasurementCategory.enter();
 		File buildDir = measuringCoreLocationService.getBuildDir();
 		// write command
 		serializeCommand(command, buildDir);
@@ -63,17 +66,19 @@ public class MeasurementService implements IMeasurementFacilility {
 		MeasurementResult result = new MeasurementResult();
 		result.setMeasurement(command.getMeasurement());
 		result.add(outputs);
+		runtimeMonitor.runMeasurementCategory.leave();
 		return result;
 	}
 
-	public void buildPreparedMeasuringCore(MeasurementDescription measurement)
+	public void compilePreparedMeasuringCore(MeasurementDescription measurement)
 			throws FileNotFoundException, ExecuteException, IOException {
-
+		runtimeMonitor.compilationCategory.enter();
 		// build
 		log.trace("building measuring core");
 		commandService.runCommand(measuringCoreLocationService
 				.getMeasuringCoreDir(), "make", new String[] {
 				"-j2", "all" }, 0, false);
+		runtimeMonitor.compilationCategory.leave();
 	}
 
 	/**
@@ -83,6 +88,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	public boolean prepareMeasuringCoreBuilding(
 			MeasurementDescription measurement)
 			throws Error, FileNotFoundException {
+		runtimeMonitor.buildPreparationCategory.enter();
 		File measuringCoreDir = measuringCoreLocationService
 				.getMeasuringCoreDir();
 
@@ -100,7 +106,7 @@ public class MeasurementService implements IMeasurementFacilility {
 		// create measurement scheme registration
 		anythingChanged |= writeMeasurementSchemeRegistration(measurement,
 				measuringCoreDir);
-
+		runtimeMonitor.buildPreparationCategory.leave();
 		return anythingChanged;
 	}
 
