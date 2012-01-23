@@ -65,9 +65,10 @@ public class HashService {
 		DigestOutputStream digestOutputStream = openDigestOutputStream(new NullOutputStream());
 
 		FileInputStream input = new FileInputStream(file);
-		int ch;
-		while ((ch = input.read()) != -1) {
-			digestOutputStream.write(ch);
+		byte[] buffer = new byte[512];
+		int len;
+		while ((len = input.read(buffer)) > 0) {
+			digestOutputStream.write(buffer, 0, len);
 		}
 		String hash = getHash(digestOutputStream);
 		runtimeMonitor.hashingCategory.leave();
