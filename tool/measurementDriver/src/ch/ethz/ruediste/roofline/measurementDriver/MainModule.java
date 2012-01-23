@@ -4,6 +4,7 @@ import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.AxisConverter;
 
 import com.google.inject.*;
 import com.google.inject.name.Names;
@@ -16,6 +17,7 @@ public class MainModule extends AbstractModule {
 	protected void configure() {
 		// setup XStream
 		XStream xStream = new XStream(new DomDriver());
+		xStream.registerConverter(new AxisConverter());
 		bind(XStream.class).toInstance(xStream);
 
 		bind(IMeasurementFacilility.class).to(MeasurementAppController.class);

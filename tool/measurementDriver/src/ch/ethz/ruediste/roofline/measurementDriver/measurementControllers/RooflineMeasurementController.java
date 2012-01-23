@@ -26,23 +26,26 @@ public class RooflineMeasurementController implements IMeasurementController {
 	RooflineController rooflineController;
 
 	public void measure(String outputName) throws IOException {
-		rooflineController.addPeakPerformance("ADD x87", Algorithm.Add,
+		/*rooflineController.addPeakPerformance("ADD x87", Algorithm.Add,
 				InstructionSet.x87);
-		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
-				InstructionSet.SSEScalar);
+
 		rooflineController.addPeakPerformance("ADD SSE", Algorithm.Add,
-				InstructionSet.SSEScalar);
+				InstructionSet.SSE);
 		rooflineController.addPeakPerformance("MUL x87", Algorithm.Mul,
 				InstructionSet.x87);
-		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
-				InstructionSet.SSEScalar);
 		rooflineController.addPeakPerformance("MUL SSE", Algorithm.Mul,
-				InstructionSet.SSEScalar);
+				InstructionSet.SSE);
 		rooflineController.addPeakPerformance("ABal x87",
 				Algorithm.ArithBalanced, InstructionSet.x87);
-		rooflineController.addPeakPerformance("ABal", Algorithm.ArithBalanced,
-				InstructionSet.SSEScalar);
 		rooflineController.addPeakPerformance("ABal SSE",
+				Algorithm.ArithBalanced, InstructionSet.SSE);
+				*/
+
+		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
+				InstructionSet.SSEScalar);
+		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
+				InstructionSet.SSEScalar);
+		rooflineController.addPeakPerformance("ABal",
 				Algorithm.ArithBalanced, InstructionSet.SSEScalar);
 
 		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,

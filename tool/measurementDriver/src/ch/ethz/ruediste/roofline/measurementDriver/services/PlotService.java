@@ -119,12 +119,13 @@ public class PlotService {
 
 			List<String> plotLines = new ArrayList<String>();
 			for (Pair<String, Performance> peak : plot.getPeakPerformances()) {
-				plotLines.add(String.format("%e title '%s'",
-						peak.getRight().getValue(), peak.getLeft()));
+				plotLines.add(String.format("%e title '%s (%g flop/cycle)'",
+						peak.getRight().getValue(), peak.getLeft(), peak
+								.getRight().getValue()));
 			}
 
 			for (Pair<String, Throughput> peak : plot.getPeakBandwiths()) {
-				plotLines.add(String.format("%e*x title '%s (%g bytes/cycle)'",
+				plotLines.add(String.format("%e*x title '%s (%g byte/cycle)'",
 						peak.getRight().getValue(), peak.getLeft(),
 						peak.getRight().getValue()));
 			}

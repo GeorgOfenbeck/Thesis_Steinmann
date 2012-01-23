@@ -1,14 +1,20 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.Logger;
+
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.PmuRepository;
+import ch.ethz.ruediste.roofline.statistics.IAddValue;
 
 import com.google.inject.Inject;
 
 public class QuantityMeasuringService {
+	private static Logger log = Logger
+			.getLogger(QuantityMeasuringService.class);
 	@Inject
 	ValidatingMeasurementService validatingMeasurementService;
 
@@ -22,6 +28,7 @@ public class QuantityMeasuringService {
 	}
 
 	public static final Axis<Operation> operationAxis = new Axis<Operation>(
+			"0cbbc641-c59d-4027-bd5b-e0144da82227",
 			"operation");
 
 	public enum MemoryTransferBorder {
@@ -32,6 +39,7 @@ public class QuantityMeasuringService {
 	}
 
 	public static final Axis<MemoryTransferBorder> memoryTransferBorderAxis = new Axis<MemoryTransferBorder>(
+			"ac9c15ce-5a16-43c1-a21e-33fe59047dae",
 			"memoryTransferBorder");
 
 	public enum ClockType {
@@ -41,6 +49,7 @@ public class QuantityMeasuringService {
 	}
 
 	public static final Axis<ClockType> clockTypeAxis = new Axis<ClockType>(
+			"fdfe94b9-4690-4c94-8d71-c10e8ede4748",
 			"clockType");
 
 	public enum Quantity {
@@ -52,6 +61,7 @@ public class QuantityMeasuringService {
 	}
 
 	public static final Axis<Quantity> quantityAxis = new Axis<Quantity>(
+			"6c426432-5521-4c93-ac65-ec5d51a062bc",
 			"quantity");
 
 	public OperationalIntensity measureOperationalIntensity(
@@ -87,6 +97,7 @@ public class QuantityMeasuringService {
 					measureOperationCount(kernel, Operation.x87).getValue());
 		}
 
+		double multiplier = 1;
 		// setup the measurer
 		final PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
 		switch (operation) {
@@ -100,6 +111,7 @@ public class QuantityMeasuringService {
 							// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE:SCALAR_SINGLE:PACKED_DOUBLE:SCALAR_DOUBLE"
 							"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE"
 							));
+			multiplier = 2;
 			break;
 		case x87:
 			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
@@ -111,9 +123,18 @@ public class QuantityMeasuringService {
 
 		MeasurementResult result = measure(kernel, measurer);
 
+		PerfEventMeasurerOutput.addValues("ops", result, new IAddValue() {
+
+			public void addValue(double v) {
+				log.debug("value: " + v);
+			}
+		});
 		// get the output
-		return new OperationCount(PerfEventMeasurerOutput.getStatistics("ops",
-				result).getMin());
+		DescriptiveStatistics statistics = PerfEventMeasurerOutput
+				.getStatistics("ops",
+						result);
+
+		return new OperationCount(statistics.getMin() * multiplier);
 
 	}
 

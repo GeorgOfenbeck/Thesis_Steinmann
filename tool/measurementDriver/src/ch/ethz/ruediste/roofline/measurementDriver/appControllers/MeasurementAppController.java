@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
@@ -21,6 +22,8 @@ import com.google.inject.Inject;
  * same measuring core
  */
 public class MeasurementAppController implements IMeasurementFacilility {
+	private static Logger log = Logger
+			.getLogger(MeasurementAppController.class);
 
 	public final static ConfigurationKey<Boolean> useCachedResultsKey = ConfigurationKey
 			.Create(Boolean.class, "useCachedResults",
@@ -61,6 +64,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		try {
 			MeasurementHash measurementHash = hashService
 					.getMeasurementHash(measurement);
+			log.debug("measuring " + measurementHash);
 
 			if (
 			// should we use cached results?
@@ -68,6 +72,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 					// or was the measurement already measured in this run?
 					|| measurementHashRepository
 							.hasMeasurementBeenSeen(measurementHash)) {
+				log.trace("looking in result repository");
 				// load stored results
 				MeasurementResult cachedResult = measurementResultRepository
 						.getMeasurementResult(measurementHash);
@@ -78,6 +83,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 						&& getCoreHash(measurement, measurementHash).equals(
 								cachedResult.getCoreHash())) {
 
+					log.trace("found results");
 					// use the stored results
 					outputs.addAll(cachedResult.getOutputs());
 				}
@@ -204,6 +210,12 @@ public class MeasurementAppController implements IMeasurementFacilility {
 
 	public void buildMeasuringCore(MeasurementDescription measurement,
 			MeasurementHash measurementHash) throws Exception {
+
+		// is the right measurement compiled already?
+		if (currentlyCompiledMeasurementHash != null
+				&& currentlyCompiledMeasurementHash.equals(measurementHash)) {
+			return;
+		}
 
 		// is the right core compiled already?
 		if (currentlyCompiledMeasurementHash != null

@@ -23,6 +23,11 @@ public class MeasurementHashRepository {
 		Core coreA = measurementToCore.get(a);
 		Core coreB = measurementToCore.get(b);
 
+		if (coreA != null && coreB != null && coreA == coreB) {
+			// cores are already equal, nothing to do
+			return;
+		}
+
 		if (coreA == null && coreB == null) {
 			// create new core and associate both measurements
 			Core core = new Core();

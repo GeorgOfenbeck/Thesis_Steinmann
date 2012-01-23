@@ -101,7 +101,7 @@ $(KERNEL_OBJECTS): kernelOptimization.mk
 # rule for the kernels
 $(KERNEL_OBJECTS): $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
-	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
+	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 	
  
 # the default rule

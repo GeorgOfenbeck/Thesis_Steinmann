@@ -33,6 +33,8 @@ enum ArithmeticOperation {
 class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 	// solves base**exponent=result, with b unknown
 	static double getBase(double exponent, double result);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuninitialized"
 
 	struct addHelper {
 		template<int DLP, int UNROLL>
@@ -41,18 +43,18 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 				long iterations = kernel->description->getIterations();
 				double result;
 #ifdef __SSE2__
-				if ((DLP%2)==0) {
+				{
 					double tmp[2];
-					__m128d a[DLP/2], c;
+					__m128d a[DLP], c;
 					double t;
 
-					t=1.1;
+					t = 1.1;
 
-					for (int i=0; i<DLP/2; i++) {
+					for (int i = 0; i < DLP; i++) {
 						tmp[0] = t;
-						t+=0.1;
+						t += 0.1;
 						tmp[1] = t;
-						t+=0.1;
+						t += 0.1;
 						a[i] = _mm_loadu_pd(tmp);
 					}
 
@@ -61,21 +63,20 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 					c = _mm_loadu_pd(tmp);
 
 					for (long i = 0; i < iterations; i++) {
-						for (int p=0; p<UNROLL; p++) {
-							for (int j=0;j<DLP/2; j++) {
+						for (int p = 0; p < UNROLL; p++) {
+							for (int j = 0; j < DLP; j++) {
 								a[j] = _mm_add_pd(a[j], c);
 							}
 						}
 					}
 
-					result=0;
-					for (int i=0; i<DLP/2; i++) {
+					result = 0;
+					for (int i = 0; i < DLP; i++) {
 						_mm_storeu_pd(tmp, a[i]);
 						result += tmp[0];
 						result += tmp[1];
 					}
 				}
-				else
 #else
 				{
 					double r[DLP];
@@ -110,18 +111,18 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 				double result;
 				double base = getBase(iterations, 4);
 #ifdef __SSE2__
-				if ((DLP%2)==0) {
+				{
 					double tmp[2];
-					__m128d a[DLP/2], c;
+					__m128d a[DLP], c;
 					double t;
 
-					t=1.1;
+					t = 1.1;
 
-					for (int i=0; i<DLP/2; i++) {
+					for (int i = 0; i < DLP; i++) {
 						tmp[0] = t;
-						t+=0.1;
+						t += 0.1;
 						tmp[1] = t;
-						t+=0.1;
+						t += 0.1;
 						a[i] = _mm_loadu_pd(tmp);
 					}
 
@@ -130,21 +131,20 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 					c = _mm_loadu_pd(tmp);
 
 					for (long i = 0; i < iterations; i++) {
-						for (int p=0; p<UNROLL; p++) {
-							for (int j=0;j<DLP/2; j++) {
+						for (int p = 0; p < UNROLL; p++) {
+							for (int j = 0; j < DLP; j++) {
 								a[j] = _mm_mul_pd(a[j], c);
 							}
 						}
 					}
 
-					result=0;
-					for (int i=0; i<DLP/2; i++) {
+					result = 0;
+					for (int i = 0; i < DLP; i++) {
 						_mm_storeu_pd(tmp, a[i]);
 						result += tmp[0];
 						result += tmp[1];
 					}
 				}
-				else
 #else
 				{
 					double r[DLP];
@@ -181,21 +181,22 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 				double result;
 				double base = getBase(iterations, 4);
 #ifdef __SSE2__
-				if ((DLP%2)==0) {
+				{
 					double tmp[2];
-					__m128d a[DLP/2], c;
-					__m128d aa[DLP/2], ac;
+					__m128d a[DLP], c;
+					__m128d aa[DLP * 2], ac;
 					double t;
 
-					t=1.1;
+					t = 1.1;
 
-					for (int i=0; i<DLP/2; i++) {
+					for (int i = 0; i < DLP; i++) {
 						tmp[0] = t;
-						t+=0.1;
+						t += 0.1;
 						tmp[1] = t;
-						t+=0.1;
+						t += 0.1;
 						a[i] = _mm_loadu_pd(tmp);
-						aa[i]=a[i];
+						aa[i * 2] = a[i];
+						aa[i * 2 + 1] = a[i];
 					}
 
 					tmp[0] = base;
@@ -207,27 +208,31 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 					ac = _mm_loadu_pd(tmp);
 
 					for (long i = 0; i < iterations; i++) {
-						for (int p=0; p<UNROLL; p++) {
-							for (int j=0;j<DLP/2; j++) {
+						for (int p = 0; p < UNROLL; p++) {
+							for (int j = 0; j < DLP; j++) {
 								a[j] = _mm_mul_pd(a[j], c);
-								aa[j] = _mm_add_pd(aa[j], ac);
+								aa[j * 2] = _mm_add_pd(aa[j * 2], ac);
+								aa[j * 2 + 1] = _mm_add_pd(aa[j * 2 + 1], ac);
 							}
 						}
 					}
 
-					result=0;
-					for (int i=0; i<DLP/2; i++) {
+					result = 0;
+					for (int i = 0; i < DLP; i++) {
 						_mm_storeu_pd(tmp, a[i]);
 						result += tmp[0];
 						result += tmp[1];
-						_mm_storeu_pd(tmp, aa[i]);
+						_mm_storeu_pd(tmp, aa[i * 2]);
+						result += tmp[0];
+						result += tmp[1];
+						_mm_storeu_pd(tmp, aa[i * 2 + 1]);
 						result += tmp[0];
 						result += tmp[1];
 					}
 				}
-				else
 #else
 				{
+
 					double r[DLP];
 					double ar[DLP * 2];
 					double t = 1.1;
@@ -252,12 +257,14 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 						result += ar[i * 2];
 						result += ar[i * 2 + 1];
 					}
+
 				}
 
 #endif
 				kernel->result = result;
 			}
 		};
+#pragma GCC diagnostic pop
 	};
 
 public:

@@ -1,10 +1,12 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
+
 public class ConfigurationKey<T> extends ConfigurationKeyBase {
 	private final Class<T> valueType;
 	private final T defaultValue;
 
-	private ConfigurationKey(Class<T> valueType, String key, String description,
+	private ConfigurationKey(Class<T> valueType, String key,
+			String description,
 			T defaultValue) {
 		super(key, description);
 		this.valueType = valueType;

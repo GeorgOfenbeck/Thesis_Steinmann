@@ -6,7 +6,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterS
 public class KernelDescriptionBase extends KernelDescriptionBaseData {
 
 	public void initialize(Coordinate coordinate) {
-		setOptimization(coordinate.get(optimizationAxis));
+		if (coordinate.contains(optimizationAxis)) {
+			setOptimization(coordinate.get(optimizationAxis));
+		}
 	}
 
 }

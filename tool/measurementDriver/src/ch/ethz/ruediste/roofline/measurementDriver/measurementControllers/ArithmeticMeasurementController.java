@@ -11,7 +11,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementApp
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Performance;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
@@ -48,18 +48,12 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		// space.add(operationAxis, "ArithmeticOperation_MUL");
 		// space.add(operationAxis, "ArithmeticOperation_MULADD");
 
-		space.add(optimizationAxis, "-O3");
+		space.add(optimizationAxis,
+				"-O3 -mfpmath=sse -msse2");
 		// space.add(optimizationAxis, "-O3");
 
-		for (int i = 1; i < 5; i++) {
-			space.add(unrollAxis, i);
-		}
-		for (int i = 1; i < 5; i++) {
-			space.add(dlpAxis, i);
-		}
-
-		Performance maxPerformance = null;
-		Coordinate maxCoordinate = null;
+		space.add(unrollAxis, 1);
+		space.add(dlpAxis, 1);
 
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space
@@ -70,19 +64,16 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 				))) {
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 			kernel.initialize(coordinate);
+
 			Performance performance = quantityMeasuringService
-					.measurePerformance(kernel, Operation.x87,
+					.measurePerformance(kernel, Operation.SSE,
 							ClockType.CoreCycles);
 			System.out.printf("%s: %s\n", coordinate, performance);
 
-			if (maxPerformance == null
-					|| performance.getValue() > maxPerformance.getValue()) {
-				maxPerformance = performance;
-				maxCoordinate = coordinate;
-			}
+			OperationCount count = quantityMeasuringService
+					.measureOperationCount(kernel, Operation.SSE);
+			System.out.printf("%s: %s\n", coordinate, count);
 		}
 
-		System.out.printf("Fastest: %s: %s\n",
-				maxCoordinate, maxPerformance);
 	}
 }

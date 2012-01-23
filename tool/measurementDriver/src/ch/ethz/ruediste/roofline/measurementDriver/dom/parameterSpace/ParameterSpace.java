@@ -26,7 +26,7 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 		 */
 		public Coordinate(Map<Axis<?>, Object> values) {
 			// copy the provided values
-			coordinates = new HashMap<Axis<?>, Object>(values);
+			coordinates = new TreeMap<Axis<?>, Object>(values);
 		}
 
 		public final static Coordinate EMPTY;
@@ -129,7 +129,7 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 		}
 	}
 
-	private final Map<Axis<?>, List<Object>> axisValueSets = new HashMap<Axis<?>, List<Object>>();
+	private final Map<Axis<?>, List<Object>> axisValueSets = new TreeMap<Axis<?>, List<Object>>();
 
 	/**
 	 * Add a value to an axis
@@ -281,7 +281,7 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 		List<Coordinate> result = new ArrayList<ParameterSpace.Coordinate>();
 
 		// iterate over the values of the first axis
-		for (Object value : axisValueSets.get(orderedAxesHead)) {
+		for (Object value : getValues(orderedAxesHead)) {
 			if (subSpacePoints.isEmpty()) {
 				// add a single point for each value if the subspace is emtpy
 				result.add(Coordinate.EMPTY.getExtendedPoint(
@@ -321,5 +321,47 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 	@Override
 	public String toString() {
 		return StringUtils.join(axisValueSets.keySet(), ",");
+	}
+
+	public Axis<?> getLongestAxis() {
+		Axis<?> result = null;
+		for (Axis<?> axis : getAllAxes()) {
+			if (result == null
+					|| getAxisLength(axis) > getAxisLength(result)) {
+				result = axis;
+			}
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getValues(Axis<T> axis) {
+		return (List<T>) axisValueSets.get(axis);
+	}
+
+	public int getAxisLength(Axis<?> axis) {
+		return getValues(axis).size();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Coordinate> getNeighbors(Coordinate middle) {
+		List<Coordinate> result = new ArrayList<ParameterSpace.Coordinate>();
+
+		for (Axis<?> axis : getAllAxes()) {
+			int index = getValues(axis).indexOf(middle.get(axis));
+			int prev = index - 1;
+			if (prev < 0) {
+				prev = getAxisLength(axis) - 1;
+			}
+			int next = index + 1;
+			if (next >= getAxisLength(axis)) {
+				next = 0;
+			}
+			result.add(middle.<Object> getMovedPoint((Axis<Object>) axis,
+					getValues(axis).get(prev)));
+			result.add(middle.<Object> getMovedPoint((Axis<Object>) axis,
+					getValues(axis).get(next)));
+		}
+		return result;
 	}
 }

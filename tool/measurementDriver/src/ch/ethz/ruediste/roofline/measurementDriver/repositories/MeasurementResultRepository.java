@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
-import java.io.*;
+import java.io.File;
 
 import org.apache.log4j.Logger;
 
@@ -34,6 +34,9 @@ public class MeasurementResultRepository {
 	@Inject
 	public RuntimeMonitor runtimeMonitor;
 
+	@Inject
+	public CacheService cacheService;
+
 	/**
 	 * load the measurement result form the cache. return null if no cache entry
 	 * was found
@@ -41,19 +44,11 @@ public class MeasurementResultRepository {
 	public MeasurementResult getMeasurementResult(
 			MeasurementHash measurementHash) {
 		log.debug("loading result from cache");
+		runtimeMonitor.loadMeasurementResultsCategory.enter();
 		try {
-			runtimeMonitor.loadMeasurementResultsCategory.enter();
-			// get the cache file
-			File cacheFile = getCacheFile(measurementHash);
-
-			// check if the value in the cache
-			if (cacheFile.exists()) {
-				// if a cached value is present, deserialize it and return
-				return (MeasurementResult) xStream.fromXML(cacheFile);
-			}
-
-			// if no cached value is found, return null;
-			return null;
+			return (MeasurementResult) cacheService.getCachedValue(
+					measurementHash.getValue(),
+					configuration.get(cacheLocationKey));
 		} finally {
 			runtimeMonitor.loadMeasurementResultsCategory.leave();
 		}
@@ -63,53 +58,22 @@ public class MeasurementResultRepository {
 	 * get the cache file for the hash of a measurement (as generated with
 	 * HashService.getMeasurementHash())
 	 */
-	private File getCacheFile(MeasurementHash hash) {
-		// retrieve the cache location directory
-		String cacheLocationString = configuration.get(cacheLocationKey);
-
-		// replace a starting tilde with the user home directory
-		if (cacheLocationString.startsWith("~")) {
-			cacheLocationString = System.getProperty("user.home")
-					+ cacheLocationString.substring(1);
-		}
-
-		File cacheLocation = new File(cacheLocationString);
-
-		// get the file which should contain the cached measurement
-		File cacheFile = new File(cacheLocation, hash.getValue());
-		return cacheFile;
+	public File getCacheFile(MeasurementHash hash) {
+		return cacheService.getCacheFile(hash.getValue(),
+				configuration.get(cacheLocationKey));
 	}
 
 	/** store a measurement result in the cache */
 	public void store(MeasurementResult result, MeasurementHash hash) {
-		try {
-			// get the cache file
-			File cacheFile = getCacheFile(hash);
-
-			// open the cache file for writing
-			cacheFile.getParentFile().mkdirs();
-			FileOutputStream output = new FileOutputStream(cacheFile, false);
-
-			// serialize the measurement result to the cache file
-			xStream.toXML(result, output);
-
-			// finish writing
-			output.close();
-
-		} catch (IOException e) {
-			throw new Error("Error while storing measurement result in cache",
-					e);
-		}
+		cacheService.store(result, hash.getValue(),
+				configuration.get(cacheLocationKey));
 	}
 
 	/** delete the cached data for a measurement */
 	public void delete(MeasurementHash hash) {
 
-		// get the cache file
-		File cacheFile = getCacheFile(hash);
-
-		// delete it
-		cacheFile.delete();
+		cacheService.delete(hash.getValue(),
+				configuration.get(cacheLocationKey));
 	}
 
 }

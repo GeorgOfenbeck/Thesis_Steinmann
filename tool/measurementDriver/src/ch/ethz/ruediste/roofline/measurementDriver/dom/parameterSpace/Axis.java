@@ -1,9 +1,11 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace;
 
+import java.util.UUID;
+
 import ch.ethz.ruediste.roofline.dom.MeasurerDescriptionBase;
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryFunction;
 
-public class Axis<T> {
+public class Axis<T> implements Comparable<Axis<?>> {
 
 	public static final IUnaryFunction<MeasurerDescriptionBase, String> classNameFormatter = new IUnaryFunction<MeasurerDescriptionBase, String>() {
 
@@ -14,24 +16,23 @@ public class Axis<T> {
 	private final T defaultValue;
 	private final String name;
 	private final IUnaryFunction<T, String> formatter;
+	private final UUID uid;
 
-	public Axis(String name) {
-		this.name = name;
-		defaultValue = null;
-		formatter = null;
+	public Axis(String uid, String name) {
+		this(uid, name, null);
 	};
 
-	public Axis(String name, T defaultValue) {
-		this.name = name;
-		this.defaultValue = defaultValue;
-		formatter = null;
+	public Axis(String uid, String name, T defaultValue) {
+		this(uid, name, defaultValue, null);
 	}
 
-	public Axis(String name, T defaultValue, IUnaryFunction<T, String> formatter) {
+	public Axis(String uid, String name, T defaultValue,
+			IUnaryFunction<T, String> formatter) {
 		super();
 		this.defaultValue = defaultValue;
 		this.name = name;
 		this.formatter = formatter;
+		this.uid = UUID.fromString(uid);
 	}
 
 	public T getDefaultValue() {
@@ -56,5 +57,16 @@ public class Axis<T> {
 		}
 
 		return formatter.apply(value);
+	}
+
+	/**
+	 * order by name and then by instantiation number
+	 */
+	public int compareTo(Axis<?> o) {
+		return getUid().compareTo(o.getUid());
+	}
+
+	public UUID getUid() {
+		return uid;
 	}
 }

@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 
 import static ch.ethz.ruediste.roofline.dom.Axes.*;
 
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
@@ -16,6 +16,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringSer
 import com.google.inject.Inject;
 
 public class RooflineService {
+	private static Logger log = Logger.getLogger(RooflineService.class);
+
 	@Inject
 	public QuantityMeasuringService quantityMeasuringService;
 
@@ -25,6 +27,8 @@ public class RooflineService {
 	public Performance measurePeakPerformance(Algorithm algorithm,
 			InstructionSet instructionSet, ClockType clockType) throws Error {
 		CoordinateBuilder kernelParameters = new CoordinateBuilder();
+
+		kernelParameters.set(iterationsAxis, 100000L);
 
 		// set the operation for arithmetic kernels
 		switch (algorithm) {
@@ -53,13 +57,13 @@ public class RooflineService {
 		// set the optimization
 		switch (instructionSet) {
 		case SSE:
-			kernelParameters.set(optimizationAxis, "-O3 -msse");
+			kernelParameters.set(optimizationAxis, "-O3 -msse2");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.SSE);
 			break;
 		case SSEScalar:
-			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse");
+			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.SSE);
@@ -90,14 +94,14 @@ public class RooflineService {
 				.build();
 
 		// do the minimization
-		Pair<Coordinate, Quantity> maximum = optimizationService
+		Coordinate maximum = optimizationService
 				.maximize(
 						kernel,
 						optimzationSpace,
 						measurementCoordinate);
 
 		// apply the best parameters
-		kernel.initialize(maximum.getLeft());
+		kernel.initialize(maximum);
 
 		// measure the performance
 		Performance performance = quantityMeasuringService.measurePerformance(
@@ -106,6 +110,11 @@ public class RooflineService {
 						.get(QuantityMeasuringService.operationAxis),
 				measurementCoordinate
 						.get(QuantityMeasuringService.clockTypeAxis));
+
+		log.info(String.format(
+				"peak performance for %s %s %s: parameters: %s value: %f",
+				algorithm,
+				instructionSet, clockType, maximum, performance.getValue()));
 		return performance;
 	}
 

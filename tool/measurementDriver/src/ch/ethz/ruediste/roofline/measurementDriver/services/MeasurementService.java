@@ -12,6 +12,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.IMeasurementFacilility;
 
 import com.google.inject.Inject;
+import com.thoughtworks.xstream.XStream;
 
 public class MeasurementService implements IMeasurementFacilility {
 	static private Logger log = Logger.getLogger(MeasurementService.class);
@@ -34,12 +35,18 @@ public class MeasurementService implements IMeasurementFacilility {
 	@Inject
 	public RuntimeMonitor runtimeMonitor;
 
+	@Inject
+	public XStream xStream;
+
 	/**
 	 * run the measuring core. it has to be built already
 	 * 
 	 */
 	public MeasurementResult runMeasuringCore(MeasurementCommand command)
 			throws IOException, FileNotFoundException, ExecuteException {
+		log.info("running measurement");
+		log.debug("running measurement " + xStream.toXML(command));
+
 		runtimeMonitor.runMeasurementCategory.enter();
 		File buildDir = measuringCoreLocationService.getBuildDir();
 		// write command
@@ -74,7 +81,7 @@ public class MeasurementService implements IMeasurementFacilility {
 			throws FileNotFoundException, ExecuteException, IOException {
 		runtimeMonitor.compilationCategory.enter();
 		// build
-		log.trace("building measuring core");
+		log.info("building measuring core");
 		commandService.runCommand(measuringCoreLocationService
 				.getMeasuringCoreDir(), "make", new String[] {
 				"-j2", "all" }, 0, false);
@@ -212,7 +219,7 @@ public class MeasurementService implements IMeasurementFacilility {
 
 		// iterate over all keys and write definition file
 		for (Pair<Class<?>, MacroKey> pair : macros) {
-			log.debug(String.format("found macro %s\n", pair.getRight()
+			log.debug(String.format("found macro %s", pair.getRight()
 					.getMacroName()));
 			MacroKey macro = pair.getRight();
 

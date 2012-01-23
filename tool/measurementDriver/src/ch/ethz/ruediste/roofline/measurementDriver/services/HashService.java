@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
+import ch.ethz.ruediste.roofline.measurementDriver.util.NullOutputStream;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -33,27 +34,6 @@ public class HashService {
 	RuntimeMonitor runtimeMonitor;
 
 	/**
-	 * Output stream discarding everything
-	 */
-	private class NullOutputStream extends OutputStream {
-
-		@Override
-		public void write(int arg0) throws IOException {
-			// discard everything
-		}
-
-		@Override
-		public void write(byte[] b) throws IOException {
-			// discard everything
-		}
-
-		@Override
-		public void write(byte[] b, int off, int len) throws IOException {
-			// discard everything
-		}
-	}
-
-	/**
 	 * hash a file
 	 * 
 	 * @throws IOException
@@ -72,6 +52,7 @@ public class HashService {
 		}
 		String hash = getHash(digestOutputStream);
 		runtimeMonitor.hashingCategory.leave();
+		log.debug("hash is " + hash);
 		return hash;
 	}
 

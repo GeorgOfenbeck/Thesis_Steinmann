@@ -1,12 +1,10 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.*;
+
+import ch.ethz.ruediste.roofline.measurementDriver.util.NullOutputStream;
 
 public class CommandService {
 
@@ -30,7 +28,8 @@ public class CommandService {
 		// set the output to null if the output should not be shown
 		// still show the errors
 		if (!showOutput) {
-			executor.setStreamHandler(new PumpStreamHandler(null, System.err));
+			executor.setStreamHandler(new PumpStreamHandler(
+					new NullOutputStream(), System.err));
 		}
 
 		executor.setExitValue(desiredExitValue);

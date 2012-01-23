@@ -64,4 +64,10 @@ public class ArithmeticKernelDescription extends
 		if (coordinate.contains(dlpAxis))
 			setDlp(coordinate.get(dlpAxis));
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Arithmetic Kernel:%s:%d:unroll %d dlp %d",
+				getOperation(), getIterations(), getUnroll(), getDlp());
+	}
 }
