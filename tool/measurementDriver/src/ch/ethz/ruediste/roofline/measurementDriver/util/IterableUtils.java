@@ -3,6 +3,11 @@ package ch.ethz.ruediste.roofline.measurementDriver.util;
 import java.util.*;
 
 public class IterableUtils {
+
+	public static <T> T single(Iterable<T> iterable) {
+		return single(iterable, UnaryPredicates.<T> True());
+	}
+
 	public static <T> T single(Iterable<T> iterable, IUnaryPredicate<T> pred) {
 		boolean found = false;
 		T foundItem = null;
@@ -20,6 +25,10 @@ public class IterableUtils {
 			throw new Error("No item matched the predicate");
 		}
 		return foundItem;
+	}
+
+	public static <T> T singleOrDefault(Iterable<T> iterable) {
+		return singleOrDefault(iterable, UnaryPredicates.<T> True());
 	}
 
 	public static <T> T singleOrDefault(Iterable<T> iterable,
@@ -45,7 +54,7 @@ public class IterableUtils {
 		return single(Arrays.asList(items), predicate);
 	}
 
-	public static <T> Iterable<T> where(List<T> iterable,
+	public static <T> Iterable<T> where(Iterable<T> iterable,
 			IUnaryPredicate<T> predicate) {
 		ArrayList<T> result = new ArrayList<T>();
 		for (T item : iterable) {
@@ -55,4 +64,74 @@ public class IterableUtils {
 		}
 		return result;
 	}
+
+	public static <T> boolean any(Iterable<T> iterable,
+			IUnaryPredicate<T> predicate) {
+		return isEmpty(where(iterable, predicate));
+	}
+
+	public static <T> boolean isEmpty(Iterable<T> iterable) {
+		return iterable.iterator().hasNext();
+	}
+
+	public static <T> int indexOfSingle(Iterable<T> iterable,
+			IUnaryPredicate<T> predicate) {
+		int index = indexOfSingleOrDefault(iterable, predicate);
+
+		if (index == -1) {
+			throw new Error("No Match found");
+		}
+		return index;
+	}
+
+	public static <T> int indexOfSingleOrDefault(Iterable<T> iterable,
+			IUnaryPredicate<T> predicate) throws Error {
+		int index = -1;
+		int i = 0;
+		for (T item : iterable) {
+			if (predicate.apply(item)) {
+				if (index == -1) {
+					index = i;
+				}
+				else {
+					throw new Error("Multiple matches found");
+				}
+			}
+			i++;
+		}
+		return index;
+	}
+
+	public static <T> T first(
+			Iterable<T> iterable) {
+		return first(iterable, UnaryPredicates.<T> True());
+	}
+
+	public static <T> T first(
+			Iterable<T> iterable, IUnaryPredicate<T> predicate) {
+
+		Iterator<T> it = iterable.iterator();
+		while (it.hasNext()) {
+			T item = it.next();
+			if (predicate.apply(item)) {
+				return item;
+			}
+		}
+		throw new Error("no matching element found");
+	}
+
+	public static <T> T firstOrDefault(
+			Iterable<T> iterable, IUnaryPredicate<T> predicate) {
+
+		Iterator<T> it = iterable.iterator();
+		while (it.hasNext()) {
+			T item = it.next();
+			if (predicate.apply(item)) {
+				return item;
+			}
+		}
+
+		return null;
+	}
+
 }

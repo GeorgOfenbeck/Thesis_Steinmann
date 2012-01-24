@@ -68,8 +68,8 @@ public class PmuRepository {
 		MeasurementResult result = measurementService.measure(
 				measurement, 1);
 
-		ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) result
-				.getOutputs().get(0);
+		ListEventsMeasurerOutput output = IterableUtils.single(result
+				.getMeasurerOutputs(measurer));
 
 		return output.getPmus();
 	}

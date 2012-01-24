@@ -59,7 +59,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	public MeasurementResult measure(MeasurementDescription measurement,
 			int numberOfMeasurements) {
 
-		ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
+		ArrayList<MeasurementRunOutput> outputs = new ArrayList<MeasurementRunOutput>();
 
 		try {
 			MeasurementHash measurementHash = hashService
@@ -181,7 +181,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 
 		MeasurementResult result = measure(measurement, 10);
 
-		return PerfEventMeasurerOutput.getStatistics("event", result);
+		return measurer.getStatistics("event", result);
 	}
 
 	public MeasurementResult performMeasurement(MeasurementCommand command)

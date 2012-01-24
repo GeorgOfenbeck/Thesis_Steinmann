@@ -30,9 +30,7 @@ public class RawDataMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		// create schemes
-		KBestMeasurementSchemeDescription kBestScheme = new KBestMeasurementSchemeDescription();
 		SimpleMeasurementSchemeDescription simpleScheme = new SimpleMeasurementSchemeDescription();
-		kBestScheme.setWarmCaches(false);
 		simpleScheme.setWarmCaches(false);
 
 		// create kernel
@@ -64,18 +62,18 @@ public class RawDataMeasurementController implements IMeasurementController {
 		// create plot
 		SimplePlot plot = new SimplePlot();
 		if (measurement.getMeasurer() instanceof PerfEventMeasurerDescription) {
-			PerfEventMeasurerOutput.addValues("cycles", result, plot);
+			perfEventMeasurer.addValues("cycles", result, plot);
 		}
 
 		if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {
-			ExecutionTimeMeasurerOutput.addValues(result, plot);
+			timeMeasurer.addValues(result, plot);
 		}
 
 		plot.setTitle("%d:%s",
-		// kernel.getBufferSize(),
+				// kernel.getBufferSize(),
 				kernel.getIterations(), measurement.toString());
 		plot.setOutputName("%s:%d:%s:%s", outputName,
-		// kernel.getBufferSize(),
+				// kernel.getBufferSize(),
 				kernel.getIterations(), measurement.toString(), measurement
 						.getScheme().getWarmCaches() ? "warm" : "cold");
 

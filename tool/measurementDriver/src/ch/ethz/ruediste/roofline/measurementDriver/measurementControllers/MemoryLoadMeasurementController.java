@@ -9,6 +9,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementApp
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
 import ch.ethz.ruediste.roofline.measurementDriver.services.PlotService;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils;
 
 import com.google.inject.Inject;
 
@@ -58,7 +59,7 @@ public class MemoryLoadMeasurementController implements IMeasurementController {
 		if (false) {
 			SimplePlot plot = new SimplePlot();
 
-			PerfEventMeasurerOutput.addValues("event", result, plot);
+			measurer.addValues("event", result, plot);
 
 			plot.setTitle("Load, BufferSize: %d", kernel.getBufferSize());
 			plot.setOutputName("%s:event:%d:%s", outputName, kernel
@@ -71,11 +72,11 @@ public class MemoryLoadMeasurementController implements IMeasurementController {
 		// DescriptiveStatistics statistics = ExecutionTimeMeasurerOutput
 		// .getStatistics(result);
 
-		DescriptiveStatistics statistics = PerfEventMeasurerOutput
+		DescriptiveStatistics statistics = measurer
 				.getStatistics("event", result);
 
-		PerfEventMeasurerOutput output = (PerfEventMeasurerOutput) result
-				.getOutputs().get(0);
+		PerfEventMeasurerOutput output = IterableUtils.single(result
+				.getMeasurerOutputs(measurer));
 		PerfEventCount eventCount = output.getEventCount("event");
 		System.out.printf("%s %s %s %g\n", eventCount.getRawCount(),
 				eventCount.getTimeEnabled(), eventCount.getTimeRunning(),

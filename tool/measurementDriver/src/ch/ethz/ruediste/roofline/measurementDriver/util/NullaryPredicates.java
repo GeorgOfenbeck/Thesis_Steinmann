@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.util;
 
-public class Predicates {
+public class NullaryPredicates {
 	public static INullaryPredicate constant(final boolean cnst) {
 		return new INullaryPredicate() {
 
@@ -10,6 +10,11 @@ public class Predicates {
 		};
 	}
 
-	public static INullaryPredicate True = constant(true);
-	public static INullaryPredicate False = constant(false);
+	public static INullaryPredicate True() {
+		return constant(true);
+	}
+
+	public static INullaryPredicate False() {
+		return constant(false);
+	}
 }

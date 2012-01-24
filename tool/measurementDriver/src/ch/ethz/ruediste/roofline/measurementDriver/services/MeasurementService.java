@@ -66,7 +66,7 @@ public class MeasurementService implements IMeasurementFacilility {
 		// parse measurer output
 		log.trace("parsing measurement output");
 		FileInputStream output = new FileInputStream(outputFile);
-		MeasurerOutputCollection outputs = (MeasurerOutputCollection) serializationService
+		MeasurementRunOutputCollection outputs = (MeasurementRunOutputCollection) serializationService
 				.DeSerialize(output);
 
 		// create result

@@ -123,16 +123,15 @@ public class QuantityMeasuringService {
 
 		MeasurementResult result = measure(kernel, measurer);
 
-		PerfEventMeasurerOutput.addValues("ops", result, new IAddValue() {
+		measurer.addValues("ops", result, new IAddValue() {
 
 			public void addValue(double v) {
 				log.debug("value: " + v);
 			}
 		});
 		// get the output
-		DescriptiveStatistics statistics = PerfEventMeasurerOutput
-				.getStatistics("ops",
-						result);
+		DescriptiveStatistics statistics = measurer
+				.getStatistics("ops", result);
 
 		return new OperationCount(statistics.getMin() * multiplier);
 
@@ -160,7 +159,7 @@ public class QuantityMeasuringService {
 		MeasurementResult result = measure(kernel, measurer);
 
 		// get the output
-		return new TransferredBytes(PerfEventMeasurerOutput.getStatistics(
+		return new TransferredBytes(measurer.getStatistics(
 				"transfers", result)
 				.getMin() * 64);
 
@@ -186,7 +185,7 @@ public class QuantityMeasuringService {
 		MeasurementResult result = measure(kernel, measurer);
 
 		// get the output
-		return new Time(PerfEventMeasurerOutput.getStatistics("cycles", result)
+		return new Time(measurer.getStatistics("cycles", result)
 				.getMin());
 
 	}

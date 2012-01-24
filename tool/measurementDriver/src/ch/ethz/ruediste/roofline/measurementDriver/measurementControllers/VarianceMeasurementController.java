@@ -35,11 +35,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		ParameterSpace parameterSpace = new ParameterSpace();
 
-		// create schemes
-		KBestMeasurementSchemeDescription kBestScheme = new KBestMeasurementSchemeDescription();
-		kBestScheme.setWarmCaches(true);
-		parameterSpace.add(measurementSchemeAxis, kBestScheme);
-
+		// create scheme
 		SimpleMeasurementSchemeDescription simpleScheme = new SimpleMeasurementSchemeDescription();
 		simpleScheme.setWarmCaches(true);
 		parameterSpace.add(measurementSchemeAxis, simpleScheme);
@@ -69,8 +65,6 @@ public class VarianceMeasurementController implements IMeasurementController {
 			String streamName = outputName;
 			streamName += (coordinate.get(measurerAxis) == perfEventMeasurer ? "perf"
 					: "time");
-			streamName += (coordinate.get(measurementSchemeAxis) == kBestScheme ? "Best"
-					: "Simple");
 
 			outputStreams
 					.put(coordinate, new PrintStream(streamName + ".data"));
@@ -87,12 +81,12 @@ public class VarianceMeasurementController implements IMeasurementController {
 			// create statistics
 			DescriptiveStatistics statistics = null;
 			if (measurement.getMeasurer() instanceof PerfEventMeasurerDescription) {
-				statistics = PerfEventMeasurerOutput.getStatistics("cycles",
+				statistics = perfEventMeasurer.getStatistics("cycles",
 						result);
 			}
 
 			if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {
-				statistics = ExecutionTimeMeasurerOutput.getStatistics(result);
+				statistics = timeMeasurer.getStatistics(result);
 			}
 
 			// append to output

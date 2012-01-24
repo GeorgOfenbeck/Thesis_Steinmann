@@ -11,16 +11,24 @@
 #include "sharedDOM/MeasurementSchemeDescriptionBase.h"
 #include "MeasurerBase.h"
 #include "KernelBase.h"
-#include "sharedDOM/MeasurerOutputBase.h"
+#include "sharedDOM/MeasurementRunOutput.h"
+#include <vector>
 
 class MeasurementSchemeBase {
+protected:
+	std::vector<MeasurerBase*> *additionalMeasurers;
+
 public:
 	typedef MeasurementSchemeDescriptionBase tDescriptionBase;
 
 	virtual ~MeasurementSchemeBase();
 	virtual MeasurementSchemeDescriptionBase *getMeasurementSchemeDescription()=0;
 
-	virtual MeasurerOutputBase *measure()=0;
+	virtual MeasurementRunOutput *measure()=0;
+
+	void setAdditionalMeasurers(std::vector<MeasurerBase*> *vec){
+		additionalMeasurers=vec;
+	}
     void clearCaches();
 };
 

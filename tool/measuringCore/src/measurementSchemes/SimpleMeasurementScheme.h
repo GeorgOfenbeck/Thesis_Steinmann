@@ -10,6 +10,8 @@
 #include "baseClasses/MeasurementSchemeBase.h"
 #include "sharedDOM/SimpleMeasurementSchemeDescription.h"
 
+#include "utils.h"
+
 template<class TKernel, class TMeasurer>
 class SimpleMeasurementScheme : public MeasurementScheme<SimpleMeasurementSchemeDescription,TKernel,TMeasurer>{
 	typedef MeasurementScheme<SimpleMeasurementSchemeDescription,TKernel,TMeasurer> super;
@@ -19,19 +21,49 @@ public:
 	{
 	}
 
-	MeasurerOutputBase *measure(){
+	MeasurementRunOutput *measure(){
 		// prepare caches
 		super::warmOrClearCaches();
 
-		// warm up measurer
+		// warm up main measurer
 		super::measurer.start();
 		super::measurer.stop();
 
+		// warm up additional measurers
+		foreach (MeasurerBase *additionalMeasurer, *super::additionalMeasurers){
+			additionalMeasurer->start();
+			additionalMeasurer->stop();
+		}
+
 		// perform measurement
+
+		// start additional measurers
+		foreach (MeasurerBase *additionalMeasurer, *super::additionalMeasurers){
+			additionalMeasurer->start();
+		}
+
+		// start main measurer
 		super::measurer.start();
+
+		// run kernel
 		super::kernel.run();
+
+		// stop main measurer
 		super::measurer.stop();
-		return super::measurer.read();
+
+		// stop additional measurers
+		reverse_foreach (MeasurerBase *additionalMeasurer, *super::additionalMeasurers){
+			additionalMeasurer->stop();
+		}
+
+		MeasurementRunOutput *result=new MeasurementRunOutput();
+		result->setMainMeasurerOutput(super::measurer.read());
+
+		foreach (MeasurerBase *additionalMeasurer, *super::additionalMeasurers){
+					result->getAdditionalMeasurerOutputs().push_back(additionalMeasurer->read());
+				}
+
+		return result;
 	}
 
 };

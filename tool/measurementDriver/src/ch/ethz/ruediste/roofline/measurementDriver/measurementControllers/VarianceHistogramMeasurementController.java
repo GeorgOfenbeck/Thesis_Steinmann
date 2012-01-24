@@ -32,9 +32,7 @@ public class VarianceHistogramMeasurementController implements
 
 	public void measure(String outputName) throws IOException {
 		// create schemes
-		KBestMeasurementSchemeDescription kBestScheme = new KBestMeasurementSchemeDescription();
 		SimpleMeasurementSchemeDescription simpleScheme = new SimpleMeasurementSchemeDescription();
-		kBestScheme.setWarmCaches(false);
 		simpleScheme.setWarmCaches(false);
 
 		// create kernel
@@ -61,11 +59,11 @@ public class VarianceHistogramMeasurementController implements
 		// create statistics
 		HistogramPlot plot = new HistogramPlot();
 		if (measurement.getMeasurer() instanceof PerfEventMeasurerDescription) {
-			PerfEventMeasurerOutput.addValues("cycles", result, plot);
+			perfEventMeasurer.addValues("cycles", result, plot);
 		}
 
 		if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {
-			ExecutionTimeMeasurerOutput.addValues(result, plot);
+			timeMeasurer.addValues(result, plot);
 		}
 
 		plot.setTitle("%d:%s", kernel.getBufferSize(), measurement.toString());

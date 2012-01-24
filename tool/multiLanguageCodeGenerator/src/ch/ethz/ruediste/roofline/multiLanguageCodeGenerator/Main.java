@@ -160,7 +160,7 @@ public class Main {
 		typeDescriptors.put("int", new FieldTypeDescriptor("int", "int32_t",
 				"int", "%d", "nextInt", "Integer", "0", null));
 		typeDescriptors.put("long", new FieldTypeDescriptor("long", "int64_t",
-				"long", "%ld", "nextLong", "Long", "0", null));
+				"long", "%lld", "nextLong", "Long", "0", null));
 		typeDescriptors.put("bool", new FieldTypeDescriptor("bool", "bool",
 				"boolean", "%d", "nextInt", "Boolean", "0", null));
 		typeDescriptors
@@ -172,7 +172,7 @@ public class Main {
 				"\"\""));
 
 		typeDescriptors.put("ulong", new FieldTypeDescriptor("ulong",
-				"uint64_t", "BigInteger", "%Lu", "nextBigInteger",
+				"uint64_t", "BigInteger", "%llu", "nextBigInteger",
 				"BigInteger", "0", "BigInteger.ZERO"));
 
 		return typeDescriptors;

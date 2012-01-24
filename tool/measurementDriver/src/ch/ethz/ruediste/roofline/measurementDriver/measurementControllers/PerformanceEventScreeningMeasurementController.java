@@ -10,6 +10,7 @@ import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.PmuRepository;
 
 import com.google.inject.Inject;
 
@@ -30,29 +31,14 @@ public class PerformanceEventScreeningMeasurementController implements
 	@Inject
 	MeasurementAppController measurementAppController;
 
+	@Inject
+	PmuRepository pmuRepository;
+
 	public void measure(String outputName) throws IOException {
-		MeasurementResult result;
-		{
-			MeasurementDescription measurement = new MeasurementDescription();
-			measurement.setKernel(new DummyKernelDescription());
-			ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
-			measurement.setMeasurer(measurer);
-			measurement.setScheme(new SimpleMeasurementSchemeDescription());
-
-			result = measurementAppController.measure(measurement, 1);
-		}
-
 		PrintStream out = new PrintStream(outputName + ".txt");
 		out.println("<Event>: <Kernel>: <minimal count> <median/min>");
 
-		// iterate over available performance events and attributes
-		ListEventsMeasurerOutput output = (ListEventsMeasurerOutput) result
-				.getOutputs().get(0);
-
-		for (PmuDescription pmu : output.getPmus()) {
-			if (!pmu.getIsPresent()) {
-				continue;
-			}
+		for (PmuDescription pmu : pmuRepository.getPresentPmus()) {
 			for (PerfEventDescription event : pmu.getEvents()) {
 				measure(out, pmu.getPmuName(), event, null);
 				/*
@@ -142,7 +128,7 @@ public class PerformanceEventScreeningMeasurementController implements
 				out.printf("%s: %s: failed\n", eventDefinition, pair.getRight());
 
 			} else {
-				DescriptiveStatistics statistics = PerfEventMeasurerOutput
+				DescriptiveStatistics statistics = measurer
 						.getStatistics("event", result);
 
 				double min = statistics.getMin();

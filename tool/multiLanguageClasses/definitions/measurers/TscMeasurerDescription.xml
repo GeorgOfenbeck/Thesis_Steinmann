@@ -4,6 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="TscMeasurerDescription" 
 	baseType="MeasurerDescriptionBase"
+	javaSuffix="Data"
 	comment="describes a measurer which measures execution time">
 	
 </derivedClass>
