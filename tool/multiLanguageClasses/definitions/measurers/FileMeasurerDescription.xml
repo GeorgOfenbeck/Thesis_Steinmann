@@ -2,9 +2,11 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="TscMeasurerDescription" 
+	name="FileMeasurerDescription" 
 	baseType="MeasurerDescriptionBase"
 	javaSuffix="Data"
-	comment="describes a measurer which measures execution time">
+	comment="records the content of various files">
+	
+	<list name="filesToRecord" type="string" comment="files to record contets when the measurer starts and stops"/>
 	
 </derivedClass>

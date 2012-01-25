@@ -7,7 +7,7 @@ import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.PmuRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
 import ch.ethz.ruediste.roofline.statistics.IAddValue;
 
 import com.google.inject.Inject;
@@ -19,7 +19,7 @@ public class QuantityMeasuringService {
 	MeasurementService measurementService;
 
 	@Inject
-	PmuRepository pmuRepository;
+	SystemInfoRepository pmuRepository;
 
 	public enum Operation {
 		SSE,

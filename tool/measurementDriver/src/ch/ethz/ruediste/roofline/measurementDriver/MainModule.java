@@ -18,6 +18,8 @@ public class MainModule extends AbstractModule {
 		// setup XStream
 		XStream xStream = new XStream(new DomDriver());
 		xStream.registerConverter(new AxisConverter());
+		xStream.processAnnotations(ClassFinder.getClasses(
+				"ch.ethz.ruediste.roofline").toArray(new Class[] {}));
 		bind(XStream.class).toInstance(xStream);
 
 		bind(IMeasurementFacilility.class).to(MeasurementAppController.class);

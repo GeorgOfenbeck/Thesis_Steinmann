@@ -2,11 +2,10 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="TscMeasurerOutput" 
+	name="FileMeasurerOutput" 
 	baseType="MeasurerOutputBase"
-	javaSuffix="Data"
-	comment="result of the tsc measurer">
+	comment="result of the file measurer">
 	
-	<field name="tics" type="ulong" comment="difference of the TSC counter"/>
+	<list name="fileContentList" type="FileContent" comment="content of the recorded files"/>
 		
 </derivedClass>

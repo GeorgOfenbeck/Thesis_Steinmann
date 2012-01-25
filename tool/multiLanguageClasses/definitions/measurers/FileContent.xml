@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="FileContent" 
+	cBaseType="MultiLanguageObjectBase"
+	comment="content of an obeserved file">
+	
+	<field name="fileName" type="string" comment="name of the observed file"/>
+	<field name="startContent" type="string" comment="content of the file when the measurer was started"/>
+	<field name="stopContent" type="string" comment="content of the file when the measurer was stopped"/>
+	
+</class>

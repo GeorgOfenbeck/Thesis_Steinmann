@@ -7,8 +7,11 @@ import java.util.*;
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
 public class MeasurementDescription extends MeasurementDescriptionData {
 
+	@XStreamOmitField
 	final private ValidationData validationData = new ValidationData();
 
 	public MeasurementDescription() {

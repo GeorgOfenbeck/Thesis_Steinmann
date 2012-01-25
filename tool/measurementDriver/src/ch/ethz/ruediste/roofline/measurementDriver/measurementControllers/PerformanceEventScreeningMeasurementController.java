@@ -10,7 +10,7 @@ import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.PmuRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
 
 import com.google.inject.Inject;
 
@@ -32,7 +32,7 @@ public class PerformanceEventScreeningMeasurementController implements
 	MeasurementAppController measurementAppController;
 
 	@Inject
-	PmuRepository pmuRepository;
+	SystemInfoRepository pmuRepository;
 
 	public void measure(String outputName) throws IOException {
 		PrintStream out = new PrintStream(outputName + ".txt");
