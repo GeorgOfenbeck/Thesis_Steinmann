@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.InstructionSet;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
@@ -58,18 +57,21 @@ public class RooflineService {
 		switch (instructionSet) {
 		case SSE:
 			kernelParameters.set(optimizationAxis, "-O3 -msse2");
+			kernelParameters.set(instructionSetAxis, instructionSet.SSE);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.SSE);
 			break;
 		case SSEScalar:
 			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
+			kernelParameters.set(instructionSetAxis, InstructionSet.SSEScalar);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.SSE);
 			break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
+			kernelParameters.set(instructionSetAxis, InstructionSet.x87);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.x87);

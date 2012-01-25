@@ -13,6 +13,7 @@
 #include "KernelBase.h"
 #include "sharedDOM/MeasurementRunOutput.h"
 #include <vector>
+#include "utils.h"
 
 class MeasurementSchemeBase {
 protected:
@@ -26,6 +27,7 @@ public:
 
 	virtual MeasurementRunOutput *measure()=0;
 
+	virtual void initialize()=0;
 	void setAdditionalMeasurers(std::vector<MeasurerBase*> *vec){
 		additionalMeasurers=vec;
 	}
@@ -63,10 +65,15 @@ public:
 	MeasurementScheme(TDescription *description, TKernel *kernel, TMeasurer *measurer)
 	:kernel(*kernel), measurer(*measurer){
 		this->description=description;
-		this->kernel.initialize();
-		this->measurer.initialize();
 	}
 
+	void initialize(){
+		this->kernel.initialize();
+		this->measurer.initialize();
+		foreach(MeasurerBase *measurer, *additionalMeasurers){
+			measurer->initialize();
+		}
+	}
 	~MeasurementScheme(){
 		kernel.dispose();
 		measurer.dispose();

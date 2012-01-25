@@ -16,12 +16,26 @@ public class ArithmeticKernelDescription extends
 			"specifies the arithmetic operation to be used",
 			"ArithmeticOperation_ADD");
 
+	private static final MacroKey instructionSetMacro = MacroKey.Create(
+			"RMT_ARITHMETIC_INSTRUCTION_SET",
+			"specifies the instruction set to be used (x87 or SSE)",
+			"x87");
+
 	public String getOperation() {
 		return getMacroDefinition(operationMacro);
 	}
 
 	public void setOperation(String operation) {
 		setMacroDefinition(operationMacro, operation);
+	}
+
+	public InstructionSet getInstructionSet() {
+		return Enum.valueOf(InstructionSet.class,
+				getMacroDefinition(instructionSetMacro));
+	}
+
+	public void setInstructionSet(InstructionSet instructionSet) {
+		setMacroDefinition(instructionSetMacro, instructionSet.toString());
 	}
 
 	/**
@@ -63,6 +77,9 @@ public class ArithmeticKernelDescription extends
 
 		if (coordinate.contains(dlpAxis))
 			setDlp(coordinate.get(dlpAxis));
+
+		if (coordinate.contains(instructionSetAxis))
+			setInstructionSet(coordinate.get(instructionSetAxis));
 	}
 
 	@Override

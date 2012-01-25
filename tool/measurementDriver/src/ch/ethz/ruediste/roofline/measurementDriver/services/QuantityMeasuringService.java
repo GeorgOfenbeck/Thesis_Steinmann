@@ -16,7 +16,7 @@ public class QuantityMeasuringService {
 	private static Logger log = Logger
 			.getLogger(QuantityMeasuringService.class);
 	@Inject
-	ValidatingMeasurementService validatingMeasurementService;
+	MeasurementService measurementService;
 
 	@Inject
 	PmuRepository pmuRepository;
@@ -204,7 +204,7 @@ public class QuantityMeasuringService {
 		measurement.setMeasurer(measurer);
 
 		// measure
-		MeasurementResult result = validatingMeasurementService.measure(
+		MeasurementResult result = measurementService.measure(
 				measurement, 10);
 		return result;
 	}

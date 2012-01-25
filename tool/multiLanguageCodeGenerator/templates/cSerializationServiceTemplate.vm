@@ -12,12 +12,78 @@
 
 using namespace std;
 
+	/**
+	 * escapes a string such that it can be serialized
+	 */
+static string escapeString(string s) {
+	string result;
+
+	// iterate over the input
+	for (unsigned int i = 0; i < s.length(); i++) {
+
+		// escape newlines
+		if (s[i] == '\n') {
+			result.append("\\n");
+		}
+		// escape backslashes
+		else if (s[i] == '\\') {
+			result.append("\\\\");
+		}
+		else {
+			// it's a normal char, just append it
+			result.push_back(s[i]);
+		}
+	}
+	return result;
+}
+
+	/**
+	 * revert the escaping
+	 */
+static string deEscapeString(string s) {
+	string result;
+
+	// iterate over the input
+	for (unsigned int i = 0; i < s.length(); i++) {
+		// is the current character the beginning of an escape sequence?
+		if (s[i] == '\\') {
+			// go to next char
+			i++;
+
+			// the sequence may not stop now
+			if (i >= s.length()) {
+				throw "invalid string";
+			}
+
+			// append the escaped character to the result
+			if (s[i] == '\\') {
+				result.push_back('\\');
+			}
+			else if (s[i] == 'n') {
+				result.push_back('\n');
+			}
+			else {
+				throw "invalid character sequence \\" + s[i];
+			}
+		}
+		else {
+			// it's a normal char, just append it
+			result.push_back(s[i]);
+		}
+	}
+	return result;
+}
 
 #macro(serializeNonList $field )
 	#if ($field.typeDescriptor.reference)
 		Serialize(value,output);
 	#else
-		output<<value<<"\n";
+		#if ($field.type == "string")
+			// escape strings
+			output<<escapeString(value)<<"\n";
+		#else
+			output<<value<<"\n";
+		#end
 	#end
 #end 
 
@@ -72,7 +138,7 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 		
 		getline(input,line);
 		#if ($field.type == "string")
-			value=line;
+			value=deEscapeString(line);
 		#else
 			if (sscanf(line.c_str(),"${field.typeDescriptor.scanfSpecification}",&value)!=1){
 				throw Exception((std::string)"Parse Error: could not parse "+line+" as $field.type using scanf specification ${field.typeDescriptor.scanfSpecification}. "

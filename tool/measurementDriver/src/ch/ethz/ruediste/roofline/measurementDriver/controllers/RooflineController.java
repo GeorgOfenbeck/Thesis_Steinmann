@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.apache.commons.exec.ExecuteException;
 
-import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
@@ -35,12 +35,6 @@ public class RooflineController {
 		Load,
 		Store,
 		MemBalanced,
-	}
-
-	public enum InstructionSet {
-		SSE,
-		SSEScalar,
-		x87,
 	}
 
 	public RooflineController() {

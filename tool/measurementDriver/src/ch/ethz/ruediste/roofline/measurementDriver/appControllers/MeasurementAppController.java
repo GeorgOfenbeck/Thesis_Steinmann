@@ -42,6 +42,9 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	public MeasurementService measurementService;
 
 	@Inject
+	public MeasurementValidationService measurementValidationService;
+
+	@Inject
 	public MeasurementHashRepository measurementHashRepository;
 
 	@Inject
@@ -59,6 +62,10 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	public MeasurementResult measure(MeasurementDescription measurement,
 			int numberOfMeasurements) {
 
+		// add validation measurers
+		measurementValidationService.addValidationMeasurers(measurement);
+
+		// collect outputs in this collection
 		ArrayList<MeasurementRunOutput> outputs = new ArrayList<MeasurementRunOutput>();
 
 		try {
@@ -228,7 +235,11 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		boolean coreChanged = measurementService
 				.prepareMeasuringCoreBuilding(measurement);
 
-		if (coreChanged) {
+		if (
+		// did we compile before (if we would have, we would know the hash)?
+		currentlyCompiledMeasurementHash == null
+				// or did the core change?
+				|| coreChanged) {
 			// build the core
 			measurementService.compilePreparedMeasuringCore(measurement);
 		}
@@ -242,7 +253,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			}
 		}
 
-		// update the compiled measurement hash
+		// update the compiled measurement hash (either we recompiled, or we did not change anything)
 		currentlyCompiledMeasurementHash = measurementHash;
 	}
 }

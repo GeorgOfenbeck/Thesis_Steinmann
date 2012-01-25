@@ -34,7 +34,7 @@ class ArithmeticSingleKernel: public Kernel<ArithmeticSingleKernelDescription> {
 
 		static double doIt(long iterations) {
 			double result;
-#ifdef __SSE2__
+#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
 			if (UNROLL>=4) {
 				float tmp[4];
 				__m128 a[UNROLL/4], c;
@@ -106,7 +106,7 @@ class ArithmeticSingleKernel: public Kernel<ArithmeticSingleKernelDescription> {
 		static double doIt(long iterations) {
 			double result;
 			double base = getBase(iterations, 4);
-#ifdef __SSE2__
+#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
 			if (UNROLL>=4) {
 				float tmp[4];
 				__m128 a[UNROLL/4], c;
@@ -178,7 +178,7 @@ class ArithmeticSingleKernel: public Kernel<ArithmeticSingleKernelDescription> {
 		static double doIt(long iterations) {
 			double result;
 			float base = getBase(iterations, 4);
-#ifdef __SSE2__
+#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
 			if (UNROLL>=4) {
 				float tmp[4];
 				__m128 a[UNROLL/4], c;

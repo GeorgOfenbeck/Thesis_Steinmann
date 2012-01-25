@@ -9,6 +9,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterS
 
 public class MeasurementDescription extends MeasurementDescriptionData {
 
+	final private ValidationData validationData = new ValidationData();
+
 	public MeasurementDescription() {
 	}
 
@@ -104,5 +106,14 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		// since all definitions are equal, it does not matter which one is
 		// returned
 		return firstDefinition;
+	}
+
+	public void addAdditionalMeasurer(
+			MeasurerDescriptionBase measurer) {
+		getAdditionalMeasurers().add(0, measurer);
+	}
+
+	public ValidationData getValidationData() {
+		return validationData;
 	}
 }

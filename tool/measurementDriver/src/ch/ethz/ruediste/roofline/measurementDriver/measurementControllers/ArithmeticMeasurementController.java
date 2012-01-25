@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription;
+import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -50,10 +50,11 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 		space.add(optimizationAxis,
 				"-O3 -mfpmath=sse -msse2");
+		space.add(instructionSetAxis, InstructionSet.SSEScalar);
 		// space.add(optimizationAxis, "-O3");
 
-		space.add(unrollAxis, 1);
-		space.add(dlpAxis, 1);
+		space.add(unrollAxis, 14);
+		space.add(dlpAxis, 4);
 
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space

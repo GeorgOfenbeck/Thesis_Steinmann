@@ -20,6 +20,72 @@ public class MultiLanguageSerializationService{
 		Scanner scanner=new Scanner(input);
 		return DeSerializeImp(scanner);
 	}
+	
+	/**
+	 * escapes a string such that it can be serialized
+	 */
+	private String escapeString(String s) {
+		StringBuilder result = new StringBuilder();
+
+		// iterate over the input
+		for (int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
+
+			// escape newlines
+			if (ch == '\n') {
+				result.append("\\n");
+			}
+			// escape backslashes
+			else if (ch == '\\') {
+				result.append("\\\\");
+			}
+			else {
+				// it's a normal char, just append it
+				result.append(ch);
+			}
+		}
+		return result.toString();
+	}
+
+	/**
+	 * revert the escaping
+	 */
+	private String deEscapeString(String s) {
+		StringBuilder result = new StringBuilder();
+
+		// iterate over the input
+		for (int i = 0; i < s.length(); i++) {
+			char ch = s.charAt(i);
+			// is the current character the beginning of an escape sequence?
+			if (ch == '\\') {
+				// go to next char
+				i++;
+
+				// the sequence may not stop now
+				if (i >= s.length()) {
+					throw new Error("invalid string");
+				}
+
+				ch = s.charAt(i);
+
+				// append the escaped character to the result
+				if (ch == '\\') {
+					result.append('\\');
+				}
+				else if (ch == 'n') {
+					result.append('\n');
+				}
+				else {
+					throw new Error("invalid character sequence \\" + ch);
+				}
+			}
+			else {
+				// it's a normal char, just append it
+				result.append(ch);
+			}
+		}
+		return result.toString();
+	}
 
 ## Macro serializing a field known not to be a reference	
 #macro( serializeNonList $value )
@@ -30,6 +96,9 @@ public class MultiLanguageSerializationService{
 		#if ($field.type == "bool")
 			// booleans are serialized using ones and zeros
 			output.println(($value)?1:0);
+		#elseif ($field.type == "string")
+			// escape strings
+			output.println(escapeString($value));
 		#else
 			output.println($value);
 		#end
@@ -75,7 +144,14 @@ public class MultiLanguageSerializationService{
 	}
 
 #macro( parseNonReference ) 
-#if ($field.type=="bool") scanner.${field.typeDescriptor.scannerMethod}()!=0 #else scanner.${field.typeDescriptor.scannerMethod}() #end 
+	#if ($field.type=="bool") 
+		scanner.${field.typeDescriptor.scannerMethod}()!=0 
+	#elseif ($field.type=="string") 
+		// strings are escaped
+		deEscapeString(scanner.${field.typeDescriptor.scannerMethod}()) 
+	#else 
+		scanner.${field.typeDescriptor.scannerMethod}() 
+	#end 
 #end
 
 #macro( advanceAfterParseNonReference ) 

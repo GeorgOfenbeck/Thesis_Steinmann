@@ -37,6 +37,10 @@ public class Axes {
 	public static final Axis<String> optimizationAxis = new Axis<String>(
 			"c24ed880-fa37-4b82-81ac-690e2b63c560", "optimization", "-O3");
 
+	public static final Axis<InstructionSet> instructionSetAxis = new Axis<InstructionSet>(
+			"920f0443-b04e-4254-a53e-c24b0d30e0cc", "instructionSet",
+			InstructionSet.x87);
+
 	private static HashMap<UUID, Axis<?>> axes;
 
 	@SuppressWarnings("rawtypes")

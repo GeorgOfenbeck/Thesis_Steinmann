@@ -223,6 +223,9 @@ int doIt(int argc, char *argv[]) {
 	// add additional measurers
 	scheme->setAdditionalMeasurers(additionalMeasurers);
 
+	// initialize the schemes, which will initialize the kernel and the measurers as well
+	scheme->initialize();
+
 	MeasurementRunOutputCollection outputCollection;
 
 	printf("Performing measurement\n");

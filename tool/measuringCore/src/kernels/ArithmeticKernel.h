@@ -42,7 +42,7 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 			static void apply(ArithmeticKernel *kernel) {
 				long iterations = kernel->description->getIterations();
 				double result;
-#ifdef __SSE2__
+#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
 				{
 					double tmp[2];
 					__m128d a[DLP], c;
@@ -110,7 +110,7 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 				long iterations = kernel->description->getIterations();
 				double result;
 				double base = getBase(iterations, 4);
-#ifdef __SSE2__
+#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
 				{
 					double tmp[2];
 					__m128d a[DLP], c;
@@ -180,7 +180,7 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 				long iterations = kernel->description->getIterations();
 				double result;
 				double base = getBase(iterations, 4);
-#ifdef __SSE2__
+#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
 				{
 					double tmp[2];
 					__m128d a[DLP], c;

@@ -5,12 +5,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
-import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.ConfigurationKeyBase;
-import ch.ethz.ruediste.roofline.measurementDriver.Instantiator;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
-import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.*;
+import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.*;
 
 import com.google.inject.Inject;
 
@@ -65,7 +61,7 @@ public class HelpCommandController implements ICommandController {
 		for (Pair<Class<?>, ConfigurationKeyBase> entry : ClassFinder
 				.getStaticFieldValues(ConfigurationKeyBase.class,
 						"ch.ethz.ruediste.roofline.measurementDriver")) {
-			System.out.printf("%s = %s   (=>%s / %s)\n\t%s\n",
+			System.out.printf("%s = %s\n\t(%s / %s)\n\t%s\n\n",
 					// key
 					entry.getRight().getKey(),
 					// current value

@@ -61,7 +61,9 @@ public class PmuRepository {
 		measurer.setOnlyPresent(onlyPresent);
 
 		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setKernel(new DummyKernelDescription());
+		DummyKernelDescription kernel = new DummyKernelDescription();
+		kernel.setOptimization("-O0");
+		measurement.setKernel(kernel);
 		measurement.setMeasurer(measurer);
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
