@@ -141,6 +141,9 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			result.getOutputs().add(outputs.get(i));
 		}
 
+		// validate
+		measurementValidationService.validate(result);
+
 		return result;
 	}
 

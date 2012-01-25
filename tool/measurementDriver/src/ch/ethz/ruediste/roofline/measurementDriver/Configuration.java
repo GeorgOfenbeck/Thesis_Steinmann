@@ -69,6 +69,10 @@ public class Configuration {
 		setUntyped(key, value);
 	}
 
+	public Set<ConfigurationKeyBase> getKeySet() {
+		return data.keySet();
+	}
+
 	public <T> void push(ConfigurationKey<T> key, T value) {
 		Stack<Object> stack = data.get(key);
 

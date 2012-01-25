@@ -2,6 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 
+import java.math.BigInteger;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +30,8 @@ public class SystemInfoRepository {
 	private List<PmuDescription> allPmusImp;
 	private Iterable<PmuDescription> presentPmusImp;
 	private List<Integer> possibleCPUs;
+
+	final private HashSet<BigInteger> observedFrequencies = new HashSet<BigInteger>();
 
 	public String getAvailableEvent(String... events) {
 		return IterableUtils.single(events, new IUnaryPredicate<String>() {
@@ -172,5 +175,9 @@ public class SystemInfoRepository {
 		}
 
 		return result;
+	}
+
+	public HashSet<BigInteger> getObservedFrequencies() {
+		return observedFrequencies;
 	}
 }

@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.dom;
 
 import java.util.ArrayList;
 
+import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
+
 public class ValidationData {
 
 	public static class CpuSpecificFile {
@@ -32,6 +34,7 @@ public class ValidationData {
 	final private ArrayList<CpuSpecificFile> thermalThrottleCountFiles = new ArrayList<CpuSpecificFile>();
 	final private ArrayList<CpuSpecificFile> currentFrequencyFiles = new ArrayList<CpuSpecificFile>();
 	final private ArrayList<CpuSpecificFile> totalStateTransistionsFiles = new ArrayList<CpuSpecificFile>();
+	private Configuration validationConfiguration;
 
 	public void setPerfEventMeasurer(
 			PerfEventMeasurerDescription perfEventMeasurer) {
@@ -76,6 +79,16 @@ public class ValidationData {
 	public void addTotalStateTransistionsFile(
 			CpuSpecificFile getTotalStateTransistionsFile) {
 		totalStateTransistionsFiles.add(getTotalStateTransistionsFile);
+	}
+
+	public void setValidationConfiguration(Configuration validationConfiguration) {
+		this.validationConfiguration = validationConfiguration;
+		// TODO Auto-generated method stub
+
+	}
+
+	public Configuration getConfiguration() {
+		return validationConfiguration;
 	}
 
 }

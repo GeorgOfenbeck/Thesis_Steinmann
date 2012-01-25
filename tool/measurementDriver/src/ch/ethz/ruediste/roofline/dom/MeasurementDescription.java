@@ -12,7 +12,7 @@ import com.thoughtworks.xstream.annotations.XStreamOmitField;
 public class MeasurementDescription extends MeasurementDescriptionData {
 
 	@XStreamOmitField
-	final private ValidationData validationData = new ValidationData();
+	private ValidationData validationData;
 
 	public MeasurementDescription() {
 	}
@@ -118,5 +118,9 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 
 	public ValidationData getValidationData() {
 		return validationData;
+	}
+
+	public void setValidationData(ValidationData validationData) {
+		this.validationData = validationData;
 	}
 }

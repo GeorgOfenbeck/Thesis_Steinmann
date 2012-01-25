@@ -4,6 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="FileMeasurerOutput" 
 	baseType="MeasurerOutputBase"
+	javaSuffix="Data"
 	comment="result of the file measurer">
 	
 	<list name="fileContentList" type="FileContent" comment="content of the recorded files"/>
