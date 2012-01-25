@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.*;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.ReflectionRepository;
 
 import com.google.inject.Inject;
 
@@ -22,6 +23,9 @@ public class HelpCommandController implements ICommandController {
 
 	@Inject
 	public Configuration configuration;
+
+	@Inject
+	public ReflectionRepository reflectionRepository;
 
 	public String getName() {
 		return "help";
@@ -58,14 +62,13 @@ public class HelpCommandController implements ICommandController {
 		System.out.println("\nConfiguration Flags:");
 		System.out.println("**********************");
 
-		for (Pair<Class<?>, ConfigurationKeyBase> entry : ClassFinder
-				.getStaticFieldValues(ConfigurationKeyBase.class,
-						"ch.ethz.ruediste.roofline.measurementDriver")) {
+		for (Pair<Class<?>, ConfigurationKeyBase> entry : reflectionRepository
+				.getConfigurationKeyPairs()) {
 			System.out.printf("%s = %s\n\t(%s / %s)\n\t%s\n\n",
 					// key
 					entry.getRight().getKey(),
 					// current value
-					configuration.get(entry.getRight()),
+					configuration.getUntyped(entry.getRight()),
 					// declaring class
 					entry.getLeft().getSimpleName(),
 					// type of the value

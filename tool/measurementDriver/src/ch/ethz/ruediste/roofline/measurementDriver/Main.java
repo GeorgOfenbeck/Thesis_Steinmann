@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 import org.apache.commons.exec.CommandLine;
@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.*;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.ReflectionRepository;
 
 import com.google.inject.*;
 import com.google.inject.name.Names;
@@ -26,6 +27,17 @@ public class Main {
 					"logLevel to be used for console logging",
 					"INFO");
 
+	public static ConfigurationKey<String> userConfigFileKey = ConfigurationKey
+			.Create(String.class, "userConfigFile",
+					"location and filename of the user configuration file",
+					"~/.roofline/config");
+
+	public static ConfigurationKey<String> userLog4jConfigFileKey = ConfigurationKey
+			.Create(String.class,
+					"userLog4jConfig",
+					"location and filename of the user log4j configuration file",
+					"~/.roofline/log4j.config");
+
 	static private Logger log = Logger.getLogger(Main.class);
 
 	@Inject
@@ -36,6 +48,9 @@ public class Main {
 
 	@Inject
 	public RuntimeMonitor runtimeMonitor;
+
+	@Inject
+	public ReflectionRepository reflectionRepository;
 
 	public static void main(String args[]) throws IOException {
 		// setup dependency Injection
@@ -68,14 +83,71 @@ public class Main {
 		runtimeMonitor.rootCategory.enter();
 		runtimeMonitor.startupCategory.enter();
 
+		// create configurations
+		Configuration defaultConfiguration = new Configuration();
+		Configuration userConfiguration = new Configuration();
+
+		// wire configurations
+		configuration.setDefaultConfiguration(userConfiguration);
+		userConfiguration.setDefaultConfiguration(defaultConfiguration);
+
+		// load default configuration
+		{
+			InputStream inStream = ClassLoader
+					.getSystemResourceAsStream("defaultConfiguration.config");
+			if (inStream == null) {
+				throw new Error(
+						"could not load <defaultConfiguration.config>. Does not seem to be in the class path. Is it compiled into the .jar?");
+			}
+
+			fillConfiguration(defaultConfiguration, inStream);
+		}
+
 		// parse command line
 		List<String> parsedArgs = parseCommandLine(args);
 
 		// load user configuration
-		configuration.loadUserConfiguration();
+		{
+			// retrieve the user configuration file
+
+			String userConfigFileString = configuration.get(userConfigFileKey);
+
+			// replace a starting tilde with the user home directory
+			if (userConfigFileString.startsWith("~")) {
+				userConfigFileString = System.getProperty("user.home")
+						+ userConfigFileString.substring(1);
+			}
+
+			// check if the user configuration file exists
+			File userConfigFile = new File(userConfigFileString);
+			if (userConfigFile.exists() && userConfigFile.isFile()) {
+
+				InputStream inStream = new FileInputStream(userConfigFile);
+				fillConfiguration(userConfiguration, inStream);
+			}
+		}
 
 		// initialize log4j
-		PropertyConfigurator.configure(configuration.toProperties());
+		{
+			InputStream inStream = ClassLoader
+					.getSystemResourceAsStream("log4j.config");
+			if (inStream == null) {
+				throw new Error(
+						"could not load <log4j.config>. Does not seem to be in the class path. Is it compiled into the .jar?");
+			}
+
+			Properties properties = new Properties();
+			properties.load(inStream);
+			PropertyConfigurator.configure(properties);
+
+			// load user configuration
+			File userConfigFile = new File(
+					configuration.get(userLog4jConfigFileKey));
+			if (userConfigFile.exists() && !userConfigFile.isDirectory()) {
+				PropertyConfigurator
+						.configure(userConfigFile.getAbsolutePath());
+			}
+		}
 
 		// set the loglevel
 		Logger.getRootLogger().setLevel(
@@ -118,6 +190,27 @@ public class Main {
 		}
 		runtimeMonitor.rootCategory.leave();
 		runtimeMonitor.print();
+	}
+
+	/**
+	 * @param defauConfiguration
+	 * @param inStream
+	 * @throws IOException
+	 */
+	public void fillConfiguration(Configuration defauConfiguration,
+			InputStream inStream) throws IOException {
+		// load the stream
+		Properties defaultProperties = new Properties();
+		defaultProperties.load(inStream);
+
+		// put properties into the configuration
+		for (String key : defaultProperties.stringPropertyNames()) {
+			ConfigurationKeyBase configKey = reflectionRepository
+					.getConfigurationKeyMap().get(key);
+
+			defauConfiguration.parseAndSet(configKey,
+					defaultProperties.getProperty(key));
+		}
 	}
 
 	private void doAutocompetion(String[] args) {
@@ -224,26 +317,25 @@ public class Main {
 
 			if (arg.startsWith("-")) {
 				// it's a configuration
+				String[] argParts = arg.substring(1).split("=");
+
+				// find the key for the argument
+				Map<String, ConfigurationKeyBase> configurationKeyMap = reflectionRepository
+						.getConfigurationKeyMap();
+				ConfigurationKeyBase key = configurationKeyMap.get(argParts[0]);
+
+				if (key == null) {
+					throw new Error(
+							String.format(
+									"could not find configuration key named %s. Available keys:\n%s",
+									arg.substring(1),
+									StringUtils.join(
+											configurationKeyMap.keySet(),
+											"\n")));
+				}
 
 				// is it a boolean which should be toggled?
-				if (!arg.contains("=")) {
-					Map<String, ConfigurationKeyBase> configurationKeyMap = configuration
-							.getConfigurationKeyMap();
-
-					// find the key for the argument
-					ConfigurationKeyBase key = configurationKeyMap.get(arg
-							.substring(1));
-
-					// throw error if key does not exist
-					if (key == null) {
-						throw new Error(
-								String.format(
-										"could not find configuration key named %s. Available keys:\n%s",
-										arg.substring(1),
-										StringUtils.join(
-												configurationKeyMap.keySet(),
-												"\n")));
-					}
+				if (argParts.length == 1) {
 
 					// check if key is a boolean
 					if (!Boolean.class.isAssignableFrom(key.getValueType())) {
@@ -263,14 +355,13 @@ public class Main {
 				}
 				else {
 					// it's a normal configuration
-					String[] argParts = arg.substring(1).split("=");
 					if (argParts.length != 2) {
 						throw new Error(
 								"Expected configuration definition in the format of -<key>=<value>, got "
 										+ arg);
 					}
 
-					configuration.set(argParts[0], argParts[1]);
+					configuration.parseAndSet(key, argParts[1]);
 				}
 			}
 			else {
@@ -278,9 +369,6 @@ public class Main {
 				unhandledArgs.add(arg);
 			}
 		}
-
-		// finally check if the configuration is still valid.
-		configuration.checkConfiguration();
 
 		return unhandledArgs;
 	}
