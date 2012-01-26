@@ -379,10 +379,14 @@ The code makes use of variadic templates (\cite{Gregor06:variadics_rev_3}).
 \item 0x400001aa   ix86arch::INSTRUCTION\_RETIRED
 \item 0x400001ab   ix86arch::UNHALTED\_REFERENCE\_CYCLES 
 \end{itemize}
+
 \subsection{Frequency Scaling}
 The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core freqency, a lower core freqency will generally cause a higher percentage of the peak performance to be reached by the kernel.
 
 It is difficult to control the core frequency. But the frequency should at least be recorded along with the measurement. If the frequency changes during the measurement, this should be recored as well. The other option is to disable frequency scaling completely.
+
+\subsection{Experiments}
+To gain insight into the accuracy and precision of the timers available, we run the addition kernel with an exponentially increasing iteration count. The largest iteration count should result in a runtime of about 0.5s. We expect the precision to be high for small iteration counts, a peak variance at around 5ms due to the task switches, and an increasing precision for higher iteration counts. The accuracy of the minimum should be high for small iteration counts, and include a small overhead if multiple task switches occur during the measurement.
 
 \section{Measuring Memory Traffic}
 \begin{itemize}
@@ -400,6 +404,8 @@ It is difficult to control the core frequency. But the frequency should at least
 \begin{itemize}
 \item 0x40000156   SIMD\_UOP\_TYPE\_EXEC B3h 01h/20h
 \end{itemize}
+
+
 
 
 \listoffigures
