@@ -195,6 +195,21 @@ int doIt(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	// create validation measurers
+	vector<MeasurerBase*> *validationMeasurers=new vector<MeasurerBase*>();
+	foreach(MeasurerDescriptionBase* measurerDescription,description->getValidationMeasurers())
+	{
+		MeasurerBase *measurer =
+				TypeRegistry<MeasurerBase>::createObject(
+						measurerDescription);
+		if (measurer == NULL) {
+			printf("measurer for %s not found\n",
+					typeid(*measurerDescription).name());
+			exit(1);
+		}
+		validationMeasurers->push_back(measurer);
+	}
+
 	// create additional measurers
 	vector<MeasurerBase*> *additionalMeasurers=new vector<MeasurerBase*>();
 	foreach(MeasurerDescriptionBase* measurerDescription,description->getAdditionalMeasurers())
@@ -221,6 +236,7 @@ int doIt(int argc, char *argv[]) {
 	}
 
 	// add additional measurers
+	scheme->setValidationMeasurers(validationMeasurers);
 	scheme->setAdditionalMeasurers(additionalMeasurers);
 
 	// initialize the schemes, which will initialize the kernel and the measurers as well
@@ -246,6 +262,14 @@ int doIt(int argc, char *argv[]) {
 	printf("tearing down\n");
 	delete (kernel);
 	delete (mainMeasurer);
+	foreach (MeasurerBase *measurer, *validationMeasurers){
+		delete(measurer);
+	}
+	delete(validationMeasurers);
+	foreach (MeasurerBase *measurer, *additionalMeasurers){
+		delete(measurer);
+	}
+	delete(additionalMeasurers);
 	delete (scheme);
 
 	printf("writing output\n");

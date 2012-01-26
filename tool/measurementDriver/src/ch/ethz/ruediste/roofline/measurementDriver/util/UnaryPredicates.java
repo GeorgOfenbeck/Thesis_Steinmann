@@ -17,4 +17,13 @@ public class UnaryPredicates {
 	public static <T> IUnaryPredicate<T> False() {
 		return constant(true);
 	}
+
+	public static IUnaryPredicate<Boolean> identity() {
+		return new IUnaryPredicate<Boolean>() {
+
+			public Boolean apply(Boolean arg) {
+				return arg;
+			}
+		};
+	}
 }

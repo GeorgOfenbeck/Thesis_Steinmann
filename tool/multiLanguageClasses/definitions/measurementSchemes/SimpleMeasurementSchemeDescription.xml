@@ -5,5 +5,5 @@
 	name="SimpleMeasurementSchemeDescription" 
 	baseType="MeasurementSchemeDescriptionBase"
 	comment="Describes the simple measurement scheme">
-	
+	<field name="cpu" type="int" comment="CPU to run the measurement on"/>
 </derivedClass>

@@ -18,6 +18,7 @@
 class MeasurementSchemeBase {
 protected:
 	std::vector<MeasurerBase*> *additionalMeasurers;
+	std::vector<MeasurerBase*> *validationMeasurers;
 
 public:
 	typedef MeasurementSchemeDescriptionBase tDescriptionBase;
@@ -31,6 +32,9 @@ public:
 	void setAdditionalMeasurers(std::vector<MeasurerBase*> *vec){
 		additionalMeasurers=vec;
 	}
+	void setValidationMeasurers(std::vector<MeasurerBase*> *vec){
+			validationMeasurers=vec;
+		}
     void clearCaches();
 };
 
@@ -70,6 +74,9 @@ public:
 	void initialize(){
 		this->kernel.initialize();
 		this->measurer.initialize();
+		foreach(MeasurerBase *measurer, *validationMeasurers){
+			measurer->initialize();
+		}
 		foreach(MeasurerBase *measurer, *additionalMeasurers){
 			measurer->initialize();
 		}

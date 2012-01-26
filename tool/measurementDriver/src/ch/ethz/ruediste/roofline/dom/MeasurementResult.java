@@ -65,6 +65,17 @@ public class MeasurementResult {
 			// return the output of the main measurer;
 			return (TOutput) runOutput.getMainMeasurerOutput();
 		}
+		// is it a validation measurer?
+		else if (any(getMeasurement().getValidationMeasurers(), match)) {
+			// get the index of the measurer
+			int index = indexOfSingle(
+					getMeasurement().getValidationMeasurers(), match);
+
+			// return the output of the measurer at the same position
+			return (TOutput) runOutput.getValidationMeasurerOutputs()
+					.get(index);
+		}
+		// it must be an additional measurer!
 		else {
 			// get the index of the measurer
 			int index = indexOfSingle(

@@ -1,7 +1,9 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
+import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.any;
+
 import java.math.BigInteger;
-import java.util.HashSet;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -39,16 +41,50 @@ public class MeasurementValidationService {
 					"check that no frequency transitions occur during measurements",
 					true);
 
+	public final static ConfigurationKey<Boolean> validateContextSwitchesKey = ConfigurationKey
+			.Create(Boolean.class,
+					"validation.contextSwitches",
+					"check that there are none or many context switches during the measurement",
+					true);
+
+	public final static ConfigurationKey<Boolean> validateThermalThrottlingKey = ConfigurationKey
+			.Create(Boolean.class,
+					"validation.thermalThrottling",
+					"check that no thermal throttlings occur during the measurements",
+					true);
+
+	public final static ConfigurationKey<Boolean> validateCpuMigrationsKey = ConfigurationKey
+			.Create(Boolean.class,
+					"validation.cpuMigrations",
+					"check that no cpu migrations occur during the measurements",
+					true);
+
 	@Inject
 	Configuration configuration;
 
 	@Inject
 	SystemInfoRepository systemInfoRepository;
 
+	@SuppressWarnings("unchecked")
 	public void addValidationMeasurers(MeasurementDescription measurement) {
 		// skip validation if disabled
 		if (!configuration.get(validationKey)) {
 			return;
+		}
+
+		// get measured CPUs
+		LinkedList<Integer> measuredCpus = new LinkedList<Integer>();
+		{
+			if (!(measurement.getScheme() instanceof SimpleMeasurementSchemeDescription)) {
+				throw new Error(
+						"Validation not supported for measurement scheme "
+								+ measurement.getScheme().getClass()
+										.getSimpleName());
+			}
+			SimpleMeasurementSchemeDescription scheme = (SimpleMeasurementSchemeDescription) measurement
+					.getScheme();
+
+			measuredCpus.add(scheme.getCpu());
 		}
 
 		ValidationData validationData = new ValidationData();
@@ -64,21 +100,13 @@ public class MeasurementValidationService {
 			}
 		}
 
-		// add the perf event measurer
-		PerfEventMeasurerDescription perfEventMeasurerDescription = new PerfEventMeasurerDescription();
-		perfEventMeasurerDescription.addEvent("contextSwitches",
-				"perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
-
-		measurement.addAdditionalMeasurer(perfEventMeasurerDescription);
-		validationData.setPerfEventMeasurer(
-				perfEventMeasurerDescription);
-
-		// add the file measurer
+		// create the file measurer
 		FileMeasurerDescription fileMeasurer = new FileMeasurerDescription();
 		String thermalThrottleCountPattern = "/sys/devices/system/cpu/cpu%d/thermal_throttle/core_throttle_count";
 		String currentFrequencyPattern = "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_cur_freq";
 		String totalStateTransistionsFile = "/sys/devices/system/cpu/cpu%d/cpufreq/stats/total_trans";
-		for (int cpu : systemInfoRepository.getPossibleCPUs()) {
+		for (int cpu : measuredCpus) {
+			if (validationConfiguration.get(validateThermalThrottlingKey))
 			{
 				CpuSpecificFile file = new CpuSpecificFile(
 						thermalThrottleCountPattern, cpu);
@@ -86,12 +114,15 @@ public class MeasurementValidationService {
 				validationData.addThermalThrottleCountFile(
 						file);
 			}
+			if (any(validationConfiguration.get(validateFrequencyKey,
+					validateOverallFrequencyKey)))
 			{
 				CpuSpecificFile file = new CpuSpecificFile(
 						currentFrequencyPattern, cpu);
 				fileMeasurer.addFile(file.getFileName());
 				validationData.addCurrentFrequencyFile(file);
 			}
+			if (validationConfiguration.get(validateFrequencyTransitionsKey))
 			{
 				CpuSpecificFile file = new CpuSpecificFile(
 						totalStateTransistionsFile, cpu);
@@ -101,10 +132,33 @@ public class MeasurementValidationService {
 			}
 		}
 
-		measurement.addAdditionalMeasurer(fileMeasurer);
-		validationData.setFileMeasurer(fileMeasurer);
+		// is there any file to record?
+		if (!fileMeasurer.getFilesToRecord().isEmpty()) {
+			measurement.addValidationMeasurer(fileMeasurer);
+			validationData.setFileMeasurer(fileMeasurer);
+		}
+
+		// create the perf event measurer
+		PerfEventMeasurerDescription perfEventMeasurerDescription = new PerfEventMeasurerDescription();
+		if (validationConfiguration.get(validateContextSwitchesKey)) {
+			perfEventMeasurerDescription.addEvent("contextSwitches",
+					"perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
+		}
+
+		if (validationConfiguration.get(validateCpuMigrationsKey)) {
+			perfEventMeasurerDescription.addEvent("cpuMigrations",
+					"perf::PERF_COUNT_SW_CPU_MIGRATIONS");
+		}
+
+		// is there any event to measure
+		if (!perfEventMeasurerDescription.getEvents().isEmpty()) {
+			measurement.addValidationMeasurer(perfEventMeasurerDescription);
+			validationData.setPerfEventMeasurer(
+					perfEventMeasurerDescription);
+		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void validate(MeasurementResult result) {
 		ValidationData validationData = result.getMeasurement()
 				.getValidationData();
@@ -118,10 +172,35 @@ public class MeasurementValidationService {
 			return;
 		}
 
+		// check cpu migrations
+		if (validationData.getConfiguration().get(validateCpuMigrationsKey)) {
+			if (!validationData.getPerfEventMeasurer().getMin("cpuMigrations",
+					result).equals(BigInteger.ZERO)) {
+				log.warn("Cpu migration(s) observerd");
+			}
+		}
+
+		// check thermal throttling
+		if (validationData.getConfiguration().get(validateThermalThrottlingKey)) {
+			for (FileMeasurerOutput fileMeasurerOutput : result
+					.getMeasurerOutputs(validationData.getFileMeasurer())) {
+				for (CpuSpecificFile file : validationData
+						.getThermalThrottleCountFiles()) {
+					FileContent content = fileMeasurerOutput
+							.getContent(file.getFileName());
+					String startContent = content.getStartContent().trim();
+					BigInteger start = new BigInteger(startContent);
+					String stopContent = content.getStopContent().trim();
+					BigInteger stop = new BigInteger(stopContent);
+					if (!start.equals(stop)) {
+						log.warn("observed thermal throttlings");
+					}
+				}
+			}
+		}
 		// check frequency
-		if (validationData.getConfiguration().get(validateFrequencyKey)
-				|| validationData.getConfiguration().get(
-						validateOverallFrequencyKey)) {
+		if (any(validationData.getConfiguration().get(validateFrequencyKey,
+				validateOverallFrequencyKey))) {
 			HashSet<BigInteger> observedFrequencies = getObservedFrequencies(result);
 
 			if (validationData.getConfiguration().get(validateFrequencyKey)) {

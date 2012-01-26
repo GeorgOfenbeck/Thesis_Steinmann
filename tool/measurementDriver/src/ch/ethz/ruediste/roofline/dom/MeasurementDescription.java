@@ -116,6 +116,11 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		getAdditionalMeasurers().add(0, measurer);
 	}
 
+	public void addValidationMeasurer(
+			MeasurerDescriptionBase measurer) {
+		getValidationMeasurers().add(0, measurer);
+	}
+
 	public ValidationData getValidationData() {
 		return validationData;
 	}

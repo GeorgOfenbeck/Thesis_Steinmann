@@ -1,10 +1,13 @@
 package ch.ethz.ruediste.roofline.dom;
 
 import java.io.PrintStream;
+import java.math.BigInteger;
+import java.util.ArrayList;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 import ch.ethz.ruediste.roofline.statistics.IAddValue;
 
 public class PerfEventMeasurerDescription extends
@@ -74,4 +77,26 @@ public class PerfEventMeasurerDescription extends
 		return statistics;
 	}
 
+	public Iterable<BigInteger> getBigIntegers(String name,
+			MeasurementResult meaurementResult) {
+		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
+		// iterate over all outputs
+		for (PerfEventMeasurerOutput output : meaurementResult
+				.getMeasurerOutputs(this)) {
+			PerfEventCount eventCount = output
+					.getEventCount(name);
+			if (!eventCount.getTimeEnabled()
+					.equals(eventCount.getTimeRunning())) {
+				throw new Error("event was multiplexed, use double values");
+			}
+			result.add(eventCount.getRawCount());
+		}
+		return result;
+	}
+
+	public BigInteger getMin(String name,
+			MeasurementResult result) {
+		return IterableUtils.foldl(getBigIntegers(name, result),
+				BigInteger.ZERO, BinaryFunctions.<BigInteger> min());
+	}
 }

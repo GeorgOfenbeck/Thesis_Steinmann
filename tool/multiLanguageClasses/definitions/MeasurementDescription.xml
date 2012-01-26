@@ -12,4 +12,5 @@
 	<field name="kernel" type="KernelDescriptionBase" comment="describes the kernel to be used"/>
 	<field name="measurer" type="MeasurerDescriptionBase" comment="describes the measurer to be used"/>
 	<list name="additionalMeasurers" type="MeasurerDescriptionBase" comment="Additional measurers to be used. Started in the order they appear. Stopped in reverse order" />
+	<list name="validationMeasurers" type="MeasurerDescriptionBase" comment="Validation measurers. Started in the order they appear. Stopped in reverse order. Started before warming/clearing caches" />
 </class>

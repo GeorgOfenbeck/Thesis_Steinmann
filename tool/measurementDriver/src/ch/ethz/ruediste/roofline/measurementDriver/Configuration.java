@@ -30,6 +30,14 @@ public class Configuration {
 		return (T) getUntyped((ConfigurationKeyBase) key);
 	}
 
+	public <T> Iterable<T> get(ConfigurationKey<T>... keys) {
+		ArrayList<T> result = new ArrayList<T>();
+		for (ConfigurationKey<T> key : keys) {
+			result.add(get(key));
+		}
+		return result;
+	}
+
 	public void setDefaultConfiguration(Configuration configuration) {
 		this.defaultConfiguration = configuration;
 	}

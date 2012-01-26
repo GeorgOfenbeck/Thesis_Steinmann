@@ -8,6 +8,32 @@ public class IterableUtils {
 		return single(iterable, UnaryPredicates.<T> True());
 	}
 
+	public static <T> T foldr(Iterable<T> iterable, T start,
+			final IBinaryFunction<T, T, T> func) {
+		return foldl(reverse(iterable), start, new IBinaryFunction<T, T, T>() {
+			public T apply(T arg1, T arg2) {
+				return func.apply(arg2, arg1);
+			}
+		});
+	}
+
+	public static <T> T foldl(Iterable<T> iterable, T start,
+			IBinaryFunction<T, T, T> func) {
+		T result = start;
+		for (T item : iterable) {
+			result = func.apply(result, item);
+		}
+		return result;
+	}
+
+	public static <T> Iterable<T> reverse(Iterable<T> iterable) {
+		LinkedList<T> result = new LinkedList<T>();
+		for (T item : iterable) {
+			result.addFirst(item);
+		}
+		return result;
+	}
+
 	public static <T> T single(Iterable<T> iterable, IUnaryPredicate<T> pred) {
 		boolean found = false;
 		T foundItem = null;
@@ -67,11 +93,16 @@ public class IterableUtils {
 
 	public static <T> boolean any(Iterable<T> iterable,
 			IUnaryPredicate<T> predicate) {
-		return isEmpty(where(iterable, predicate));
+		return !isEmpty(where(iterable, predicate));
+	}
+
+	public static boolean any(Iterable<Boolean> iterable) {
+		return !isEmpty(where(iterable, UnaryPredicates.identity()));
 	}
 
 	public static <T> boolean isEmpty(Iterable<T> iterable) {
-		return iterable.iterator().hasNext();
+		boolean hasNext = iterable.iterator().hasNext();
+		return !hasNext;
 	}
 
 	public static <T> int indexOfSingle(Iterable<T> iterable,

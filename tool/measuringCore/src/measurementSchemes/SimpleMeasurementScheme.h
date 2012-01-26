@@ -11,6 +11,7 @@
 #include "sharedDOM/SimpleMeasurementSchemeDescription.h"
 
 #include "utils.h"
+#include <sched.h>
 
 template<class TKernel, class TMeasurer>
 class SimpleMeasurementScheme : public MeasurementScheme<SimpleMeasurementSchemeDescription,TKernel,TMeasurer>{
@@ -22,6 +23,21 @@ public:
 	}
 
 	MeasurementRunOutput *measure(){
+		// set cpu affinity
+		{
+			int cpu=super::description->getCpu();
+			cpu_set_t *mask=CPU_ALLOC(cpu);
+			size_t size=CPU_ALLOC_SIZE(cpu);
+			CPU_ZERO_S(size,mask);
+			CPU_SET_S(cpu, size,mask);
+			sched_setaffinity(0,size,mask);
+		}
+
+		// start validation measurers. They should validate the warmup, too
+		foreach (MeasurerBase *measurer, *super::validationMeasurers){
+			measurer->start();
+		}
+
 		// prepare caches
 		super::warmOrClearCaches();
 
@@ -56,12 +72,21 @@ public:
 			additionalMeasurer->stop();
 		}
 
+		// stop the validation measurers
+		reverse_foreach (MeasurerBase *measurer, *super::validationMeasurers){
+			measurer->stop();
+		}
+
 		MeasurementRunOutput *result=new MeasurementRunOutput();
 		result->setMainMeasurerOutput(super::measurer.read());
 
 		foreach (MeasurerBase *additionalMeasurer, *super::additionalMeasurers){
 					result->getAdditionalMeasurerOutputs().push_back(additionalMeasurer->read());
 				}
+
+		foreach (MeasurerBase *measurer, *super::validationMeasurers){
+			result->getValidationMeasurerOutputs().push_back(measurer->read());
+		}
 
 		return result;
 	}
