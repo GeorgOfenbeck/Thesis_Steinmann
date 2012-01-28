@@ -47,7 +47,7 @@ This is the paper's abstract \ldots
 \section{Introduction}
 In this thesis, we would like to analyze a substantial amount of diverse code using the roofline model presented in \cite{Roofline}. The code can come either in the form of a relatively isolated routine, typically containing a single kernel, or in the form of a larger program, containing multiple different kernels.
 
-While routines are treated as atomic unit, it is desireable to split the larger program into it's different algorithms and do the analysis for each algorithm separately. In the rest of this paper, we will use the term kernel for a routine or part of a program which is analyzed on it's own.
+While routines are treated as atomic unit, it is desirable to split the larger program into it's different algorithms and do the analysis for each algorithm separately. In the rest of this paper, we will use the term kernel for a routine or part of a program which is analyzed on it's own.
 
 To obtain the peak performance lines for the roofline model, we need to run micro benchmarks. To get the data points for a kernel, we need to measure the performance and the operational intensity. 
 
@@ -59,7 +59,7 @@ An operation could be a floating point operation, resulting int the well known "
 
 The point where data traffic is measured is typically between the last level of the processor cache and the DRAM, but it could be measured as well between the different cache levels or between L1 cache and processor.
 
-The microbenchmarks are typically designed to either transfer as much data per unit of time or to execute as may operations per unit of time. Thus the measurement capabilities needed to evaluate the actual problems can be reused for the benchmarks. 
+The micro benchmarks are typically designed to either transfer as much data per unit of time or to execute as may operations per unit of time. Thus the measurement capabilities needed to evaluate the actual problems can be reused for the benchmarks. 
 
 In summary, we need to measure the following quantities:
 \begin{itemize}
@@ -76,22 +76,22 @@ While each of the measurements above has it's own subtleties, there are some eff
 
 Unless a special operating system is used, we have to deal with context switches during measurement. On current operating systems, a context switch typically occurs every 10ms due to the timer interrupt. Following the lines of \cite{ComSysProgPersp}, there are two ways to deal with them:
 
-If the execution time of the kernel is small, the operating system will eventually execute the whole kernel without interruption. This can be exploited using the best k measurement scheme. The kernel is repeatedly executed until the k measurements with the smallest execution times show a variation below a certain threshold. These executions were apparently not affected by a context switch, since a context switch would have increased exection time. The HW\_INT\_RCV performance counter could possibly be used as well to detect context switches.
+If the execution time of the kernel is small, the operating system will eventually execute the whole kernel without interruption. This can be exploited using the best k measurement scheme. The kernel is repeatedly executed until the k measurements with the smallest execution times show a variation below a certain threshold. These executions were apparently not affected by a context switch, since a context switch would have increased execution time. The HW\_INT\_RCV performance counter could possibly be used as well to detect context switches.
 
 If a single execution of the kernel takes longer than the period of time between two timer interrupts, it will always be affected by a context switch. In this case, the proposed solution is to execute the kernel in a loop until many context switches occurred. The effect of the context switches can be compensated for by reducing the measured time be a certain factor. The factor depends on the actual system.
 
 \subsection{Cache}
-Specially for short running kernels, the inital state of the cache can have a big impact on the memory traffic and execution time. [?] The impact can be controlled by making sure the caches are either warm or cold.
+Specially for short running kernels, the initial state of the cache can have a big impact on the memory traffic and execution time. [?] The impact can be controlled by making sure the caches are either warm or cold.
 
-To get a cold cache, a memory block with a larger size than the last level cache should be accessed directly before executing the kernel. This causes all cache lines containig data of the working set to be evicted. In a similar manner, enough code should be executed to clear the L1 code cache.
+To get a cold cache, a memory block with a larger size than the last level cache should be accessed directly before executing the kernel. This causes all cache lines containing data of the working set to be evicted. In a similar manner, enough code should be executed to clear the L1 code cache.
 
 To get a warm cache, the kernel is usually executed once before starting the measurement. This causes the working set to be loaded in the caches, if it fits, and the code to be in the cache as well.
 
 \subsection{System Load}
-Specially if the measurement includes context switches, the system load has a big impact on the measurement result. But due to caching effects, even the k best measurement scheme might be affected by the system load. Since we can controll the system the measurements are perfomed on, we can control system load. But none the less, it should be recorded along with the measurement, in case something goes wrong with the measurement system setup.
+Specially if the measurement includes context switches, the system load has a big impact on the measurement result. But due to caching effects, even the k best measurement scheme might be affected by the system load. Since we can control the system the measurements are performed on, we can control system load. But none the less, it should be recorded along with the measurement, in case something goes wrong with the measurement system setup.
 
 \subsection{Multi Threading}
-Our kernels and benchmarks will use multi threading. This has to be supported by the measurement tool. Since some caches as well as part of the memory bandwith might be shared among different cores, multithreading can have various effects on the amount of transferred memory and the available bandwith.
+Our kernels and benchmarks will use multi threading. This has to be supported by the measurement tool. Since some caches as well as part of the memory bandwidth might be shared among different cores, multi threading can have various effects on the amount of transferred memory and the available bandwidth.
 
 In case of hyper threading, some functional units of a processor core are shared among two threads. This influences the peak performance of the core.
 
@@ -115,7 +115,7 @@ The measurement tool is used to generate and display measurement results. Often,
 
 \umlDiagram{ToolComponents}
 
-Data transfer between the measuring core and the measurement driver is archieved using serialized objects stored in files. The classes of this Shared DOM are shown in the following diagram:
+Data transfer between the measuring core and the measurement driver is achieved using serialized objects stored in files. The classes of this Shared DOM are shown in the following diagram:
 
 \umlDiagram{MultiLanguageClasses}
 
@@ -155,13 +155,13 @@ The following is an example of a class definition:
 
 After the definitions are loaded, Velocity templates are used to generate all source code.
 
-A normal class has a C and a Java base type. The C base type has to directly or inderectly inherit from MultiLanguageObjectBase, which is a polymorphic class. This allows to use the RTTI (RunTime Type Information). Java base types have no such constraint (due to the implicit common base class Object). The base types are just included in the generated source code, but have no other effect on the code generation.
+A normal class has a C and a Java base type. The C base type has to directly or indirectly inherit from MultiLanguageObjectBase, which is a polymorphic class. This allows to use the RTTI (RunTime Type Information). Java base types have no such constraint (due to the implicit common base class Object). The base types are just included in the generated source code, but have no other effect on the code generation.
 
 A derived class names another multi language class as base type. The C and Java base types are set to that class. The fields of the base class are included in the serialization process. If just the C and Java base types would be set to the multi language class used as base class, the generated class would still derive from the base class, but the fields of the base class would not be included in the serialization process.
 
 Often it is necessary to mix hand written code with the generated code. To support this, a suffix can be specified, which is added to the name of the generated class. Only the name of the generated class is affected, not the type name used for references to the class. A class named without the specified suffix has to be provided manually, and should derive from the generated class. Any additional code as well as additional fields can be included in the hand written class.
 
-The class definitions and the generated code is located in the Multi Language Classes project. The generated java code is linked by the Measurement Driver project. The generated C code is linked by the Measuring Core. The following Diagram shows these dependencies:
+The class definitions and the generated code is located in the Multi Language Classes project. The generated Java code is linked by the Measurement Driver project. The generated C code is linked by the Measuring Core. The following Diagram shows these dependencies:
 
 \umlDiagram{CodeGenerationDependencies}
 
@@ -273,7 +273,7 @@ The second file is the default configuration. It is located in the source code o
 
 Finally, the flag definitions with lowest precedence are the default values given in the configuration keys.
 
-\subsubsection{Preporcessor Macros}
+\subsubsection{Preprocessor Macros}
 Preprocessor macros are used to allow flexible compile time parameterization of the measuring core. The macros are defined by the measurement driver. Before the compilation of the measuring core, the measurement driver writes the definition of each macro to a separate include file. This allows the build system to track macro definition changes for and to recompile only the required parts.
 
 In the measurement driver, each macro is identified by a macro key, which contains the macro name, a description and the default value. The macro definitions are stored in classes deriving from MacroDefinitionContainer. The classes should define macro keys by placing them in private static variables. To access the macro definition, getters and setters have to be provided. 
@@ -333,7 +333,7 @@ From the normal sources and the kernel sources, the file names of the object fil
 
 There is a rule without recipe with the kernel objects as target and the file containing the measurement specific optimization flags as prerequisite. This causes the file containing the optimization flags to be added as prerequisite for each kernel object file.
 
-In the C programming language, it is possible to include other files in a source file. Of course, the compilated code depends on the contents of the included files, too. To track these build dependencies, the compiler is instructed to generate rules without recipes with the object file as target and the source file together with the included files as prerequisites. The generated rules are stored in .d files in the build directory and are included in the makefile.
+In the C programming language, it is possible to include other files in a source file. Of course, the compiled code depends on the contents of the included files, too. To track these build dependencies, the compiler is instructed to generate rules without recipes with the object file as target and the source file together with the included files as prerequisites. The generated rules are stored in .d files in the build directory and are included in the makefile.
 
 If special compilation flags are required for a source file, a rule should be added near the end of the makefile.
 
@@ -381,12 +381,53 @@ The code makes use of variadic templates (\cite{Gregor06:variadics_rev_3}).
 \end{itemize}
 
 \subsection{Frequency Scaling}
-The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core freqency, a lower core freqency will generally cause a higher percentage of the peak performance to be reached by the kernel.
+The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core frequency, a lower core frequency will generally cause a higher percentage of the peak performance to be reached by the kernel.
 
-It is difficult to control the core frequency. But the frequency should at least be recorded along with the measurement. If the frequency changes during the measurement, this should be recored as well. The other option is to disable frequency scaling completely.
+On Linux, frequency scaling is controlled so called governors. They can be set through the sys file system. The tool offers the possibility to set the governor. In addition, it is possible to read the current frequency. If the frequency changes during a measurement, this is recored as well.
 
 \subsection{Experiments}
-To gain insight into the accuracy and precision of the timers available, we run the addition kernel with an exponentially increasing iteration count. The largest iteration count should result in a runtime of about 0.5s. We expect the precision to be high for small iteration counts, a peak variance at around 5ms due to the task switches, and an increasing precision for higher iteration counts. The accuracy of the minimum should be high for small iteration counts, and include a small overhead if multiple task switches occur during the measurement.
+To gain insight into the accuracy and precision of the timers available, we run the addition kernel with an exponentially increasing iteration count. The largest iteration count should result in a runtime of about 0.5s. We expect the precision to be high for small iteration counts, a peak variance at around 5 ms due to the task switches, and an increasing precision for higher iteration counts. The accuracy of the minimum should be high for small iteration counts, and include a small overhead if multiple task switches occur during the measurement.
+
+The first series of measurements is about the running time of a CPU intensive kernel. We are not interested in the effects of the memory subsystem. We measure at both the minimal and maximal CPU frequency. We measure on an idle system, when another arithmetic kernel runs or when heavy disk IO is performed. We let the system load threads run on any of the system's CPU. We expect to measure effects of the task switches and interrupts due to IO.
+
+The second series of measurements is about the influences of shared memory bandwidth on the runtime. Depending on the system architecture, we expect to measure shared bandwidth effects. We measure a memory load and a memory write kernel, with the same kernels running on other CPUs at the same time. 
+
+Unfortunately, even on a very lightly loaded system, any task can be executed on any other core. This could affect short running kernels, and result in wrong measurement results. We show this by starting two memory intensive, short running kernels simultaneously. To overcome this, we propose to make sure all unused cores execute non memory intensive kernels during the measurement.
+
+For long running measurements, it is sufficient to make sure that the average system load is low. The side effects of code running on other kernels will be smoothed out. This will be shown on various average loads (none, 1 2 3 5 10 20 40 50 75 100)
+
+We measure using the following counters:
+- core cycles
+- bus cycles
+- gettimeofday()
+- times(): user time
+
+We measure the following kernels:
++- arithmetic:add
+*- mem: load
+*- mem: write
+
+We measure at 
+*+- max frequency
++- min frequency
+
+We measure use the following kernels to generate system load
++- arithmetic: add
+*- mem: load
+*- mem: write
++- io: file 
+- io: network
+- io: graphics
+
+We measure at different load levels (*+none, 25, 50, 75, *+100)
+
+Measure at different load switch durations (0.1,1,5,10,15,50,100 ms)
+
+We measure with any core combination.
+same core / +core2
+core *+0 *+1 *+2 *+3
+
+
 
 \section{Measuring Memory Traffic}
 \begin{itemize}
@@ -399,6 +440,42 @@ To gain insight into the accuracy and precision of the timers available, we run 
 \item 62h BUS\_DRDY\_CLOCKS
 \end{itemize}
 
+\subsection{Experiments}
+To gain insight into the accuracy and precision of the memory transfer methods, we run the addition kernel with an exponentially increasing iteration count. The largest iteration count should result in a runtime of about 0.5s. We expect the precision to be high for small iteration counts, a peak variance at around 5 ms due to the task switches, and an increasing precision for higher iteration counts. The accuracy of the minimum should be high for small iteration counts, and include a small overhead if multiple task switches occur during the measurement.
+
+The first series of measurements is about the overhead of task switches on the measured memory transfer. We measure an arithmetic kernel and mem load and write, with buffer sizes which fit into the cache and which do not fit. We measure on an idle system, and with an arithmetic kernel on any CPU.
+
+The second measurement series is about the separation of measuring transfer volume of different threads. We measure mem load and write with large buffers. We measure on an idle system and with mem kernels on the other CPUs.
+
+We measure using the following counters:
+- bus transactions
+- cache misses / writebacks / non-prefetching load/store instructions
+
+We measure the following kernels:
+- arithmetic:add
+- mem: load: small 
+- mem: write: small
+- mem: load: large
+- mem: write: large
+
+We measure at 
+- max frequency
+
+We measure use the following kernels to generate system load
+- arithmetic: add
+- mem: load
+- mem: write
+- io: file 
+- io: network
+- io: graphics
+
+We measure at different load levels (none, 25, 50, 75, 100)
+
+Measure at different load switch durations (0.1,1,5,10,15,50,100 ms)
+
+We measure with any core combination.
+same core / +core2
+core 0 1 2 3
 
 \section{Mesuring Operation Count}
 \begin{itemize}
