@@ -40,7 +40,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 		ParameterSpace space = new ParameterSpace();
 		space.add(iterationsAxis, 1L);
 
-		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
+		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
 
 		space.add(optimizationAxis,
 				"-O3 -msse2");

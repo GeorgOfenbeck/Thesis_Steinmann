@@ -35,23 +35,40 @@ public:
 	void run() {
 		long bufferSize = description->getBufferSize();
 #ifdef __SSE__
-		if (bufferSize % 4 * sizeof(float) != 0) {
-			throw "Buffer size is not a multiple of 4*sizeof(float)";
+		if (bufferSize % 8 * sizeof(float) != 0) {
+			throw "Buffer size is not a multiple of 8*sizeof(float)";
 		}
 #endif
 		if (RMT_MEMORY_OPERATION == MemoryOperation_READ) {
 #ifdef __SSE__
-			__m128 ch = _mm_setzero_ps();
-			for (long i = 0; i < bufferSize; i += 4 * sizeof(float)) {
-				ch = _mm_xor_ps(ch, _mm_load_ps(&(buffer[i])));
+#define DLP 4
+			__m128 ch[DLP];
+			for (int i = 0; i < DLP; i++) {
+				ch[i] = _mm_setzero_ps();
 			}
-			float tmp[4];
-			_mm_storeu_ps(tmp, ch);
+			bufferSize /= 2;
+			for (long i = 0; i < bufferSize; i += DLP * 4 * sizeof(float)) {
+				for (int p = 0; p < DLP; p++) {
+					ch[p] = _mm_xor_ps(ch[p],
+							_mm_load_ps(&(buffer[i + p * 4 * sizeof(float)])));
+					ch[p] = _mm_xor_ps(
+							ch[p],
+							_mm_load_ps(
+									&(buffer[i + p * 4 * sizeof(float)
+											+ bufferSize])));
+				}
+			}
 
-			char *b = (char*) tmp;
 			result = 0;
-			for (unsigned int i = 0; i < 4 * sizeof(float); i++) {
-				result = result ^ b[i];
+			for (int i = 0; i < DLP; i++) {
+				float tmp[4];
+				_mm_storeu_ps(tmp, ch[i]);
+
+				char *b = (char*) tmp;
+
+				for (unsigned int i = 0; i < 4 * sizeof(float); i++) {
+					result = result ^ b[i];
+				}
 			}
 #else
 			char *b=(char*) buffer;
