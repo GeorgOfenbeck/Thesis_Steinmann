@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.dom;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.statistics.IAddValue;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
 public class TscMeasurerDescription extends TscMeasurerDescriptionData
 		implements
@@ -14,8 +14,8 @@ public class TscMeasurerDescription extends TscMeasurerDescriptionData
 	public DescriptiveStatistics getStatistics(MeasurementResult result) {
 		final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
-		addValues(result, new IAddValue() {
-			public void addValue(double v) {
+		addValues(result, new IUnaryAction<Double>() {
+			public void apply(Double v) {
 				statistics.addValue(v);
 			}
 		});
@@ -23,12 +23,19 @@ public class TscMeasurerDescription extends TscMeasurerDescriptionData
 		return statistics;
 	}
 
-	public void addValues(MeasurementResult result, IAddValue addValue) {
+	public void addValues(MeasurementResult result,
+			IUnaryAction<Double> addValue) {
 		// iterate over all outputs
 		for (TscMeasurerOutput output : result.getMeasurerOutputs(this)) {
 			// scale the raw count
-			addValue.addValue(output.getTics().doubleValue());
+			addValue.apply(output.getTics().doubleValue());
 		}
+
+	}
+
+	public void validate(TscMeasurerOutput output,
+			MeasurementResult measurementResult) {
+		// TODO Auto-generated method stub
 
 	}
 }

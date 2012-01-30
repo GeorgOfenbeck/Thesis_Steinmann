@@ -6,4 +6,9 @@ public class PerfEventCount extends PerfEventCountData {
 				* getTimeEnabled().doubleValue()
 				/ getTimeRunning().doubleValue();
 	}
+
+	public boolean isMultiplexed() {
+		return !getTimeEnabled()
+				.equals(getTimeRunning());
+	}
 }

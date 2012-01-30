@@ -8,7 +8,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
-import ch.ethz.ruediste.roofline.statistics.IAddValue;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
 import com.google.inject.Inject;
 
@@ -123,9 +123,9 @@ public class QuantityMeasuringService {
 
 		MeasurementResult result = measure(kernel, measurer);
 
-		measurer.addValues("ops", result, new IAddValue() {
+		measurer.addValues("ops", result, new IUnaryAction<Double>() {
 
-			public void addValue(double v) {
+			public void apply(Double v) {
 				log.debug("value: " + v);
 			}
 		});

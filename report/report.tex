@@ -391,11 +391,11 @@ To gain insight into the accuracy and precision of the timers available, we run 
 \subsection{Experiment 1}
 The goal of this experiment is to show the effects of task switches and disk IO on measuring execution time. As far as possible, we'd like to exclude the effects of shared memory bandwidth. 
 
-We measure the arithmetic add kernel. Iteration count is increased until total execution time is about half a second. We measure at both the minimal and maximal CPU frequency. We measure on an idle system, when another arithmetic kernel runs or when heavy disk IO is performed. We let the system load threads run on any of the system's CPU. Separate measurements for core cycles, bus cycles, gettimeofday(), times (user time)
+We measure the arithmetic add kernel. Iteration count is increased until total execution time is about half a second. We measure at both the minimal and maximal CPU frequency. We measure on an idle system, when another arithmetic kernel runs or when heavy disk IO is performed. We let the system load threads run on all of the system's CPU. Separate measurements for core cycles, bus cycles, gettimeofday(), times (user time)
 
 We estimate the execution time for one iteration. We take the time for the highest iteration count where we can still get measurement runs without any interrupts. This time is divided by the respective iteration count.
 
-Graphs: 
+Graphs (idle, disk, arithmetic): 
 
 \begin{itemize}
 \item X: exp exec time [ms, cycles] Y: rel error V: box plots
@@ -405,8 +405,6 @@ Graphs:
 
 \subsection{Experiment 2}
 Investigate the effects of task switches on a memory intensive kernel. Repeat experiment 1 with both a memory load and write kernel
-
-
 
 \subsection{Experiment 3}
 Measure the influences of shared memory bandwidth on the runtime. Depending on the system architecture, we expect to measure shared bandwidth effects. We measure a memory load and a memory write kernel. We measure on idle system and while running memory load and write kernel on the other CPUs. Buffer sizes are larger than cache size. Measure core cycles. Measure at min and max frequency. Buffer size chosen such that execution time is around half a scheduling time segment.
@@ -418,12 +416,15 @@ One plot per kernel combination (load/load, load/write, write/load, write/write)
 
 
 \subsection{Experiment 4}
-Unfortunately, even on a very lightly loaded system, any task can be executed on any other core. Caused by the shared memory bandwidth, this could affect short running kernels, and result in wrong measurement results of a whole meaurement series. We show this by starting two memory intensive, short running kernels simultaneously. Solution: introduce sleeps between measurement runs, to make sure they are independently measured.
+Unfortunately, even on a very lightly loaded system, any task can be executed on any other core. Caused by the shared memory bandwidth, this could affect short running kernels, and result in wrong measurement results of a whole measurement series. We show this by starting two memory intensive, short running kernels simultaneously. Solution: introduce sleeps between measurement runs, to make sure they are independently measured.
+
+with and without sleep: X: measurement number Y: time[cycles]
 
 \subsection{Experiment 5}
-For long running measurements, it is sufficient to make sure that the average system load is low. The side effects of code running on other kernels will be smoothed out. This will be shown on various average loads (none, 1 2 3 5 10 20 40 50 75 100)
+For long running measurements, it is sufficient to make sure that the average system load is low. The side effects of code running on other kernels will be smoothed out. This is shown on various average loads (none, 1 2 3 5 10 20 40 50 75 100)
 
-Show for every load (in one graph): X: expected runtime [cycles] Y:  rel error
+X: system load Y: rel error
+X: system load Y: variance
 
 We measure using the following counters:
 - core cycles
@@ -472,9 +473,17 @@ core *+0 *+1 *+2 *+3
 \subsection{Experiments}
 To gain insight into the accuracy and precision of the memory transfer methods, we run the addition kernel with an exponentially increasing iteration count. The largest iteration count should result in a runtime of about 0.5s. We expect the precision to be high for small iteration counts, a peak variance at around 5 ms due to the task switches, and an increasing precision for higher iteration counts. The accuracy of the minimum should be high for small iteration counts, and include a small overhead if multiple task switches occur during the measurement.
 
-The first series of measurements is about the overhead of task switches on the measured memory transfer. We measure an arithmetic kernel and mem load and write, with buffer sizes which fit into the cache and which do not fit. We measure on an idle system, and with an arithmetic kernel on any CPU.
+\subsection{Experiment 1}
+The first series of measurements is about the overhead of task switches on the measured memory transfer. We measure an arithmetic kernel and mem load and write, with buffer sizes which fit into the cache and which do not fit. We measure on an idle system, and with an arithmetic kernel on the other CPUs.
 
-The second measurement series is about the separation of measuring transfer volume of different threads. We measure mem load and write with large buffers. We measure on an idle system and with mem kernels on the other CPUs.
+X: iteration count Y: rel error 
+X: iteration count Y: ints
+X: iteration count Y: task switches
+
+\subsection{Experiment 2}
+The second measurement series is about the separation of measuring transfer volume of different threads. We measure mem load and write with large buffers. We measure on an idle system and with mem kernels on the other CPUs. Execution time: about .5 s
+
+X: cpu map Y: rel error
 
 We measure using the following counters:
 - bus transactions

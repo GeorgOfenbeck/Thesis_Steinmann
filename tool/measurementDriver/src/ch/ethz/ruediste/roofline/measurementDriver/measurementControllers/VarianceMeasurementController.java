@@ -41,7 +41,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 		parameterSpace.add(measurementSchemeAxis, simpleScheme);
 
 		// create kernel
-		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+		MemoryKernelDescription kernel = new MemoryKernelDescription();
 		kernel.setOptimization("-O0");
 		parameterSpace.add(kernelAxis, kernel);
 

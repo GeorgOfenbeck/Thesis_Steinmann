@@ -5,15 +5,15 @@
  *      Author: ruedi
  */
 
-#include "MemoryLoadKernel.h"
+#include "MemoryKernel.h"
 #include "typeRegistry/TypeRegisterer.h"
 #include <cstdlib>
 #include <cstring>
 
-static TypeRegisterer<MemoryLoadKernel> dummy;
+static TypeRegisterer<MemoryKernel> dummy;
 
 
-void MemoryLoadKernel::initialize(){
+void MemoryKernel::initialize(){
 	size_t size=description->getBufferSize()*sizeof(char);
 	if (posix_memalign((void**)(&buffer),16,size*sizeof(float))!=0){
 		throw "could not allocate memory";
@@ -23,7 +23,7 @@ void MemoryLoadKernel::initialize(){
 	}
 }
 
-void MemoryLoadKernel::dispose() {
+void MemoryKernel::dispose() {
 	free(buffer);
 }
 

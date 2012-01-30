@@ -20,7 +20,7 @@ public class ReflectionRepository {
 		if (configurationKeyPairs == null) {
 			configurationKeyPairs = ClassFinder.getStaticFieldValues(
 					ConfigurationKeyBase.class,
-					"ch.ethz.ruediste.roofline.measurementDriver");
+					"ch.ethz.ruediste.roofline");
 		}
 		return configurationKeyPairs;
 	}

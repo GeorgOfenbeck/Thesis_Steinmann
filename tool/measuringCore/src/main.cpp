@@ -11,7 +11,7 @@
 #include "coreSwitchTest.hpp"
 #include "sharedDOM/MultiLanguageSerializationService.h"
 #include "sharedDOM/MultiLanguageTestClass.h"
-#include "sharedDOM/MemoryLoadKernelDescription.h"
+#include "sharedDOM/MemoryKernelDescription.h"
 #include "sharedDOM/MeasurementDescription.h"
 #include "sharedDOM/MeasurementCommand.h"
 #include "sharedDOM/MeasurementRunOutputCollection.h"
@@ -22,7 +22,7 @@
 #include "baseClasses/MeasurerBase.h"
 #include "baseClasses/MeasurementSchemeBase.h"
 #include "utils.h"
-#include "kernels/MemoryLoadKernel.h"
+#include "kernels/MemoryKernel.h"
 #include "baseClasses/SystemInitializer.h"
 
 #define THREADCOUNT 200
@@ -77,7 +77,7 @@ using namespace std;
  }
  */
 
-#include "sharedDOM/MemoryLoadKernelDescription.h"
+#include "sharedDOM/MemoryKernelDescription.h"
 
 /*
  * Print a progress bar. Completed is the amount of work which is completed already,

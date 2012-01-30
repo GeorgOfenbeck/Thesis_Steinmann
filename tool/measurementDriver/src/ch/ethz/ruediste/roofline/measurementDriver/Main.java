@@ -221,9 +221,8 @@ public class Main {
 
 		if (partialWord.startsWith("-")) {
 			// do the completion for a flag
-			for (Pair<Class<?>, ConfigurationKeyBase> pair : ClassFinder
-					.getStaticFieldValues(ConfigurationKeyBase.class,
-							"ch.ethz.ruediste.roofline.measurementDriver")) {
+			for (Pair<Class<?>, ConfigurationKeyBase> pair : reflectionRepository
+					.getConfigurationKeyPairs()) {
 				if (pair.getRight().getKey()
 						.startsWith(partialWord.substring(1))) {
 					System.out.println("-" + pair.getRight().getKey());

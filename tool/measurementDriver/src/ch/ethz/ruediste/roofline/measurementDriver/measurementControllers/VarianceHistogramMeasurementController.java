@@ -36,7 +36,7 @@ public class VarianceHistogramMeasurementController implements
 		simpleScheme.setWarmCaches(false);
 
 		// create kernel
-		MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+		MemoryKernelDescription kernel = new MemoryKernelDescription();
 		kernel.setOptimization("-O0");
 		kernel.setBufferSize(2048);
 

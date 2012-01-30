@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -38,15 +39,16 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 
-		log.debug("entering arithmetic measurement controller");
+		log.trace("entering arithmetic measurement controller");
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(iterationsAxis, 10000L);
 		// space.add(iterationsAxis, 100000L);
 
-		space.add(operationAxis, "ArithmeticOperation_ADD");
-		// space.add(operationAxis, "ArithmeticOperation_MUL");
-		// space.add(operationAxis, "ArithmeticOperation_MULADD");
+		space.add(arithmeticOperationAxis,
+				ArithmeticOperation.ArithmeticOperation_ADD);
+		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MUL);
+		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MULADD);
 
 		space.add(optimizationAxis,
 				"-O3 -mfpmath=sse -msse2");
@@ -59,7 +61,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
-						operationAxis, dlpAxis, unrollAxis,
+						arithmeticOperationAxis, dlpAxis, unrollAxis,
 						iterationsAxis
 
 				))) {

@@ -21,12 +21,16 @@ public class ArithmeticKernelDescription extends
 			"specifies the instruction set to be used (x87 or SSE)",
 			"x87");
 
-	public String getOperation() {
-		return getMacroDefinition(operationMacro);
+	public enum ArithmeticOperation {
+		ArithmeticOperation_ADD, ArithmeticOperation_MUL, ArithmeticOperation_MULADD
 	}
 
-	public void setOperation(String operation) {
-		setMacroDefinition(operationMacro, operation);
+	public ArithmeticOperation getOperation() {
+		return ArithmeticOperation.valueOf(getMacroDefinition(operationMacro));
+	}
+
+	public void setOperation(ArithmeticOperation operation) {
+		setMacroDefinition(operationMacro, operation.toString());
 	}
 
 	public InstructionSet getInstructionSet() {
@@ -69,8 +73,8 @@ public class ArithmeticKernelDescription extends
 		if (coordinate.contains(iterationsAxis))
 			setIterations(coordinate.get(iterationsAxis));
 
-		if (coordinate.contains(operationAxis))
-			setOperation(coordinate.get(operationAxis));
+		if (coordinate.contains(arithmeticOperationAxis))
+			setOperation(coordinate.get(arithmeticOperationAxis));
 
 		if (coordinate.contains(unrollAxis))
 			setUnroll(coordinate.get(unrollAxis));

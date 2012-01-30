@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.SimplePlot;
@@ -41,7 +42,7 @@ public class RawDataMeasurementController implements IMeasurementController {
 		ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 		kernel.setIterations(100000);
 		kernel.setUnroll(2);
-		kernel.setOperation("ArithmeticOperation_ADD");
+		kernel.setOperation(ArithmeticOperation.ArithmeticOperation_ADD);
 		kernel.setOptimization("-O3 -msse -msse2 -msse3");
 
 		// create measurers

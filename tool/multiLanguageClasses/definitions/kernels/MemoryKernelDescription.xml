@@ -2,9 +2,10 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="MemoryLoadKernelDescription" 
+	name="MemoryKernelDescription" 
 	baseType="KernelDescriptionBase"
 	javaSuffix="Data"
-	comment="Kernel just loading a memory block into memory">
+	comment="Kernel reading and writing a memory block">
   <field  name="bufferSize" type="long" comment="The size of the buffer to be loaded from memory"/>
+  <field name="iterations" type="long" comment="number of times to load/write the memory block" />
 </derivedClass>

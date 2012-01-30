@@ -8,18 +8,18 @@ public class IterableUtils {
 		return single(iterable, UnaryPredicates.<T> True());
 	}
 
-	public static <T> T foldr(Iterable<T> iterable, T start,
-			final IBinaryFunction<T, T, T> func) {
-		return foldl(reverse(iterable), start, new IBinaryFunction<T, T, T>() {
-			public T apply(T arg1, T arg2) {
+	public static <T, R> R foldr(Iterable<T> iterable, R start,
+			final IBinaryFunction<T, R, R> func) {
+		return foldl(reverse(iterable), start, new IBinaryFunction<R, T, R>() {
+			public R apply(R arg1, T arg2) {
 				return func.apply(arg2, arg1);
 			}
 		});
 	}
 
-	public static <T> T foldl(Iterable<T> iterable, T start,
-			IBinaryFunction<T, T, T> func) {
-		T result = start;
+	public static <T, R> R foldl(Iterable<T> iterable, R start,
+			IBinaryFunction<R, T, R> func) {
+		R result = start;
 		for (T item : iterable) {
 			result = func.apply(result, item);
 		}

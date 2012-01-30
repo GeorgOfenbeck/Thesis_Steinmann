@@ -37,6 +37,15 @@ public class MeasurementResult {
 
 	public <TOutput> Iterable<TOutput> getMeasurerOutputs(
 			IMeasurerDescription<TOutput> measurer) {
+		Iterable<TOutput> result = getMeasurerOutputsUnvalidated(measurer);
+		for (TOutput output : result) {
+			measurer.validate(output, this);
+		}
+		return result;
+	}
+
+	public <TOutput> Iterable<TOutput> getMeasurerOutputsUnvalidated(
+			IMeasurerDescription<TOutput> measurer) {
 		List<TOutput> result = new ArrayList<TOutput>();
 		for (MeasurementRunOutput output : getOutputs()) {
 			result.add(getMeasurerOutput(output, measurer));
@@ -44,8 +53,16 @@ public class MeasurementResult {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <TOutput> TOutput getMeasurerOutput(MeasurementRunOutput runOutput,
+			final IMeasurerDescription<TOutput> measurer) {
+		TOutput result = getMeasurerOutputUnvalidated(runOutput, measurer);
+		measurer.validate(result, this);
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <TOutput> TOutput getMeasurerOutputUnvalidated(
+			MeasurementRunOutput runOutput,
 			final IMeasurerDescription<TOutput> measurer) {
 
 		// setup predicate

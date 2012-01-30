@@ -5,6 +5,7 @@ import static ch.ethz.ruediste.roofline.dom.Axes.*;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -32,13 +33,16 @@ public class RooflineService {
 		// set the operation for arithmetic kernels
 		switch (algorithm) {
 		case Add:
-			kernelParameters.set(operationAxis, "ArithmeticOperation_ADD");
+			kernelParameters.set(arithmeticOperationAxis,
+					ArithmeticOperation.ArithmeticOperation_ADD);
 			break;
 		case ArithBalanced:
-			kernelParameters.set(operationAxis, "ArithmeticOperation_MULADD");
+			kernelParameters.set(arithmeticOperationAxis,
+					ArithmeticOperation.ArithmeticOperation_MULADD);
 			break;
 		case Mul:
-			kernelParameters.set(operationAxis, "ArithmeticOperation_MUL");
+			kernelParameters.set(arithmeticOperationAxis,
+					ArithmeticOperation.ArithmeticOperation_MUL);
 			break;
 		case Load:
 		case MemBalanced:
@@ -128,7 +132,7 @@ public class RooflineService {
 		// create the kernel
 		switch (algorithm) {
 		case Load:
-			kernel = new MemoryLoadKernelDescription();
+			kernel = new MemoryKernelDescription();
 			kernelParameters.set(optimizationAxis, "-O3 -msse");
 			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 10);
 			break;

@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
@@ -60,14 +61,14 @@ public class PerformanceEventScreeningMeasurementController implements
 		List<Pair<KernelDescriptionBase, String>> kernels = new ArrayList<Pair<KernelDescriptionBase, String>>();
 
 		{
-			MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+			MemoryKernelDescription kernel = new MemoryKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 2);
 			kernels.add(Pair.of((KernelDescriptionBase) kernel, "MemoryLoad "
 					+ kernel.getBufferSize()));
 		}
 
 		{
-			MemoryLoadKernelDescription kernel = new MemoryLoadKernelDescription();
+			MemoryKernelDescription kernel = new MemoryKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 4);
 			kernels.add(Pair.of((KernelDescriptionBase) kernel, "MemoryLoad "
 					+ kernel.getBufferSize()));
@@ -91,7 +92,7 @@ public class PerformanceEventScreeningMeasurementController implements
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 			kernel.setIterations(1024 * 1024);
 			kernel.setUnroll(8);
-			kernel.setOperation("ArithmeticOperation_ADD");
+			kernel.setOperation(ArithmeticOperation.ArithmeticOperation_ADD);
 			kernels.add(Pair.of((KernelDescriptionBase) kernel, "Arithmetic "
 					+ kernel.getIterations()));
 		}
