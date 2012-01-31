@@ -41,9 +41,9 @@ public class RooflineMeasurementController implements IMeasurementController {
 		 */
 
 		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
-				InstructionSet.SSEScalar);
+				InstructionSet.SSE);
 		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
-				InstructionSet.SSEScalar);
+				InstructionSet.SSE);
 		rooflineController.addPeakPerformance("ABal",
 				Algorithm.ArithBalanced, InstructionSet.SSEScalar);
 
@@ -55,6 +55,15 @@ public class RooflineMeasurementController implements IMeasurementController {
 			kernel.setBufferSize(1024 * 1024 * 2);
 			kernel.setOptimization("-O3");
 			rooflineController.addRooflinePoint("Triad", kernel,
+					Operation.CompInstr,
+					MemoryTransferBorder.LlcRam);
+		}
+
+		{
+			MMMKernelDescription kernel = new MMMKernelDescription();
+			kernel.setMatrixSize(128);
+			kernel.setOptimization("-O3");
+			rooflineController.addRooflinePoint("MMM", kernel,
 					Operation.CompInstr,
 					MemoryTransferBorder.LlcRam);
 		}

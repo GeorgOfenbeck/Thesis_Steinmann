@@ -172,7 +172,7 @@ public class MeasurementCacheTest extends TestBase {
 						MeasurementAppController.useCachedResultsKey);
 				will(returnValue(true));
 
-				oneOf(hashService).getMeasuringCoreHash();
+				oneOf(hashService).hashCurrentlyCompiledMeasuringCore();
 				will(returnValue(coreHash));
 
 				oneOf(measurementService).runMeasuringCore(

@@ -14,7 +14,7 @@ static TypeRegisterer<MemoryKernel> dummy;
 
 
 void MemoryKernel::initialize(){
-	size_t size=description->getBufferSize()*sizeof(char);
+	size_t size=description->getBufferSize();
 	if (posix_memalign((void**)(&buffer),16,size*sizeof(float))!=0){
 		throw "could not allocate memory";
 	}

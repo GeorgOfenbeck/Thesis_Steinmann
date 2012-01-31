@@ -26,7 +26,7 @@ public class OptimizationService {
 
 	public static ConfigurationKey<Boolean> fastOptimizeKey = ConfigurationKey
 			.Create(Boolean.class, "optimize.fast",
-					"if set to true, do a fast optimization", false);
+					"if set to true, do a fast optimization", true);
 
 	public enum Comparison {
 		lessThan,

@@ -2,10 +2,13 @@ package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.util.*;
 
+import org.apache.log4j.Logger;
+
 import com.google.inject.Singleton;
 
 @Singleton
 public class Configuration {
+	private static final Logger log = Logger.getLogger(Configuration.class);
 
 	final private HashMap<ConfigurationKeyBase, Stack<Object>> data = new HashMap<ConfigurationKeyBase, Stack<Object>>();
 
@@ -51,6 +54,7 @@ public class Configuration {
 	}
 
 	public void setUntyped(ConfigurationKeyBase key, Object value) {
+		log.debug("setting " + key.getKey() + " to " + value);
 		if (value != null
 				&& !key.getValueType().isAssignableFrom(value.getClass())) {
 			throw new Error("wrong data type");
@@ -82,6 +86,7 @@ public class Configuration {
 	}
 
 	public <T> void push(ConfigurationKey<T> key, T value) {
+		log.debug("pushing " + key.getKey() + " = " + value);
 		Stack<Object> stack = data.get(key);
 
 		// make sure there is a stack
@@ -94,6 +99,7 @@ public class Configuration {
 	}
 
 	public void pop(ConfigurationKeyBase key) {
+		log.debug("popping " + key.getKey());
 		data.get(key).pop();
 	}
 

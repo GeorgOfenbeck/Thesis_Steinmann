@@ -42,7 +42,7 @@ public:
 		if (RMT_MEMORY_OPERATION == MemoryOperation_READ) {
 #ifdef __SSE__
 			__m128 ch = _mm_setzero_ps();
-			for (long i = 0; i < bufferSize; i += 4 * sizeof(float)) {
+			for (long i = 0; i < bufferSize; i += 4 ) {
 				ch = _mm_xor_ps(ch, _mm_load_ps(&(buffer[i])));
 			}
 			float tmp[4];
@@ -51,14 +51,14 @@ public:
 			char *b = (char*) tmp;
 
 			result = 0;
-			for (unsigned int i = 0; i < 4 * sizeof(float); i++) {
+			for (unsigned int i = 0; i < 4; i++) {
 				result = result ^ b[i];
 			}
 #else
 			char *b = (char*) buffer;
 			char ch = 0;
 
-			for (unsigned long i = 0; i < bufferSize * sizeof(float); i++) {
+			for (unsigned long i = 0; i < bufferSize ; i++) {
 				ch = ch ^ b[i];
 			}
 
@@ -67,11 +67,11 @@ public:
 		}
 		if (RMT_MEMORY_OPERATION == MemoryOperation_WRITE) {
 #ifdef __SSE__
-			for (long i = 0; i < bufferSize; i += 4 * sizeof(float)) {
+			for (long i = 0; i < bufferSize; i += 4) {
 				_mm_store_ps(&(buffer[i]), _mm_setzero_ps());
 			}
 #else
-			for (unsigned long i = 0; i < bufferSize * sizeof(float); i++) {
+			for (unsigned long i = 0; i < bufferSize; i++) {
 				buffer[i] = 0;
 			}
 #endif

@@ -119,10 +119,9 @@ public class HashService {
 	}
 
 	/**
-	 * hash a measurement. This should be an unique identifier for the
-	 * measurement
+	 * hash the currently compiled core
 	 */
-	public CoreHash getMeasuringCoreHash() throws IOException {
+	public CoreHash hashCurrentlyCompiledMeasuringCore() throws IOException {
 		return new CoreHash(
 				hashFile(measuringCoreLocationService
 						.getMeasuringCoreExecutable()));

@@ -140,14 +140,15 @@ public class MeasurementValidationService {
 
 		// create the perf event measurer
 		PerfEventMeasurerDescription perfEventMeasurerDescription = new PerfEventMeasurerDescription();
-		if (validationConfiguration.get(validateContextSwitchesKey)) {
-			perfEventMeasurerDescription.addEvent("contextSwitches",
-					"perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
-		}
 
 		if (validationConfiguration.get(validateCpuMigrationsKey)) {
 			perfEventMeasurerDescription.addEvent("cpuMigrations",
 					"perf::PERF_COUNT_SW_CPU_MIGRATIONS");
+		}
+
+		if (validationConfiguration.get(validateContextSwitchesKey)) {
+			perfEventMeasurerDescription.addEvent("contextSwitches",
+					"perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
 		}
 
 		// is there any event to measure

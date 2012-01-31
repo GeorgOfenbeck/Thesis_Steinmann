@@ -41,6 +41,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 		space.add(iterationsAxis, 1L);
 
 		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
+		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
 
 		space.add(optimizationAxis,
 				"-O3 -msse2");

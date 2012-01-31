@@ -73,6 +73,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 					.getMeasurementHash(measurement);
 			log.debug("measuring " + measurementHash);
 
+			log.debug("useCachedResults="+configuration.get(useCachedResultsKey));
 			if (
 			// should we use cached results?
 			configuration.get(useCachedResultsKey)
@@ -98,6 +99,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 
 			// do we need more results?
 			if (numberOfMeasurements > outputs.size()) {
+				log.trace("more results required");
 				// create measurement command
 				MeasurementCommand command = new MeasurementCommand();
 				command.setMeasurement(measurement);
@@ -162,15 +164,15 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		if (coreHash == null) {
 			// build the core
 			buildMeasuringCore(measurement, measurementHash);
-		}
 
-		// get the core hash if it is known now
-		coreHash = measurementHashRepository
-				.getCoreHash(measurementHash);
+			// get the core hash if it is known now
+			coreHash = measurementHashRepository
+					.getCoreHash(measurementHash);
+		}
 
 		if (coreHash == null) {
 			// calculate the hash
-			coreHash = hashService.getMeasuringCoreHash();
+			coreHash = hashService.hashCurrentlyCompiledMeasuringCore();
 
 			// store the mapping
 			measurementHashRepository.setCoreHash(measurementHash,
