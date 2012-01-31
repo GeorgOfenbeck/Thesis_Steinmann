@@ -1,6 +1,5 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
@@ -8,7 +7,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
-import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
 import com.google.inject.Inject;
 
@@ -22,7 +20,7 @@ public class QuantityMeasuringService {
 	SystemInfoRepository pmuRepository;
 
 	public enum Operation {
-		SSE, x87, ALL,
+		SinglePrecisionFlop, DoublePrecisionFlop, CompInstr, SSEFlop,
 	}
 
 	public static final Axis<Operation> operationAxis = new Axis<Operation>(
@@ -73,46 +71,61 @@ public class QuantityMeasuringService {
 			Operation operation) {
 
 		// handle the allOperations case
-		if (operation == Operation.ALL) {
+		if (operation == Operation.SSEFlop) {
 			return new OperationCount(measureOperationCount(kernel,
-					Operation.SSE).getValue()
-					+ measureOperationCount(kernel, Operation.x87).getValue());
+					Operation.SinglePrecisionFlop).getValue()
+					+ measureOperationCount(kernel,
+							Operation.DoublePrecisionFlop).getValue());
 		}
 
-		double multiplier = 1;
-		// setup the measurer
-		final PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+		double result = 0;
+		PerfEventMeasurerDescription measurer;
+		// perform measurement
 		switch (operation) {
-		case ALL:
+		case SSEFlop:
 			throw new Error("should not happen");
-		case SSE:
+		case SinglePrecisionFlop:
+
+			measurer = new PerfEventMeasurerDescription();
 			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
-					// "coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE:SCALAR_SINGLE:PACKED_DOUBLE:SCALAR_DOUBLE"
-					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
-					"core::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE"));
-			multiplier = 2;
+					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_SINGLE",
+					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE"));
+			result += measurer.getMinDouble("ops", measure(kernel, measurer));
+
+			measurer = new PerfEventMeasurerDescription();
+			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE",
+					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE"));
+			result += 2 * measurer.getMinDouble("ops",
+					measure(kernel, measurer));
+
 			break;
-		case x87:
+		case DoublePrecisionFlop:
+			measurer = new PerfEventMeasurerDescription();
+			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_DOUBLE",
+					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE"));
+			result += measurer.getMinDouble("ops", measure(kernel, measurer));
+
+			measurer = new PerfEventMeasurerDescription();
+			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
+					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE"));
+			result += 2 * measurer.getMinDouble("ops",
+					measure(kernel, measurer));
+			break;
+
+		case CompInstr:
+
+			measurer = new PerfEventMeasurerDescription();
 			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
 					"coreduo::FP_COMP_INSTR_RET", "core::FP_COMP_OPS_EXE"));
-			break;
+			result += measurer.getMinDouble("ops", measure(kernel, measurer));
 
+			break;
 		}
 
-		MeasurementResult result = measure(kernel, measurer);
-
-		measurer.addValues("ops", result, new IUnaryAction<Double>() {
-
-			public void apply(Double v) {
-				log.debug("value: " + v);
-			}
-		});
-		// get the output
-		DescriptiveStatistics statistics = measurer
-				.getStatistics("ops", result);
-
-		return new OperationCount(statistics.getMin() * multiplier);
-
+		return new OperationCount(result);
 	}
 
 	public TransferredBytes measureTransferredBytes(

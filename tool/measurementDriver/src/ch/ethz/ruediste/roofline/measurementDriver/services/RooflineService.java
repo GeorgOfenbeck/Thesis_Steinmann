@@ -55,7 +55,7 @@ public class RooflineService {
 				.createCoordinate()
 				.set(QuantityMeasuringService.quantityAxis,
 						QuantityMeasuringService.Quantity.Performance)
-				.set(QuantityMeasuringService.clockTypeAxis, clockType);
+						.set(QuantityMeasuringService.clockTypeAxis, clockType);
 
 		// set the optimization
 		switch (instructionSet) {
@@ -64,21 +64,21 @@ public class RooflineService {
 			kernelParameters.set(instructionSetAxis, instructionSet.SSE);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.SSE);
+					QuantityMeasuringService.Operation.DoublePrecisionFlop);
 			break;
 		case SSEScalar:
 			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
 			kernelParameters.set(instructionSetAxis, InstructionSet.SSEScalar);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.SSE);
+					QuantityMeasuringService.Operation.DoublePrecisionFlop);
 			break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
 			kernelParameters.set(instructionSetAxis, InstructionSet.x87);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.x87);
+					QuantityMeasuringService.Operation.CompInstr);
 			break;
 
 		}
@@ -113,9 +113,9 @@ public class RooflineService {
 		Performance performance = quantityMeasuringService.measurePerformance(
 				kernel,
 				measurementCoordinate
-						.get(QuantityMeasuringService.operationAxis),
+				.get(QuantityMeasuringService.operationAxis),
 				measurementCoordinate
-						.get(QuantityMeasuringService.clockTypeAxis));
+				.get(QuantityMeasuringService.clockTypeAxis));
 
 		log.info(String.format(
 				"peak performance for %s %s %s: parameters: %s value: %f",

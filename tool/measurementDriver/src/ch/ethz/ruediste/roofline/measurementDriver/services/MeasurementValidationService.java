@@ -175,7 +175,7 @@ public class MeasurementValidationService {
 		// check cpu migrations
 		if (validationData.getConfiguration().get(validateCpuMigrationsKey)) {
 			if (!validationData.getPerfEventMeasurer()
-					.getMinBigIngeger("cpuMigrations",
+					.getMinBigInteger("cpuMigrations",
 							result).equals(BigInteger.ZERO)) {
 				log.warn("Cpu migration(s) observerd");
 			}

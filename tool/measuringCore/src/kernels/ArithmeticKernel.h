@@ -34,6 +34,13 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 		ArithmeticOperation_MULADD,
 	};
 
+	enum InstructionSet {
+		SSE,
+		SSEScalar,
+		x87,
+	};
+
+
 	// solves base**exponent=result, with b unknown
 	static double getBase(double exponent, double result);
 #pragma GCC diagnostic push

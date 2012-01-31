@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import static ch.ethz.ruediste.roofline.dom.Axes.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
@@ -50,32 +51,50 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MUL);
 		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MULADD);
 
-		space.add(optimizationAxis,
-				"-O3 -mfpmath=sse -msse2");
+		HashMap<InstructionSet, String> optimizationMap = new HashMap<InstructionSet, String>();
+		HashMap<InstructionSet, Operation> operationMap = new HashMap<InstructionSet, Operation>();
+
 		space.add(instructionSetAxis, InstructionSet.SSEScalar);
-		// space.add(optimizationAxis, "-O3");
+		optimizationMap
+		.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
+		operationMap.put(InstructionSet.SSEScalar,
+				Operation.DoublePrecisionFlop);
+
+		space.add(instructionSetAxis, InstructionSet.SSE);
+		optimizationMap.put(InstructionSet.SSE, "-O3 -msse2");
+		operationMap.put(InstructionSet.SSE, Operation.DoublePrecisionFlop);
+
+		space.add(instructionSetAxis, InstructionSet.x87);
+		optimizationMap.put(InstructionSet.x87, "-O3");
+		operationMap.put(InstructionSet.x87, Operation.CompInstr);
 
 		space.add(unrollAxis, 14);
 		space.add(dlpAxis, 4);
 
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space
-				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
-						arithmeticOperationAxis, dlpAxis, unrollAxis,
+				.getAllAxesWithLeastSignificantAxes(arithmeticOperationAxis,
+						dlpAxis, unrollAxis,
 						iterationsAxis
 
-				))) {
+						))) {
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 			kernel.initialize(coordinate);
+			InstructionSet instructionSet = coordinate.get(instructionSetAxis);
+			kernel.setOptimization(optimizationMap.get(instructionSet));
 
-			Performance performance = quantityMeasuringService
-					.measurePerformance(kernel, Operation.SSE,
-							ClockType.CoreCycles);
-			System.out.printf("%s: %s\n", coordinate, performance);
+			if (true) {
+				Performance performance = quantityMeasuringService
+						.measurePerformance(kernel,
+								operationMap.get(instructionSet),
+								ClockType.CoreCycles);
+				System.out.printf("Performance %s: %s\n", coordinate, performance);
+			}
 
 			OperationCount count = quantityMeasuringService
-					.measureOperationCount(kernel, Operation.SSE);
-			System.out.printf("%s: %s\n", coordinate, count);
+					.measureOperationCount(kernel,
+							operationMap.get(instructionSet));
+			System.out.printf("Operations %s: %s\n", coordinate, count);
 		}
 
 	}

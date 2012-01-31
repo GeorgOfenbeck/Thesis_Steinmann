@@ -12,8 +12,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 public class PerfEventMeasurerDescription extends
-		PerfEventMeasurerDescriptionData
-		implements IMeasurerDescription<PerfEventMeasurerOutput> {
+PerfEventMeasurerDescriptionData
+implements IMeasurerDescription<PerfEventMeasurerOutput> {
 
 	private static Logger log = Logger
 			.getLogger(PerfEventMeasurerDescription.class);
@@ -155,7 +155,7 @@ public class PerfEventMeasurerDescription extends
 		}
 	}
 
-	public BigInteger getMinBigIngeger(String name,
+	public BigInteger getMinBigInteger(String name,
 			MeasurementResult result) {
 
 		PerfEventCount eventCount = getMinOutput(name, result).getEventCount(
@@ -168,6 +168,11 @@ public class PerfEventMeasurerDescription extends
 		return eventCount.getRawCount();
 	}
 
+	public double getMinDouble(String name, MeasurementResult measurementResult) {
+		return getMinOutput(name, measurementResult).getEventCount(name)
+				.getScaledCount();
+	}
+
 	public PerfEventMeasurerOutput getMinOutput(final String name,
 			MeasurementResult measurementResult) {
 		PerfEventMeasurerOutput min = IterableUtils
@@ -175,22 +180,22 @@ public class PerfEventMeasurerDescription extends
 						null,
 						new IBinaryFunction<PerfEventMeasurerOutput, PerfEventMeasurerOutput, PerfEventMeasurerOutput>() {
 
-							public PerfEventMeasurerOutput apply(
-									PerfEventMeasurerOutput result,
-									PerfEventMeasurerOutput item) {
+					public PerfEventMeasurerOutput apply(
+							PerfEventMeasurerOutput result,
+							PerfEventMeasurerOutput item) {
 
-								if (result == null
-										||
-										item.getEventCount(name)
-												.getScaledCount() < result
-												.getEventCount(name)
-												.getScaledCount()) {
-									return item;
-								}
+						if (result == null
+								||
+								item.getEventCount(name)
+								.getScaledCount() < result
+								.getEventCount(name)
+								.getScaledCount()) {
+							return item;
+						}
 
-								return result;
-							}
-						});
+						return result;
+					}
+				});
 		validate(min, measurementResult);
 		return min;
 	}
