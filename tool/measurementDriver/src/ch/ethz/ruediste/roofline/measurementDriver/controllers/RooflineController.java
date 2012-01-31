@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.controllers;
 import java.io.IOException;
 
 import org.apache.commons.exec.ExecuteException;
+import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
@@ -15,6 +16,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringSer
 import com.google.inject.Inject;
 
 public class RooflineController {
+	private static final Logger log = Logger
+			.getLogger(RooflineController.class);
+
 	@Inject
 	public RooflineService rooflineService;
 
@@ -70,11 +74,13 @@ public class RooflineController {
 			KernelDescriptionBase kernel, Operation operation,
 			MemoryTransferBorder border) {
 
-		plot.addPoint(new RooflinePoint(name,
+		RooflinePoint point = new RooflinePoint(name,
 				quantityMeasuringService.measureOperationalIntensity(kernel,
 						border, operation),
 				quantityMeasuringService.measurePerformance(kernel, operation,
-						clockType)));
+						clockType));
+		log.info("Added Roofline Point: " + point);
+		plot.addPoint(point);
 	}
 
 	public void addRooflinePoint(String name,
@@ -84,9 +90,11 @@ public class RooflineController {
 				.measureTransferredBytes(kernel, border);
 		Time time = quantityMeasuringService.measureExecutionTime(kernel,
 				clockType);
-		plot.addPoint(new RooflinePoint(name,
+		RooflinePoint point = new RooflinePoint(name,
 				new OperationalIntensity(transferredBytes, operationCount),
-				new Performance(operationCount, time)));
+				new Performance(operationCount, time));
+		log.info("Added Roofline Point: " + point);
+		plot.addPoint(point);
 	}
 
 	public void addRooflinePoint(String name,
@@ -96,9 +104,11 @@ public class RooflineController {
 				clockType);
 		OperationCount operationCount = quantityMeasuringService
 				.measureOperationCount(kernel, operation);
-		plot.addPoint(new RooflinePoint(name,
+		RooflinePoint point = new RooflinePoint(name,
 				new OperationalIntensity(transferredBytes, operationCount),
-				new Performance(operationCount, time)));
+				new Performance(operationCount, time));
+
+		plot.addPoint(point);
 	}
 
 	public ClockType getClockType() {

@@ -5,10 +5,12 @@ import java.util.*;
 
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils;
 
 import com.google.inject.Inject;
 
@@ -97,6 +99,9 @@ public class PlotService {
 					point.getPerformance().getValue());
 		}
 
+		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
+				.getRange(plot.getOperationalIntensities());
+
 		outputFile.close();
 
 		// write gnuplot file
@@ -109,7 +114,9 @@ public class PlotService {
 
 			output.println("set log x");
 			output.println("set log y");
-			output.println("set xrange [0.01:10]");
+			output.printf("set xrange [%g:%g]\n", operationalIntensityRange
+					.getMinimum().getValue() / 2, operationalIntensityRange
+					.getMaximum().getValue() * 2);
 			output.printf("set xlabel '%s [%s]'\n", plot.getxLabel(),
 					plot.getxUnit());
 			output.printf("set ylabel '%s [%s]'\n", plot.getyLabel(),
@@ -134,7 +141,7 @@ public class PlotService {
 				RooflinePoint point = plot.getPoints().get(i);
 
 				plotLines.add(String.format(
-						"'%s.data' index %d title '%s' with points \n",
+						"'%s.data' index %d title '%s' with points",
 						plot.getOutputName(), i, point.getName()));
 			}
 

@@ -29,7 +29,7 @@ public class RooflinePoint {
 
 	@Override
 	public String toString() {
-		return String.format("Point: [%g : %g]", getOperationalIntensity(),
+		return String.format("Point: [%s : %s]", getOperationalIntensity(),
 				getPerformance());
 	}
 }

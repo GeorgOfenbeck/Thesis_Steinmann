@@ -16,17 +16,29 @@ class MMMKernel :public Kernel<MMMKernelDescription>{
 
 	void tripleLoop(double *a, double *b, double *c){
 		long size=description->getMatrixSize();
-					for (int i=0; i<size; i++)
-						for (int j=0; j<size; j++)
-							for (int k=0; k<size; k++)
-								c[i*size+j]+=a[i*size+k]*b[k*size+j];
+		for (long i=0; i<size; i++)
+			for (long j=0; j<size; j++)
+				for (long k=0; k<size; k++)
+					c[i*size+j]+=a[i*size+k]*b[k*size+j];
+	}
+
+#define BLOCK 8
+	void blocked(double *a, double *b, double *c){
+		long size=description->getMatrixSize();
+		for (int i=0; i<size; i+=BLOCK)
+			for (int j=0; j<size; j+=BLOCK)
+				for (int k=0; k<size; k+=BLOCK)
+					for (int id=i; id<i+BLOCK; id++)
+						for (int jd=j; jd<j+BLOCK; jd++)
+							for (int kd=k; kd<k+BLOCK; kd++)
+								c[id*size+jd]+=a[id*size+kd]*b[kd*size+jd];
 	}
 public:
 	MMMKernel(MMMKernelDescription *description):Kernel(description){};
 
 		void initialize();
 		void run(){
-			tripleLoop(a, b, c);
+			blocked(a, b, c);
 		}
 		void dispose();
 

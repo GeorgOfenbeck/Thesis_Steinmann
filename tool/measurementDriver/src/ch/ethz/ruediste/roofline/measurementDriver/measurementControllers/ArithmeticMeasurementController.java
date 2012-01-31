@@ -46,17 +46,17 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		space.add(iterationsAxis, 10000L);
 		// space.add(iterationsAxis, 100000L);
 
-		space.add(arithmeticOperationAxis,
-				ArithmeticOperation.ArithmeticOperation_ADD);
+		// space.add(arithmeticOperationAxis, ArithmeticOperation.ArithmeticOperation_ADD);
 		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MUL);
-		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MULADD);
+		space.add(arithmeticOperationAxis,
+				ArithmeticOperation.ArithmeticOperation_MULADD);
 
 		HashMap<InstructionSet, String> optimizationMap = new HashMap<InstructionSet, String>();
 		HashMap<InstructionSet, Operation> operationMap = new HashMap<InstructionSet, Operation>();
 
 		space.add(instructionSetAxis, InstructionSet.SSEScalar);
 		optimizationMap
-		.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
+				.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
 		operationMap.put(InstructionSet.SSEScalar,
 				Operation.DoublePrecisionFlop);
 
@@ -69,7 +69,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		operationMap.put(InstructionSet.x87, Operation.CompInstr);
 
 		space.add(unrollAxis, 14);
-		space.add(dlpAxis, 4);
+		space.add(dlpAxis, 1);
 
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space
@@ -77,7 +77,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 						dlpAxis, unrollAxis,
 						iterationsAxis
 
-						))) {
+				))) {
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);
@@ -88,7 +88,8 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 						.measurePerformance(kernel,
 								operationMap.get(instructionSet),
 								ClockType.CoreCycles);
-				System.out.printf("Performance %s: %s\n", coordinate, performance);
+				System.out.printf("Performance %s: %s\n", coordinate,
+						performance);
 			}
 
 			OperationCount count = quantityMeasuringService

@@ -105,7 +105,9 @@ public class QuantityMeasuringService {
 			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_DOUBLE",
 					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE"));
-			result += measurer.getMinDouble("ops", measure(kernel, measurer));
+			double scalarDoubleCount = measurer.getMinDouble("ops",
+					measure(kernel, measurer));
+			result += scalarDoubleCount;
 
 			measurer = new PerfEventMeasurerDescription();
 			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
@@ -113,6 +115,11 @@ public class QuantityMeasuringService {
 					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE"));
 			result += 2 * measurer.getMinDouble("ops",
 					measure(kernel, measurer));
+			if (pmuRepository.getPresentPMU("coreduo") != null) {
+				// the PACKED_DOUBLE counter is buggy on the core duo and includes
+				// the SCALAR_DOUBLE events as well. Compensate
+				result -= 2 * scalarDoubleCount;
+			}
 			break;
 
 		case CompInstr:
