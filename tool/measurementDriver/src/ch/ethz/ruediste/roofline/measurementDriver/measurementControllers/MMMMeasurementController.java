@@ -29,7 +29,7 @@ public class MMMMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		ParameterSpace space = new ParameterSpace();
-		for (long i = 64; i <= 512; i *= 2) {
+		for (long i = 64; i <= 128; i *= 2) {
 			space.add(Axes.matrixSizeAxis, i);
 		}
 		space.add(Axes.blockSizeAxis, 16L);
@@ -41,7 +41,7 @@ public class MMMMeasurementController implements IMeasurementController {
 			kernel.setMu(2);
 			kernel.setNu(2);
 			kernel.setKu(2);
-			kernel.setNoCheck(true);
+			kernel.setNoCheck(false);
 			kernel.initialize(coordinate);
 
 			Performance performance = quantityMeasuringService

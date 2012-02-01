@@ -47,6 +47,8 @@ class MMMKernel: public Kernel<MMMKernelDescription> {
 											c[idd * size + jdd] += a[idd * size + kdd]
 													* b[kdd * size + jdd];
 	}
+
+	void blas(double *a, double *b, double *c);
 public:
 	MMMKernel(MMMKernelDescription *description) :
 			Kernel(description) {
@@ -55,7 +57,7 @@ public:
 
 	void initialize();
 	void run() {
-		blocked(a, b, c);
+		blas(a, b, c);
 	}
 	void dispose();
 

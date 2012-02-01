@@ -26,6 +26,9 @@ DEP_FLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 KERNEL_NAME=Dummy
 include kernelName.mk
 
+ifeq ($(KERNEL_NAME),MMM)
+	LIBS+=-lblas
+endif
 # setup the kernel optimization flags
 KERNEL_OPTIMIZATION_FLAGS=-O0
 include kernelOptimization.mk

@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <cblas.h>
 
 #include "typeRegistry/TypeRegisterer.h"
 
@@ -55,6 +56,21 @@ void MMMKernel::initialize(){
 				c[i]=0;
 			}
 	}
+}
+
+void MMMKernel::blas(double *a, double *b, double *c)
+{
+	long size = description->getMatrixSize();
+	cblas_dgemm(
+			CblasRowMajor,
+			CblasNoTrans, CblasNoTrans,
+			size, size, size,
+			1,
+			a, size,
+			b, size,
+			1,
+			c, size);
+
 }
 
 void MMMKernel::dispose(){
