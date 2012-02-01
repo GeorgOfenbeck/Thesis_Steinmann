@@ -1,26 +1,23 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import com.google.inject.Singleton;
 
 @Singleton
 public class Configuration {
-
-	final private HashMap<ConfigurationKeyBase, Stack<Object>> data = new HashMap<ConfigurationKeyBase, Stack<Object>>();
+	final private Object unset = new Object();
+	final private Stack<HashMap<ConfigurationKeyBase, Object>> oldValuesStack = new Stack<HashMap<ConfigurationKeyBase, Object>>();
+	final private HashMap<ConfigurationKeyBase, Object> data = new HashMap<ConfigurationKeyBase, Object>();
 
 	private Configuration defaultConfiguration;
 
 	public Object getUntyped(ConfigurationKeyBase key) {
-		Stack<Object> stack = data.get(key);
+		if (data.containsKey(key)) { return data.get(key); }
 
-		if (stack != null && !stack.isEmpty()) {
-			return stack.peek();
-		}
-
-		if (defaultConfiguration != null) {
-			return defaultConfiguration.getUntyped(key);
-		}
+		if (defaultConfiguration != null) { return defaultConfiguration
+				.getUntyped(key); }
 
 		return key.getDefaultValue();
 	}
@@ -52,22 +49,18 @@ public class Configuration {
 
 	public void setUntyped(ConfigurationKeyBase key, Object value) {
 		if (value != null
-				&& !key.getValueType().isAssignableFrom(value.getClass())) {
-			throw new Error("wrong data type");
+				&& !key.getValueType().isAssignableFrom(value.getClass())) { throw new Error(
+				"wrong data type"); }
+
+		if (!oldValuesStack.isEmpty()
+				&& !oldValuesStack.peek().containsKey(key)) {
+			if (data.containsKey(key))
+				oldValuesStack.peek().put(key, data.get(key));
+			else
+				oldValuesStack.peek().put(key, unset);
 		}
 
-		Stack<Object> stack = data.get(key);
-
-		// make sure there is a cleared stack
-		if (stack == null) {
-			stack = new Stack<Object>();
-			data.put(key, stack);
-		}
-		else {
-			stack.clear();
-		}
-
-		stack.push(value);
+		data.put(key, value);
 	}
 
 	/**
@@ -81,43 +74,46 @@ public class Configuration {
 		return data.keySet();
 	}
 
-	public <T> void push(ConfigurationKey<T> key, T value) {
-		Stack<Object> stack = data.get(key);
-
-		// make sure there is a stack
-		if (stack == null) {
-			stack = new Stack<Object>();
-			data.put(key, stack);
-		}
-
-		stack.push(value);
+	public void push() {
+		oldValuesStack.push(new HashMap<ConfigurationKeyBase, Object>());
 	}
 
-	public void pop(ConfigurationKeyBase key) {
-		data.get(key).pop();
+	public void pop() {
+		// check if there are old values to pop
+		if (oldValuesStack.isEmpty())
+			throw new Error("Cannot pop configuration, stack is empty");
+
+		// pop the old values
+		HashMap<ConfigurationKeyBase, Object> oldValues = oldValuesStack.pop();
+
+		// restore the old values
+		for (Entry<ConfigurationKeyBase, Object> pair : oldValues.entrySet()) {
+			// was the value unset?
+			if (pair.getValue() == unset) {
+				// if the old value was unset, remove the current mapping from the data
+				data.remove(pair.getKey());
+			}
+			else {
+				// restore the old value
+				data.put(pair.getKey(), pair.getValue());
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T> T parse(Class<T> clazz, String value) {
-		if (Double.class == clazz) {
-			return (T) (Double) Double.parseDouble(value);
-		}
+		if (Double.class == clazz) { return (T) (Double) Double
+				.parseDouble(value); }
 
-		if (Integer.class == clazz) {
-			return (T) (Integer) Integer.parseInt(value);
-		}
+		if (Integer.class == clazz) { return (T) (Integer) Integer
+				.parseInt(value); }
 
-		if (Long.class == clazz) {
-			return (T) (Long) Long.parseLong(value);
-		}
+		if (Long.class == clazz) { return (T) (Long) Long.parseLong(value); }
 
-		if (String.class == clazz) {
-			return (T) value;
-		}
+		if (String.class == clazz) { return (T) value; }
 
-		if (Boolean.class == clazz) {
-			return (T) (Boolean) Boolean.parseBoolean(value);
-		}
+		if (Boolean.class == clazz) { return (T) (Boolean) Boolean
+				.parseBoolean(value); }
 
 		throw new Error("Unsupported type " + clazz.getSimpleName());
 	}

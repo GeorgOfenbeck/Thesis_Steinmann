@@ -133,8 +133,7 @@ public class SystemInfoRepository {
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
 		// disable validation
-		boolean storedFlag = configuration
-				.get(MeasurementValidationService.validationKey);
+		configuration.push();
 		configuration.set(MeasurementValidationService.validationKey, false);
 
 		// perform measurement
@@ -142,8 +141,7 @@ public class SystemInfoRepository {
 				measurement, 1);
 
 		// restore validation
-		configuration.set(MeasurementValidationService.validationKey,
-				storedFlag);
+		configuration.pop();
 
 		FileMeasurerOutput output = single(result.getMeasurerOutputs(measurer));
 		return parseCpuList(single(output.getFileContentList())
