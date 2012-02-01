@@ -29,6 +29,12 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			.Create(Boolean.class, "useCachedResults",
 					"indicates if the cached results should be used", true);
 
+	public final static ConfigurationKey<Boolean> checkCoreKey = ConfigurationKey
+			.Create(Boolean.class,
+					"checkCore",
+					"indicates if the current core has to be the same as the core used to get the cached results",
+					true);
+
 	@Inject
 	public Configuration configuration;
 
@@ -92,8 +98,9 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				// were there results?
 				cachedResult != null
 				// and were they created for the current measuring core?
-						&& getCoreHash(measurement, measurementHash).equals(
-								cachedResult.getCoreHash())) {
+						&& (!configuration.get(checkCoreKey) || getCoreHash(
+								measurement, measurementHash).equals(
+								cachedResult.getCoreHash()))) {
 
 					log.trace("found results");
 					// use the stored results
