@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="RunCommand" 
+	cBaseType="MultiLanguageObjectBase"
+	comment="command to be executed">
+	
+	<field name="executable" type="string" comment="executable to start"/>
+	<list name="args" type="string" comment="command line arguments. argument 0 *must* be the name of the command"/>
+</class>
