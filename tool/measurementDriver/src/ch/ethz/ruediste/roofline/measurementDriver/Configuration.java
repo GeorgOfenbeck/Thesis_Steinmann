@@ -14,10 +14,13 @@ public class Configuration {
 	private Configuration defaultConfiguration;
 
 	public Object getUntyped(ConfigurationKeyBase key) {
-		if (data.containsKey(key)) { return data.get(key); }
+		if (data.containsKey(key)) {
+			return data.get(key);
+		}
 
-		if (defaultConfiguration != null) { return defaultConfiguration
-				.getUntyped(key); }
+		if (defaultConfiguration != null) {
+			return defaultConfiguration.getUntyped(key);
+		}
 
 		return key.getDefaultValue();
 	}
@@ -49,8 +52,9 @@ public class Configuration {
 
 	public void setUntyped(ConfigurationKeyBase key, Object value) {
 		if (value != null
-				&& !key.getValueType().isAssignableFrom(value.getClass())) { throw new Error(
-				"wrong data type"); }
+				&& !key.getValueType().isAssignableFrom(value.getClass())) {
+			throw new Error("wrong data type");
+		}
 
 		if (!oldValuesStack.isEmpty()
 				&& !oldValuesStack.peek().containsKey(key)) {
@@ -102,18 +106,25 @@ public class Configuration {
 
 	@SuppressWarnings("unchecked")
 	public <T> T parse(Class<T> clazz, String value) {
-		if (Double.class == clazz) { return (T) (Double) Double
-				.parseDouble(value); }
+		if (Double.class == clazz) {
+			return (T) (Double) Double.parseDouble(value);
+		}
 
-		if (Integer.class == clazz) { return (T) (Integer) Integer
-				.parseInt(value); }
+		if (Integer.class == clazz) {
+			return (T) (Integer) Integer.parseInt(value);
+		}
 
-		if (Long.class == clazz) { return (T) (Long) Long.parseLong(value); }
+		if (Long.class == clazz) {
+			return (T) (Long) Long.parseLong(value);
+		}
 
-		if (String.class == clazz) { return (T) value; }
+		if (String.class == clazz) {
+			return (T) value;
+		}
 
-		if (Boolean.class == clazz) { return (T) (Boolean) Boolean
-				.parseBoolean(value); }
+		if (Boolean.class == clazz) {
+			return (T) (Boolean) Boolean.parseBoolean(value);
+		}
 
 		throw new Error("Unsupported type " + clazz.getSimpleName());
 	}
