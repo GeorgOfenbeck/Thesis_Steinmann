@@ -10,6 +10,7 @@
 
 #include "sharedDOM/MeasurementSchemeDescriptionBase.h"
 #include "MeasurerBase.h"
+#include "ConfiguratorBase.h"
 #include "KernelBase.h"
 #include "sharedDOM/MeasurementRunOutput.h"
 #include <vector>
@@ -19,6 +20,7 @@ class MeasurementSchemeBase {
 protected:
 	std::vector<MeasurerBase*> *additionalMeasurers;
 	std::vector<MeasurerBase*> *validationMeasurers;
+	std::vector<ConfiguratorBase*> *configurators;
 
 public:
 	typedef MeasurementSchemeDescriptionBase tDescriptionBase;
@@ -32,9 +34,15 @@ public:
 	void setAdditionalMeasurers(std::vector<MeasurerBase*> *vec){
 		additionalMeasurers=vec;
 	}
+
 	void setValidationMeasurers(std::vector<MeasurerBase*> *vec){
-			validationMeasurers=vec;
-		}
+		validationMeasurers=vec;
+	}
+
+	void setConfigurators(std::vector<ConfiguratorBase*> *vec){
+		configurators=vec;
+	}
+
     void clearCaches();
 };
 

@@ -33,6 +33,11 @@ public:
 			sched_setaffinity(0,size,mask);
 		}
 
+		// notify configurators
+		foreach (ConfiguratorBase *configurator, *super::configurators){
+			configurator->beforeRun();
+		}
+
 		// start validation measurers. They should validate the warmup, too
 		foreach (MeasurerBase *measurer, *super::validationMeasurers){
 			measurer->start();
@@ -75,6 +80,11 @@ public:
 		// stop the validation measurers
 		reverse_foreach (MeasurerBase *measurer, *super::validationMeasurers){
 			measurer->stop();
+		}
+
+		// notify the configurators
+		reverse_foreach (ConfiguratorBase *configurator, *super::configurators){
+			configurator->afterRun();
 		}
 
 		MeasurementRunOutput *result=new MeasurementRunOutput();

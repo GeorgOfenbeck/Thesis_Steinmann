@@ -21,6 +21,7 @@
 #include "baseClasses/KernelBase.h"
 #include "baseClasses/MeasurerBase.h"
 #include "baseClasses/MeasurementSchemeBase.h"
+#include "baseClasses/ConfiguratorBase.h"
 #include "utils.h"
 #include "kernels/MemoryKernel.h"
 #include "baseClasses/SystemInitializer.h"
@@ -225,6 +226,20 @@ int doIt(int argc, char *argv[]) {
 		additionalMeasurers->push_back(measurer);
 	}
 
+	// create configurators
+	vector<ConfiguratorBase*> *configurators=new vector<ConfiguratorBase*>();
+	foreach(ConfiguratorDescriptionBase* desc,description->getConfigurators())
+	{
+		ConfiguratorBase *configurator =
+				TypeRegistry<ConfiguratorBase>::createObject(
+						desc);
+		if (configurator == NULL) {
+			printf("configurator for %s not found\n",
+					typeid(*desc).name());
+			exit(1);
+		}
+		configurators->push_back(configurator);
+	}
 	// create measurement scheme
 	MeasurementSchemeBase *scheme =
 			TypeRegistry<MeasurementSchemeBase>::createObject(
@@ -238,6 +253,12 @@ int doIt(int argc, char *argv[]) {
 	// add additional measurers
 	scheme->setValidationMeasurers(validationMeasurers);
 	scheme->setAdditionalMeasurers(additionalMeasurers);
+	scheme->setConfigurators(configurators);
+
+	// notify the configurators
+	foreach(ConfiguratorBase *configurator, *configurators){
+		configurator->beforeMeasurement();
+	}
 
 	// initialize the schemes, which will initialize the kernel and the measurers as well
 	scheme->initialize();
@@ -260,6 +281,12 @@ int doIt(int argc, char *argv[]) {
 	printf("\n");
 
 	printf("tearing down\n");
+	// notify configurators
+
+	reverse_foreach(ConfiguratorBase *configurator, *configurators){
+		configurator->afterMeasurement();
+	}
+
 	delete (kernel);
 	delete (mainMeasurer);
 	foreach (MeasurerBase *measurer, *validationMeasurers){
@@ -270,6 +297,10 @@ int doIt(int argc, char *argv[]) {
 		delete(measurer);
 	}
 	delete(additionalMeasurers);
+	foreach(ConfiguratorBase *configurator, *configurators){
+		delete(configurator);
+	}
+	delete(configurators);
 	delete (scheme);
 
 	printf("writing output\n");
