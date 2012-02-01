@@ -20,8 +20,8 @@ public class MeasurementValidationService {
 			.getLogger(MeasurementValidationService.class);
 
 	public final static ConfigurationKey<Boolean> validationKey = ConfigurationKey
-			.Create(Boolean.class, "validation",
-					"if true, perform validation", true);
+			.Create(Boolean.class, "validation", "if true, perform validation",
+					true);
 
 	public final static ConfigurationKey<Boolean> validateFrequencyKey = ConfigurationKey
 			.Create(Boolean.class,
@@ -106,29 +106,24 @@ public class MeasurementValidationService {
 		String currentFrequencyPattern = "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_cur_freq";
 		String totalStateTransistionsFile = "/sys/devices/system/cpu/cpu%d/cpufreq/stats/total_trans";
 		for (int cpu : measuredCpus) {
-			if (validationConfiguration.get(validateThermalThrottlingKey))
-			{
+			if (validationConfiguration.get(validateThermalThrottlingKey)) {
 				CpuSpecificFile file = new CpuSpecificFile(
 						thermalThrottleCountPattern, cpu);
 				fileMeasurer.addFile(file.getFileName());
-				validationData.addThermalThrottleCountFile(
-						file);
+				validationData.addThermalThrottleCountFile(file);
 			}
 			if (any(validationConfiguration.get(validateFrequencyKey,
-					validateOverallFrequencyKey)))
-			{
+					validateOverallFrequencyKey))) {
 				CpuSpecificFile file = new CpuSpecificFile(
 						currentFrequencyPattern, cpu);
 				fileMeasurer.addFile(file.getFileName());
 				validationData.addCurrentFrequencyFile(file);
 			}
-			if (validationConfiguration.get(validateFrequencyTransitionsKey))
-			{
+			if (validationConfiguration.get(validateFrequencyTransitionsKey)) {
 				CpuSpecificFile file = new CpuSpecificFile(
 						totalStateTransistionsFile, cpu);
 				fileMeasurer.addFile(file.getFileName());
-				validationData.addTotalStateTransistionsFile(
-						file);
+				validationData.addTotalStateTransistionsFile(file);
 			}
 		}
 
@@ -154,8 +149,7 @@ public class MeasurementValidationService {
 		// is there any event to measure
 		if (!perfEventMeasurerDescription.getEvents().isEmpty()) {
 			measurement.addValidationMeasurer(perfEventMeasurerDescription);
-			validationData.setPerfEventMeasurer(
-					perfEventMeasurerDescription);
+			validationData.setPerfEventMeasurer(perfEventMeasurerDescription);
 		}
 	}
 
@@ -176,8 +170,8 @@ public class MeasurementValidationService {
 		// check cpu migrations
 		if (validationData.getConfiguration().get(validateCpuMigrationsKey)) {
 			if (!validationData.getPerfEventMeasurer()
-					.getMinBigInteger("cpuMigrations",
-							result).equals(BigInteger.ZERO)) {
+					.getMinBigInteger("cpuMigrations", result)
+					.equals(BigInteger.ZERO)) {
 				log.warn("Cpu migration(s) observerd");
 			}
 		}
@@ -188,8 +182,8 @@ public class MeasurementValidationService {
 					.getMeasurerOutputs(validationData.getFileMeasurer())) {
 				for (CpuSpecificFile file : validationData
 						.getThermalThrottleCountFiles()) {
-					FileContent content = fileMeasurerOutput
-							.getContent(file.getFileName());
+					FileContent content = fileMeasurerOutput.getContent(file
+							.getFileName());
 					String startContent = content.getStartContent().trim();
 					BigInteger start = new BigInteger(startContent);
 					String stopContent = content.getStopContent().trim();
@@ -214,10 +208,10 @@ public class MeasurementValidationService {
 			}
 			;
 			boolean frequencyAdded = systemInfoRepository
-					.getObservedFrequencies().addAll(
-							observedFrequencies);
-			if (frequencyAdded && validationData.getConfiguration().get(
-					validateOverallFrequencyKey)) {
+					.getObservedFrequencies().addAll(observedFrequencies);
+			if (frequencyAdded
+					&& validationData.getConfiguration().get(
+							validateOverallFrequencyKey)) {
 				if (systemInfoRepository.getObservedFrequencies().size() > 1) {
 					log.warn(String
 							.format("Multiple frequencies observed within the whole measurement run. Observed Frequencies: %s",
@@ -278,15 +272,13 @@ public class MeasurementValidationService {
 						.getContent(frequencyFile.getFileName())
 						.getStartContent().trim();
 				log.debug("frequency: startContent: " + startContent);
-				observedFrequencies.add(new BigInteger(
-						startContent));
+				observedFrequencies.add(new BigInteger(startContent));
 				String stopContent = fileMeasurerOutput
 						.getContent(frequencyFile.getFileName())
 						.getStopContent().trim();
 				log.debug("frequency: stopContent: " + stopContent);
 
-				observedFrequencies.add(new BigInteger(
-						stopContent));
+				observedFrequencies.add(new BigInteger(stopContent));
 			}
 		}
 		return observedFrequencies;

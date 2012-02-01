@@ -49,7 +49,8 @@ public class MeasurementResultRepository {
 			return (MeasurementResult) cacheService.getCachedValue(
 					measurementHash.getValue(),
 					configuration.get(cacheLocationKey));
-		} finally {
+		}
+		finally {
 			runtimeMonitor.loadMeasurementResultsCategory.leave();
 		}
 	}

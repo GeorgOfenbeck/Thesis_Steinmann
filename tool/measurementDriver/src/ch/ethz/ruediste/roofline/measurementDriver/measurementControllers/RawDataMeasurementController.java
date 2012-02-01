@@ -71,10 +71,10 @@ public class RawDataMeasurementController implements IMeasurementController {
 		}
 
 		plot.setTitle("%d:%s",
-				// kernel.getBufferSize(),
+		// kernel.getBufferSize(),
 				kernel.getIterations(), measurement.toString());
 		plot.setOutputName("%s:%d:%s:%s", outputName,
-				// kernel.getBufferSize(),
+		// kernel.getBufferSize(),
 				kernel.getIterations(), measurement.toString(), measurement
 						.getScheme().getWarmCaches() ? "warm" : "cold");
 

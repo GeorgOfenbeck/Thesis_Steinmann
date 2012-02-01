@@ -14,9 +14,8 @@ public class CommandService {
 	}
 
 	public void runCommand(File workingDirectory, String command,
-			String[] arguments,
-			int desiredExitValue, boolean showOutput) throws ExecuteException,
-			IOException {
+			String[] arguments, int desiredExitValue, boolean showOutput)
+			throws ExecuteException, IOException {
 
 		// setup command line
 		CommandLine cmdLine = new CommandLine(command);

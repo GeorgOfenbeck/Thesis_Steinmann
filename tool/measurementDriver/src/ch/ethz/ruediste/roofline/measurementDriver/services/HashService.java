@@ -94,7 +94,8 @@ public class HashService {
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance(configuration.get(messageDigestKey));
-		} catch (NoSuchAlgorithmException e) {
+		}
+		catch (NoSuchAlgorithmException e) {
 			throw new Error(
 					String.format(
 							"Message digest algorithm %s not found. Set by %s. Needed for cache key generation",

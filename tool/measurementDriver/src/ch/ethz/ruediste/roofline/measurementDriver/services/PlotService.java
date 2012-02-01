@@ -40,8 +40,7 @@ public class PlotService {
 			output.printf("set title '%s'\n", plot.getTitle());
 			output.printf("set terminal postscript color\n");
 			output.printf("set output '%s.ps'\n", plot.getOutputName());
-			output.printf(
-					"plot '%s.data' using 1:2 with histeps\n",
+			output.printf("plot '%s.data' using 1:2 with histeps\n",
 					plot.getOutputName());
 			// output.printf("pause mouse\n");
 
@@ -72,9 +71,7 @@ public class PlotService {
 			output.printf("set terminal postscript color\n");
 			output.printf("set output '%s.ps'\n", plot.getOutputName());
 
-			output.printf(
-					"plot '%s.data' with points \n",
-					plot.getOutputName());
+			output.printf("plot '%s.data' with points \n", plot.getOutputName());
 			// output.printf("pause mouse\n");
 
 			output.close();
@@ -95,8 +92,7 @@ public class PlotService {
 
 		for (RooflinePoint point : plot.getPoints()) {
 			outputFile.printf("%e %e\n\n\n", point.getOperationalIntensity()
-					.getValue(),
-					point.getPerformance().getValue());
+					.getValue(), point.getPerformance().getValue());
 		}
 
 		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
@@ -133,8 +129,8 @@ public class PlotService {
 
 			for (Pair<String, Throughput> peak : plot.getPeakBandwiths()) {
 				plotLines.add(String.format("%e*x title '%s (%g byte/cycle)'",
-						peak.getRight().getValue(), peak.getLeft(),
-						peak.getRight().getValue()));
+						peak.getRight().getValue(), peak.getLeft(), peak
+								.getRight().getValue()));
 			}
 
 			for (int i = 0; i < plot.getPoints().size(); i++) {

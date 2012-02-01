@@ -121,16 +121,18 @@ public class PerformanceEventScreeningMeasurementController implements
 			MeasurementResult result = null;
 			try {
 				result = measurementAppController.measure(measurement, 20);
-			} catch (Throwable e) {
+			}
+			catch (Throwable e) {
 				e.printStackTrace();
 			}
 
 			if (result == null) {
 				out.printf("%s: %s: failed\n", eventDefinition, pair.getRight());
 
-			} else {
-				DescriptiveStatistics statistics = measurer
-						.getStatistics("event", result);
+			}
+			else {
+				DescriptiveStatistics statistics = measurer.getStatistics(
+						"event", result);
 
 				double min = statistics.getMin();
 				out.printf("%s: %s: %g %g\n", eventDefinition, pair.getRight(),

@@ -74,8 +74,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(arithmeticOperationAxis,
-						dlpAxis, unrollAxis,
-						iterationsAxis
+						dlpAxis, unrollAxis, iterationsAxis
 
 				))) {
 			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();

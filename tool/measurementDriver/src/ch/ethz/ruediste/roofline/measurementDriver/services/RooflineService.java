@@ -35,15 +35,15 @@ public class RooflineService {
 		case Add:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_ADD);
-			break;
+		break;
 		case ArithBalanced:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MULADD);
-			break;
+		break;
 		case Mul:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MUL);
-			break;
+		break;
 		case Load:
 		case MemBalanced:
 		case Store:
@@ -55,7 +55,7 @@ public class RooflineService {
 				.createCoordinate()
 				.set(QuantityMeasuringService.quantityAxis,
 						QuantityMeasuringService.Quantity.Performance)
-						.set(QuantityMeasuringService.clockTypeAxis, clockType);
+				.set(QuantityMeasuringService.clockTypeAxis, clockType);
 
 		// set the optimization
 		switch (instructionSet) {
@@ -65,21 +65,21 @@ public class RooflineService {
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.DoublePrecisionFlop);
-			break;
+		break;
 		case SSEScalar:
 			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
 			kernelParameters.set(instructionSetAxis, InstructionSet.SSEScalar);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.DoublePrecisionFlop);
-			break;
+		break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
 			kernelParameters.set(instructionSetAxis, InstructionSet.x87);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.CompInstr);
-			break;
+		break;
 
 		}
 
@@ -96,31 +96,26 @@ public class RooflineService {
 		ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 		kernel.initialize(kernelParameters.build());
 
-		Coordinate measurementCoordinate = measurementCoordinateBuilder
-				.build();
+		Coordinate measurementCoordinate = measurementCoordinateBuilder.build();
 
 		// do the minimization
-		Coordinate maximum = optimizationService
-				.maximize(
-						kernel,
-						optimzationSpace,
-						measurementCoordinate);
+		Coordinate maximum = optimizationService.maximize(kernel,
+				optimzationSpace, measurementCoordinate);
 
 		// apply the best parameters
 		kernel.initialize(maximum);
 
 		// measure the performance
 		Performance performance = quantityMeasuringService.measurePerformance(
-				kernel,
+				kernel, measurementCoordinate
+						.get(QuantityMeasuringService.operationAxis),
 				measurementCoordinate
-				.get(QuantityMeasuringService.operationAxis),
-				measurementCoordinate
-				.get(QuantityMeasuringService.clockTypeAxis));
+						.get(QuantityMeasuringService.clockTypeAxis));
 
 		log.info(String.format(
 				"peak performance for %s %s %s: parameters: %s value: %f",
-				algorithm,
-				instructionSet, clockType, maximum, performance.getValue()));
+				algorithm, instructionSet, clockType, maximum,
+				performance.getValue()));
 		return performance;
 	}
 
@@ -135,7 +130,7 @@ public class RooflineService {
 			kernel = new MemoryKernelDescription();
 			kernelParameters.set(optimizationAxis, "-O3 -msse");
 			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 10);
-			break;
+		break;
 		case Add:
 		case ArithBalanced:
 		case Mul:
@@ -149,9 +144,7 @@ public class RooflineService {
 
 		// measure the throughput
 		Throughput throughput = quantityMeasuringService.measureThroughput(
-				kernel,
-				border,
-				clockType);
+				kernel, border, clockType);
 		return throughput;
 	}
 }

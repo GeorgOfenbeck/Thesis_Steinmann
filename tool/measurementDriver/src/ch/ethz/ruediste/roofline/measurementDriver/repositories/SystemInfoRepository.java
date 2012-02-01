@@ -81,8 +81,7 @@ public class SystemInfoRepository {
 		measurement.setMeasurer(measurer);
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
-		MeasurementResult result = measurementService.measure(
-				measurement, 1);
+		MeasurementResult result = measurementService.measure(measurement, 1);
 
 		ListEventsMeasurerOutput output = single(result
 				.getMeasurerOutputs(measurer));
@@ -137,8 +136,7 @@ public class SystemInfoRepository {
 		configuration.set(MeasurementValidationService.validationKey, false);
 
 		// perform measurement
-		MeasurementResult result = measurementService.measure(
-				measurement, 1);
+		MeasurementResult result = measurementService.measure(measurement, 1);
 
 		// restore validation
 		configuration.pop();

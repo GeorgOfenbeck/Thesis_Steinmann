@@ -46,9 +46,8 @@ public class MainModule extends AbstractModule {
 	}
 
 	private <T> void bindAllAsSingletons(Class<T> baseType, String basePackage) {
-		List<Class<? extends T>> classes = ClassFinder
-				.getClassesImplementing(
-						baseType, basePackage);
+		List<Class<? extends T>> classes = ClassFinder.getClassesImplementing(
+				baseType, basePackage);
 		// bind the classes found
 		for (Class<? extends T> clazz : classes) {
 			if (clazz.isInterface())
@@ -61,18 +60,18 @@ public class MainModule extends AbstractModule {
 			String basePackage) {
 		// get all classes implementing the given base type
 		List<Class<? extends T>> measurementClasses = ClassFinder
-				.getClassesImplementing(
-						baseType, basePackage);
+				.getClassesImplementing(baseType, basePackage);
 
 		// bind the classes found
 		for (Class<? extends T> clazz : measurementClasses) {
 			try {
 				INamed measurement = (INamed) clazz.newInstance();
 				bind(baseType)
-						.annotatedWith(Names.named(measurement.getName()))
-						.to(clazz);
+						.annotatedWith(Names.named(measurement.getName())).to(
+								clazz);
 
-			} catch (Exception e) {
+			}
+			catch (Exception e) {
 				// rethrow the exception
 				throw new Error(e);
 			}

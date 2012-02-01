@@ -5,13 +5,12 @@ import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 /** Kernel just loading a memory block into memory */
-public class MemoryKernelDescription extends
-		MemoryKernelDescriptionData {
+public class MemoryKernelDescription extends MemoryKernelDescriptionData {
 
-	private static final MacroKey operationMacro = MacroKey.Create(
-			"RMT_MEMORY_OPERATION",
-			"specifies the memory operation to be used",
-			"MemoryOperation_READ");
+	private static final MacroKey operationMacro = MacroKey
+			.Create("RMT_MEMORY_OPERATION",
+					"specifies the memory operation to be used",
+					"MemoryOperation_READ");
 
 	@Override
 	public void initialize(Coordinate coordinate) {

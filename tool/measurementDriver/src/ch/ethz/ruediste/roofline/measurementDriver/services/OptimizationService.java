@@ -29,8 +29,7 @@ public class OptimizationService {
 					"if set to true, do a fast optimization", true);
 
 	public enum Comparison {
-		lessThan,
-		moreThan
+		lessThan, moreThan
 	}
 
 	@Inject
@@ -113,10 +112,10 @@ public class OptimizationService {
 			switch (comparison) {
 			case lessThan:
 				betterThan = Quantity.lessThan;
-				break;
+			break;
 			case moreThan:
 				betterThan = Quantity.moreThan;
-				break;
+			break;
 			default:
 				throw new Error("should not happen");
 			}
@@ -183,8 +182,7 @@ public class OptimizationService {
 			log.debug("starting at " + currentPoint);
 			// measure
 			kernel.initialize(currentPoint);
-			Quantity currentValue = quantityMeasuringService.measure(
-					kernel,
+			Quantity currentValue = quantityMeasuringService.measure(kernel,
 					measurementPoint);
 
 			for (int step = 0; step < longestSide; step++) {
@@ -196,8 +194,7 @@ public class OptimizationService {
 					// measure neighbor
 					kernel.initialize(neighbor);
 					Quantity neighborValue = quantityMeasuringService.measure(
-							kernel,
-							measurementPoint);
+							kernel, measurementPoint);
 					if (bestNeighbor == null
 							|| betterThan.apply(neighborValue,
 									bestNeighborValue)) {

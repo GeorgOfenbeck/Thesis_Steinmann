@@ -29,8 +29,7 @@ public class CacheService {
 	/**
 	 * store a value under the given hash
 	 */
-	public void store(Object value, String hash, String location)
-			throws Error {
+	public void store(Object value, String hash, String location) throws Error {
 		try {
 			// get the cache file
 			File cacheFile = getCacheFile(hash, location);
@@ -45,7 +44,8 @@ public class CacheService {
 			// finish writing
 			output.close();
 
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new Error("Error while storing measurement result in cache",
 					e);
 		}

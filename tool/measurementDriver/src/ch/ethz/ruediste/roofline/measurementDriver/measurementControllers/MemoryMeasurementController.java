@@ -43,8 +43,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
 		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
 
-		space.add(optimizationAxis,
-				"-O3 -msse2");
+		space.add(optimizationAxis, "-O3 -msse2");
 
 		space.add(bufferSizeAxis, 1024L * 1024 * 10);
 
@@ -56,9 +55,8 @@ public class MemoryMeasurementController implements IMeasurementController {
 			MemoryKernelDescription kernel = new MemoryKernelDescription();
 			kernel.initialize(coordinate);
 
-			Throughput throughput = quantityMeasuringService
-					.measureThroughput(kernel, MemoryTransferBorder.LlcRam,
-							ClockType.CoreCycles);
+			Throughput throughput = quantityMeasuringService.measureThroughput(
+					kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
 			System.out.printf("performance %s: %s\n", coordinate, throughput);
 
 			TransferredBytes transferredBytes = quantityMeasuringService

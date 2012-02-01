@@ -38,8 +38,7 @@ public class UpdatingFileOutputStream extends OutputStream {
 			// previously. So directly forward b to the output
 			raf.write(b);
 		}
-		else
-		{
+		else {
 			// read the next character
 			int ch = raf.read();
 

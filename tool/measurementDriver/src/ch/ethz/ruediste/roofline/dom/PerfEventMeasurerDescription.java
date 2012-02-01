@@ -12,8 +12,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 public class PerfEventMeasurerDescription extends
-PerfEventMeasurerDescriptionData
-implements IMeasurerDescription<PerfEventMeasurerOutput> {
+		PerfEventMeasurerDescriptionData implements
+		IMeasurerDescription<PerfEventMeasurerOutput> {
 
 	private static Logger log = Logger
 			.getLogger(PerfEventMeasurerDescription.class);
@@ -53,8 +53,7 @@ implements IMeasurerDescription<PerfEventMeasurerOutput> {
 	/**
 	 * prints a raw value dump into the specified stream
 	 */
-	public void printRaw(String name,
-			MeasurementResult result, PrintStream out) {
+	public void printRaw(String name, MeasurementResult result, PrintStream out) {
 		out.printf("Event: %s, <raw> <enabled> <running> <scaled>\n", name);
 
 		// iterate over all outputs
@@ -63,12 +62,11 @@ implements IMeasurerDescription<PerfEventMeasurerOutput> {
 		}
 	}
 
-	public void addValues(String name,
-			MeasurementResult result, IUnaryAction<Double> addValue) {
+	public void addValues(String name, MeasurementResult result,
+			IUnaryAction<Double> addValue) {
 		// iterate over all outputs
 		for (PerfEventMeasurerOutput output : result.getMeasurerOutputs(this)) {
-			addValue.apply(output
-					.getEventCount(name).getScaledCount());
+			addValue.apply(output.getEventCount(name).getScaledCount());
 		}
 	}
 
@@ -99,8 +97,7 @@ implements IMeasurerDescription<PerfEventMeasurerOutput> {
 		// iterate over all outputs
 		for (PerfEventMeasurerOutput output : meaurementResult
 				.getMeasurerOutputs(this)) {
-			PerfEventCount eventCount = output
-					.getEventCount(name);
+			PerfEventCount eventCount = output.getEventCount(name);
 			result.add(eventCount.getScaledCount());
 		}
 		return result;
@@ -112,8 +109,7 @@ implements IMeasurerDescription<PerfEventMeasurerOutput> {
 		// iterate over all outputs
 		for (PerfEventMeasurerOutput output : meaurementResult
 				.getMeasurerOutputs(this)) {
-			PerfEventCount eventCount = output
-					.getEventCount(name);
+			PerfEventCount eventCount = output.getEventCount(name);
 			result.add(eventCount.getRawCount());
 		}
 		return result;
@@ -143,9 +139,9 @@ implements IMeasurerDescription<PerfEventMeasurerOutput> {
 		// chech that the event was running
 		if (validationConfiguration.get(validateEventWasRunningKey)
 				&& eventCount.getTimeRunning().equals(BigInteger.ZERO)) {
-			log.warn(String.format("event %s=%s was never enabled",
-					eventCount.getDefinition().getName(),
-					eventCount.getDefinition().getDefinition()));
+			log.warn(String.format("event %s=%s was never enabled", eventCount
+					.getDefinition().getName(), eventCount.getDefinition()
+					.getDefinition()));
 		}
 
 		// chech that the event was not multiplexed
@@ -155,8 +151,7 @@ implements IMeasurerDescription<PerfEventMeasurerOutput> {
 		}
 	}
 
-	public BigInteger getMinBigInteger(String name,
-			MeasurementResult result) {
+	public BigInteger getMinBigInteger(String name, MeasurementResult result) {
 
 		PerfEventCount eventCount = getMinOutput(name, result).getEventCount(
 				name);
@@ -180,22 +175,21 @@ implements IMeasurerDescription<PerfEventMeasurerOutput> {
 						null,
 						new IBinaryFunction<PerfEventMeasurerOutput, PerfEventMeasurerOutput, PerfEventMeasurerOutput>() {
 
-					public PerfEventMeasurerOutput apply(
-							PerfEventMeasurerOutput result,
-							PerfEventMeasurerOutput item) {
+							public PerfEventMeasurerOutput apply(
+									PerfEventMeasurerOutput result,
+									PerfEventMeasurerOutput item) {
 
-						if (result == null
-								||
-								item.getEventCount(name)
-								.getScaledCount() < result
-								.getEventCount(name)
-								.getScaledCount()) {
-							return item;
-						}
+								if (result == null
+										|| item.getEventCount(name)
+												.getScaledCount() < result
+												.getEventCount(name)
+												.getScaledCount()) {
+									return item;
+								}
 
-						return result;
-					}
-				});
+								return result;
+							}
+						});
 		validate(min, measurementResult);
 		return min;
 	}

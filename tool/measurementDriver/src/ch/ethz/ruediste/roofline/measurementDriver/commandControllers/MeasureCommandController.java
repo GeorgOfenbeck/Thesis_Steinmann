@@ -46,7 +46,8 @@ public class MeasureCommandController implements
 			measurement = instantiator
 					.getInstance(Key.get(IMeasurementController.class,
 							Names.named(measurementName)));
-		} catch (ConfigurationException e) {
+		}
+		catch (ConfigurationException e) {
 			System.out
 					.printf("Could not find the measurement named %s\nAvailable Measurements:\n",
 							measurementName);
@@ -63,7 +64,8 @@ public class MeasureCommandController implements
 		// perform the measurement
 		try {
 			measurement.measure(outputName);
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			System.exit(1);
@@ -74,7 +76,7 @@ public class MeasureCommandController implements
 		if (
 		// no measurement has been entered yet
 		args.size() == 0
-				// part of a measurement has been entered already
+		// part of a measurement has been entered already
 				|| (args.size() == 1 && !partialWord.isEmpty())) {
 			for (Class<? extends IMeasurementController> clazz : instantiator
 					.getBoundClasses(IMeasurementController.class)) {

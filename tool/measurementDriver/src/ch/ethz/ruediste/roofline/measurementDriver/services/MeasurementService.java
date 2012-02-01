@@ -82,9 +82,9 @@ public class MeasurementService implements IMeasurementFacilility {
 		runtimeMonitor.compilationCategory.enter();
 		// build
 		log.info("building measuring core");
-		commandService.runCommand(measuringCoreLocationService
-				.getMeasuringCoreDir(), "make", new String[] {
-				"-j2", "all" }, 0, false);
+		commandService.runCommand(
+				measuringCoreLocationService.getMeasuringCoreDir(), "make",
+				new String[] { "-j2", "all" }, 0, false);
 		runtimeMonitor.compilationCategory.leave();
 	}
 
@@ -93,8 +93,8 @@ public class MeasurementService implements IMeasurementFacilility {
 	 * measurement. Returns true if anything changed.
 	 */
 	public boolean prepareMeasuringCoreBuilding(
-			MeasurementDescription measurement)
-			throws Error, FileNotFoundException {
+			MeasurementDescription measurement) throws Error,
+			FileNotFoundException {
 		runtimeMonitor.buildPreparationCategory.enter();
 		File measuringCoreDir = measuringCoreLocationService
 				.getMeasuringCoreDir();
@@ -167,8 +167,7 @@ public class MeasurementService implements IMeasurementFacilility {
 				"kernelOptimization.mk");
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
 				optimizationFile);
-		PrintStream optimizationPrintStream = new PrintStream(
-				updatingStream);
+		PrintStream optimizationPrintStream = new PrintStream(updatingStream);
 		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS=%s\n",
 				measurement.getKernel().getOptimization());
 		optimizationPrintStream.close();
@@ -184,8 +183,7 @@ public class MeasurementService implements IMeasurementFacilility {
 		File optimizationFile = new File(measuringCoreDir, "kernelName.mk");
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
 				optimizationFile);
-		PrintStream optimizationPrintStream = new PrintStream(
-				updatingStream);
+		PrintStream optimizationPrintStream = new PrintStream(updatingStream);
 		String kernelName = measurement.getKernel().getClass().getSimpleName();
 		kernelName = kernelName.substring(0, kernelName.length()
 				- "KernelDescription".length());

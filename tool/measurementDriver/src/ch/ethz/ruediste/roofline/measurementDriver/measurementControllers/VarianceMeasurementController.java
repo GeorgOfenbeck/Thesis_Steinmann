@@ -81,8 +81,7 @@ public class VarianceMeasurementController implements IMeasurementController {
 			// create statistics
 			DescriptiveStatistics statistics = null;
 			if (measurement.getMeasurer() instanceof PerfEventMeasurerDescription) {
-				statistics = perfEventMeasurer.getStatistics("cycles",
-						result);
+				statistics = perfEventMeasurer.getStatistics("cycles", result);
 			}
 
 			if (measurement.getMeasurer() instanceof ExecutionTimeMeasurerDescription) {

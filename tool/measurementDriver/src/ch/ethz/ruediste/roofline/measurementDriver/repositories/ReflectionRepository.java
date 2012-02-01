@@ -19,8 +19,7 @@ public class ReflectionRepository {
 	public List<Pair<Class<?>, ConfigurationKeyBase>> getConfigurationKeyPairs() {
 		if (configurationKeyPairs == null) {
 			configurationKeyPairs = ClassFinder.getStaticFieldValues(
-					ConfigurationKeyBase.class,
-					"ch.ethz.ruediste.roofline");
+					ConfigurationKeyBase.class, "ch.ethz.ruediste.roofline");
 		}
 		return configurationKeyPairs;
 	}

@@ -111,13 +111,11 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		return firstDefinition;
 	}
 
-	public void addAdditionalMeasurer(
-			MeasurerDescriptionBase measurer) {
+	public void addAdditionalMeasurer(MeasurerDescriptionBase measurer) {
 		getAdditionalMeasurers().add(0, measurer);
 	}
 
-	public void addValidationMeasurer(
-			MeasurerDescriptionBase measurer) {
+	public void addValidationMeasurer(MeasurerDescriptionBase measurer) {
 		getValidationMeasurers().add(0, measurer);
 	}
 

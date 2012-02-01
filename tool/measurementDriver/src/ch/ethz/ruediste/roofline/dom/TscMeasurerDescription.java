@@ -5,8 +5,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
 public class TscMeasurerDescription extends TscMeasurerDescriptionData
-		implements
-		IMeasurerDescription<TscMeasurerOutput> {
+		implements IMeasurerDescription<TscMeasurerOutput> {
 
 	/**
 	 * creates statistics of all event counts in the given measurement result

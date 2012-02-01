@@ -99,7 +99,7 @@ public class QuantityMeasuringService {
 			result += 2 * measurer.getMinDouble("ops",
 					measure(kernel, measurer));
 
-			break;
+		break;
 		case DoublePrecisionFlop:
 			measurer = new PerfEventMeasurerDescription();
 			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
@@ -120,7 +120,7 @@ public class QuantityMeasuringService {
 				// the SCALAR_DOUBLE events as well. Compensate
 				result -= 2 * scalarDoubleCount;
 			}
-			break;
+		break;
 
 		case CompInstr:
 
@@ -129,7 +129,7 @@ public class QuantityMeasuringService {
 					"coreduo::FP_COMP_INSTR_RET", "core::FP_COMP_OPS_EXE"));
 			result += measurer.getMinDouble("ops", measure(kernel, measurer));
 
-			break;
+		break;
 		}
 
 		return new OperationCount(result);
@@ -149,7 +149,7 @@ public class QuantityMeasuringService {
 		case LlcRam:
 			measurer.addEvent("transfers", pmuRepository.getAvailableEvent(
 					"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM"));
-			break;
+		break;
 
 		}
 
@@ -172,7 +172,7 @@ public class QuantityMeasuringService {
 			measurer.addEvent("cycles", pmuRepository.getAvailableEvent(
 					"core::UNHALTED_CORE_CYCLES",
 					"coreduo::UNHALTED_CORE_CYCLES"));
-			break;
+		break;
 		case ReferenceCycles:
 		case uSecs:
 			throw new Error("Not Supported");

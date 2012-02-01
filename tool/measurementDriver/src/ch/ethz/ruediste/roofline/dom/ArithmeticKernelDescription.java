@@ -18,8 +18,7 @@ public class ArithmeticKernelDescription extends
 
 	private static final MacroKey instructionSetMacro = MacroKey.Create(
 			"RMT_ARITHMETIC_INSTRUCTION_SET",
-			"specifies the instruction set to be used (x87 or SSE)",
-			"x87");
+			"specifies the instruction set to be used (x87 or SSE)", "x87");
 
 	public enum ArithmeticOperation {
 		ArithmeticOperation_ADD, ArithmeticOperation_MUL, ArithmeticOperation_MULADD

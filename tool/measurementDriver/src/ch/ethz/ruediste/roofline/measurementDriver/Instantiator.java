@@ -63,8 +63,8 @@ public class Instantiator {
 	public <T extends INamed> void listNamed(Class<T> baseClass) {
 		for (Class<? extends T> namedClass : getBoundClasses(baseClass)) {
 			INamed named = getInstance(namedClass);
-			System.out.printf("%s\n\t%s\n", named.getName(),
-					named.getDescription().replace("\n", "\n\t"));
+			System.out.printf("%s\n\t%s\n", named.getName(), named
+					.getDescription().replace("\n", "\n\t"));
 		}
 	}
 }

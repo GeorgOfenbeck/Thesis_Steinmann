@@ -77,8 +77,7 @@ public class IterableUtils {
 		return foundItem;
 	}
 
-	public static <T> T single(T[] items,
-			IUnaryPredicate<T> predicate) {
+	public static <T> T single(T[] items, IUnaryPredicate<T> predicate) {
 		return single(Arrays.asList(items), predicate);
 	}
 
@@ -135,13 +134,11 @@ public class IterableUtils {
 		return index;
 	}
 
-	public static <T> T first(
-			Iterable<T> iterable) {
+	public static <T> T first(Iterable<T> iterable) {
 		return first(iterable, UnaryPredicates.<T> True());
 	}
 
-	public static <T> T first(
-			Iterable<T> iterable, IUnaryPredicate<T> predicate) {
+	public static <T> T first(Iterable<T> iterable, IUnaryPredicate<T> predicate) {
 
 		Iterator<T> it = iterable.iterator();
 		while (it.hasNext()) {
@@ -153,8 +150,8 @@ public class IterableUtils {
 		throw new Error("no matching element found");
 	}
 
-	public static <T> T firstOrDefault(
-			Iterable<T> iterable, IUnaryPredicate<T> predicate) {
+	public static <T> T firstOrDefault(Iterable<T> iterable,
+			IUnaryPredicate<T> predicate) {
 
 		Iterator<T> it = iterable.iterator();
 		while (it.hasNext()) {
@@ -167,8 +164,7 @@ public class IterableUtils {
 		return null;
 	}
 
-	public static <T, R> Iterable<R> select(
-			Iterable<T> iterable,
+	public static <T, R> Iterable<R> select(Iterable<T> iterable,
 			IUnaryFunction<T, R> func) {
 		ArrayList<R> result = new ArrayList<R>();
 		for (T item : iterable) {
@@ -191,8 +187,8 @@ public class IterableUtils {
 		return getRange(iterable, BinaryPredicates.<T> getComparator());
 	}
 
-	public static <T> Range<T> getRange(
-			Iterable<T> iterable, IBinaryPredicate<T, T> comparator) {
+	public static <T> Range<T> getRange(Iterable<T> iterable,
+			IBinaryPredicate<T, T> comparator) {
 		T min = null;
 		T max = null;
 		boolean found = false;
@@ -202,7 +198,8 @@ public class IterableUtils {
 				min = item;
 				max = item;
 				found = true;
-			} else {
+			}
+			else {
 				if (comparator.apply(item, min)) {
 					min = item;
 				}
