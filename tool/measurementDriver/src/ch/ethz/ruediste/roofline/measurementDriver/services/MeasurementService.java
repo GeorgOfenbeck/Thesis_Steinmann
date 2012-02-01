@@ -355,6 +355,11 @@ public class MeasurementService implements IMeasurementFacilility {
 
 			}
 
+			SleepConfiguratorDescription sleepConfigurator = new SleepConfiguratorDescription();
+			sleepConfigurator.setSleepBeforeMeasurement(10);
+			sleepConfigurator.setSleepAfterMeasurement(10);
+			measurementDescription.getConfigurators().add(sleepConfigurator);
+
 		}
 	}
 }
