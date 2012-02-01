@@ -22,9 +22,14 @@ public class Axes {
 			"11d6a840-ff93-4095-9f25-26b668f282f9", "bufferSize",
 			(long) 1024 * 1024);
 
+	public static final Axis<Long> matrixSizeAxis = new Axis<Long>(
+			"5a8c4779-2a7d-4ba3-8a30-311b11df8933", "matrixSize", 128L);
+
+	public static final Axis<Long> blockSizeAxis = new Axis<Long>(
+			"9eba3230-c261-469d-9351-9b1cf165dbd4", "blockSize", 8L);
+
 	public static final Axis<Long> iterationsAxis = new Axis<Long>(
-			"cff57980-7b2c-463f-9762-7bcfe7a8b565", "iterations",
-			(long) 1024 * 1024);
+			"cff57980-7b2c-463f-9762-7bcfe7a8b565", "iterations", (long) 10000);
 
 	public static final Axis<Integer> unrollAxis = new Axis<Integer>(
 			"670c8795-de59-4f56-91f6-cb36f4bde788", "unroll", 1);

@@ -10,6 +10,9 @@
 
 #include "baseClasses/KernelBase.h"
 #include "sharedDOM/MMMKernelDescription.h"
+#include "macros/RMT_MMM_BLOCK.h"
+
+#define BLOCK RMT_MMM_BLOCK
 
 class MMMKernel :public Kernel<MMMKernelDescription>{
 	double *a,*b,*c,*check;
@@ -22,15 +25,14 @@ class MMMKernel :public Kernel<MMMKernelDescription>{
 					c[i*size+j]+=a[i*size+k]*b[k*size+j];
 	}
 
-#define BLOCK 8
 	void blocked(double *a, double *b, double *c){
 		long size=description->getMatrixSize();
-		for (int i=0; i<size; i+=BLOCK)
-			for (int j=0; j<size; j+=BLOCK)
-				for (int k=0; k<size; k+=BLOCK)
-					for (int id=i; id<i+BLOCK; id++)
-						for (int jd=j; jd<j+BLOCK; jd++)
-							for (int kd=k; kd<k+BLOCK; kd++)
+		for (long i=0; i<size; i+=BLOCK)
+			for (long j=0; j<size; j+=BLOCK)
+				for (long k=0; k<size; k+=BLOCK)
+					for (long id=i; id<i+BLOCK; id++)
+						for (long jd=j; jd<j+BLOCK; jd++)
+							for (long kd=k; kd<k+BLOCK; kd++)
 								c[id*size+jd]+=a[id*size+kd]*b[kd*size+jd];
 	}
 public:
