@@ -6,6 +6,8 @@ import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
 
@@ -59,11 +61,26 @@ public class RooflineMeasurementController implements IMeasurementController {
 		}
 
 		{
-			MMMKernelDescription kernel = new MMMKernelDescription();
-			kernel.setMatrixSize(128);
-			kernel.setOptimization("-O3");
-			rooflineController.addRooflinePoint("MMM", kernel,
-					Operation.CompInstr, MemoryTransferBorder.LlcRam);
+			ParameterSpace space = new ParameterSpace();
+			for (long i = 64; i <= 512; i *= 2) {
+				space.add(Axes.matrixSizeAxis, i);
+			}
+			space.add(Axes.blockSizeAxis, 16L);
+
+			space.add(Axes.optimizationAxis, "-O3");
+
+			for (Coordinate coordinate : space) {
+				MMMKernelDescription kernel = new MMMKernelDescription();
+				kernel.setMu(2);
+				kernel.setNu(2);
+				kernel.setKu(2);
+				kernel.setNoCheck(true);
+				kernel.initialize(coordinate);
+
+				rooflineController.addRooflinePoint(
+						"MMM" + coordinate.get(Axes.matrixSizeAxis), kernel,
+						Operation.CompInstr, MemoryTransferBorder.LlcRam);
+			}
 		}
 
 		rooflineController.plot();

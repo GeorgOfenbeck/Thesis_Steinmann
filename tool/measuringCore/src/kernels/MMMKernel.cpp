@@ -41,18 +41,20 @@ void MMMKernel::initialize(){
 		check[i]=0;
 	}
 
-	// run kernel once
-	run();
+	if (!description->getNoCheck()){
+		// run kernel once
+		run();
 
-	// calculate check value
-	tripleLoop(a,b,check);
+		// calculate check value
+		tripleLoop(a,b,check);
 
-	// perform check
-	for (size_t i=0; i<size; i++){
-			if (fabs(c[i]-check[i])>1e-5)
-				throw "matrix multiplication error";
-			c[i]=0;
-		}
+		// perform check
+		for (size_t i=0; i<size; i++){
+				if (fabs(c[i]-check[i])>1e-5)
+					throw "matrix multiplication error";
+				c[i]=0;
+			}
+	}
 }
 
 void MMMKernel::dispose(){

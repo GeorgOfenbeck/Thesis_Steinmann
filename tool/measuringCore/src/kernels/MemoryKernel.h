@@ -58,7 +58,7 @@ public:
 			char *b = (char*) buffer;
 			char ch = 0;
 
-			for (unsigned long i = 0; i < bufferSize ; i++) {
+			for (long i = 0; i < bufferSize ; i++) {
 				ch = ch ^ b[i];
 			}
 
@@ -71,7 +71,7 @@ public:
 				_mm_store_ps(&(buffer[i]), _mm_setzero_ps());
 			}
 #else
-			for (unsigned long i = 0; i < bufferSize; i++) {
+			for (long i = 0; i < bufferSize; i++) {
 				buffer[i] = 0;
 			}
 #endif

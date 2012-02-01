@@ -10,39 +10,54 @@
 
 #include "baseClasses/KernelBase.h"
 #include "sharedDOM/MMMKernelDescription.h"
-#include "macros/RMT_MMM_BLOCK.h"
+#include "macros/RMT_MMM_Nb.h"
+#include "macros/RMT_MMM_Mu.h"
+#include "macros/RMT_MMM_Nu.h"
+#include "macros/RMT_MMM_Ku.h"
 
-#define BLOCK RMT_MMM_BLOCK
+#define Nb RMT_MMM_Nb
+#define Mu RMT_MMM_Mu
+#define Nu RMT_MMM_Nu
+#define Ku RMT_MMM_Ku
 
-class MMMKernel :public Kernel<MMMKernelDescription>{
-	double *a,*b,*c,*check;
+class MMMKernel: public Kernel<MMMKernelDescription> {
+	double *a, *b, *c, *check;
 
-	void tripleLoop(double *a, double *b, double *c){
-		long size=description->getMatrixSize();
-		for (long i=0; i<size; i++)
-			for (long j=0; j<size; j++)
-				for (long k=0; k<size; k++)
-					c[i*size+j]+=a[i*size+k]*b[k*size+j];
+	void tripleLoop(double *a, double *b, double *c) {
+		long size = description->getMatrixSize();
+		for (long i = 0; i < size; i++)
+			for (long j = 0; j < size; j++)
+				for (long k = 0; k < size; k++)
+					c[i * size + j] += a[i * size + k] * b[k * size + j];
 	}
 
-	void blocked(double *a, double *b, double *c){
-		long size=description->getMatrixSize();
-		for (long i=0; i<size; i+=BLOCK)
-			for (long j=0; j<size; j+=BLOCK)
-				for (long k=0; k<size; k+=BLOCK)
-					for (long id=i; id<i+BLOCK; id++)
-						for (long jd=j; jd<j+BLOCK; jd++)
-							for (long kd=k; kd<k+BLOCK; kd++)
-								c[id*size+jd]+=a[id*size+kd]*b[kd*size+jd];
+	void blocked(double *a, double *b, double *c) {
+		long size = description->getMatrixSize();
+		for (long i = 0; i < size; i += Nb)
+			for (long j = 0; j < size; j += Nb)
+				for (long k = 0; k < size; k += Nb)
+
+					for (long id = i; id < i + Nb; id += Mu)
+						for (long jd = j; jd < j + Nb; jd += Nu)
+							for (long kd = k; kd < k + Nb; kd += Ku)
+
+								for (long kdd = kd; kdd < kd + Ku; kdd++)
+									for (long idd = id; idd < id + Mu; idd++)
+										for (long jdd = jd; jdd < jd + Nu; jdd++)
+											c[idd * size + jdd] += a[idd * size + kdd]
+													* b[kdd * size + jdd];
 	}
 public:
-	MMMKernel(MMMKernelDescription *description):Kernel(description){};
+	MMMKernel(MMMKernelDescription *description) :
+			Kernel(description) {
+	}
+	;
 
-		void initialize();
-		void run(){
-			blocked(a, b, c);
-		}
-		void dispose();
+	void initialize();
+	void run() {
+		blocked(a, b, c);
+	}
+	void dispose();
 
 };
 
