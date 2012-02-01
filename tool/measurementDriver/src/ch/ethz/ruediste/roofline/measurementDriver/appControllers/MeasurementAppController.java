@@ -65,6 +65,9 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		// add validation measurers
 		measurementValidationService.addValidationMeasurers(measurement);
 
+		// prepare the measurement for running
+		measurementService.prepareMeasurement(measurement);
+
 		// collect outputs in this collection
 		ArrayList<MeasurementRunOutput> outputs = new ArrayList<MeasurementRunOutput>();
 

@@ -10,12 +10,35 @@ import org.apache.log4j.Logger;
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.IMeasurementFacilility;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
 
 public class MeasurementService implements IMeasurementFacilility {
+	public static final ConfigurationKey<String> systemConfiguratorExecutableKey = ConfigurationKey
+			.Create(String.class,
+					"systemConfigurator.executable",
+					"Path and name of the executable of the system configurator",
+					".");
+
+	public final static ConfigurationKey<Boolean> measureRawKey = ConfigurationKey
+			.Create(Boolean.class,
+					"measure.raw",
+					"don't add any validation of configuration to the measurement",
+					false);
+
 	static private Logger log = Logger.getLogger(MeasurementService.class);
+
+	public final static ConfigurationKey<String> measurementFrequencyGovernorKey = ConfigurationKey
+			.Create(String.class, "measurementFrequencyGovernor",
+					"governor that should be used during measurements",
+					"performance");
+
+	public final static ConfigurationKey<String> defaultFrequencyGovernorKey = ConfigurationKey
+			.Create(String.class, "defaultFrequencyGovernor",
+					"governor that should be set after measurements",
+					"ondemand");
 
 	@Inject
 	public MultiLanguageSerializationService serializationService;
@@ -37,6 +60,9 @@ public class MeasurementService implements IMeasurementFacilility {
 
 	@Inject
 	public XStream xStream;
+
+	@Inject
+	public SystemInfoRepository systemInfoRepository;
 
 	/**
 	 * run the measuring core. it has to be built already
@@ -289,4 +315,46 @@ public class MeasurementService implements IMeasurementFacilility {
 		return measurementFacilility.measure(measurement, numberOfMeasurements);
 	}
 
+	public void prepareMeasurement(MeasurementDescription measurementDescription) {
+		if (!configuration.get(measureRawKey)
+				&& configuration.get(measurementFrequencyGovernorKey) != null) {
+			RunCommandConfiguratorDescription configurator = new RunCommandConfiguratorDescription();
+			measurementDescription.getConfigurators().add(configurator);
+
+			{
+				RunCommand cmd = new RunCommand();
+				configurator.getBeforeMeasurementCommands().add(cmd);
+
+				String executable = configuration
+						.get(systemConfiguratorExecutableKey);
+				cmd.setExecutable(executable);
+				cmd.getArgs().add(new File(executable).getName());
+				cmd.getArgs().add("governor");
+				cmd.getArgs().add(
+						configuration.get(measurementFrequencyGovernorKey));
+				for (int cpu : systemInfoRepository.getPossibleCPUs()) {
+					cmd.getArgs().add(Integer.toString(cpu));
+				}
+
+			}
+
+			{
+				RunCommand cmd = new RunCommand();
+				configurator.getAfterMeasurementCommands().add(cmd);
+
+				String executable = configuration
+						.get(systemConfiguratorExecutableKey);
+				cmd.setExecutable(executable);
+				cmd.getArgs().add(new File(executable).getName());
+				cmd.getArgs().add("governor");
+				cmd.getArgs().add(
+						configuration.get(defaultFrequencyGovernorKey));
+				for (int cpu : systemInfoRepository.getPossibleCPUs()) {
+					cmd.getArgs().add(Integer.toString(cpu));
+				}
+
+			}
+
+		}
+	}
 }

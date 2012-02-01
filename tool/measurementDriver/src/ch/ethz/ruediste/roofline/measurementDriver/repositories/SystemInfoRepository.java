@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 import com.google.inject.Inject;
@@ -81,7 +81,14 @@ public class SystemInfoRepository {
 		measurement.setMeasurer(measurer);
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
+		// make a raw measurement
+		configuration.push();
+		configuration.set(MeasurementService.measureRawKey, true);
+
 		MeasurementResult result = measurementService.measure(measurement, 1);
+
+		// restore configuration
+		configuration.pop();
 
 		ListEventsMeasurerOutput output = single(result
 				.getMeasurerOutputs(measurer));
@@ -131,14 +138,14 @@ public class SystemInfoRepository {
 		measurement.setMeasurer(measurer);
 		measurement.setScheme(new SimpleMeasurementSchemeDescription());
 
-		// disable validation
+		// make a raw measurement
 		configuration.push();
-		configuration.set(MeasurementValidationService.validationKey, false);
+		configuration.set(MeasurementService.measureRawKey, true);
 
 		// perform measurement
 		MeasurementResult result = measurementService.measure(measurement, 1);
 
-		// restore validation
+		// restore configuration
 		configuration.pop();
 
 		FileMeasurerOutput output = single(result.getMeasurerOutputs(measurer));

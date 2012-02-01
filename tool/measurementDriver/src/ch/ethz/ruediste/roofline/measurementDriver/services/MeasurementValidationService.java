@@ -67,6 +67,10 @@ public class MeasurementValidationService {
 
 	@SuppressWarnings("unchecked")
 	public void addValidationMeasurers(MeasurementDescription measurement) {
+		// skip if a raw measurement is desired
+		if (configuration.get(MeasurementService.measureRawKey)) {
+			return;
+		}
 		// skip validation if disabled
 		if (!configuration.get(validationKey)) {
 			return;
