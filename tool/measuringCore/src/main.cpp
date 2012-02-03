@@ -1,17 +1,5 @@
-#include <iostream>
-#include <pthread.h>
-#include <vector>
-#include <sched.h>
-#include <cstdio>
-#include <cstdlib>
-#include <string.h>
-#include <csignal>
-#include <fstream>
-#include <typeinfo>
-#include "coreSwitchTest.hpp"
 #include "sharedDOM/MultiLanguageSerializationService.h"
 #include "sharedDOM/MultiLanguageTestClass.h"
-#include "sharedDOM/MemoryLoadKernelDescription.h"
 #include "sharedDOM/MeasurementDescription.h"
 #include "sharedDOM/MeasurementCommand.h"
 #include "sharedDOM/MeasurementRunOutputCollection.h"
@@ -22,8 +10,22 @@
 #include "baseClasses/MeasurerBase.h"
 #include "baseClasses/MeasurementSchemeBase.h"
 #include "utils.h"
-#include "kernels/MemoryLoadKernel.h"
 #include "baseClasses/SystemInitializer.h"
+
+#include <iostream>
+#include <pthread.h>
+#include <vector>
+#include <sched.h>
+#include <cstdio>
+#include <cstdlib>
+#include <string.h>
+#include <csignal>
+#include <fstream>
+#include <typeinfo>
+#include <sys/ptrace.h>
+#include <sys/reg.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #define THREADCOUNT 200
 
@@ -129,28 +131,6 @@ static void sigint_handler(int arg) {
 int doIt(int argc, char *argv[]) {
 	MultiLanguageSerializationService serializationService;
 
-	if (argc == 2 && strcmp(argv[1], "serializationTest") == 0) {
-		// run the serialization test
-		printf("Running Serialization Test\n");
-
-		// load input
-		printf("Loading input\n");
-		ifstream input("serializationTestInput");
-		MultiLanguageTestClass *testObject;
-		testObject =
-				(MultiLanguageTestClass *) serializationService.DeSerialize(
-						input);
-		input.close();
-
-		// write output
-		printf("writing output\n");
-		ofstream output("serializationTestOutput");
-		serializationService.Serialize(testObject, output);
-		output.close();
-
-		return 0;
-	}
-
 	printf("Initializing system\n");
 	SystemInitializer::initialize();
 
@@ -196,34 +176,34 @@ int doIt(int argc, char *argv[]) {
 	}
 
 	// create validation measurers
-	vector<MeasurerBase*> *validationMeasurers=new vector<MeasurerBase*>();
+	vector<MeasurerBase*> *validationMeasurers = new vector<MeasurerBase*>();
 	foreach(MeasurerDescriptionBase* measurerDescription,description->getValidationMeasurers())
-	{
-		MeasurerBase *measurer =
-				TypeRegistry<MeasurerBase>::createObject(
-						measurerDescription);
-		if (measurer == NULL) {
-			printf("measurer for %s not found\n",
-					typeid(*measurerDescription).name());
-			exit(1);
-		}
-		validationMeasurers->push_back(measurer);
-	}
+			{
+				MeasurerBase *measurer =
+						TypeRegistry<MeasurerBase>::createObject(
+								measurerDescription);
+				if (measurer == NULL) {
+					printf("measurer for %s not found\n",
+							typeid(*measurerDescription).name());
+					exit(1);
+				}
+				validationMeasurers->push_back(measurer);
+			}
 
 	// create additional measurers
-	vector<MeasurerBase*> *additionalMeasurers=new vector<MeasurerBase*>();
+	vector<MeasurerBase*> *additionalMeasurers = new vector<MeasurerBase*>();
 	foreach(MeasurerDescriptionBase* measurerDescription,description->getAdditionalMeasurers())
-	{
-		MeasurerBase *measurer =
-				TypeRegistry<MeasurerBase>::createObject(
-						measurerDescription);
-		if (measurer == NULL) {
-			printf("measurer for %s not found\n",
-					typeid(*measurerDescription).name());
-			exit(1);
-		}
-		additionalMeasurers->push_back(measurer);
-	}
+			{
+				MeasurerBase *measurer =
+						TypeRegistry<MeasurerBase>::createObject(
+								measurerDescription);
+				if (measurer == NULL) {
+					printf("measurer for %s not found\n",
+							typeid(*measurerDescription).name());
+					exit(1);
+				}
+				additionalMeasurers->push_back(measurer);
+			}
 
 	// create measurement scheme
 	MeasurementSchemeBase *scheme =
@@ -262,14 +242,16 @@ int doIt(int argc, char *argv[]) {
 	printf("tearing down\n");
 	delete (kernel);
 	delete (mainMeasurer);
-	foreach (MeasurerBase *measurer, *validationMeasurers){
-		delete(measurer);
-	}
-	delete(validationMeasurers);
-	foreach (MeasurerBase *measurer, *additionalMeasurers){
-		delete(measurer);
-	}
-	delete(additionalMeasurers);
+	foreach (MeasurerBase *measurer, *validationMeasurers)
+			{
+				delete (measurer);
+			}
+	delete (validationMeasurers);
+	foreach (MeasurerBase *measurer, *additionalMeasurers)
+			{
+				delete (measurer);
+			}
+	delete (additionalMeasurers);
 	delete (scheme);
 
 	printf("writing output\n");
@@ -283,7 +265,74 @@ int doIt(int argc, char *argv[]) {
 	return 0;
 }
 
+void handleSerializationTest() {
+	MultiLanguageSerializationService serializationService;
+
+	// run the serialization test
+	printf("Running Serialization Test\n");
+
+	// load input
+	printf("Loading input\n");
+	ifstream input("serializationTestInput");
+	MultiLanguageTestClass *testObject;
+	testObject = (MultiLanguageTestClass *) serializationService.DeSerialize(
+			input);
+	input.close();
+
+	// write output
+	printf("writing output\n");
+	ofstream output("serializationTestOutput");
+	serializationService.Serialize(testObject, output);
+	output.close();
+
+}
+
+/**
+ * main method of the child process
+ */
+void childMain(){
+	// wait till the parent traces the child
+	ptrace(PTRACE_TRACEME);
+	raise(SIGCHLD);
+
+	printf("parent is tracing");
+}
+
+pid_t startChildProcess(){
+	pid_t childPid=fork();
+
+	if (childPid==0){
+		// we are in the child process
+		childMain();
+	}
+
+	if (childPid==-1){
+		perror("fork failed");
+		exit(1);
+	}
+
+	return childPid;
+}
+
 int main(int argc, char *argv[]) {
+	// check if doing a serialization test is requested
+	if (argc == 2 && strcmp(argv[1], "serializationTest") == 0) {
+		handleSerializationTest();
+
+		// end program
+		return 0;
+	}
+
+	pid_t childPid=startChildProcess();
+
+	printf("wait for child");
+	//wait for the child
+	waitpid(childPid,NULL,0);
+
+	printf("child stopped");
+
+	exit(0);
+
 	// setup handler for SIGINT (Ctrl+C)
 	abortMeasurement = false;
 	signal(SIGINT, sigint_handler);
@@ -293,6 +342,8 @@ int main(int argc, char *argv[]) {
 		return doIt(argc, argv);
 	} catch (char const *msg) {
 		printf("Exception: %s\n", msg);
+	} catch (string s) {
+		cout << "Exception: " << s << "\n";
 	} catch (Exception exception) {
 		cout << "Exception: " << exception.get_message() << "\n";
 		exception.print(0);

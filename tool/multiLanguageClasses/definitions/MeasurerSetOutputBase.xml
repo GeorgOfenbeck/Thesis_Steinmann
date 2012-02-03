@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="MeasurerSetOutputBase" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	javaSuffix="Data"
+	comment="Represents the output of a measurer set">
+	
+	<field name="mainMeasurerOutput" type="MeasurerOutputBase" comment="output of the main measurer"/>
+	<list name="additionalMeasurerOutputs" type="MeasurerOutputBase" comment="output of the additional measurers"/>
+	<list name="validationMeasurerOutputs" type="MeasurerOutputBase" comment="output of the validation measurers"/>
+</class>

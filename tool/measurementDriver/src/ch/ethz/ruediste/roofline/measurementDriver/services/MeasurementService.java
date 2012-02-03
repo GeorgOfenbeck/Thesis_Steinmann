@@ -82,9 +82,9 @@ public class MeasurementService implements IMeasurementFacilility {
 		runtimeMonitor.compilationCategory.enter();
 		// build
 		log.info("building measuring core");
-		commandService.runCommand(measuringCoreLocationService
-				.getMeasuringCoreDir(), "make", new String[] {
-				"-j2", "all" }, 0, false);
+		commandService.runCommand(
+				measuringCoreLocationService.getMeasuringCoreDir(), "make",
+				new String[] { "-j2", "all" }, 0, false);
 		runtimeMonitor.compilationCategory.leave();
 	}
 
@@ -93,8 +93,8 @@ public class MeasurementService implements IMeasurementFacilility {
 	 * measurement. Returns true if anything changed.
 	 */
 	public boolean prepareMeasuringCoreBuilding(
-			MeasurementDescription measurement)
-			throws Error, FileNotFoundException {
+			MeasurementDescription measurement) throws Error,
+			FileNotFoundException {
 		runtimeMonitor.buildPreparationCategory.enter();
 		File measuringCoreDir = measuringCoreLocationService
 				.getMeasuringCoreDir();
@@ -125,7 +125,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	private boolean writeMeasurementSchemeRegistration(
 			MeasurementDescription measurement, File measuringCoreDir)
 			throws FileNotFoundException {
-		log.trace("creating MeasurementScheme registration file");
+		/*log.trace("creating MeasurementScheme registration file");
 		File measurementSchemeRegistrationFile = new File(measuringCoreDir,
 				"generated/MeasurementSchemeRegistration.cpp");
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
@@ -154,7 +154,8 @@ public class MeasurementService implements IMeasurementFacilility {
 				measurerName, kernelName, measurerName);
 		measurementSchemeRegistrationStream.close();
 
-		return updatingStream.isWriting();
+		return updatingStream.isWriting();*/
+		return false;
 	}
 
 	/**
@@ -162,17 +163,19 @@ public class MeasurementService implements IMeasurementFacilility {
 	 */
 	private boolean writeOptimizationFile(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
+		/*
 		log.trace("creating optimization file");
 		File optimizationFile = new File(measuringCoreDir,
 				"kernelOptimization.mk");
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
 				optimizationFile);
-		PrintStream optimizationPrintStream = new PrintStream(
-				updatingStream);
+		PrintStream optimizationPrintStream = new PrintStream(updatingStream);
 		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS=%s\n",
 				measurement.getKernel().getOptimization());
 		optimizationPrintStream.close();
 		return updatingStream.isWriting();
+		*/
+		return false;
 	}
 
 	/**
@@ -180,18 +183,20 @@ public class MeasurementService implements IMeasurementFacilility {
 	 */
 	private boolean writeKernelName(MeasurementDescription measurement,
 			File measuringCoreDir) throws FileNotFoundException {
+		/*
 		log.trace("writing kernel name");
 		File optimizationFile = new File(measuringCoreDir, "kernelName.mk");
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
 				optimizationFile);
-		PrintStream optimizationPrintStream = new PrintStream(
-				updatingStream);
+		PrintStream optimizationPrintStream = new PrintStream(updatingStream);
 		String kernelName = measurement.getKernel().getClass().getSimpleName();
 		kernelName = kernelName.substring(0, kernelName.length()
 				- "KernelDescription".length());
 		optimizationPrintStream.printf("KERNEL_NAME=%s\n", kernelName);
 		optimizationPrintStream.close();
 		return updatingStream.isWriting();
+		*/
+		return false;
 	}
 
 	/**

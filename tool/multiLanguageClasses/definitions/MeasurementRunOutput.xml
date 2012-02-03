@@ -8,7 +8,5 @@
 	javaSuffix="Data"
 	comment="The output of a measurement run">
 	
-	<field name="mainMeasurerOutput" type="MeasurerOutputBase" comment="output of the main measurer"/>
-	<list name="additionalMeasurerOutputs" type="MeasurerOutputBase" comment="output of the additional measurers"/>
-	<list name="validationMeasurerOutputs" type="MeasurerOutputBase" comment="output of the validation measurers"/>
+	<list name="measurerSetOutputs" type="MeasurerSetOutputBase" comment="output of the measurers"/>
 </class>

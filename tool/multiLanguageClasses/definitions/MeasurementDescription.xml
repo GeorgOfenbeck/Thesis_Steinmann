@@ -4,7 +4,7 @@
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="MeasurementDescription" 
 	cBaseType="MultiLanguageObjectBase"
-	javaBaseType=""
+	javaBaseType="MacroDefinitionContainer"
 	javaSuffix="Data"
 	comment="Describes a Measurement">
 	

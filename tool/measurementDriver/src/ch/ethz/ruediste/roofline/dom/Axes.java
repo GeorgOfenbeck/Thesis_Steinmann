@@ -8,8 +8,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
 
 public class Axes {
-	public static final Axis<MeasurementSchemeDescriptionBase> measurementSchemeAxis = new Axis<MeasurementSchemeDescriptionBase>(
-			"e8b031dc-b74d-4dc9-b492-2078e449f67f", "scheme");
 	public static final Axis<KernelDescriptionBase> kernelAxis = new Axis<KernelDescriptionBase>(
 			"a4aa516d-a13c-4ad7-bcde-5176cd3b7bd8", "kernel");
 	public static final Axis<MeasurerDescriptionBase> measurerAxis = new Axis<MeasurerDescriptionBase>(
@@ -25,8 +23,7 @@ public class Axes {
 			(long) 1024 * 1024);
 
 	public static final Axis<Integer> unrollAxis = new Axis<Integer>(
-			"670c8795-de59-4f56-91f6-cb36f4bde788", "unroll",
-			1);
+			"670c8795-de59-4f56-91f6-cb36f4bde788", "unroll", 1);
 	public static final Axis<Integer> dlpAxis = new Axis<Integer>(
 			"fec6cd98-a95d-4a3a-86fd-96f3333373ea", "dlp", 1);
 

@@ -1,10 +1,6 @@
 package ch.ethz.ruediste.roofline.dom;
 
-import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
-
 import java.util.*;
-
-import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryPredicate;
 
 public class MeasurementResult {
 	private MeasurementDescription measurement;
@@ -39,51 +35,10 @@ public class MeasurementResult {
 			IMeasurerDescription<TOutput> measurer) {
 		List<TOutput> result = new ArrayList<TOutput>();
 		for (MeasurementRunOutput output : getOutputs()) {
-			result.add(getMeasurerOutput(output, measurer));
+
+			result.add(output.getMeasurerOutput(measurer));
 		}
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
-	public <TOutput> TOutput getMeasurerOutput(MeasurementRunOutput runOutput,
-			final IMeasurerDescription<TOutput> measurer) {
-
-		// setup predicate
-		IUnaryPredicate<MeasurerDescriptionBase> match = new IUnaryPredicate<MeasurerDescriptionBase>() {
-			public Boolean apply(MeasurerDescriptionBase arg) {
-				return arg == measurer;
-			}
-		};
-
-		// is the output of the main measurer desired?
-		if (match.apply(getMeasurement().getMeasurer())) {
-			// check if none of the additional measurer matches
-			if (any(getMeasurement().getAdditionalMeasurers(), match)) {
-				throw new Error("Multiple matches");
-			}
-
-			// return the output of the main measurer;
-			return (TOutput) runOutput.getMainMeasurerOutput();
-		}
-		// is it a validation measurer?
-		else if (any(getMeasurement().getValidationMeasurers(), match)) {
-			// get the index of the measurer
-			int index = indexOfSingle(
-					getMeasurement().getValidationMeasurers(), match);
-
-			// return the output of the measurer at the same position
-			return (TOutput) runOutput.getValidationMeasurerOutputs()
-					.get(index);
-		}
-		// it must be an additional measurer!
-		else {
-			// get the index of the measurer
-			int index = indexOfSingle(
-					getMeasurement().getAdditionalMeasurers(), match);
-
-			// return the output of the measurer at the same position
-			return (TOutput) runOutput.getAdditionalMeasurerOutputs()
-					.get(index);
-		}
-	}
 }

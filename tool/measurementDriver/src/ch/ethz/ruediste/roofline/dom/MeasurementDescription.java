@@ -1,8 +1,8 @@
 package ch.ethz.ruediste.roofline.dom;
 
-import static ch.ethz.ruediste.roofline.dom.Axes.*;
-
 import java.util.*;
+
+import org.apache.commons.lang3.StringUtils;
 
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -23,46 +23,15 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 
 	@Override
 	public String toString() {
-		return String.format("%s:%s:%s", toString(getKernel()),
-				toString(getMeasurer()), toString(getScheme()));
+
+		return StringUtils.join(getWorkloads(), ":");
 	}
 
 	public void initialize(Coordinate coordinate) {
-		if (coordinate.contains(measurerAxis)) {
-			setMeasurer(coordinate.get(measurerAxis));
-		}
-		if (getMeasurer() != null) {
-			getMeasurer().initialize(coordinate);
+		for (Workload workload : getWorkloads()) {
+			workload.initialize(coordinate);
 		}
 
-		if (coordinate.contains(measurementSchemeAxis)) {
-			setScheme(coordinate.get(measurementSchemeAxis));
-		}
-
-		if (getScheme() != null) {
-			getScheme().initialize(coordinate);
-		}
-
-		if (coordinate.contains(kernelAxis)) {
-			setKernel(coordinate.get(kernelAxis));
-		}
-		if (getKernel() != null) {
-			getKernel().initialize(coordinate);
-		}
-
-	}
-
-	private String toString(Object o) {
-		if (o == null) {
-			return "null";
-		}
-
-		String result = o.getClass().getSimpleName();
-		if (result.endsWith("Description")) {
-			result = result.substring(0,
-					result.length() - "Description".length());
-		}
-		return result;
 	}
 
 	/**
@@ -73,19 +42,14 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 	public String getMacroDefinition(MacroKey key) {
 		List<String> availableDefinitions = new ArrayList<String>();
 
-		// check the kernel for a definition
-		if (getKernel() != null && getKernel().isMacroDefined(key)) {
-			availableDefinitions.add(getKernel().getMacroDefinition(key));
+		// add eventual definition of this
+		if (super.isMacroDefined(key)) {
+			availableDefinitions.add(super.getMacroDefinition(key));
 		}
 
-		// check the measureer for a definition
-		if (getMeasurer() != null && getMeasurer().isMacroDefined(key)) {
-			availableDefinitions.add(getMeasurer().getMacroDefinition(key));
-		}
-
-		// check the measurement scheme for a definition
-		if (getScheme() != null && getScheme().isMacroDefined(key)) {
-			availableDefinitions.add(getScheme().getMacroDefinition(key));
+		// get the macro definitions of all workloads
+		for (Workload workload : getWorkloads()) {
+			availableDefinitions.addAll(workload.getMacroDefinitions(key));
 		}
 
 		// return the default value if no definition has been found
@@ -111,21 +75,15 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		return firstDefinition;
 	}
 
-	public void addAdditionalMeasurer(
-			MeasurerDescriptionBase measurer) {
-		getAdditionalMeasurers().add(0, measurer);
-	}
-
-	public void addValidationMeasurer(
-			MeasurerDescriptionBase measurer) {
-		getValidationMeasurers().add(0, measurer);
-	}
-
 	public ValidationData getValidationData() {
 		return validationData;
 	}
 
 	public void setValidationData(ValidationData validationData) {
 		this.validationData = validationData;
+	}
+
+	public void addWorkload(Workload workload) {
+		getWorkloads().add(workload);
 	}
 }

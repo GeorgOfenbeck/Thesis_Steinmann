@@ -75,14 +75,15 @@ public class SystemInfoRepository {
 		measurer.setOnlyPresent(onlyPresent);
 
 		MeasurementDescription measurement = new MeasurementDescription();
+		Workload workload = new Workload();
+		measurement.addWorkload(workload);
 		DummyKernelDescription kernel = new DummyKernelDescription();
-		kernel.setOptimization("-O1");
-		measurement.setKernel(kernel);
-		measurement.setMeasurer(measurer);
-		measurement.setScheme(new SimpleMeasurementSchemeDescription());
+		kernel.setOptimization("-O2");
 
-		MeasurementResult result = measurementService.measure(
-				measurement, 1);
+		workload.setKernel(kernel);
+		workload.setMeasurerSet(new MeasurerSet(measurer));
+
+		MeasurementResult result = measurementService.measure(measurement, 1);
 
 		ListEventsMeasurerOutput output = single(result
 				.getMeasurerOutputs(measurer));
@@ -126,11 +127,13 @@ public class SystemInfoRepository {
 		measurer.addFile("/sys/devices/system/cpu/possible");
 
 		MeasurementDescription measurement = new MeasurementDescription();
+		Workload workload = new Workload();
+		measurement.addWorkload(workload);
 		DummyKernelDescription kernel = new DummyKernelDescription();
-		kernel.setOptimization("-O1");
-		measurement.setKernel(kernel);
-		measurement.setMeasurer(measurer);
-		measurement.setScheme(new SimpleMeasurementSchemeDescription());
+		kernel.setOptimization("-O2");
+
+		workload.setKernel(kernel);
+		workload.setMeasurerSet(new MeasurerSet(measurer));
 
 		// disable validation
 		boolean storedFlag = configuration
@@ -138,8 +141,7 @@ public class SystemInfoRepository {
 		configuration.set(MeasurementValidationService.validationKey, false);
 
 		// perform measurement
-		MeasurementResult result = measurementService.measure(
-				measurement, 1);
+		MeasurementResult result = measurementService.measure(measurement, 1);
 
 		// restore validation
 		configuration.set(MeasurementValidationService.validationKey,

@@ -6,4 +6,6 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType=""
 	comment="Represents the output of a measurer">
+	
+	<field name="measurerId" type="int" comment="id of the measurer which generated the output"/>
 </class>
