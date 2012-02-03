@@ -10,10 +10,10 @@ public class StatisticsTest {
 	@Test
 	public void testHistogram() {
 		Histogram hist = new Histogram();
-		hist.addValue(1);
-		hist.addValue(2);
-		hist.addValue(3);
-		hist.addValue(4);
+		hist.apply(1.);
+		hist.apply(2.);
+		hist.apply(3.);
+		hist.apply(4.);
 
 		int[] counts = hist.getCounts(4);
 

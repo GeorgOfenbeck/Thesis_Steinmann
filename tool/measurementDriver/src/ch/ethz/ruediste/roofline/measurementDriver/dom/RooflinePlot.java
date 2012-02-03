@@ -5,6 +5,7 @@ import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
+import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 public class RooflinePlot extends Plot2D {
 
@@ -35,4 +36,15 @@ public class RooflinePlot extends Plot2D {
 	public List<RooflinePoint> getPoints() {
 		return Collections.unmodifiableList(points);
 	}
+
+	public Iterable<OperationalIntensity> getOperationalIntensities() {
+		return IterableUtils.select(getPoints(),
+				new IUnaryFunction<RooflinePoint, OperationalIntensity>() {
+
+					public OperationalIntensity apply(RooflinePoint arg) {
+						return arg.getOperationalIntensity();
+					}
+				});
+	}
+
 }

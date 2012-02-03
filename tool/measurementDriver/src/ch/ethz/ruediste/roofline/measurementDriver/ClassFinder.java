@@ -21,8 +21,7 @@ public class ClassFinder {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> List<Class<? extends T>> getClassesImplementing(
-			Class<T> baseType,
-			String basePackageName) {
+			Class<T> baseType, String basePackageName) {
 		List<Class<?>> classes = getClasses(basePackageName);
 		List<Class<? extends T>> result = new ArrayList<Class<? extends T>>();
 
@@ -55,7 +54,8 @@ public class ClassFinder {
 		Enumeration<URL> resources;
 		try {
 			resources = classLoader.getResources(path);
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			throw new Error(e);
 		}
 		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
@@ -73,9 +73,11 @@ public class ClassFinder {
 
 					// System.out.println("jarName: " + jarName);
 					jars.add(new JarFile(new File(jarName)));
-				} catch (IOException e) {
+				}
+				catch (IOException e) {
 					throw new Error(e);
-				} catch (URISyntaxException e) {
+				}
+				catch (URISyntaxException e) {
 					throw new Error(e);
 				}
 
@@ -108,16 +110,18 @@ public class ClassFinder {
 				// System.out.println("entry: " + entry.getName());
 				try {
 
-					Class<?> clazz = Class.forName(
-							entry.getName().substring(
+					Class<?> clazz = Class.forName(entry
+							.getName()
+							.substring(
 									0,
 									entry.getName().length()
 											- ".class".length())
-									.replace("/", "."));
+							.replace("/", "."));
 					if (isClassToBeReturned(clazz)) {
 						classes.add(clazz);
 					}
-				} catch (ClassNotFoundException e) {
+				}
+				catch (ClassNotFoundException e) {
 					// suppress
 				}
 			}
@@ -152,21 +156,25 @@ public class ClassFinder {
 				assert !file.getName().contains(".");
 				classes.addAll(findClasses(file,
 						packageName + "." + file.getName()));
-			} else if (file.getName().endsWith(".class")) {
-				try {
-					Class<?> clazz = Class.forName(packageName
-							+ '.'
-							+ file.getName().substring(0,
-									file.getName().length() - 6));
-					if (isClassToBeReturned(clazz)) {
-						classes.add(clazz);
-					}
-				} catch (ClassNotFoundException e) {
-					// suppress
-				} catch (NoClassDefFoundError e) {
-					// suppress
-				}
 			}
+			else
+				if (file.getName().endsWith(".class")) {
+					try {
+						Class<?> clazz = Class.forName(packageName
+								+ '.'
+								+ file.getName().substring(0,
+										file.getName().length() - 6));
+						if (isClassToBeReturned(clazz)) {
+							classes.add(clazz);
+						}
+					}
+					catch (ClassNotFoundException e) {
+						// suppress
+					}
+					catch (NoClassDefFoundError e) {
+						// suppress
+					}
+				}
 		}
 		return classes;
 	}
@@ -194,24 +202,22 @@ public class ClassFinder {
 			for (Field field : clazz.getDeclaredFields()) {
 				// check if the field is static and a ConfigurationKey
 				if (Modifier.isStatic(field.getModifiers())
-						&& fieldType.isAssignableFrom(field
-								.getType()))
-				{
+						&& fieldType.isAssignableFrom(field.getType())) {
 					// the field contains a configuration key
 					try {
 						field.setAccessible(true);
 
 						// retrieve the configuration key object
 						@SuppressWarnings("unchecked")
-						T key = (T) field
-								.get(null);
+						T key = (T) field.get(null);
 
 						// add the configuration key to the result list
-						values.add(ImmutablePair.<Class<?>, T> of(
-								clazz, key));
-					} catch (IllegalArgumentException e) {
+						values.add(ImmutablePair.<Class<?>, T> of(clazz, key));
+					}
+					catch (IllegalArgumentException e) {
 						// ignore
-					} catch (IllegalAccessException e) {
+					}
+					catch (IllegalAccessException e) {
 						// ignore
 					}
 				}

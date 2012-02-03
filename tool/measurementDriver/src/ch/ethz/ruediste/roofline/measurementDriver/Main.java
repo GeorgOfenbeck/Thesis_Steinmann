@@ -22,10 +22,8 @@ public class Main {
 					false);
 
 	public static ConfigurationKey<String> logLevelKey = ConfigurationKey
-			.Create(String.class,
-					"logLevel",
-					"logLevel to be used for console logging",
-					"INFO");
+			.Create(String.class, "logLevel",
+					"logLevel to be used for console logging", "INFO");
 
 	public static ConfigurationKey<String> userConfigFileKey = ConfigurationKey
 			.Create(String.class, "userConfigFile",
@@ -171,13 +169,12 @@ public class Main {
 			// get the command
 			ICommandController command = null;
 			try {
-				command = instantiator
-						.getInstance(Key.get(ICommandController.class,
-								Names.named(commandName)));
-			} catch (ConfigurationException e) {
+				command = instantiator.getInstance(Key.get(
+						ICommandController.class, Names.named(commandName)));
+			}
+			catch (ConfigurationException e) {
 				log.fatal(String
-						.format(
-								"Could not find the command named %s\nAvailable Commands:\n",
+						.format("Could not find the command named %s\nAvailable Commands:\n",
 								commandName));
 				instantiator.listNamed(ICommandController.class);
 			}
@@ -221,9 +218,8 @@ public class Main {
 
 		if (partialWord.startsWith("-")) {
 			// do the completion for a flag
-			for (Pair<Class<?>, ConfigurationKeyBase> pair : ClassFinder
-					.getStaticFieldValues(ConfigurationKeyBase.class,
-							"ch.ethz.ruediste.roofline.measurementDriver")) {
+			for (Pair<Class<?>, ConfigurationKeyBase> pair : reflectionRepository
+					.getConfigurationKeyPairs()) {
 				if (pair.getRight().getKey()
 						.startsWith(partialWord.substring(1))) {
 					System.out.println("-" + pair.getRight().getKey());
@@ -262,7 +258,7 @@ public class Main {
 		// the command line is empty
 		filteredCompletionArgs.size() == 0
 
-				// there is exactly one argument, and it is beeing edited
+		// there is exactly one argument, and it is beeing edited
 				|| (filteredCompletionArgs.size() == 1 && !partialWord
 						.isEmpty())) {
 
@@ -285,10 +281,11 @@ public class Main {
 		if (filteredCompletionArgs.size() >= 1) {
 			ICommandController command = null;
 			try {
-				command = instantiator
-						.getInstance(Key.get(ICommandController.class,
-								Names.named(filteredCompletionArgs.get(0))));
-			} catch (ConfigurationException e) {
+				command = instantiator.getInstance(Key.get(
+						ICommandController.class,
+						Names.named(filteredCompletionArgs.get(0))));
+			}
+			catch (ConfigurationException e) {
 				// swallow
 			}
 
@@ -330,8 +327,7 @@ public class Main {
 									"could not find configuration key named %s. Available keys:\n%s",
 									arg.substring(1),
 									StringUtils.join(
-											configurationKeyMap.keySet(),
-											"\n")));
+											configurationKeyMap.keySet(), "\n")));
 				}
 
 				// is it a boolean which should be toggled?

@@ -46,8 +46,8 @@ public class OptimizationRepository {
 	public String getHash(KernelDescriptionBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint,
 			Comparison comparison) {
-		return getHash(new OptimizationParameters(kernel,
-				optimizationSpace, measurementPoint, comparison));
+		return getHash(new OptimizationParameters(kernel, optimizationSpace,
+				measurementPoint, comparison));
 	}
 
 	private String getHash(OptimizationParameters parameterObject) {

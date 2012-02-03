@@ -67,6 +67,10 @@ public class MeasurementValidationService {
 
 	@SuppressWarnings("unchecked")
 	public void addValidationMeasurers(MeasurementDescription measurement) {
+		// skip if a raw measurement is desired
+		if (configuration.get(MeasurementService.measureRawKey)) {
+			return;
+		}
 		// skip validation if disabled
 		if (!configuration.get(validationKey)) {
 			return;
@@ -123,14 +127,15 @@ public class MeasurementValidationService {
 
 		// create the perf event measurer
 		PerfEventMeasurerDescription perfEventMeasurerDescription = new PerfEventMeasurerDescription();
-		if (validationConfiguration.get(validateContextSwitchesKey)) {
-			perfEventMeasurerDescription.addEvent("contextSwitches",
-					"perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
-		}
 
 		if (validationConfiguration.get(validateCpuMigrationsKey)) {
 			perfEventMeasurerDescription.addEvent("cpuMigrations",
 					"perf::PERF_COUNT_SW_CPU_MIGRATIONS");
+		}
+
+		if (validationConfiguration.get(validateContextSwitchesKey)) {
+			perfEventMeasurerDescription.addEvent("contextSwitches",
+					"perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
 		}
 
 		// is there any event to measure
@@ -157,7 +162,8 @@ public class MeasurementValidationService {
 		// check cpu migrations
 		if (validationData.getConfiguration().get(validateCpuMigrationsKey)) {
 			if (!validationData.getPerfEventMeasurer()
-					.getMin("cpuMigrations", result).equals(BigInteger.ZERO)) {
+					.getMinBigInteger("cpuMigrations", result)
+					.equals(BigInteger.ZERO)) {
 				log.warn("Cpu migration(s) observerd");
 			}
 		}

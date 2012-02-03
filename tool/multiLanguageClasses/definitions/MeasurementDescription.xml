@@ -10,4 +10,5 @@
 	
 	<list name="workloads" type="Workload" comment="Workloads to be used for the measurement"/>
 	
+	<list name="configurators" type="ConfiguratorDescriptionBase" comment="configurators to be used"/>
 </class>

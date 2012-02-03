@@ -1,7 +1,8 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
 /*
- * base class for all plots. A plot object contains all data needed to print a plot
+ * base class for all plots. A plot object contains all data needed to print a
+ * plot
  */
 public abstract class Plot {
 

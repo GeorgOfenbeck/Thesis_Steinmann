@@ -286,7 +286,8 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 				// add a single point for each value if the subspace is emtpy
 				result.add(Coordinate.EMPTY.getExtendedPoint(
 						(Axis<Object>) orderedAxesHead, value));
-			} else {
+			}
+			else {
 				// add the value of the first axis to each point of the subspace
 				for (Coordinate subSpacePoint : subSpacePoints) {
 					result.add(subSpacePoint.getExtendedPoint(
@@ -310,7 +311,8 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 		// if the list for the axis exists already, return it
 		if (axisValueSets.containsKey(axis)) {
 			list = axisValueSets.get(axis);
-		} else {
+		}
+		else {
 			// otherwise create a new list and store it in the map
 			list = new ArrayList<Object>();
 			axisValueSets.put(axis, list);
@@ -326,8 +328,7 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 	public Axis<?> getLongestAxis() {
 		Axis<?> result = null;
 		for (Axis<?> axis : getAllAxes()) {
-			if (result == null
-					|| getAxisLength(axis) > getAxisLength(result)) {
+			if (result == null || getAxisLength(axis) > getAxisLength(result)) {
 				result = axis;
 			}
 		}

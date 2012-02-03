@@ -29,3 +29,5 @@ sudo ln -s .../frontend/build/rot
 6. for bash autocompleteion support:
 sudo cp rot.autocompletion /etc/bash_completion.d/rot
 
+7. build the system configurator
+cd systemConfigurator; sudo make super; cd ..

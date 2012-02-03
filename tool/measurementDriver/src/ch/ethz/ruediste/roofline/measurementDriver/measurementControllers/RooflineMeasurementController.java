@@ -6,6 +6,8 @@ import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
 
@@ -38,14 +40,14 @@ public class RooflineMeasurementController implements IMeasurementController {
 				Algorithm.ArithBalanced, InstructionSet.x87);
 		rooflineController.addPeakPerformance("ABal SSE",
 				Algorithm.ArithBalanced, InstructionSet.SSE);
-				*/
+		 */
 
 		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
-				InstructionSet.SSEScalar);
+				InstructionSet.SSE);
 		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
+				InstructionSet.SSE);
+		rooflineController.addPeakPerformance("ABal", Algorithm.ArithBalanced,
 				InstructionSet.SSEScalar);
-		rooflineController.addPeakPerformance("ABal",
-				Algorithm.ArithBalanced, InstructionSet.SSEScalar);
 
 		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
 				MemoryTransferBorder.LlcRam);
@@ -54,8 +56,31 @@ public class RooflineMeasurementController implements IMeasurementController {
 			TriadKernelDescription kernel = new TriadKernelDescription();
 			kernel.setBufferSize(1024 * 1024 * 2);
 			kernel.setOptimization("-O3");
-			rooflineController.addRooflinePoint("Triad", kernel, Operation.x87,
-					MemoryTransferBorder.LlcRam);
+			rooflineController.addRooflinePoint("Triad", kernel,
+					Operation.CompInstr, MemoryTransferBorder.LlcRam);
+		}
+
+		{
+			ParameterSpace space = new ParameterSpace();
+			for (long i = 64; i <= 1024; i += 64) {
+				space.add(Axes.matrixSizeAxis, i);
+			}
+			space.add(Axes.blockSizeAxis, 64L);
+
+			space.add(Axes.optimizationAxis, "-O3");
+
+			for (Coordinate coordinate : space) {
+				MMMKernelDescription kernel = new MMMKernelDescription();
+				kernel.setMu(2);
+				kernel.setNu(2);
+				kernel.setKu(2);
+				kernel.setNoCheck(true);
+				kernel.initialize(coordinate);
+
+				rooflineController.addRooflinePoint(
+						"MMM" + coordinate.get(Axes.matrixSizeAxis), kernel,
+						Operation.CompInstr, MemoryTransferBorder.LlcRam);
+			}
 		}
 
 		rooflineController.plot();

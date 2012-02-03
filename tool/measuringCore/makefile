@@ -11,7 +11,7 @@ GCC=ccache gcc
 
 # compilation flags
 CFLAGS=-std=c++0x -Wall -ggdb
-OPTIMIZATION_FLAGS=-O2
+OPTIMIZATION_FLAGS=-O0
 
 # source files to be ignored. separated by space
 SOURCE_IGNORE_PATTERNS=./src/coreSwitchTest.cpp ./src/setAffinity.cpp
@@ -26,6 +26,9 @@ DEP_FLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 KERNEL_NAME=Dummy
 include kernelName.mk
 
+ifeq ($(KERNEL_NAME),MMM)
+	LIBS+=-lblas
+endif
 # setup the kernel optimization flags
 KERNEL_OPTIMIZATION_FLAGS=-O0
 include kernelOptimization.mk

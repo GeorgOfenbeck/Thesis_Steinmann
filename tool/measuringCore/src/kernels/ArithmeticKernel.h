@@ -12,6 +12,7 @@
 #include "sharedDOM/ArithmeticKernelDescription.h"
 #include <cmath>
 #include "macros/RMT_ARITHMETIC_OPERATION.h"
+#include "macros/RMT_ARITHMETIC_INSTRUCTION_SET.h"
 
 #include "boost/mpl/range_c.hpp"
 #include "boost/mpl/for_each.hpp"
@@ -26,11 +27,20 @@
 
 namespace mpl = boost::mpl;
 
-enum ArithmeticOperation {
-	ArithmeticOperation_ADD, ArithmeticOperation_MUL, ArithmeticOperation_MULADD,
-};
-
 class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
+	enum ArithmeticOperation {
+		ArithmeticOperation_ADD,
+		ArithmeticOperation_MUL,
+		ArithmeticOperation_MULADD,
+	};
+
+	enum InstructionSet {
+		SSE,
+		SSEScalar,
+		x87,
+	};
+
+
 	// solves base**exponent=result, with b unknown
 	static double getBase(double exponent, double result);
 #pragma GCC diagnostic push
@@ -42,8 +52,8 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 			static void apply(ArithmeticKernel *kernel) {
 				long iterations = kernel->description->getIterations();
 				double result;
-#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
-				{
+#ifdef __SSE2__
+				if (RMT_ARITHMETIC_INSTRUCTION_SET == SSE) {
 					double tmp[2];
 					__m128d a[DLP], c;
 					double t;
@@ -76,8 +86,8 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 						result += tmp[0];
 						result += tmp[1];
 					}
-				}
-#else
+				} else
+#endif
 				{
 					double r[DLP];
 					double t = 1.1;
@@ -97,7 +107,7 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 						result += r[i];
 					}
 				}
-#endif
+
 				kernel->result = result;
 			}
 		};
@@ -110,8 +120,8 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 				long iterations = kernel->description->getIterations();
 				double result;
 				double base = getBase(iterations, 4);
-#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
-				{
+#ifdef __SSE2__
+				if (RMT_ARITHMETIC_INSTRUCTION_SET == SSE) {
 					double tmp[2];
 					__m128d a[DLP], c;
 					double t;
@@ -144,8 +154,8 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 						result += tmp[0];
 						result += tmp[1];
 					}
-				}
-#else
+				} else
+#endif
 				{
 					double r[DLP];
 					double t = 1.1;
@@ -167,7 +177,6 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 					}
 				}
 
-#endif
 				kernel->result = result;
 			}
 		};
@@ -180,8 +189,8 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 				long iterations = kernel->description->getIterations();
 				double result;
 				double base = getBase(iterations, 4);
-#if RMT_ARITHMETIC_INSTRUCTION_SET==SSE
-				{
+#ifdef __SSE2__
+				if (RMT_ARITHMETIC_INSTRUCTION_SET == SSE) {
 					double tmp[2];
 					__m128d a[DLP], c;
 					__m128d aa[DLP * 2], ac;
@@ -229,8 +238,8 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 						result += tmp[0];
 						result += tmp[1];
 					}
-				}
-#else
+				} else
+#endif
 				{
 
 					double r[DLP];
@@ -260,7 +269,6 @@ class ArithmeticKernel: public Kernel<ArithmeticKernelDescription> {
 
 				}
 
-#endif
 				kernel->result = result;
 			}
 		};

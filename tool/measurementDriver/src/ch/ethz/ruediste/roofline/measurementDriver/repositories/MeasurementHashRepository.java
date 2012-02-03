@@ -38,48 +38,52 @@ public class MeasurementHashRepository {
 			measurementToCore.put(a, core);
 			measurementToCore.put(b, core);
 		}
-		else if (coreA == null && coreB != null) {
-			// associate measurement A to core B
-			coreToMeasurement.put(coreB, a);
-			measurementToCore.put(a, coreB);
-		}
-		else if (coreA != null && coreB == null) {
-			// assosiate measurement B to core A
-			coreToMeasurement.put(coreA, b);
-			measurementToCore.put(b, coreA);
-		}
-		else if (coreToMeasurement.size(coreA) > coreToMeasurement.size(coreB)) {
-			if (coreB.coreHash != null) {
-				if (coreA.coreHash != null
-						&& !coreA.coreHash.equals(coreB.coreHash)) {
-					throw new Error(
-							"measurements set to equal, but core hashes differ");
+		else
+			if (coreA == null && coreB != null) {
+				// associate measurement A to core B
+				coreToMeasurement.put(coreB, a);
+				measurementToCore.put(a, coreB);
+			}
+			else
+				if (coreA != null && coreB == null) {
+					// assosiate measurement B to core A
+					coreToMeasurement.put(coreA, b);
+					measurementToCore.put(b, coreA);
 				}
-				coreA.coreHash = coreB.coreHash;
-			}
-			// coreB has less associated measurements, merge into coreA
-			for (Object m : coreToMeasurement.getCollection(coreB)) {
-				coreToMeasurement.put(coreA, m);
-				measurementToCore.put((MeasurementHash) m, coreA);
-			}
-			coreToMeasurement.remove(coreB);
-		}
-		else {
-			if (coreA.coreHash != null) {
-				if (coreB.coreHash != null
-						&& !coreA.coreHash.equals(coreB.coreHash)) {
-					throw new Error(
-							"measurements set to equal, but core hashes differ");
-				}
-				coreB.coreHash = coreA.coreHash;
-			}
-			// coreA has less associated measurements, merge into coreB
-			for (Object m : coreToMeasurement.getCollection(coreA)) {
-				coreToMeasurement.put(coreB, m);
-				measurementToCore.put((MeasurementHash) m, coreB);
-			}
-			coreToMeasurement.remove(coreA);
-		}
+				else
+					if (coreToMeasurement.size(coreA) > coreToMeasurement
+							.size(coreB)) {
+						if (coreB.coreHash != null) {
+							if (coreA.coreHash != null
+									&& !coreA.coreHash.equals(coreB.coreHash)) {
+								throw new Error(
+										"measurements set to equal, but core hashes differ");
+							}
+							coreA.coreHash = coreB.coreHash;
+						}
+						// coreB has less associated measurements, merge into coreA
+						for (Object m : coreToMeasurement.getCollection(coreB)) {
+							coreToMeasurement.put(coreA, m);
+							measurementToCore.put((MeasurementHash) m, coreA);
+						}
+						coreToMeasurement.remove(coreB);
+					}
+					else {
+						if (coreA.coreHash != null) {
+							if (coreB.coreHash != null
+									&& !coreA.coreHash.equals(coreB.coreHash)) {
+								throw new Error(
+										"measurements set to equal, but core hashes differ");
+							}
+							coreB.coreHash = coreA.coreHash;
+						}
+						// coreA has less associated measurements, merge into coreB
+						for (Object m : coreToMeasurement.getCollection(coreA)) {
+							coreToMeasurement.put(coreB, m);
+							measurementToCore.put((MeasurementHash) m, coreB);
+						}
+						coreToMeasurement.remove(coreA);
+					}
 	}
 
 	public boolean areCoresEqual(MeasurementHash a, MeasurementHash b) {

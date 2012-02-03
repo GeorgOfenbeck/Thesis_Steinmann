@@ -65,7 +65,8 @@ int registerEvent(int parentFd, string eventName){
 	attr.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED|PERF_FORMAT_TOTAL_TIME_RUNNING;
 
 	/* do not start immediately after perf_event_open() */
-	attr.disabled = 1;
+	if (parentFd==-1)
+		attr.disabled = 1;
 
 	/*
 	 * create the event and attach to self

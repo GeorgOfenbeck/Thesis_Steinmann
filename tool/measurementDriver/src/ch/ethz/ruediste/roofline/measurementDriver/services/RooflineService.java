@@ -5,6 +5,7 @@ import static ch.ethz.ruediste.roofline.dom.Axes.*;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -32,14 +33,17 @@ public class RooflineService {
 		// set the operation for arithmetic kernels
 		switch (algorithm) {
 		case Add:
-			kernelParameters.set(operationAxis, "ArithmeticOperation_ADD");
-			break;
+			kernelParameters.set(arithmeticOperationAxis,
+					ArithmeticOperation.ArithmeticOperation_ADD);
+		break;
 		case ArithBalanced:
-			kernelParameters.set(operationAxis, "ArithmeticOperation_MULADD");
-			break;
+			kernelParameters.set(arithmeticOperationAxis,
+					ArithmeticOperation.ArithmeticOperation_MULADD);
+		break;
 		case Mul:
-			kernelParameters.set(operationAxis, "ArithmeticOperation_MUL");
-			break;
+			kernelParameters.set(arithmeticOperationAxis,
+					ArithmeticOperation.ArithmeticOperation_MUL);
+		break;
 		case Load:
 		case MemBalanced:
 		case Store:
@@ -60,22 +64,22 @@ public class RooflineService {
 			kernelParameters.set(instructionSetAxis, instructionSet.SSE);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.SSE);
-			break;
+					QuantityMeasuringService.Operation.DoublePrecisionFlop);
+		break;
 		case SSEScalar:
 			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
 			kernelParameters.set(instructionSetAxis, InstructionSet.SSEScalar);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.SSE);
-			break;
+					QuantityMeasuringService.Operation.DoublePrecisionFlop);
+		break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
 			kernelParameters.set(instructionSetAxis, InstructionSet.x87);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.x87);
-			break;
+					QuantityMeasuringService.Operation.CompInstr);
+		break;
 
 		}
 
@@ -92,31 +96,26 @@ public class RooflineService {
 		ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
 		kernel.initialize(kernelParameters.build());
 
-		Coordinate measurementCoordinate = measurementCoordinateBuilder
-				.build();
+		Coordinate measurementCoordinate = measurementCoordinateBuilder.build();
 
 		// do the minimization
-		Coordinate maximum = optimizationService
-				.maximize(
-						kernel,
-						optimzationSpace,
-						measurementCoordinate);
+		Coordinate maximum = optimizationService.maximize(kernel,
+				optimzationSpace, measurementCoordinate);
 
 		// apply the best parameters
 		kernel.initialize(maximum);
 
 		// measure the performance
 		Performance performance = quantityMeasuringService.measurePerformance(
-				kernel,
-				measurementCoordinate
+				kernel, measurementCoordinate
 						.get(QuantityMeasuringService.operationAxis),
 				measurementCoordinate
 						.get(QuantityMeasuringService.clockTypeAxis));
 
 		log.info(String.format(
 				"peak performance for %s %s %s: parameters: %s value: %f",
-				algorithm,
-				instructionSet, clockType, maximum, performance.getValue()));
+				algorithm, instructionSet, clockType, maximum,
+				performance.getValue()));
 		return performance;
 	}
 
@@ -128,10 +127,10 @@ public class RooflineService {
 		// create the kernel
 		switch (algorithm) {
 		case Load:
-			kernel = new MemoryLoadKernelDescription();
+			kernel = new MemoryKernelDescription();
 			kernelParameters.set(optimizationAxis, "-O3 -msse");
 			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 10);
-			break;
+		break;
 		case Add:
 		case ArithBalanced:
 		case Mul:
@@ -145,9 +144,7 @@ public class RooflineService {
 
 		// measure the throughput
 		Throughput throughput = quantityMeasuringService.measureThroughput(
-				kernel,
-				border,
-				clockType);
+				kernel, border, clockType);
 		return throughput;
 	}
 }

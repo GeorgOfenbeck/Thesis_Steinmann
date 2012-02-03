@@ -59,7 +59,11 @@ public class MeasurementCacheTest extends TestBase {
 
 		MeasurementResult result2 = new MeasurementResult();
 		result2.setMeasurement(measurement1);
-		result2.getOutputs().add(new ExecutionTimeMeasurerOutput());
+		{
+			MeasurementRunOutput output = new MeasurementRunOutput();
+			output.setMainMeasurerOutput(new ExecutionTimeMeasurerOutput());
+			result2.getOutputs().add(output);
+		}
 
 		// store first result
 		measurementResultRepository.store(result1,
@@ -133,7 +137,9 @@ public class MeasurementCacheTest extends TestBase {
 		// setup a measurement result
 		final MeasurementResult result = new MeasurementResult();
 		for (int i = 0; i < 10; i++) {
-			result.getOutputs().add(new PerfEventMeasurerOutput());
+			MeasurementRunOutput output = new MeasurementRunOutput();
+			output.setMainMeasurerOutput(new PerfEventMeasurerOutput());
+			result.getOutputs().add(output);
 		}
 		result.setMeasurement(measurement);
 
@@ -166,7 +172,7 @@ public class MeasurementCacheTest extends TestBase {
 						MeasurementAppController.useCachedResultsKey);
 				will(returnValue(true));
 
-				oneOf(hashService).getMeasuringCoreHash();
+				oneOf(hashService).hashCurrentlyCompiledMeasuringCore();
 				will(returnValue(coreHash));
 
 				oneOf(measurementService).runMeasuringCore(

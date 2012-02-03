@@ -94,7 +94,8 @@ public class HashService {
 		MessageDigest md;
 		try {
 			md = MessageDigest.getInstance(configuration.get(messageDigestKey));
-		} catch (NoSuchAlgorithmException e) {
+		}
+		catch (NoSuchAlgorithmException e) {
 			throw new Error(
 					String.format(
 							"Message digest algorithm %s not found. Set by %s. Needed for cache key generation",
@@ -119,10 +120,9 @@ public class HashService {
 	}
 
 	/**
-	 * hash a measurement. This should be an unique identifier for the
-	 * measurement
+	 * hash the currently compiled core
 	 */
-	public CoreHash getMeasuringCoreHash() throws IOException {
+	public CoreHash hashCurrentlyCompiledMeasuringCore() throws IOException {
 		return new CoreHash(
 				hashFile(measuringCoreLocationService
 						.getMeasuringCoreExecutable()));

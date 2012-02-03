@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="shared.xsd"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="DummyKernelDescription" 
 	baseType="KernelDescriptionBase"
 	comment="empty kernel">

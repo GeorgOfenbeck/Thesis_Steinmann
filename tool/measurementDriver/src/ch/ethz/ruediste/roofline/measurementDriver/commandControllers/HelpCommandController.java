@@ -46,7 +46,8 @@ public class HelpCommandController implements ICommandController {
 				System.out.write(ch);
 			}
 			helpTextStream.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new Error(e);
 		}
 
@@ -65,7 +66,7 @@ public class HelpCommandController implements ICommandController {
 		for (Pair<Class<?>, ConfigurationKeyBase> entry : reflectionRepository
 				.getConfigurationKeyPairs()) {
 			System.out.printf("%s = %s\n\t(%s / %s)\n\t%s\n\n",
-					// key
+			// key
 					entry.getRight().getKey(),
 					// current value
 					configuration.getUntyped(entry.getRight()),
@@ -74,9 +75,7 @@ public class HelpCommandController implements ICommandController {
 					// type of the value
 					entry.getRight().getValueType().getSimpleName(),
 					// description
-					entry.getRight()
-							.getDescription()
-							.replace("\n", "\t\n"));
+					entry.getRight().getDescription().replace("\n", "\t\n"));
 		}
 	}
 }

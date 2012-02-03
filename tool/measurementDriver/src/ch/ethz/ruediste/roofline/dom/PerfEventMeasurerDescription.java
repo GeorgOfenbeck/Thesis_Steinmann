@@ -6,13 +6,29 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.Logger;
 
+import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
-import ch.ethz.ruediste.roofline.statistics.IAddValue;
 
 public class PerfEventMeasurerDescription extends
-		PerfEventMeasurerDescriptionData
-		implements IMeasurerDescription<PerfEventMeasurerOutput> {
+		PerfEventMeasurerDescriptionData implements
+		IMeasurerDescription<PerfEventMeasurerOutput> {
+
+	private static Logger log = Logger
+			.getLogger(PerfEventMeasurerDescription.class);
+
+	public static ConfigurationKey<Boolean> validateEventWasRunningKey = ConfigurationKey
+			.Create(Boolean.class,
+					"validation.perfEventRunning",
+					"if true, check that the performance event was running during the measurement run",
+					true);
+
+	public static ConfigurationKey<Boolean> validateEventNotMultiplexedKey = ConfigurationKey
+			.Create(Boolean.class,
+					"validation.eventNotMultiplexed",
+					"if true, check that the performance event was not multiplexed",
+					true);
 
 	public PerfEventMeasurerDescription() {
 	}
@@ -37,8 +53,7 @@ public class PerfEventMeasurerDescription extends
 	/**
 	 * prints a raw value dump into the specified stream
 	 */
-	public void printRaw(String name,
-			MeasurementResult result, PrintStream out) {
+	public void printRaw(String name, MeasurementResult result, PrintStream out) {
 		out.printf("Event: %s, <raw> <enabled> <running> <scaled>\n", name);
 
 		// iterate over all outputs
@@ -47,19 +62,18 @@ public class PerfEventMeasurerDescription extends
 		}
 	}
 
-	public void addValues(String name,
-			MeasurementResult result, IAddValue addValue) {
+	public void addValues(String name, MeasurementResult result,
+			IUnaryAction<Double> addValue) {
 		// iterate over all outputs
 		for (PerfEventMeasurerOutput output : result.getMeasurerOutputs(this)) {
-			addValue.addValue(output
-					.getEventCount(name).getScaledCount());
+			addValue.apply(output.getEventCount(name).getScaledCount());
 		}
 	}
 
 	public void addValues(String name, MeasurementResult result,
 			final DescriptiveStatistics statistics) {
-		addValues(name, result, new IAddValue() {
-			public void addValue(double v) {
+		addValues(name, result, new IUnaryAction<Double>() {
+			public void apply(Double v) {
 				statistics.addValue(v);
 			}
 		});
@@ -77,26 +91,107 @@ public class PerfEventMeasurerDescription extends
 		return statistics;
 	}
 
+	public Iterable<Double> getDoubles(String name,
+			MeasurementResult meaurementResult) {
+		ArrayList<Double> result = new ArrayList<Double>();
+		// iterate over all outputs
+		for (PerfEventMeasurerOutput output : meaurementResult
+				.getMeasurerOutputs(this)) {
+			PerfEventCount eventCount = output.getEventCount(name);
+			result.add(eventCount.getScaledCount());
+		}
+		return result;
+	}
+
 	public Iterable<BigInteger> getBigIntegers(String name,
 			MeasurementResult meaurementResult) {
 		ArrayList<BigInteger> result = new ArrayList<BigInteger>();
 		// iterate over all outputs
 		for (PerfEventMeasurerOutput output : meaurementResult
 				.getMeasurerOutputs(this)) {
-			PerfEventCount eventCount = output
-					.getEventCount(name);
-			if (!eventCount.getTimeEnabled()
-					.equals(eventCount.getTimeRunning())) {
-				throw new Error("event was multiplexed, use double values");
-			}
+			PerfEventCount eventCount = output.getEventCount(name);
 			result.add(eventCount.getRawCount());
 		}
 		return result;
 	}
 
-	public BigInteger getMin(String name,
-			MeasurementResult result) {
-		return IterableUtils.foldl(getBigIntegers(name, result),
-				BigInteger.ZERO, BinaryFunctions.<BigInteger> min());
+	public void validate(PerfEventMeasurerOutput output,
+			MeasurementResult measurementResult) {
+
+		for (PerfEventCount eventCount : output.getEventCounts()) {
+			validate(eventCount, measurementResult);
+		}
+
 	}
+
+	public void validate(PerfEventCount eventCount,
+			MeasurementResult measurementResult) throws Error {
+
+		// get the validation configuration
+		ValidationData validationData = measurementResult.getMeasurement()
+				.getValidationData();
+		if (validationData == null) {
+			return;
+		}
+		Configuration validationConfiguration = validationData
+				.getConfiguration();
+
+		// chech that the event was running
+		if (validationConfiguration.get(validateEventWasRunningKey)
+				&& eventCount.getTimeRunning().equals(BigInteger.ZERO)) {
+			log.warn(String.format("event %s=%s was never enabled", eventCount
+					.getDefinition().getName(), eventCount.getDefinition()
+					.getDefinition()));
+		}
+
+		// chech that the event was not multiplexed
+		if (validationConfiguration.get(validateEventNotMultiplexedKey)
+				&& eventCount.isMultiplexed()) {
+			log.warn("event was multiplexed");
+		}
+	}
+
+	public BigInteger getMinBigInteger(String name, MeasurementResult result) {
+
+		PerfEventCount eventCount = getMinOutput(name, result).getEventCount(
+				name);
+
+		if (eventCount.isMultiplexed()) {
+			throw new Error("Result is multiplexed");
+		}
+
+		return eventCount.getRawCount();
+	}
+
+	public double getMinDouble(String name, MeasurementResult measurementResult) {
+		return getMinOutput(name, measurementResult).getEventCount(name)
+				.getScaledCount();
+	}
+
+	public PerfEventMeasurerOutput getMinOutput(final String name,
+			MeasurementResult measurementResult) {
+		PerfEventMeasurerOutput min = IterableUtils
+				.foldl(measurementResult.getMeasurerOutputsUnvalidated(this),
+						null,
+						new IBinaryFunction<PerfEventMeasurerOutput, PerfEventMeasurerOutput, PerfEventMeasurerOutput>() {
+
+							public PerfEventMeasurerOutput apply(
+									PerfEventMeasurerOutput result,
+									PerfEventMeasurerOutput item) {
+
+								if (result == null
+										|| item.getEventCount(name)
+												.getScaledCount() < result
+												.getEventCount(name)
+												.getScaledCount()) {
+									return item;
+								}
+
+								return result;
+							}
+						});
+		validate(min, measurementResult);
+		return min;
+	}
+
 }

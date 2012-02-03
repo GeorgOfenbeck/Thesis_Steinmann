@@ -2,24 +2,26 @@ package ch.ethz.ruediste.roofline.measurementDriver.util;
 
 import java.util.*;
 
+import org.apache.commons.lang3.Range;
+
 public class IterableUtils {
 
 	public static <T> T single(Iterable<T> iterable) {
 		return single(iterable, UnaryPredicates.<T> True());
 	}
 
-	public static <T> T foldr(Iterable<T> iterable, T start,
-			final IBinaryFunction<T, T, T> func) {
-		return foldl(reverse(iterable), start, new IBinaryFunction<T, T, T>() {
-			public T apply(T arg1, T arg2) {
+	public static <T, R> R foldr(Iterable<T> iterable, R start,
+			final IBinaryFunction<T, R, R> func) {
+		return foldl(reverse(iterable), start, new IBinaryFunction<R, T, R>() {
+			public R apply(R arg1, T arg2) {
 				return func.apply(arg2, arg1);
 			}
 		});
 	}
 
-	public static <T> T foldl(Iterable<T> iterable, T start,
-			IBinaryFunction<T, T, T> func) {
-		T result = start;
+	public static <T, R> R foldl(Iterable<T> iterable, R start,
+			IBinaryFunction<R, T, R> func) {
+		R result = start;
 		for (T item : iterable) {
 			result = func.apply(result, item);
 		}
@@ -75,8 +77,7 @@ public class IterableUtils {
 		return foundItem;
 	}
 
-	public static <T> T single(T[] items,
-			IUnaryPredicate<T> predicate) {
+	public static <T> T single(T[] items, IUnaryPredicate<T> predicate) {
 		return single(Arrays.asList(items), predicate);
 	}
 
@@ -133,13 +134,11 @@ public class IterableUtils {
 		return index;
 	}
 
-	public static <T> T first(
-			Iterable<T> iterable) {
+	public static <T> T first(Iterable<T> iterable) {
 		return first(iterable, UnaryPredicates.<T> True());
 	}
 
-	public static <T> T first(
-			Iterable<T> iterable, IUnaryPredicate<T> predicate) {
+	public static <T> T first(Iterable<T> iterable, IUnaryPredicate<T> predicate) {
 
 		Iterator<T> it = iterable.iterator();
 		while (it.hasNext()) {
@@ -151,8 +150,8 @@ public class IterableUtils {
 		throw new Error("no matching element found");
 	}
 
-	public static <T> T firstOrDefault(
-			Iterable<T> iterable, IUnaryPredicate<T> predicate) {
+	public static <T> T firstOrDefault(Iterable<T> iterable,
+			IUnaryPredicate<T> predicate) {
 
 		Iterator<T> it = iterable.iterator();
 		while (it.hasNext()) {
@@ -165,4 +164,55 @@ public class IterableUtils {
 		return null;
 	}
 
+	public static <T, R> Iterable<R> select(Iterable<T> iterable,
+			IUnaryFunction<T, R> func) {
+		ArrayList<R> result = new ArrayList<R>();
+		for (T item : iterable) {
+			result.add(func.apply(item));
+		}
+		return result;
+	}
+
+	public static <T> T getMin(Iterable<T> iterable,
+			IBinaryPredicate<T, T> comparator) {
+		return getRange(iterable, comparator).getMinimum();
+	}
+
+	public static <T extends Comparable<T>> T getMin(Iterable<T> iterable) {
+		return getRange(iterable).getMinimum();
+	}
+
+	public static <T extends Comparable<? super T>> Range<T> getRange(
+			Iterable<T> iterable) {
+		return getRange(iterable, BinaryPredicates.<T> getComparator());
+	}
+
+	public static <T> Range<T> getRange(Iterable<T> iterable,
+			IBinaryPredicate<T, T> comparator) {
+		T min = null;
+		T max = null;
+		boolean found = false;
+
+		for (T item : iterable) {
+			if (!found) {
+				min = item;
+				max = item;
+				found = true;
+			}
+			else {
+				if (comparator.apply(item, min)) {
+					min = item;
+				}
+				if (comparator.apply(max, item)) {
+					max = item;
+				}
+			}
+		}
+
+		if (!found)
+			throw new Error("iterable was empty");
+
+		return Range.between(min, max,
+				BinaryPredicates.getComparator(comparator));
+	}
 }

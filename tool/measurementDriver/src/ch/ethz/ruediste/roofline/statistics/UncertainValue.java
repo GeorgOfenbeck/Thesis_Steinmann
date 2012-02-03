@@ -48,73 +48,55 @@ public class UncertainValue {
 	}
 
 	public UncertainValue Minus(UncertainValue other) {
-		double min =
-				Math.min(
-						Math.min(this.min - other.min, this.max - other.min),
-						Math.min(this.min - other.max, this.max - other.max)
-						);
+		double min = Math.min(
+				Math.min(this.min - other.min, this.max - other.min),
+				Math.min(this.min - other.max, this.max - other.max));
 		double max = Math.max(
 				Math.max(this.min - other.min, this.max - other.min),
-				Math.max(this.min - other.max, this.max - other.max)
-				);
-		return new UncertainValue(
-				value - other.value,
-				SumDev(other), min, max);
+				Math.max(this.min - other.max, this.max - other.max));
+		return new UncertainValue(value - other.value, SumDev(other), min, max);
 	}
 
 	public UncertainValue Plus(UncertainValue other) {
-		double min =
-				Math.min(
-						Math.min(this.min + other.min, this.max + other.min),
-						Math.min(this.min + other.max, this.max + other.max)
-						);
+		double min = Math.min(
+				Math.min(this.min + other.min, this.max + other.min),
+				Math.min(this.min + other.max, this.max + other.max));
 		double max = Math.max(
 				Math.max(this.min + other.min, this.max + other.min),
-				Math.max(this.min + other.max, this.max + other.max)
-				);
-		return new UncertainValue(
-				value + other.value,
-				SumDev(other), min, max);
+				Math.max(this.min + other.max, this.max + other.max));
+		return new UncertainValue(value + other.value, SumDev(other), min, max);
 	}
 
 	private double SumDev(UncertainValue other) {
-		return Math.sqrt(
-				Math.pow(value * stdev, 2)
-						+ Math.pow(other.value * other.stdev, 2)
-				);
+		return Math.sqrt(Math.pow(value * stdev, 2)
+				+ Math.pow(other.value * other.stdev, 2));
 	}
 
 	public UncertainValue Multiply(UncertainValue other) {
-		double min =
-				Math.min(
-						Math.min(this.min * other.min, this.max * other.min),
-						Math.min(this.min * other.max, this.max * other.max)
-						);
+		double min = Math.min(
+				Math.min(this.min * other.min, this.max * other.min),
+				Math.min(this.min * other.max, this.max * other.max));
 		double max = Math.max(
 				Math.max(this.min * other.min, this.max * other.min),
-				Math.max(this.min * other.max, this.max * other.max)
-				);
+				Math.max(this.min * other.max, this.max * other.max));
 		double newValue = value * other.value;
 		return new UncertainValue(newValue, MulDev(newValue, other), min, max);
 	}
 
 	public UncertainValue Divide(UncertainValue other) {
-		double min =
-				Math.min(
-						Math.min(this.min / other.min, this.max / other.min),
-						Math.min(this.min / other.max, this.max / other.max)
-						);
+		double min = Math.min(
+				Math.min(this.min / other.min, this.max / other.min),
+				Math.min(this.min / other.max, this.max / other.max));
 		double max = Math.max(
 				Math.max(this.min / other.min, this.max / other.min),
-				Math.max(this.min / other.max, this.max / other.max)
-				);
+				Math.max(this.min / other.max, this.max / other.max));
 		double newValue = value / other.value;
 		return new UncertainValue(newValue, MulDev(newValue, other), min, max);
 	}
 
 	private double MulDev(double newValue, UncertainValue other) {
-		return Math.abs(newValue) * Math.sqrt(
-				Math.pow(stdev / value, 2)
+		return Math.abs(newValue)
+				* Math.sqrt(Math.pow(stdev / value, 2)
 						+ Math.pow(other.stdev / other.value, 2));
 	}
 }

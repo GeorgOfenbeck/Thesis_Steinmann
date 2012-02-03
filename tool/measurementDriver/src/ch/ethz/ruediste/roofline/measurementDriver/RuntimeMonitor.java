@@ -166,13 +166,11 @@ public class RuntimeMonitor {
 		for (int i = 0; i < indent; i++)
 			System.out.print("  ");
 		System.out.printf("%s: #%d %.1f", category.getName(),
-				category.startCount,
-				category.getCategoryTime() / 1000.0);
+				category.startCount, category.getCategoryTime() / 1000.0);
 
 		if (category.getChildren().size() > 0) {
 
-			System.out.printf(" %.1f\n",
-					category.getTotalTime() / 1000.0);
+			System.out.printf(" %.1f\n", category.getTotalTime() / 1000.0);
 
 			for (Category c : category.getChildren()) {
 				print(c, indent + 1);

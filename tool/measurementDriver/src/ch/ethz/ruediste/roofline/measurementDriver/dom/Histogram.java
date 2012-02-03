@@ -4,12 +4,12 @@ import java.util.Arrays;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.statistics.IAddValue;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
-public class Histogram implements IAddValue {
+public class Histogram implements IUnaryAction<Double> {
 	DescriptiveStatistics statistics = new DescriptiveStatistics();
 
-	public void addValue(double d) {
+	public void apply(Double d) {
 		statistics.addValue(d);
 	}
 

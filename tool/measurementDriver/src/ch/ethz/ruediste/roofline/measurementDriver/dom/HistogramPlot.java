@@ -1,8 +1,8 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
-import ch.ethz.ruediste.roofline.statistics.IAddValue;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
-public class HistogramPlot extends Plot implements IAddValue {
+public class HistogramPlot extends Plot implements IUnaryAction<Double> {
 	private final Histogram histogram;
 
 	public HistogramPlot() {
@@ -17,8 +17,8 @@ public class HistogramPlot extends Plot implements IAddValue {
 		return histogram;
 	}
 
-	public void addValue(double v) {
-		histogram.addValue(v);
+	public void apply(Double v) {
+		histogram.apply(v);
 	}
 
 }

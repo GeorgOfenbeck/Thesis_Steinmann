@@ -5,10 +5,12 @@ import java.util.*;
 
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils;
 
 import com.google.inject.Inject;
 
@@ -38,8 +40,7 @@ public class PlotService {
 			output.printf("set title '%s'\n", plot.getTitle());
 			output.printf("set terminal postscript color\n");
 			output.printf("set output '%s.ps'\n", plot.getOutputName());
-			output.printf(
-					"plot '%s.data' using 1:2 with histeps\n",
+			output.printf("plot '%s.data' using 1:2 with histeps\n",
 					plot.getOutputName());
 			// output.printf("pause mouse\n");
 
@@ -70,9 +71,7 @@ public class PlotService {
 			output.printf("set terminal postscript color\n");
 			output.printf("set output '%s.ps'\n", plot.getOutputName());
 
-			output.printf(
-					"plot '%s.data' with points \n",
-					plot.getOutputName());
+			output.printf("plot '%s.data' with points \n", plot.getOutputName());
 			// output.printf("pause mouse\n");
 
 			output.close();
@@ -93,9 +92,11 @@ public class PlotService {
 
 		for (RooflinePoint point : plot.getPoints()) {
 			outputFile.printf("%e %e\n\n\n", point.getOperationalIntensity()
-					.getValue(),
-					point.getPerformance().getValue());
+					.getValue(), point.getPerformance().getValue());
 		}
+
+		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
+				.getRange(plot.getOperationalIntensities());
 
 		outputFile.close();
 
@@ -109,7 +110,9 @@ public class PlotService {
 
 			output.println("set log x");
 			output.println("set log y");
-			output.println("set xrange [0.01:10]");
+			output.printf("set xrange [%g:%g]\n", operationalIntensityRange
+					.getMinimum().getValue() / 2, operationalIntensityRange
+					.getMaximum().getValue() * 2);
 			output.printf("set xlabel '%s [%s]'\n", plot.getxLabel(),
 					plot.getxUnit());
 			output.printf("set ylabel '%s [%s]'\n", plot.getyLabel(),
@@ -126,15 +129,15 @@ public class PlotService {
 
 			for (Pair<String, Throughput> peak : plot.getPeakBandwiths()) {
 				plotLines.add(String.format("%e*x title '%s (%g byte/cycle)'",
-						peak.getRight().getValue(), peak.getLeft(),
-						peak.getRight().getValue()));
+						peak.getRight().getValue(), peak.getLeft(), peak
+								.getRight().getValue()));
 			}
 
 			for (int i = 0; i < plot.getPoints().size(); i++) {
 				RooflinePoint point = plot.getPoints().get(i);
 
 				plotLines.add(String.format(
-						"'%s.data' index %d title '%s' with points \n",
+						"'%s.data' index %d title '%s' with points",
 						plot.getOutputName(), i, point.getName()));
 			}
 
