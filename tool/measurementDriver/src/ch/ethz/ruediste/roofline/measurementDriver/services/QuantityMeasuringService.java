@@ -1,8 +1,11 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
+import java.util.ArrayList;
+
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
@@ -40,11 +43,7 @@ public class QuantityMeasuringService {
 	public static final Axis<ClockType> clockTypeAxis = new Axis<ClockType>(
 			"fdfe94b9-4690-4c94-8d71-c10e8ede4748", "clockType");
 
-	public enum Quantity {
-		Performance, MemoryBandwidth, OperationCount, MemoryTransfer, ExecutionTime,
-	}
-
-	public static final Axis<Quantity> quantityAxis = new Axis<Quantity>(
+	public static final Axis<Class<?>> quantityAxis = new Axis<Class<?>>(
 			"6c426432-5521-4c93-ac65-ec5d51a062bc", "quantity");
 
 	public OperationalIntensity measureOperationalIntensity(
@@ -86,6 +85,97 @@ public class QuantityMeasuringService {
 			throw new Error("should not happen");
 		case SinglePrecisionFlop:
 
+			measurer = new PerfEventMeasurerDescription();
+			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_SINGLE",
+					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE"));
+			result += measurer.getMinDouble("ops", measure(kernel, measurer));
+
+			measurer = new PerfEventMeasurerDescription();
+			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE",
+					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE"));
+			result += 2 * measurer.getMinDouble("ops",
+					measure(kernel, measurer));
+
+		break;
+		case DoublePrecisionFlop:
+			measurer = new PerfEventMeasurerDescription();
+			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_DOUBLE",
+					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE"));
+			double scalarDoubleCount = measurer.getMinDouble("ops",
+					measure(kernel, measurer));
+			result += scalarDoubleCount;
+
+			measurer = new PerfEventMeasurerDescription();
+			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
+					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE"));
+			result += 2 * measurer.getMinDouble("ops",
+					measure(kernel, measurer));
+			if (pmuRepository.getPresentPMU("coreduo") != null) {
+				// the PACKED_DOUBLE counter is buggy on the core duo and includes
+				// the SCALAR_DOUBLE events as well. Compensate
+				result -= 2 * scalarDoubleCount;
+			}
+		break;
+
+		case CompInstr:
+
+			measurer = new PerfEventMeasurerDescription();
+			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"coreduo::FP_COMP_INSTR_RET", "core::FP_COMP_OPS_EXE"));
+			result += measurer.getMinDouble("ops", measure(kernel, measurer));
+
+		break;
+		}
+
+		return new OperationCount(result);
+	}
+
+	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(String ... events) {
+		final MeasurerSet measurerSet=new MeasurerSet();
+		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+		measurer.addEvent("count", pmuRepository.getAvailableEvent(events));
+		
+		TerminalQuantityCalculator<T> result=new TerminalQuantityCalculator<T>() {
+
+			@Override
+			public T getResult() {
+				measurer.getMinDouble("count", measurementResult)
+				getOutput(measurerSet).get
+			}
+		};
+
+		
+		result.addRequiredMeasurerSet(measurerSet);
+	}
+
+	public QuantityCalculator<OperationCount> getOperationCountMeasurers(
+			KernelDescriptionBase kernel, Operation operation) {
+
+		ArrayList<MeasurerSet> result = new ArrayList<MeasurerSet>();
+
+		// handle the allOperations case
+		if (operation == Operation.SSEFlop) {
+			return new AddingQuantityCalculator<OperationCount>(
+					getOperationCountMeasurers(kernel,
+							Operation.SinglePrecisionFlop),
+					getOperationCountMeasurers(kernel,
+							Operation.DoublePrecisionFlop));
+		}
+
+		PerfEventMeasurerDescription measurer;
+		// perform measurement
+		switch (operation) {
+		case SSEFlop:
+			throw new Error("should not happen");
+		case SinglePrecisionFlop:
+			return new AddingQuantityCalculator<OperationCount>(
+					new TerminalQuantityCalculator<OperationCount>() {
+					};
+					)
 			measurer = new PerfEventMeasurerDescription();
 			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_SINGLE",

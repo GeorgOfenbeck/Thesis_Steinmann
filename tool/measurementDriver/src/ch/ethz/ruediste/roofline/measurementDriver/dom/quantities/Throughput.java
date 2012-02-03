@@ -3,25 +3,18 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.quantities;
 /**
  * represents the bandwith of a kernel
  */
-public class Throughput extends Quantity {
-	private TransferredBytes transferredBytes;
-	private Time time;
+public class Throughput extends Quantity<Throughput> {
 
 	public Throughput(TransferredBytes transferredBytes, Time time) {
-		this.transferredBytes = transferredBytes;
-		this.time = time;
+		super(transferredBytes.getValue() / time.getValue());
 	}
 
-	public TransferredBytes getTransferredBytes() {
-		return transferredBytes;
-	}
-
-	public Time getTime() {
-		return time;
+	private Throughput(double value) {
+		super(value);
 	}
 
 	@Override
-	public double getValue() {
-		return transferredBytes.getValue() / time.getValue();
+	protected Throughput construct(double value) {
+		return new Throughput(value);
 	}
 }

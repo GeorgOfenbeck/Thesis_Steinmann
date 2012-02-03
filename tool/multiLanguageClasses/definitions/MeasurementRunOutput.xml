@@ -8,5 +8,5 @@
 	javaSuffix="Data"
 	comment="The output of a measurement run">
 	
-	<list name="measurerSetOutputs" type="MeasurerSetOutputBase" comment="output of the measurers"/>
+	<list name="measurerSetOutputs" type="MeasurerSetOutput" comment="output of the measurers"/>
 </class>

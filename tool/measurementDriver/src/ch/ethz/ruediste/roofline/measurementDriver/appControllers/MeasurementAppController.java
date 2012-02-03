@@ -191,7 +191,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		return coreHash;
 	}
 
-	public DescriptiveStatistics getStatistics(String event,
+	private DescriptiveStatistics getStatistics(String event,
 			KernelDescriptionBase kernel, int numberOfResults) {
 		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
 		measurer.addEvent("event", event);

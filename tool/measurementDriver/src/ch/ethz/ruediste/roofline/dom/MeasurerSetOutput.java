@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.dom;
 
 import java.util.ArrayList;
 
-public class MeasurerSetOutputBase extends MeasurerSetOutputBaseData {
+public class MeasurerSetOutput extends MeasurerSetOutputData {
 
 	public Iterable<MeasurerOutputBase> getMeasurerOutputs() {
 		ArrayList<MeasurerOutputBase> result = new ArrayList<MeasurerOutputBase>();

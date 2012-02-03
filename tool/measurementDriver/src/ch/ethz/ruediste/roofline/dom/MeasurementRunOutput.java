@@ -8,7 +8,7 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 
 	public Iterable<MeasurerOutputBase> getMeasurerOutputs() {
 		ArrayList<MeasurerOutputBase> result = new ArrayList<MeasurerOutputBase>();
-		for (MeasurerSetOutputBase setOutput : getMeasurerSetOutputs()) {
+		for (MeasurerSetOutput setOutput : getMeasurerSetOutputs()) {
 			result.addAll((Collection<? extends MeasurerOutputBase>) setOutput
 					.getMeasurerOutputs());
 		}

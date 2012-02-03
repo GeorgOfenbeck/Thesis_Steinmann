@@ -1,25 +1,19 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.quantities;
 
-public class OperationalIntensity extends Quantity {
-	private final TransferredBytes transferredBytes;
-	private final OperationCount operations;
+public class OperationalIntensity extends Quantity<OperationalIntensity> {
 
 	public OperationalIntensity(TransferredBytes transferredBytes,
 			OperationCount operations) {
-		this.transferredBytes = transferredBytes;
-		this.operations = operations;
+		super(operations.getValue() / transferredBytes.getValue());
 	}
 
-	public TransferredBytes getTransferredBytes() {
-		return transferredBytes;
-	}
-
-	public OperationCount getOperations() {
-		return operations;
+	private OperationalIntensity(double d) {
+		super(d);
 	}
 
 	@Override
-	public double getValue() {
-		return operations.getValue() / transferredBytes.getValue();
+	protected OperationalIntensity construct(double value) {
+		return new OperationalIntensity(value);
 	}
+
 }

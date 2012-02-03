@@ -4,25 +4,18 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.quantities;
  * represents the performance of a kernel
  * 
  */
-public class Performance extends Quantity {
-	private OperationCount operations;
-	private Time time;
-
+public class Performance extends Quantity<Performance> {
 	public Performance(OperationCount operations, Time time) {
-		this.operations = operations;
-		this.time = time;
+		super(operations.getValue() / time.getValue());
 	}
 
-	public OperationCount getOperations() {
-		return operations;
-	}
-
-	public Time getTime() {
-		return time;
+	private Performance(double value) {
+		super(value);
 	}
 
 	@Override
-	public double getValue() {
-		return operations.getValue() / time.getValue();
+	protected Performance construct(double value) {
+		return new Performance(value);
 	}
+
 }

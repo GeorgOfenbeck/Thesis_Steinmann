@@ -2,12 +2,13 @@
 <class
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
-	name="MeasurerSetOutputBase" 
+	name="MeasurerSetOutput" 
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType=""
 	javaSuffix="Data"
 	comment="Represents the output of a measurer set">
 	
+	<field name="setId" type="int" comment="id of the measurer set"/>
 	<field name="mainMeasurerOutput" type="MeasurerOutputBase" comment="output of the main measurer"/>
 	<list name="additionalMeasurerOutputs" type="MeasurerOutputBase" comment="output of the additional measurers"/>
 	<list name="validationMeasurerOutputs" type="MeasurerOutputBase" comment="output of the validation measurers"/>
