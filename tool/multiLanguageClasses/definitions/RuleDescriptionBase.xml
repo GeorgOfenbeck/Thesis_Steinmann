@@ -2,10 +2,11 @@
 <class
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
-	name="MeasurerDescriptionBase" 
+	name="RuleDescriptionBase" 
 	cBaseType="MultiLanguageObjectBase"
-	javaBaseType="MacroDefinitionContainer"
+	javaBaseType=""
 	javaSuffix="Data"
-	comment="Describes a Measurer">
-	<field name="id" type="int" comment="id of the measurer"/>
+	comment="Base class of all rule descriptions">
+	
+	<field name="action" type="ActionDescriptionBase" comment="action to be executed if the rule matches"/>
 </class>

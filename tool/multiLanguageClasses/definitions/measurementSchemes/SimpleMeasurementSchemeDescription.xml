@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<derivedClass
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="SimpleMeasurementSchemeDescription" 
-	baseType="MeasurementSchemeDescriptionBase"
-	comment="Describes the simple measurement scheme">
-	<field name="cpu" type="int" comment="CPU to run the measurement on"/>
-</derivedClass>

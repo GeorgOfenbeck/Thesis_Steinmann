@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class
+<derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="shared.xsd"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="PerfEventMeasurerDescription" 
-	cBaseType="MeasurerDescriptionBase"
-	javaBaseType="MeasurerDescriptionBase"
+	baseType="MeasurerDescriptionBase"
 	javaSuffix="Data"
 	comment="describes a measurer which measures using the perf events">
 	
 	<list name="events" type="PerfEventDefinition" comment="events to be observed"/>
-</class>
+</derivedClass>
