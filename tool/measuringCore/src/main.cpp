@@ -323,9 +323,10 @@ void handleSerializationTest() {
 void childMain(){
 	// wait till the parent traces the child
 	ptrace(PTRACE_TRACEME);
+	printf("stopping...");
 	raise(SIGCHLD);
+	printf("restarted ");
 
-	printf("parent is tracing");
 }
 
 pid_t startChildProcess(){
@@ -341,6 +342,12 @@ pid_t startChildProcess(){
 		exit(1);
 	}
 
+	printf("wait for child");
+	//wait for the child
+	waitpid(childPid,NULL,0);
+
+	printf("child stopped");
+
 	return childPid;
 }
 
@@ -355,11 +362,6 @@ int main(int argc, char *argv[]) {
 
 	pid_t childPid=startChildProcess();
 
-	printf("wait for child");
-	//wait for the child
-	waitpid(childPid,NULL,0);
-
-	printf("child stopped");
 
 	exit(0);
 
