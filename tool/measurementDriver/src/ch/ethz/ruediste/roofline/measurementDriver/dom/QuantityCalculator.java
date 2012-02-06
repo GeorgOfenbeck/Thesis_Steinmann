@@ -1,14 +1,13 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 
 public abstract class QuantityCalculator<TQuantity extends Quantity<TQuantity>> {
-	abstract public TQuantity getResult();
 
-	public abstract ArrayList<MeasurerSet> getRequiredMeasurerSets();
+	abstract public TQuantity getResult(List<MeasurerSetOutput> outputs);
 
-	public abstract void addOutput(MeasurerSetOutput measurerSetOutput);
+	public abstract List<MeasurerSet<?>> getRequiredMeasurerSets();
 }

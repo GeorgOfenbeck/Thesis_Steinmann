@@ -1,37 +1,22 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
-import java.util.ArrayList;
+import java.util.*;
 
-import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.MeasurerSet;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
-import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 public abstract class TerminalQuantityCalculator<T extends Quantity<T>> extends
 		QuantityCalculator<T> {
 
-	protected final ArrayList<MeasurerSet> requiredMeasurerSets = new ArrayList<MeasurerSet>();
-	protected final ArrayList<MeasurerSetOutput> outputs = new ArrayList<MeasurerSetOutput>();
+	protected final MeasurerSet<?> requiredMeasurerSet;
 
-	public void addRequiredMeasurerSet(MeasurerSet measurerSet) {
-		requiredMeasurerSets.add(measurerSet);
-	}
+	public TerminalQuantityCalculator(MeasurerSet<?> requiredMeasurerSet) {
+		this.requiredMeasurerSet = requiredMeasurerSet;
 
-	public void addOutput(MeasurerSetOutput measurerSetOutput) {
-		outputs.add(measurerSetOutput);
-	}
-
-	public MeasurerSetOutput getOutput(final MeasurerSet set) {
-		return IterableUtils.single(outputs,
-				new IUnaryPredicate<MeasurerSetOutput>() {
-
-					public Boolean apply(MeasurerSetOutput output) {
-						return output.getSetId() == set.getId();
-					}
-				});
 	}
 
 	@Override
-	public ArrayList<MeasurerSet> getRequiredMeasurerSets() {
-		return requiredMeasurerSets;
+	public List<MeasurerSet<?>> getRequiredMeasurerSets() {
+		return Collections.<MeasurerSet<?>> singletonList(requiredMeasurerSet);
 	}
 }

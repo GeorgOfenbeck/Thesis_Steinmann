@@ -1,47 +1,22 @@
 package ch.ethz.ruediste.roofline.dom;
 
-import java.util.*;
-
-import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-
-public class MeasurerSet extends MeasurerSetData {
+public class MeasurerSet<T extends MeasurerDescriptionBase> extends
+		MeasurerSetBase {
 
 	public MeasurerSet() {
 	}
 
-	public MeasurerSet(MeasurerDescriptionBase measurer) {
+	public MeasurerSet(T measurer) {
 		this();
-		setMainMeasurer(measurer);
+		setMainMeasurerUntyped(measurer);
 	}
 
-	public Iterable<MeasurerDescriptionBase> getMeasurers() {
-		ArrayList<MeasurerDescriptionBase> result = new ArrayList<MeasurerDescriptionBase>();
-		if (getMainMeasurer() != null) {
-			result.add(getMainMeasurer());
-		}
-
-		result.addAll(getAdditionalMeasurers());
-		result.addAll(getValidationMeasurers());
-		return result;
+	@SuppressWarnings("unchecked")
+	public T getMainMeasurer() {
+		return (T) getMainMeasurerUntyped();
 	}
 
-	public Collection<? extends String> getMacroDefinitions(MacroKey key) {
-		ArrayList<String> result = new ArrayList<String>();
-
-		for (MeasurerDescriptionBase mdb : getMeasurers()) {
-			if (mdb.isMacroDefined(key)) {
-				result.add(mdb.getMacroDefinition(key));
-			}
-		}
-
-		return result;
+	public void setMainMeasurer(T measurer) {
+		setMainMeasurerUntyped(measurer);
 	}
-
-	public void initialize(Coordinate coordinate) {
-		for (MeasurerDescriptionBase mdb : getMeasurers()) {
-			mdb.initialize(coordinate);
-		}
-	}
-
 }

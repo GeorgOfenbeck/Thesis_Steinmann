@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
@@ -19,18 +19,13 @@ public class MultiplyingQuantityCalculator<T extends Quantity<T>> extends
 	private double factor;
 
 	@Override
-	public T getResult() {
-		return inner.getResult().multiplied(factor);
+	public T getResult(List<MeasurerSetOutput> outputs) {
+		return inner.getResult(outputs).multiplied(factor);
 	}
 
 	@Override
-	public ArrayList<MeasurerSet> getRequiredMeasurerSets() {
+	public List<MeasurerSet<?>> getRequiredMeasurerSets() {
 		return inner.getRequiredMeasurerSets();
-	}
-
-	@Override
-	public void addOutput(MeasurerSetOutput measurerSetOutput) {
-		inner.addOutput(measurerSetOutput);
 	}
 
 }

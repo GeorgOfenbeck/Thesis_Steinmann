@@ -31,9 +31,9 @@ public class CpuMigrationMeasurementController implements
 		kernel.setTargetCpu(1);
 
 		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setScheme(new SimpleMeasurementSchemeDescription());
-		measurement.setMeasurer(new ExecutionTimeMeasurerDescription());
-		measurement.setKernel(kernel);
+		Workload workload = new Workload();
+		workload.setKernel(kernel);
+		workload.setCpu(0);
 
 		MeasurementResult result = measurementAppController.measure(
 				measurement, 1);

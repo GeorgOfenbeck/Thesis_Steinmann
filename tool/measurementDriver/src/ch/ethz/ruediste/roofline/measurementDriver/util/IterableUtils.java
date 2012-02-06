@@ -173,12 +173,12 @@ public class IterableUtils {
 		return result;
 	}
 
-	public static <T> T getMin(Iterable<T> iterable,
+	public static <T> T min(Iterable<T> iterable,
 			IBinaryPredicate<T, T> comparator) {
 		return getRange(iterable, comparator).getMinimum();
 	}
 
-	public static <T extends Comparable<T>> T getMin(Iterable<T> iterable) {
+	public static <T extends Comparable<T>> T min(Iterable<T> iterable) {
 		return getRange(iterable).getMinimum();
 	}
 

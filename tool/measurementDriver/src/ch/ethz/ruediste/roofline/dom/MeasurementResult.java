@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.dom;
 
 import java.util.*;
 
+import ch.ethz.ruediste.roofline.measurementDriver.util.*;
+
 public class MeasurementResult {
 	private MeasurementDescription measurement;
 	private final List<MeasurementRunOutput> outputs = new ArrayList<MeasurementRunOutput>();
@@ -35,10 +37,19 @@ public class MeasurementResult {
 			IMeasurerDescription<TOutput> measurer) {
 		List<TOutput> result = new ArrayList<TOutput>();
 		for (MeasurementRunOutput output : getOutputs()) {
-
 			result.add(output.getMeasurerOutput(measurer));
 		}
 		return result;
+	}
+
+	public <TOutput, TMeasurer extends MeasurerDescriptionBase & IMeasurerDescription<TOutput>> Iterable<MeasurerSetOutput> getMeasurerSetOutputs(
+			final MeasurerSet<TMeasurer> measurerSet) {
+		return IterableUtils.select(getOutputs(),
+				new IUnaryFunction<MeasurementRunOutput, MeasurerSetOutput>() {
+					public MeasurerSetOutput apply(MeasurementRunOutput arg) {
+						return arg.getMeasurerSetOutput(measurerSet);
+					}
+				});
 	}
 
 }

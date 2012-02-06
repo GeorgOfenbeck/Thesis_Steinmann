@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.dom;
 
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils;
+import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 public class MeasurementRunOutput extends MeasurementRunOutputData {
 
@@ -34,4 +34,18 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 		return IterableUtils.single(getMeasurerOutputs(measurer));
 	}
 
+	public Iterable<MeasurerSetOutput> getMeasurerSetOutputs(
+			final MeasurerSetBase set) {
+		return IterableUtils.where(getMeasurerSetOutputs(),
+				new IUnaryPredicate<MeasurerSetOutput>() {
+
+					public Boolean apply(MeasurerSetOutput arg) {
+						return arg.getSetId() == set.getId();
+					}
+				});
+	}
+
+	public MeasurerSetOutput getMeasurerSetOutput(MeasurerSetBase set) {
+		return IterableUtils.single(getMeasurerSetOutputs(set));
+	}
 }

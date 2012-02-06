@@ -53,29 +53,28 @@ public class RooflineService {
 		// create the measurement coordinate
 		CoordinateBuilder measurementCoordinateBuilder = CoordinateBuilder
 				.createCoordinate()
-				.set(QuantityMeasuringService.quantityAxis,
-						QuantityMeasuringService.Quantity.Performance)
+				.set(QuantityMeasuringService.quantityAxis, Performance.class)
 				.set(QuantityMeasuringService.clockTypeAxis, clockType);
+
+		// set the instruction set
+		kernelParameters.set(instructionSetAxis, instructionSet);
 
 		// set the optimization
 		switch (instructionSet) {
 		case SSE:
 			kernelParameters.set(optimizationAxis, "-O3 -msse2");
-			kernelParameters.set(instructionSetAxis, instructionSet.SSE);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.DoublePrecisionFlop);
 		break;
 		case SSEScalar:
 			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
-			kernelParameters.set(instructionSetAxis, InstructionSet.SSEScalar);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.DoublePrecisionFlop);
 		break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
-			kernelParameters.set(instructionSetAxis, InstructionSet.x87);
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.CompInstr);

@@ -3,7 +3,6 @@ package ch.ethz.ruediste.roofline.measurementDriver.appControllers;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
@@ -189,21 +188,6 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			measurementHashRepository.setCoreHash(measurementHash, coreHash);
 		}
 		return coreHash;
-	}
-
-	private DescriptiveStatistics getStatistics(String event,
-			KernelDescriptionBase kernel, int numberOfResults) {
-		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
-		measurer.addEvent("event", event);
-
-		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setKernel(kernel);
-		measurement.setMeasurer(measurer);
-		measurement.setScheme(new SimpleMeasurementSchemeDescription());
-
-		MeasurementResult result = measure(measurement, 10);
-
-		return measurer.getStatistics("event", result);
 	}
 
 	public MeasurementResult performMeasurement(MeasurementCommand command)

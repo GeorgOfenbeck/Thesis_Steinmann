@@ -1,6 +1,8 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import java.util.ArrayList;
+import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
+
+import java.util.*;
 
 import org.apache.log4j.Logger;
 
@@ -69,251 +71,200 @@ public class QuantityMeasuringService {
 	public OperationCount measureOperationCount(KernelDescriptionBase kernel,
 			Operation operation) {
 
-		// handle the allOperations case
-		if (operation == Operation.SSEFlop) {
-			return new OperationCount(measureOperationCount(kernel,
-					Operation.SinglePrecisionFlop).getValue()
-					+ measureOperationCount(kernel,
-							Operation.DoublePrecisionFlop).getValue());
-		}
+		return measure(kernel, getOperationCountCalculator(operation));
 
-		double result = 0;
-		PerfEventMeasurerDescription measurer;
-		// perform measurement
-		switch (operation) {
-		case SSEFlop:
-			throw new Error("should not happen");
-		case SinglePrecisionFlop:
-
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
-					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_SINGLE",
-					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE"));
-			result += measurer.getMinDouble("ops", measure(kernel, measurer));
-
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
-					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE",
-					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE"));
-			result += 2 * measurer.getMinDouble("ops",
-					measure(kernel, measurer));
-
-		break;
-		case DoublePrecisionFlop:
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
-					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_DOUBLE",
-					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE"));
-			double scalarDoubleCount = measurer.getMinDouble("ops",
-					measure(kernel, measurer));
-			result += scalarDoubleCount;
-
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
-					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
-					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE"));
-			result += 2 * measurer.getMinDouble("ops",
-					measure(kernel, measurer));
-			if (pmuRepository.getPresentPMU("coreduo") != null) {
-				// the PACKED_DOUBLE counter is buggy on the core duo and includes
-				// the SCALAR_DOUBLE events as well. Compensate
-				result -= 2 * scalarDoubleCount;
-			}
-		break;
-
-		case CompInstr:
-
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
-					"coreduo::FP_COMP_INSTR_RET", "core::FP_COMP_OPS_EXE"));
-			result += measurer.getMinDouble("ops", measure(kernel, measurer));
-
-		break;
-		}
-
-		return new OperationCount(result);
 	}
 
-	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(String ... events) {
-		final MeasurerSet measurerSet=new MeasurerSet();
-		PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(
+			final Class<T> clazz, String... events) {
+		final MeasurerSet<PerfEventMeasurerDescription> measurerSet = new MeasurerSet<PerfEventMeasurerDescription>();
+		final PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+		measurerSet.setMainMeasurer(measurer);
+
 		measurer.addEvent("count", pmuRepository.getAvailableEvent(events));
-		
-		TerminalQuantityCalculator<T> result=new TerminalQuantityCalculator<T>() {
+
+		return new TerminalQuantityCalculator<T>(measurerSet) {
 
 			@Override
-			public T getResult() {
-				measurer.getMinDouble("count", measurementResult)
-				getOutput(measurerSet).get
+			public T getResult(List<MeasurerSetOutput> outputs) {
+				return Quantity.construct(clazz, single(outputs)
+						.getMainMeasurerOutput(measurer).getEventCount("count")
+						.getScaledCount());
 			}
 		};
-
-		
-		result.addRequiredMeasurerSet(measurerSet);
 	}
 
-	public QuantityCalculator<OperationCount> getOperationCountMeasurers(
-			KernelDescriptionBase kernel, Operation operation) {
-
-		ArrayList<MeasurerSet> result = new ArrayList<MeasurerSet>();
+	public QuantityCalculator<OperationCount> getOperationCountCalculator(
+			Operation operation) {
 
 		// handle the allOperations case
 		if (operation == Operation.SSEFlop) {
 			return new AddingQuantityCalculator<OperationCount>(
-					getOperationCountMeasurers(kernel,
-							Operation.SinglePrecisionFlop),
-					getOperationCountMeasurers(kernel,
-							Operation.DoublePrecisionFlop));
+					getOperationCountCalculator(Operation.SinglePrecisionFlop),
+					getOperationCountCalculator(Operation.DoublePrecisionFlop));
 		}
 
-		PerfEventMeasurerDescription measurer;
 		// perform measurement
 		switch (operation) {
 		case SSEFlop:
 			throw new Error("should not happen");
-		case SinglePrecisionFlop:
-			return new AddingQuantityCalculator<OperationCount>(
-					new TerminalQuantityCalculator<OperationCount>() {
-					};
-					)
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+		case SinglePrecisionFlop: {
+			QuantityCalculator<OperationCount> scalar = createPerfEventQuantityCalculator(
+					OperationCount.class,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_SINGLE",
-					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE"));
-			result += measurer.getMinDouble("ops", measure(kernel, measurer));
-
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE");
+			QuantityCalculator<OperationCount> packed = createPerfEventQuantityCalculator(
+					OperationCount.class,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE",
-					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE"));
-			result += 2 * measurer.getMinDouble("ops",
-					measure(kernel, measurer));
+					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE");
+			return new AddingQuantityCalculator<OperationCount>(
+					scalar,
+					new MultiplyingQuantityCalculator<OperationCount>(packed, 2));
+		}
 
-		break;
-		case DoublePrecisionFlop:
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+		case DoublePrecisionFlop: {
+			QuantityCalculator<OperationCount> scalar = createPerfEventQuantityCalculator(
+					OperationCount.class,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_DOUBLE",
-					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE"));
-			double scalarDoubleCount = measurer.getMinDouble("ops",
-					measure(kernel, measurer));
-			result += scalarDoubleCount;
-
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
+					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE");
+			QuantityCalculator<OperationCount> packed = createPerfEventQuantityCalculator(
+					OperationCount.class,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
-					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE"));
-			result += 2 * measurer.getMinDouble("ops",
-					measure(kernel, measurer));
+					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE");
+
 			if (pmuRepository.getPresentPMU("coreduo") != null) {
 				// the PACKED_DOUBLE counter is buggy on the core duo and includes
 				// the SCALAR_DOUBLE events as well. Compensate
-				result -= 2 * scalarDoubleCount;
+
+				return new SubtractingQuantityCalculator<OperationCount>(
+						new MultiplyingQuantityCalculator<OperationCount>(
+								packed, 2), scalar);
 			}
-		break;
-
-		case CompInstr:
-
-			measurer = new PerfEventMeasurerDescription();
-			measurer.addEvent("ops", pmuRepository.getAvailableEvent(
-					"coreduo::FP_COMP_INSTR_RET", "core::FP_COMP_OPS_EXE"));
-			result += measurer.getMinDouble("ops", measure(kernel, measurer));
-
-		break;
+			else {
+				return new AddingQuantityCalculator<OperationCount>(scalar,
+						new MultiplyingQuantityCalculator<OperationCount>(
+								packed, 2));
+			}
 		}
 
-		return new OperationCount(result);
+		case CompInstr:
+			return createPerfEventQuantityCalculator(OperationCount.class,
+					"coreduo::FP_COMP_INSTR_RET", "core::FP_COMP_OPS_EXE");
+
+		default:
+			throw new Error("should not happen");
+		}
+
 	}
 
 	public TransferredBytes measureTransferredBytes(
 			KernelDescriptionBase kernel, MemoryTransferBorder border) {
+		return measure(kernel, getTransferredBytesCalculator(border));
+	}
 
-		// setup the measurer
-		final PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+	public QuantityCalculator<TransferredBytes> getTransferredBytesCalculator(
+			MemoryTransferBorder border) {
+
 		switch (border) {
-
 		case CpuL1:
 		case L1L2:
 		case L2L3:
 			throw new Error("Not Supported");
 		case LlcRam:
-			measurer.addEvent("transfers", pmuRepository.getAvailableEvent(
-					"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM"));
-		break;
+			return new MultiplyingQuantityCalculator<TransferredBytes>(
+					createPerfEventQuantityCalculator(TransferredBytes.class,
+							"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM"),
+					64);
 
+		default:
+			throw new Error("should not happen");
 		}
-
-		MeasurementResult result = measure(kernel, measurer);
-
-		// get the output
-		return new TransferredBytes(measurer.getStatistics("transfers", result)
-				.getMin() * 64);
-
 	}
 
 	public Time measureExecutionTime(KernelDescriptionBase kernel,
 			ClockType clockType) {
+		return measure(kernel, getExecutionTimeCalculator(clockType));
+	}
+
+	public QuantityCalculator<Time> getExecutionTimeCalculator(
+			ClockType clockType) {
 
 		// setup the measurer
-		final PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
 		switch (clockType) {
 
 		case CoreCycles:
-			measurer.addEvent("cycles", pmuRepository.getAvailableEvent(
+			return createPerfEventQuantityCalculator(Time.class,
 					"core::UNHALTED_CORE_CYCLES",
-					"coreduo::UNHALTED_CORE_CYCLES"));
-		break;
+					"coreduo::UNHALTED_CORE_CYCLES");
 		case ReferenceCycles:
 		case uSecs:
 			throw new Error("Not Supported");
+		default:
+			throw new Error("Should not happen");
+		}
+	}
+
+	private <T extends Quantity<T>, TCalc extends QuantityCalculator<T>> T measure(
+			KernelDescriptionBase kernel, TCalc calculator) {
+
+		int numMeasurements = 10;
+		// get results for each required measurer set
+		ArrayList<MeasurementResult> measurementResults = new ArrayList<MeasurementResult>();
+		for (MeasurerSet<?> set : calculator.getRequiredMeasurerSets()) {
+			MeasurementDescription measurement = new MeasurementDescription();
+			Workload workload = new Workload();
+			workload.setKernel(kernel);
+			workload.setMeasurerSet(set);
+
+			MeasurementResult result = measurementService.measure(measurement,
+					numMeasurements);
+			measurementResults.add(result);
+
 		}
 
-		MeasurementResult result = measure(kernel, measurer);
+		ArrayList<T> results = new ArrayList<T>();
+		// calculate the resulting quantity for all corrresponding results
+		for (int i = 0; i < 10; i++) {
+			ArrayList<MeasurerSetOutput> outputs = new ArrayList<MeasurerSetOutput>();
+			for (int p = 0; p < calculator.getRequiredMeasurerSets().size(); p++) {
+				MeasurerSet<?> set = calculator.getRequiredMeasurerSets()
+						.get(p);
+				MeasurementResult result = measurementResults.get(p);
+				outputs.add(result.getOutputs().get(i)
+						.getMeasurerSetOutput(set));
+			}
+			results.add(calculator.getResult(outputs));
+		}
 
-		// get the output
-		return new Time(measurer.getStatistics("cycles", result).getMin());
-
+		return min(results, Quantity.<T> lessThan());
 	}
 
-	/**
-	 * @param kernel
-	 * @param measurer
-	 * @return
-	 */
-	public MeasurementResult measure(KernelDescriptionBase kernel,
-			final PerfEventMeasurerDescription measurer) {
-		// setup the measurement
-		MeasurementDescription measurement = new MeasurementDescription();
-		measurement.setKernel(kernel);
-		measurement.setScheme(new SimpleMeasurementSchemeDescription());
-		measurement.setMeasurer(measurer);
+	public Quantity<?> measure(KernelDescriptionBase kernel,
+			Coordinate measurementPoint) {
+		Class<?> quantity = measurementPoint.get(quantityAxis);
 
-		// measure
-		MeasurementResult result = measurementService.measure(measurement, 10);
-		return result;
-	}
-
-	public ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity measure(
-			KernelDescriptionBase kernel, Coordinate measurementPoint) {
-		switch (measurementPoint.get(quantityAxis)) {
-		case ExecutionTime:
+		if (quantity == Time.class)
 			return measureExecutionTime(kernel,
 					measurementPoint.get(clockTypeAxis));
-		case MemoryBandwidth:
+
+		if (quantity == Throughput.class)
 			return measureThroughput(kernel,
 					measurementPoint.get(memoryTransferBorderAxis),
 					measurementPoint.get(clockTypeAxis));
-		case MemoryTransfer:
+
+		if (quantity == TransferredBytes.class)
 			return measureTransferredBytes(kernel,
 					measurementPoint.get(memoryTransferBorderAxis));
-		case OperationCount:
+
+		if (quantity == OperationCount.class)
 			return measureOperationCount(kernel,
 					measurementPoint.get(operationAxis));
-		case Performance:
+
+		if (quantity == Performance.class)
 			return measurePerformance(kernel,
 					measurementPoint.get(operationAxis),
 					measurementPoint.get(clockTypeAxis));
-		}
+
 		throw new Error("should not happen");
 	}
 }

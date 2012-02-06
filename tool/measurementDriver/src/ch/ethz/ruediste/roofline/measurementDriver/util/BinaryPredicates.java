@@ -27,4 +27,22 @@ public class BinaryPredicates {
 			}
 		};
 	}
+
+	public static IBinaryPredicate<Double, Double> lessThan(Class<Double> clazz) {
+		return new IBinaryPredicate<Double, Double>() {
+
+			public Boolean apply(Double arg1, Double arg2) {
+				return arg1 < arg2;
+			}
+		};
+	}
+
+	public static IBinaryPredicate<Double, Double> moreThan(Class<Double> clazz) {
+		return new IBinaryPredicate<Double, Double>() {
+
+			public Boolean apply(Double arg1, Double arg2) {
+				return arg1 > arg2;
+			}
+		};
+	}
 }

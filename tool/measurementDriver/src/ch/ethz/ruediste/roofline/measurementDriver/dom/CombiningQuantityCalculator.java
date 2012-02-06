@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
-import java.util.ArrayList;
+import java.util.*;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
@@ -20,32 +20,47 @@ public abstract class CombiningQuantityCalculator<T extends Quantity<T>>
 	}
 
 	@Override
-	public ArrayList<MeasurerSet> getRequiredMeasurerSets() {
-		ArrayList<MeasurerSet> result = new ArrayList<MeasurerSet>();
+	public ArrayList<MeasurerSet<?>> getRequiredMeasurerSets() {
+		ArrayList<MeasurerSet<?>> result = new ArrayList<MeasurerSet<?>>();
 		result.addAll(left.getRequiredMeasurerSets());
 		result.addAll(right.getRequiredMeasurerSets());
 		return result;
 	}
 
 	@Override
-	public void addOutput(final MeasurerSetOutput measurerSetOutput) {
-		// predicate indicating a measurer set was used to generate the given output
-		IUnaryPredicate<MeasurerSet> predicate = new IUnaryPredicate<MeasurerSet>() {
-			public Boolean apply(MeasurerSet arg) {
-				return arg.getId() == measurerSetOutput.getSetId();
-			}
-		};
+	final public T getResult(List<MeasurerSetOutput> outputs) {
+		ArrayList<MeasurerSetOutput> leftOutputs = new ArrayList<MeasurerSetOutput>();
+		ArrayList<MeasurerSetOutput> rightOutputs = new ArrayList<MeasurerSetOutput>();
 
-		// check if the output belongs to the left calculator
-		if (IterableUtils.any(left.getRequiredMeasurerSets(), predicate)) {
-			left.addOutput(measurerSetOutput);
-		}
-		else {
-			if (!IterableUtils.any(right.getRequiredMeasurerSets(), predicate)) {
-				throw new Error(
-						"no matching measurer set found for the supplied output");
+		// assing all provided outputs to the left or the right calculator
+		for (final MeasurerSetOutput output : outputs) {
+			// predicate indicating a measurer set was used to generate the current output
+			IUnaryPredicate<MeasurerSet<?>> predicate = new IUnaryPredicate<MeasurerSet<?>>() {
+				public Boolean apply(MeasurerSet<?> arg) {
+					return arg.getId() == output.getSetId();
+				}
+			};
+
+			// check if the output belongs to the left calculator
+			if (IterableUtils.any(left.getRequiredMeasurerSets(), predicate)) {
+				leftOutputs.add(output);
 			}
-			right.addOutput(measurerSetOutput);
+			else {
+				if (!IterableUtils.any(right.getRequiredMeasurerSets(),
+						predicate)) {
+					throw new Error(
+							"no matching measurer set found for the supplied output");
+				}
+				rightOutputs.add(output);
+			}
 		}
+
+		// combine the results of the two calculators
+		return combineResults(leftOutputs, rightOutputs);
 	}
+
+	protected abstract T combineResults(
+			ArrayList<MeasurerSetOutput> leftOutputs,
+			ArrayList<MeasurerSetOutput> rightOutputs);
+
 }

@@ -7,13 +7,31 @@ public abstract class Quantity<TDerived extends Quantity<TDerived>> implements
 
 	private double value;
 
-	public Quantity(double value) {
+	protected Quantity(double value) {
 		this.value = value;
 	}
 
 	@Override
 	public String toString() {
 		return Double.toString(getValue());
+	}
+
+	public static IBinaryPredicate<Quantity<?>, Quantity<?>> lessThanUntyped() {
+		return new IBinaryPredicate<Quantity<?>, Quantity<?>>() {
+
+			public Boolean apply(Quantity<?> arg1, Quantity<?> arg2) {
+				return arg1.getValue() < arg2.getValue();
+			}
+		};
+	}
+
+	public static IBinaryPredicate<Quantity<?>, Quantity<?>> moreThanUntyped() {
+		return new IBinaryPredicate<Quantity<?>, Quantity<?>>() {
+
+			public Boolean apply(Quantity<?> arg1, Quantity<?> arg2) {
+				return arg1.getValue() > arg2.getValue();
+			}
+		};
 	}
 
 	public static <T extends Quantity<T>> IBinaryPredicate<T, T> lessThan() {
@@ -43,19 +61,23 @@ public abstract class Quantity<TDerived extends Quantity<TDerived>> implements
 		return Double.compare(getValue(), o.getValue());
 	}
 
+	/* (non-Javadoc)
+	 * @see ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.IQuantity#getValue()
+	 */
 	public double getValue() {
 		return value;
 	};
 
-	protected abstract TDerived construct(double value);/* {
-														try {
-														return (TDerived) getClass().getConstructor(double.class)
-														.newInstance(value);
-														}
-														catch (Throwable e) {
-														throw new Error(e);
-														}
-														}*/
+	protected abstract TDerived construct(double value);
+
+	public static <T> T construct(Class<T> clazz, double value) {
+		try {
+			return clazz.getConstructor(Double.class).newInstance(value);
+		}
+		catch (Exception e) {
+			throw new Error(e);
+		}
+	}
 
 	public TDerived multiplied(double factor) {
 		return construct(getValue() * factor);

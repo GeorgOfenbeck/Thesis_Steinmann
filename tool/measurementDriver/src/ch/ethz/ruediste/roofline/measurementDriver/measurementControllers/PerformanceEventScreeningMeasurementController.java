@@ -114,9 +114,10 @@ public class PerformanceEventScreeningMeasurementController implements
 			measurer.addEvent("event", eventDefinition);
 
 			MeasurementDescription measurement = new MeasurementDescription();
-			measurement.setScheme(new SimpleMeasurementSchemeDescription());
-			measurement.setKernel(pair.getLeft());
-			measurement.setMeasurer(measurer);
+			Workload workload = new Workload();
+			workload.setKernel(pair.getLeft());
+			workload.setMeasurerSet(new MeasurerSet<PerfEventMeasurerDescription>(
+					measurer));
 
 			MeasurementResult result = null;
 			try {

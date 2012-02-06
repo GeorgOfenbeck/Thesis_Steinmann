@@ -10,7 +10,7 @@
 	
 	<field name="id" type="int" comment="id of the workload"/>
 	<field name="kernel" type="KernelDescriptionBase" comment="kernel to be executed" />
-	<field name="measurerSet" type="MeasurerSet" comment="Measurers used to measure from begin to end of the kernel"/>
+	<field name="measurerSet" type="MeasurerSetBase" comment="Measurers used to measure from begin to end of the kernel"/>
 	<field name="cpu" type="int" comment="CPU the kernel should be started on. -1 means no pinning"/>
 	<field name="warmCaches" type="bool" comment="if true, warm caches, if false, clear caches before running the kernel"/>
 	

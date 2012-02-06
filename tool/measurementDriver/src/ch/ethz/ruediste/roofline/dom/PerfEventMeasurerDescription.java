@@ -171,7 +171,7 @@ public class PerfEventMeasurerDescription extends
 	public PerfEventMeasurerOutput getMinOutput(final String name,
 			MeasurementResult measurementResult) {
 		PerfEventMeasurerOutput min = IterableUtils
-				.foldl(measurementResult.getMeasurerOutputsUnvalidated(this),
+				.foldl(measurementResult.getMeasurerOutputs(this),
 						null,
 						new IBinaryFunction<PerfEventMeasurerOutput, PerfEventMeasurerOutput, PerfEventMeasurerOutput>() {
 

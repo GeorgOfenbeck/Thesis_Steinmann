@@ -108,13 +108,13 @@ public class OptimizationService {
 		if (bestCoordinate == null) {
 			log.info("Optimizing " + kernel);
 			// get comparator
-			IBinaryPredicate<Quantity, Quantity> betterThan;
+			IBinaryPredicate<Quantity<?>, Quantity<?>> betterThan;
 			switch (comparison) {
 			case lessThan:
-				betterThan = Quantity.lessThan;
+				betterThan = Quantity.lessThanUntyped();
 			break;
 			case moreThan:
-				betterThan = Quantity.moreThan;
+				betterThan = Quantity.moreThanUntyped();
 			break;
 			default:
 				throw new Error("should not happen");
@@ -137,9 +137,9 @@ public class OptimizationService {
 
 	public Coordinate optimizeFull(KernelDescriptionBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint,
-			IBinaryPredicate<Quantity, Quantity> betterThan) {
+			IBinaryPredicate<Quantity<?>, Quantity<?>> betterThan) {
 		Coordinate bestCoordinate = null;
-		Quantity bestValue = null;
+		Quantity<?> bestValue = null;
 
 		// explore optimization space
 		List<Coordinate> points = optimizationSpace.getAllPoints();
@@ -151,7 +151,7 @@ public class OptimizationService {
 			// initialize kernel
 			kernel.initialize(coordinate);
 
-			Quantity result = quantityMeasuringService.measure(kernel,
+			Quantity<?> result = quantityMeasuringService.measure(kernel,
 					measurementPoint);
 
 			if (bestValue == null || betterThan.apply(result, bestValue)) {
@@ -164,9 +164,9 @@ public class OptimizationService {
 
 	public Coordinate optimizeFast(KernelDescriptionBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint,
-			IBinaryPredicate<Quantity, Quantity> betterThan) {
+			IBinaryPredicate<Quantity<?>, Quantity<?>> betterThan) {
 		Coordinate bestCoordinate = null;
-		Quantity bestValue = null;
+		Quantity<?> bestValue = null;
 
 		// explore optimization space
 		List<Coordinate> points = optimizationSpace.getAllPoints();
@@ -182,19 +182,19 @@ public class OptimizationService {
 			log.debug("starting at " + currentPoint);
 			// measure
 			kernel.initialize(currentPoint);
-			Quantity currentValue = quantityMeasuringService.measure(kernel,
+			Quantity<?> currentValue = quantityMeasuringService.measure(kernel,
 					measurementPoint);
 
 			for (int step = 0; step < longestSide; step++) {
 				Coordinate bestNeighbor = null;
-				Quantity bestNeighborValue = null;
+				Quantity<?> bestNeighborValue = null;
 				// find best neighbor
 				for (Coordinate neighbor : optimizationSpace
 						.getNeighbors(currentPoint)) {
 					// measure neighbor
 					kernel.initialize(neighbor);
-					Quantity neighborValue = quantityMeasuringService.measure(
-							kernel, measurementPoint);
+					Quantity<?> neighborValue = quantityMeasuringService
+							.measure(kernel, measurementPoint);
 					if (bestNeighbor == null
 							|| betterThan.apply(neighborValue,
 									bestNeighborValue)) {

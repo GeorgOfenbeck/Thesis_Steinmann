@@ -11,4 +11,13 @@ public class MeasurerSetOutput extends MeasurerSetOutputData {
 		result.addAll(getValidationMeasurerOutputs());
 		return result;
 	}
+
+	@SuppressWarnings("unchecked")
+	public <T, TMeasurer extends IMeasurerDescription<T>> T getMainMeasurerOutput(
+			TMeasurer measurer) {
+		if (getMainMeasurerOutput().getMeasurerId() != measurer.getId()) {
+			throw new Error("Measurer is not main measurer of this set");
+		}
+		return (T) getMainMeasurerOutput();
+	}
 }
