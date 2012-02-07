@@ -156,13 +156,14 @@ fileLocation getFileLocation(pid_t pid, uint32_t addr) {
 #define THREADCOUNT 2
 
 void *ThreadStart(void *arg) {
-	printf("Thread Start %li\n", syscall(__NR_gettid));
+	pid_t tid=syscall(__NR_gettid);
+	printf("child: Thread Start %li\n", tid);
 	// do some work
 	long sum = 0;
 	for (int i = 0; i < 100000; i++)
 		for (int j = 0; j < 1000; j++)
 			sum++;
-	printf("%li\n", sum);
+	printf("child: tid: %i sum: %li\n", tid, sum);
 
 	return NULL;
 }
@@ -189,7 +190,13 @@ void childMain() {
 	// join all threads
 	for (int i = 0; i < THREADCOUNT; i++) {
 		void *ret = NULL;
-		pthread_join(threads[i], &ret);
+		printf("child: joining thead %i\n",i);
+		if (pthread_join(threads[i], NULL)!=0){
+			printf("child: error on join\n");
+			perror("child: join");
+			exit(1);
+		}
+		printf("child: joined thead %i\n",i);
 	}
 
 	printf("child: exiting\n");
@@ -235,20 +242,6 @@ uint32_t getChildIp(pid_t pid) {
 	return v;
 }
 
-int continueProcess(pid_t childPid, int sendSignal) {
-	int status;
-	if (ptrace(PTRACE_SYSCALL, childPid, 0, sendSignal) < 0) {
-		perror("error on ptrace syscall");
-		exit(1);
-	}
-
-	// wait for the child
-	if (waitpid(childPid, &status, 0) < 0) {
-		perror("error on wait");
-		exit(1);
-	}
-	return status;
-}
 int main(int argc, char* argv[]) {
 	printf("Hello World\n");
 	numInstr = 0;
@@ -265,66 +258,84 @@ int main(int argc, char* argv[]) {
 	pid_t childPid = startChildProcess();
 
 	if (ptrace(PTRACE_SETOPTIONS, childPid, 0,
-			PTRACE_O_TRACEEXIT | PTRACE_O_TRACESYSGOOD |PTRACE_O_TRACECLONE) < 0) {
+			PTRACE_O_TRACEEXIT | PTRACE_O_TRACESYSGOOD | PTRACE_O_TRACECLONE)
+			< 0) {
 		perror("error on ptrace set options");
 		exit(1);
 	}
 
-	int status;
-	int last_sig = 0;
-	while (1) {
-		status = continueProcess(childPid, last_sig);
+	// restart child
+	if (ptrace(PTRACE_SYSCALL, childPid, 0, 0) < 0) {
+		perror("error on ptrace syscall");
+		exit(1);
+	}
 
-		// reset last_sig, don't send the same signal twice
-		last_sig = 0;
+	while (1) {
+		int status;
+		pid_t stoppedPid;
+		// wait for the child
+		//printf("waiting for child\n");
+
+		stoppedPid=waitpid(-1, &status, __WALL);
+		if (stoppedPid < 0) {
+			printf("==>err\n");
+			perror("mainloop: error on wait");
+			exit(1);
+		}
 
 		// check if the child exited
 		if (WIFEXITED(status)) {
-			printf("WIFEXITED=TRUE\n");
+			printf("child %i exited\n",stoppedPid);
 			// the child exited
-			break;
+			if (stoppedPid==childPid)
+				break;
 		}
+
+		//printf("stoppedPid: %i\n",stoppedPid);
 
 		// check if the child is stopped
 		if (WIFSTOPPED(status)) {
-			last_sig = WSTOPSIG(status);
-
+			int stopSig=WSTOPSIG(status);
 			// check if we have a trap
-			if ((last_sig & 0x3f) == SIGTRAP) {
+			if ((stopSig & 0x3f) == SIGTRAP) {
+				//printf("trap 0x%x\n",stopSig);
 				// check if we have a trap on a syscall
-				if ((last_sig & 0x80) == 0x80) {
+				if ((stopSig  & 0x80) == 0x80) {
 					struct user_regs_struct uregs;
 					ptrace(PTRACE_GETREGS, childPid, 0, &uregs);
 
-					printf("got syscall 0x%lX %ld\n", uregs.orig_eax,
-							uregs.orig_eax);
-
-					// continue to the exit
-					continueProcess(childPid, 0);
-
+					//printf("got syscall 0x%lX %ld\n", uregs.orig_eax, uregs.orig_eax);
 				} else {
+
 					// get the event which caused the trap
-					int event = (status >> 16) & 0xFF;
-					printf("got sigtrap, event: %i\n", event);
+					int event = (status  >> 16) & 0xFF;
+					//printf("got sigtrap, event: %i\n", event);
 					if (event == PTRACE_EVENT_EXIT) {
 						printf("SIGTRAP | EVENT_EXIT<<16\n");
 						// the child process exited
-						break;
-					}
-					else
-					if (event==PTRACE_EVENT_CLONE){
+						//break;
+					} else if (event == PTRACE_EVENT_CLONE) {
 						uint32_t newChildPid;
-						ptrace(PTRACE_GETEVENTMSG,childPid,0,&newChildPid);
-						printf ("got clone with child %i \n",newChildPid);
-						ptrace(PTRACE_DETACH,newChildPid,0,0);
+						ptrace(PTRACE_GETEVENTMSG, stoppedPid, 0, &newChildPid);
+						printf("got clone with child %i \n", newChildPid);
 
+					} else{
+						printf("unknown event\n");
 					}
-					else
-					printf("unknown event\n");
 				}
-
-				// don't resend the trap
-				last_sig = 0;
+				// continue the child
+				//printf("continue %i\n",stoppedPid);
+				if (ptrace(PTRACE_SYSCALL, stoppedPid, 0, 0) < 0) {
+					perror("cont trap: error on ptrace syscall");
+					exit(1);
+				}
+			} else {
+				//printf("child received signal 0x%x, forwarding to child\n",stopSig);
+				// continue the child
+				if (ptrace(PTRACE_SYSCALL, stoppedPid, 0, stopSig) < 0) {
+					perror("cont signal: error on ptrace syscall");
+					exit(1);
+				}
 			}
 		}
 	}
