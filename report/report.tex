@@ -521,7 +521,16 @@ core 0 1 2 3
 \end{itemize}
 
 
+\section{Core Architecture}
+To fully utilize multi core systems, applications have to be implemented with multiple threads or processes. Measuring such applications is considerably more difficult than measuring single threaded applications. If the thread management is implemented specifically for the measurement at hand, the measuring code can be weaved into it by hand. But if the threads or processes are created within legacy or closed source code, the measuring tool has to take care of detecting the creation of threads and install the necessary measurers. For the roofline measuring tool we will only consider multi threaded applications.
 
+To gain full control over the kernel code, the measurement tool starts the kernel within a child process. The parent process attaches to the child using ptrace. This causes the child to be stopped when certain events occur and the parent is notified. The events include thread creation and breakpoints.
+
+Every kernel thread can raise events at any point. The events include thread creation, breakpoints, starting and stopping of workloads etc. Whenever an event occurs, the rule list has to be searched and the matching actions have to be executed. The rule list is always searched in the thread which raised the event. If the event caused the thread to be stopped and the parent thread to be notified, the parent restarts the thread with a notification of the event which occurred. The thread will search the rule list and continue execution.
+
+Actions can be associated with a thread. In this case, the action is always executed within that thread. Measurers can be associated with a thread, too. In that case, all functions of the measurer have to be called within the specified thread. It is the responsibility of the caller to respect such an association. If necessary, an intermediate action has to be used.
+
+The technically most challenging is to interrupt another thread and make it execute some action. There are two approaches to this problem, either using a signal handler of the thread or using ptrace to call code within the thread. Since installing a signal handler in a thread could cause unwanted side effects, we use the ptrace approach. SIGTRAP is sent to the target thread, which will cause it to be stopped. The parent modifies the thread state of the stopped thread. When the thread resumes execution, it executes some event handling code and then return to the location the thread was interrupted.
 
 \listoffigures
 
@@ -529,5 +538,6 @@ core 0 1 2 3
 \bibliography{../report.bib}
 
 \printindex{referencedFiles}{Referenced Files}
+
 
 \end{document}
