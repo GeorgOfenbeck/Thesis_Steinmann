@@ -9,7 +9,9 @@
 #define ACTIONBASE_H_
 
 class ActionBase {
+public:
 	virtual ~ActionBase();
+	//void execute()
 };
 
 #endif /* ACTIONBASE_H_ */

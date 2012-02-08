@@ -7,16 +7,16 @@
 
 #ifndef CHILDTHREAD_H_
 #define CHILDTHREAD_H_
-#include "ActionBase.h"
+#include "baseClasses/ActionBase.h"
 #include <map>
 #include <sys/types.h>
-#include <vector>
+#include <queue>
 #include <pthread.h>
 
 using namespace std;
 class ChildThread {
-	vector<ActionBase*> actionQueue;
-	pthread_mutex_t mutex;
+	queue<ActionBase*> actionQueue;
+	pthread_mutex_t actionQueueMutex;
 	bool isProcessing;
 	pid_t pid;
 
@@ -26,12 +26,12 @@ public:
 
 	ChildThread(pid_t pid){
 		this->pid=pid;
-		pthread_mutex_init(&mutex,NULL);
+		pthread_mutex_init(&actionQueueMutex,NULL);
 		isProcessing=false;
 	}
 
 	~ChildThread(){
-		pthread_mutex_destroy(&mutex);
+		pthread_mutex_destroy(&actionQueueMutex);
 	}
 
 	static map<pid_t, ChildThread*> threadMap;
@@ -46,7 +46,7 @@ public:
 	 */
 	void processActions();
 
-	bool pushAction(ActionBase *action);
+	void pushAction(ActionBase *action);
 };
 
 #endif /* CHILDTHREAD_H_ */

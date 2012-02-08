@@ -53,6 +53,21 @@ void ChildThread::processNotification() {
 
 void ChildThread::processActions() {
 	printf("child: process Actions %i\n",getPid());
+	while (1){
+		// get the next action
+		ActionBase *action;
+		pthread_mutex_lock(&actionQueueMutex);
+		if (actionQueue.empty()){
+			// break the loop if the queue is empty
+			pthread_mutex_unlock(&actionQueueMutex);
+			return;
+		}
+		action=actionQueue.front();
+		actionQueue.pop();
+		pthread_mutex_unlock(&actionQueueMutex);
+
+		//action->
+	}
 }
 
 ChildThread *ChildThread::getChildThread(pid_t childPid) {
@@ -71,6 +86,9 @@ ChildThread *ChildThread::getChildThread(pid_t childPid) {
 	return child;
 }
 
-bool ChildThread::pushAction(ActionBase *action) {
+void ChildThread::pushAction(ActionBase *action) {
+	pthread_mutex_lock(&actionQueueMutex);
+	actionQueue.push(action);
+	pthread_mutex_unlock(&actionQueueMutex);
 }
 
