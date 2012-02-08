@@ -166,7 +166,7 @@ void childMain() {
 	raise(SIGCHLD);
 
 	printf("child: notify parent\n");
-	ParentProcess::notify(NotifyEvent_Done,0);
+	ParentProcess::notifyParent(ParentNotification_ProcessingDone,0);
 
 	printf("child: starting main\n");
 
@@ -265,8 +265,8 @@ int main(int argc, char* argv[]) {
 
 	pid_t childPid = startChildProcess();
 
-	ParentProcess parent;
-	parent.traceLoop(childPid);
+	ParentProcess parent(childPid);
+	parent.traceLoop();
 
 	printf("return from main\n");
 }

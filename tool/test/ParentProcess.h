@@ -12,31 +12,52 @@
 #include <sys/user.h>
 #include <map>
 #include <stdint.h>
+#include <utility>
+#include <vector>
+#include <queue>
 
 using namespace std;
 
 enum ChildState{
 	ChildState_New,
 	ChildState_Running,
-	ChildState_Processing,
+	ChildState_ProcessingNotification,
 };
 
-enum NotifyEvent{
-	NotifyEvent_Done,
+enum ChildEvent{
+
+};
+
+enum ParentNotification{
+	ParentNotification_ProcessingDone,
+	ParentNotification_QueueProcessActions,
+};
+
+enum ChildNotification{
+	ChildNotification_Started,
+	ChildNotification_ProcessActions,
+	ChildNotification_ChildExited,
 };
 
 class ParentProcess {
 	map<pid_t,ChildState> childStates;
 	map<pid_t,user_regs_struct> childRegs;
+	map<pid_t,queue<pair<ChildNotification,uint32_t> >* > childNotificationQueue;
+	pid_t mainChild;
 
-	void childExited(pid_t child);
-	void childCloned(pid_t clonePid);
-	void sendProcessCommandToChild(pid_t clonePid);
-	void processingDone(pid_t clonePid);
-	void trapOccured(pid_t child);
+	void handleChildExited(pid_t stoppedChild);
+	void handleChildCloned(pid_t clonePid, pid_t stoppedChild);
+	void setupChildNotification(pid_t clonePid, ChildNotification event, uint32_t arg);
+	void handleTrapOccured(pid_t stoppedChild);
+	bool handleNotification(pid_t stoppedChild, ParentNotification event, uint32_t arg);
+	int handleSignalReceived(pid_t stoppedChild, int signal);
+	void queueNotification(pid_t receiver, ChildNotification event, uint32_t arg);
 public:
-	void traceLoop(pid_t childPid);
-	static void notify(NotifyEvent event, uint32_t arg);
+	ParentProcess(pid_t mainChild){
+		this->mainChild=mainChild;
+	}
+	void traceLoop();
+	static void notifyParent(ParentNotification event, uint32_t arg);
 	static int32_t notifyAddress;
 };
 
