@@ -24,6 +24,8 @@
 #include <streambuf>
 #include <sstream>
 #include <pthread.h>
+#include "ChildProcess.h"
+#include "ParentProcess.h"
 
 using namespace std;
 using namespace boost;
@@ -153,51 +155,23 @@ fileLocation getFileLocation(pid_t pid, uint32_t addr) {
 	return fileLocation();
 }
 
-#define THREADCOUNT 2
 
-void *ThreadStart(void *arg) {
-	pid_t tid = syscall(__NR_gettid);
-	printf("child: Thread Start %li\n", tid);
-	// do some work
-	long sum = 0;
-	for (int i = 0; i < 100000; i++)
-		for (int j = 0; j < 100000; j++)
-			sum++;
-	printf("child: tid: %i sum: %li\n", tid, sum);
 
-	return NULL;
-}
+
 
 void childMain() {
 	// wait till the parent traces the child
 	ptrace(PTRACE_TRACEME);
 	printf("child: child stopping...\n");
 	raise(SIGCHLD);
-	printf("child: restarted\n");
 
-	vector<pthread_t> threads;
-	pthread_attr_t attr;
-	pthread_attr_init(&attr);
-	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+	printf("child: notify parent\n");
+	ParentProcess::notify(NotifyEvent_Done,0);
 
-	for (int i = 0; i < THREADCOUNT; i++) {
-		pthread_t thread;
-		pthread_create(&thread, &attr, ThreadStart, NULL);
-		threads.push_back(thread);
-	}
-	pthread_attr_destroy(&attr);
+	printf("child: starting main\n");
 
-	// join all threads
-	for (int i = 0; i < THREADCOUNT; i++) {
-		void *ret = NULL;
-		printf("child: joining thead %i\n", i);
-		if (pthread_join(threads[i], NULL) != 0) {
-			printf("child: error on join\n");
-			perror("child: join");
-			exit(1);
-		}
-		printf("child: joined thead %i\n", i);
-	}
+	ChildProcess child;
+	child.main();
 
 	printf("child: exiting\n");
 
@@ -226,6 +200,40 @@ pid_t startChildProcess() {
 
 	printf("child stopped\n");
 
+	if (ptrace(PTRACE_SETOPTIONS, childPid, 0,
+			PTRACE_O_TRACEEXIT | PTRACE_O_TRACECLONE |PTRACE_O_TRACESYSGOOD) < 0) {
+		perror("error on ptrace set options");
+		exit(1);
+	}
+
+	// restart child
+	if (ptrace(PTRACE_CONT, childPid, 0, 0) < 0) {
+		perror("error on ptrace syscall");
+		exit(1);
+	}
+
+
+	printf("wait for notify\n");
+	// wait for the notify
+	if (waitpid(childPid, NULL, 0) < 0) {
+		perror("error on wait");
+		exit(1);
+	}
+
+	printf("notify received\n");
+	user_regs_struct regs;
+	if (ptrace(PTRACE_GETREGS, childPid, NULL, &regs) < 0) {
+		perror("error reading child regs");
+		exit(1);
+	}
+
+	ParentProcess::notifyAddress=regs.eip;
+
+	// restart child
+	if (ptrace(PTRACE_CONT, childPid, 0, 0) < 0) {
+		perror("error on ptrace syscall");
+		exit(1);
+	}
 	return childPid;
 }
 
@@ -257,78 +265,8 @@ int main(int argc, char* argv[]) {
 
 	pid_t childPid = startChildProcess();
 
-	if (ptrace(PTRACE_SETOPTIONS, childPid, 0,
-			PTRACE_O_TRACEEXIT | PTRACE_O_TRACECLONE |PTRACE_O_TRACESYSGOOD) < 0) {
-		perror("error on ptrace set options");
-		exit(1);
-	}
-
-	// restart child
-	if (ptrace(PTRACE_CONT, childPid, 0, 0) < 0) {
-		perror("error on ptrace syscall");
-		exit(1);
-	}
-
-	while (1) {
-		int status;
-		pid_t stoppedPid;
-		// wait for the child
-		//printf("waiting for child\n");
-
-		stoppedPid = waitpid(-1, &status, __WALL);
-		if (stoppedPid < 0) {
-			printf("==>err\n");
-			perror("mainloop: error on wait");
-			exit(1);
-		}
-
-		// check if the child exited
-		if (WIFEXITED(status)) {
-			printf("child %i exited\n", stoppedPid);
-			// the child exited
-			if (stoppedPid == childPid)
-				break;
-		}
-
-		printf("stoppedPid: %i\n",stoppedPid);
-
-		// check if the child is stopped
-		if (WIFSTOPPED(status)) {
-			int stopSig = WSTOPSIG(status);
-			// check if we have a trap
-			if (stopSig  == SIGTRAP) {
-				// get the event which caused the trap
-				int event = (status >> 16) & 0xFF;
-				//printf("got sigtrap, event: %i\n", event);
-				if (event == PTRACE_EVENT_EXIT) {
-					printf("SIGTRAP | EVENT_EXIT<<16\n");
-					// the child process exited
-					//break;
-				} else if (event == PTRACE_EVENT_CLONE) {
-					uint32_t newChildPid;
-					ptrace(PTRACE_GETEVENTMSG, stoppedPid, 0, &newChildPid);
-					printf("got clone with child %i \n", newChildPid);
-				} else {
-					printf("unknown event %i\n",event);
-				}
-
-				// continue the child
-				//printf("continue %i\n",stoppedPid);
-				if (ptrace(PTRACE_CONT, stoppedPid, 0, 0) < 0) {
-					perror("cont trap: error on ptrace syscall");
-					exit(1);
-				}
-			}
-			else{
-				printf("forwarded signal %i to process %i event:\n",stopSig,stoppedPid);
-				// forward the signal to the child
-				if (ptrace(PTRACE_CONT, stoppedPid, 0, 0) < 0) {
-					perror("cont trap: error on ptrace syscall");
-					exit(1);
-				}
-			}
-		}
-	}
+	ParentProcess parent;
+	parent.traceLoop(childPid);
 
 	printf("return from main\n");
 }

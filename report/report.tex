@@ -532,6 +532,8 @@ Actions can be associated with a thread. In this case, the action is always exec
 
 The technically most challenging is to interrupt another thread and make it execute some action. There are two approaches to this problem, either using a signal handler of the thread or using ptrace to call code within the thread. Since installing a signal handler in a thread could cause unwanted side effects, we use the ptrace approach. SIGTRAP is sent to the target thread, which will cause it to be stopped. The parent modifies the thread state of the stopped thread. When the thread resumes execution, it executes some event handling code and then return to the location the thread was interrupted.
 
+\subsection{Child Thread Lifetime}
+The parent process manages a thread table, which contains the state of each child thread. When a child thread is cloned, the parent receives a signal by ptrace. It will create a new entry in the thread table and set the state to "new". In this state, the child cannot receive messages yet. When the thread is started, the parent process will receive a SIGSTOP from the child. Upon receiving this signal from a thread in the new state, the parent will send the "process" command and mark the thread as processing. As soon as the child is done with the initialization, it will send "done" to the parent. The process is put into the running state. When the child receives a message, the parent will possibly send process to it again. If it exits, it will go the the exit state.
 \listoffigures
 
 \bibliographystyle{abbrv}
