@@ -12,10 +12,11 @@
 #include <sys/types.h>
 #include <queue>
 #include <pthread.h>
+#include <utility>
 
 using namespace std;
 class ChildThread {
-	queue<ActionBase*> actionQueue;
+	queue<pair<ActionBase*,EventBase*> > actionQueue;
 	pthread_mutex_t actionQueueMutex;
 	bool isProcessing;
 	pid_t pid;
@@ -46,7 +47,7 @@ public:
 	 */
 	void processActions();
 
-	void pushAction(ActionBase *action);
+	void pushAction(ActionBase *action, EventBase *event);
 };
 
 #endif /* CHILDTHREAD_H_ */

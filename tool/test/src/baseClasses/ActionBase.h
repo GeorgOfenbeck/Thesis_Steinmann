@@ -8,10 +8,11 @@
 #ifndef ACTIONBASE_H_
 #define ACTIONBASE_H_
 
+#include "EventBase.h"
 class ActionBase {
 public:
 	virtual ~ActionBase();
-	//void execute()
+	virtual void execute(EventBase *event)=0;
 };
 
 #endif /* ACTIONBASE_H_ */

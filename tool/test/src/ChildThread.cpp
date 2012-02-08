@@ -55,18 +55,18 @@ void ChildThread::processActions() {
 	printf("child: process Actions %i\n",getPid());
 	while (1){
 		// get the next action
-		ActionBase *action;
+		pair<ActionBase*,EventBase*> pair;
 		pthread_mutex_lock(&actionQueueMutex);
 		if (actionQueue.empty()){
 			// break the loop if the queue is empty
 			pthread_mutex_unlock(&actionQueueMutex);
 			return;
 		}
-		action=actionQueue.front();
+		pair=actionQueue.front();
 		actionQueue.pop();
 		pthread_mutex_unlock(&actionQueueMutex);
 
-		//action->
+		pair.first->execute(pair.second);
 	}
 }
 
@@ -86,9 +86,9 @@ ChildThread *ChildThread::getChildThread(pid_t childPid) {
 	return child;
 }
 
-void ChildThread::pushAction(ActionBase *action) {
+void ChildThread::pushAction(ActionBase *action, EventBase *event) {
 	pthread_mutex_lock(&actionQueueMutex);
-	actionQueue.push(action);
+	actionQueue.push(make_pair(action,event));
 	pthread_mutex_unlock(&actionQueueMutex);
 }
 
