@@ -11,21 +11,25 @@
  * a static global variable.
  */
 class SystemInitializer {
-	// returns the singleton system initializer list
-	static std::vector<SystemInitializer*> &get_initializers() {
-		// initialized during the first call to the method
-		// remains the same afterwards
-		static std::vector<SystemInitializer*> initializers;
-		return initializers;
-	}
 
 protected:
 	SystemInitializer() {
 		// register the system initializer instance
-		get_initializers().push_back(this);
+		getInitializers().push_back(this);
 	}
 
 public:
+	// returns the singleton system initializer list
+	static std::vector<SystemInitializer*> &getInitializers() {
+		// initialized during the first call to the method
+		// remains the same afterwards
+
+		// can't use a static class variable, since the order the
+		// variables are initialized is not defined
+		static std::vector<SystemInitializer*> initializers;
+		return initializers;
+	}
+
 	virtual ~SystemInitializer();
 
 	// called on each system initializer during system startup
@@ -33,24 +37,6 @@ public:
 
 	// called on each system initializer during sytem shutdown
 	virtual void stop()=0;
-
-	// called once durin system startup
-	static void initialize() {
-		// iterate over all registered system initializers and call
-		// the start method
-		for (size_t i = 0; i < get_initializers().size(); i++) {
-			get_initializers()[i]->start();
-		}
-	}
-
-	// called once durin system shutdown
-	static void shutdown() {
-		// iterate overa all registered system initializers and
-		// call the stop method
-		for (size_t i = 0; i < get_initializers().size(); i++) {
-			get_initializers()[i]->stop();
-		}
-	}
 };
 
 #endif /* SYSTEMINITIALIZER_H_ */

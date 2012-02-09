@@ -32,7 +32,7 @@ using namespace boost;
 
 
 
-void childMain() {
+void childMain(int argc, char* argv[]) {
 	// wait till the parent traces the child
 	ptrace(PTRACE_TRACEME);
 	raise(SIGCHLD);
@@ -42,17 +42,17 @@ void childMain() {
 
 	// start the child process
 	ChildProcess child;
-	child.main();
+	int ret=child.main(argc,argv);
 
-	exit(0);
+	exit(ret);
 }
 
-pid_t startChildProcess() {
+pid_t startChildProcess(int argc, char* argv[]) {
 	pid_t childPid = fork();
 
 	if (childPid == 0) {
 		// we are in the child process
-		childMain();
+		childMain(argc,argv);
 	}
 
 	if (childPid == -1) {
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
 	printf("Hello World\n");
 
 	// start the child process
-	pid_t childPid = startChildProcess();
+	pid_t childPid = startChildProcess(argc,argv);
 
 	// start the parent process
 	ParentProcess parent(childPid);

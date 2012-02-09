@@ -26,9 +26,12 @@ class Workload: public WorkloadData {
 				clearCaches();
 			}
 		}
+
+	static void *threadStart(void *arg);
+	void startInThread();
 public:
 
-	void start();
+	pthread_t start();
 	virtual ~Workload();
 };
 

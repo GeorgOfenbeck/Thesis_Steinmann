@@ -10,7 +10,7 @@
 
 class ChildProcess {
 public:
-	void main();
+	int main(int argc, char* argv[]);
 };
 
 #endif /* CHILDPROCESS_H_ */
