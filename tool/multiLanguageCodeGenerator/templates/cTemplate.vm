@@ -5,8 +5,8 @@
 ## A list always has a new list instance as default value.
 ##
 
-#ifndef ${class.name}_H
-\#define ${class.name}_H
+#ifndef ${class.cName}_H
+\#define ${class.cName}_H
 \#include "MultiLanguageIncludes.h"
 \#include <vector>
 \#include <string>

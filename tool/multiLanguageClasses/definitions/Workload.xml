@@ -6,6 +6,7 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType="MacroDefinitionContainer"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="A Workload">
 	
 	<field name="id" type="int" comment="id of the workload"/>

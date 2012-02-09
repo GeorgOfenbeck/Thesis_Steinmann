@@ -4,7 +4,6 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="RunCommand" 
 	cBaseType="MultiLanguageObjectBase"
-	cSuffix="Data"
 	comment="command to be executed">
 	
 	<field name="executable" type="string" comment="executable to start"/>

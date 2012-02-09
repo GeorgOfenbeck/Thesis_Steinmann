@@ -6,6 +6,7 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType=""
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="A set of measurers which work together">
 	
 	<field name="id" type="int" comment="id of the measurer set"/>

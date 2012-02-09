@@ -15,6 +15,7 @@
           	<xs:attribute name="javaBaseType" type="xs:string" use="required"/>
           	<xs:attribute name="javaSuffix" type="xs:string" use="optional"/>
           	<xs:attribute name="cSuffix" type="xs:string" use="optional"/>
+          	<xs:attribute name="isAbstract" type="xs:boolean" use="optional"/>
           	<xs:attribute name="comment" type="xs:string" use="optional"/>
           </xs:complexType>
 
@@ -32,6 +33,7 @@
           	<xs:attribute name="baseType" type="xs:string" use="required" />
           	<xs:attribute name="javaSuffix" type="xs:string" use="optional"/>
           	<xs:attribute name="cSuffix" type="xs:string" use="optional"/>
+          	<xs:attribute name="isAbstract" type="xs:boolean" use="optional"/>
           	<xs:attribute name="comment" type="xs:string" use="optional"/>
           </xs:complexType>
 

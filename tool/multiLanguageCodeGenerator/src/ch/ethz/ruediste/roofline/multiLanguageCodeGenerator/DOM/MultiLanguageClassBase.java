@@ -16,6 +16,8 @@ public abstract class MultiLanguageClassBase {
 	protected String cSuffix = "";
 	@XStreamAsAttribute()
 	private String comment;
+	@XStreamAsAttribute
+	private boolean isAbstract = false;
 
 	public abstract String getcBaseType();
 
@@ -125,5 +127,13 @@ public abstract class MultiLanguageClassBase {
 
 	public void setcSuffix(String cSuffix) {
 		this.cSuffix = cSuffix;
+	}
+
+	public boolean isAbstract() {
+		return isAbstract;
+	}
+
+	public void setAbstract(boolean isAbstract) {
+		this.isAbstract = isAbstract;
 	}
 }
