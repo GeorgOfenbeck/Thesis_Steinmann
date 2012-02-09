@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
-public class Workload extends WorkloadData {
+public class WorkloadDescription extends WorkloadDescriptionData {
 
 	public Collection<? extends String> getMacroDefinitions(MacroKey key) {
 		ArrayList<String> result = new ArrayList<String>();

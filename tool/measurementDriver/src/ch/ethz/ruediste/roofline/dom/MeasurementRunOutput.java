@@ -35,7 +35,7 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 	}
 
 	public Iterable<MeasurerSetOutput> getMeasurerSetOutputs(
-			final MeasurerSetBase set) {
+			final MeasurerSet set) {
 		return IterableUtils.where(getMeasurerSetOutputs(),
 				new IUnaryPredicate<MeasurerSetOutput>() {
 
@@ -45,7 +45,7 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 				});
 	}
 
-	public MeasurerSetOutput getMeasurerSetOutput(MeasurerSetBase set) {
+	public MeasurerSetOutput getMeasurerSetOutput(MeasurerSet set) {
 		return IterableUtils.single(getMeasurerSetOutputs(set));
 	}
 }

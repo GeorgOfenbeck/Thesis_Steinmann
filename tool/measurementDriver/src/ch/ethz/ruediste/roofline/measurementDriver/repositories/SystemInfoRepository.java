@@ -75,7 +75,7 @@ public class SystemInfoRepository {
 		measurer.setOnlyPresent(onlyPresent);
 
 		MeasurementDescription measurement = new MeasurementDescription();
-		Workload workload = new Workload();
+		WorkloadDescription workload = new WorkloadDescription();
 		measurement.addWorkload(workload);
 		DummyKernelDescription kernel = new DummyKernelDescription();
 		kernel.setOptimization("-O2");
@@ -134,7 +134,7 @@ public class SystemInfoRepository {
 		measurer.addFile("/sys/devices/system/cpu/possible");
 
 		MeasurementDescription measurement = new MeasurementDescription();
-		Workload workload = new Workload();
+		WorkloadDescription workload = new WorkloadDescription();
 		measurement.addWorkload(workload);
 		DummyKernelDescription kernel = new DummyKernelDescription();
 		kernel.setOptimization("-O2");

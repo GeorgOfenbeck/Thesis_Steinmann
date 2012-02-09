@@ -20,8 +20,8 @@ public abstract class CombiningQuantityCalculator<T extends Quantity<T>>
 	}
 
 	@Override
-	public ArrayList<MeasurerSet<?>> getRequiredMeasurerSets() {
-		ArrayList<MeasurerSet<?>> result = new ArrayList<MeasurerSet<?>>();
+	public ArrayList<MeasurerSet> getRequiredMeasurerSets() {
+		ArrayList<MeasurerSet> result = new ArrayList<MeasurerSet>();
 		result.addAll(left.getRequiredMeasurerSets());
 		result.addAll(right.getRequiredMeasurerSets());
 		return result;
@@ -35,8 +35,8 @@ public abstract class CombiningQuantityCalculator<T extends Quantity<T>>
 		// assing all provided outputs to the left or the right calculator
 		for (final MeasurerSetOutput output : outputs) {
 			// predicate indicating a measurer set was used to generate the current output
-			IUnaryPredicate<MeasurerSet<?>> predicate = new IUnaryPredicate<MeasurerSet<?>>() {
-				public Boolean apply(MeasurerSet<?> arg) {
+			IUnaryPredicate<MeasurerSet> predicate = new IUnaryPredicate<MeasurerSet>() {
+				public Boolean apply(MeasurerSet arg) {
 					return arg.getId() == output.getSetId();
 				}
 			};

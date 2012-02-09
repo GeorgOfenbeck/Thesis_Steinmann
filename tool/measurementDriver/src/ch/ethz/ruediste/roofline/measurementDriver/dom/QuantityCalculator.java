@@ -9,5 +9,5 @@ public abstract class QuantityCalculator<TQuantity extends Quantity<TQuantity>> 
 
 	abstract public TQuantity getResult(List<MeasurerSetOutput> outputs);
 
-	public abstract List<MeasurerSet<?>> getRequiredMeasurerSets();
+	public abstract List<MeasurerSet> getRequiredMeasurerSets();
 }

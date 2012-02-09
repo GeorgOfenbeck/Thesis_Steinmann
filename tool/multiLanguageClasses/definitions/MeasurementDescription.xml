@@ -8,7 +8,7 @@
 	javaSuffix="Data"
 	comment="Describes a Measurement">
 	
-	<list name="workloads" type="Workload" comment="Workloads to be used for the measurement"/>
+	<list name="workloads" type="WorkloadDescription" comment="Workloads to be used for the measurement"/>
 	
 	<list name="configurators" type="ConfiguratorDescriptionBase" comment="configurators to be used"/>
 	<list name="rules" type="RuleDescriptionBase" comment="rules"/>

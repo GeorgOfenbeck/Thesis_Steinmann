@@ -24,7 +24,7 @@ public class MultiplyingQuantityCalculator<T extends Quantity<T>> extends
 	}
 
 	@Override
-	public List<MeasurerSet<?>> getRequiredMeasurerSets() {
+	public List<MeasurerSet> getRequiredMeasurerSets() {
 		return inner.getRequiredMeasurerSets();
 	}
 

@@ -28,7 +28,7 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 	}
 
 	public void initialize(Coordinate coordinate) {
-		for (Workload workload : getWorkloads()) {
+		for (WorkloadDescription workload : getWorkloads()) {
 			workload.initialize(coordinate);
 		}
 
@@ -48,7 +48,7 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		}
 
 		// get the macro definitions of all workloads
-		for (Workload workload : getWorkloads()) {
+		for (WorkloadDescription workload : getWorkloads()) {
 			availableDefinitions.addAll(workload.getMacroDefinitions(key));
 		}
 
@@ -83,7 +83,7 @@ public class MeasurementDescription extends MeasurementDescriptionData {
 		this.validationData = validationData;
 	}
 
-	public void addWorkload(Workload workload) {
+	public void addWorkload(WorkloadDescription workload) {
 		getWorkloads().add(workload);
 	}
 }

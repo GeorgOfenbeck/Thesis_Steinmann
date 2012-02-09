@@ -42,8 +42,8 @@ public class MeasurementResult {
 		return result;
 	}
 
-	public <TOutput, TMeasurer extends MeasurerDescriptionBase & IMeasurerDescription<TOutput>> Iterable<MeasurerSetOutput> getMeasurerSetOutputs(
-			final MeasurerSet<TMeasurer> measurerSet) {
+	public Iterable<MeasurerSetOutput> getMeasurerSetOutputs(
+			final MeasurerSet measurerSet) {
 		return IterableUtils.select(getOutputs(),
 				new IUnaryFunction<MeasurementRunOutput, MeasurerSetOutput>() {
 					public MeasurerSetOutput apply(MeasurementRunOutput arg) {

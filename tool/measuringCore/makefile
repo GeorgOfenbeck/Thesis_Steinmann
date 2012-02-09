@@ -14,7 +14,7 @@ CFLAGS=-std=c++0x -Wall -ggdb
 OPTIMIZATION_FLAGS=-O0
 
 # source files to be ignored. separated by space
-SOURCE_IGNORE_PATTERNS=./src/coreSwitchTest.cpp ./src/setAffinity.cpp
+SOURCE_IGNORE_PATTERNS=./src/oldMain.cpp
 
 # additional directories to search for includes
 INCLUDE_DIRS=-I"src" -I"generated"

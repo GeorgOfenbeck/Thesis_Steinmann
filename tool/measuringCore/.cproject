@@ -66,7 +66,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="coreSwitchTest.cpp|setAffinity.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="oldMain.cpp|coreSwitchTest.cpp|setAffinity.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -125,7 +125,7 @@
 						</tool>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="setAffinity.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="oldMain.cpp|setAffinity.cpp" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

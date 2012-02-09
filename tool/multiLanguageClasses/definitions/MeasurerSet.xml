@@ -2,14 +2,14 @@
 <class
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
-	name="MeasurerSetBase" 
+	name="MeasurerSet" 
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType=""
 	javaSuffix="Data"
 	comment="A set of measurers which work together">
 	
 	<field name="id" type="int" comment="id of the measurer set"/>
-	<field name="mainMeasurerUntyped" type="MeasurerDescriptionBase" comment="main measurer"/>
+	<field name="mainMeasurer" type="MeasurerDescriptionBase" comment="main measurer"/>
 	<list name="additionalMeasurers" type="MeasurerDescriptionBase" comment="Additional measurers to be used. Started in the order they appear. Stopped in reverse order" />
 	<list name="validationMeasurers" type="MeasurerDescriptionBase" comment="Validation measurers. Started in the order they appear. Stopped in reverse order. Started before warming/clearing caches" />
 </class>

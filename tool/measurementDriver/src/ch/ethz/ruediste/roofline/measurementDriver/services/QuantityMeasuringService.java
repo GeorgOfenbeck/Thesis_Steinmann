@@ -77,7 +77,7 @@ public class QuantityMeasuringService {
 
 	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(
 			final Class<T> clazz, String... events) {
-		final MeasurerSet<PerfEventMeasurerDescription> measurerSet = new MeasurerSet<PerfEventMeasurerDescription>();
+		final MeasurerSet measurerSet = new MeasurerSet();
 		final PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
 		measurerSet.setMainMeasurer(measurer);
 
@@ -210,9 +210,9 @@ public class QuantityMeasuringService {
 		int numMeasurements = 10;
 		// get results for each required measurer set
 		ArrayList<MeasurementResult> measurementResults = new ArrayList<MeasurementResult>();
-		for (MeasurerSet<?> set : calculator.getRequiredMeasurerSets()) {
+		for (MeasurerSet set : calculator.getRequiredMeasurerSets()) {
 			MeasurementDescription measurement = new MeasurementDescription();
-			Workload workload = new Workload();
+			WorkloadDescription workload = new WorkloadDescription();
 			workload.setKernel(kernel);
 			workload.setMeasurerSet(set);
 
@@ -227,8 +227,7 @@ public class QuantityMeasuringService {
 		for (int i = 0; i < 10; i++) {
 			ArrayList<MeasurerSetOutput> outputs = new ArrayList<MeasurerSetOutput>();
 			for (int p = 0; p < calculator.getRequiredMeasurerSets().size(); p++) {
-				MeasurerSet<?> set = calculator.getRequiredMeasurerSets()
-						.get(p);
+				MeasurerSet set = calculator.getRequiredMeasurerSets().get(p);
 				MeasurementResult result = measurementResults.get(p);
 				outputs.add(result.getOutputs().get(i)
 						.getMeasurerSetOutput(set));

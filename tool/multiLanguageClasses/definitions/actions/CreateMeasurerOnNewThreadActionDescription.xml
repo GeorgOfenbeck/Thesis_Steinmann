@@ -6,7 +6,7 @@
 	baseType="ActionDescriptionBase"
 	comment="Action starting a measurer on a new thread. Must be caused by a thread start event">
 
-	<field name="measurer" type="MeasurerSetBase" comment="measurer to be created for the new thread"/>
+	<field name="measurer" type="MeasurerSet" comment="measurer to be created for the new thread"/>
 	<field name="startRule" type="RuleDescriptionBase" comment="rule to determine when the measurer should be started"/>
 	<field name="stopRule" type="RuleDescriptionBase" comment="rule to determine when the measurer should be stopping"/>	
 </derivedClass>
