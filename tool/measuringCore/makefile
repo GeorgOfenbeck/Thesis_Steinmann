@@ -93,7 +93,7 @@ include $(DEP_FILES)
 # special rules for certain files ....
 
 # compile without optimization, to ease generation of code for flushing L1 caches
-$(BUILD_DIR)/./src/baseClasses/MeasurementSchemeBase.o: src/baseClasses/MeasurementSchemeBase.cpp
+$(BUILD_DIR)/./src/sharedDOM/WorkloadClearL1I.o: src/sharedDOM/WorkloadClearL1I.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -ftemplate-depth=4096 -c -o $@ $<
 # add more rules here when needed	
