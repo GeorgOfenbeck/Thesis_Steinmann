@@ -22,14 +22,14 @@ public class TestMeasurementController implements IMeasurementController {
 	MeasurementService measurementService;
 
 	public void measure(String outputName) throws IOException {
-		MeasurementDescription measurement = new MeasurementDescription();
-		WorkloadDescription workload = new WorkloadDescription();
+		Measurement measurement = new Measurement();
+		Workload workload = new Workload();
 		measurement.addWorkload(workload);
 
 		MeasurerSet set = new MeasurerSet();
-		TscMeasurerDescription measurer = new TscMeasurerDescription();
+		TscMeasurer measurer = new TscMeasurer();
 		set.setMainMeasurer(measurer);
-		workload.setKernel(new DummyKernelDescription());
+		workload.setKernel(new DummyKernel());
 		workload.setMeasurerSet(set);
 
 		MeasurementResult result = measurementService.measure(measurement, 10);

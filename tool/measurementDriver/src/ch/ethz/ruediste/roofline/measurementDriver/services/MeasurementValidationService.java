@@ -66,7 +66,7 @@ public class MeasurementValidationService {
 	SystemInfoRepository systemInfoRepository;
 
 	@SuppressWarnings("unchecked")
-	public void addValidationMeasurers(MeasurementDescription measurement) {
+	public void addValidationMeasurers(Measurement measurement) {
 		// skip if a raw measurement is desired
 		if (configuration.get(MeasurementService.measureRawKey)) {
 			return;
@@ -93,7 +93,7 @@ public class MeasurementValidationService {
 		}
 
 		// create the file measurer
-		FileMeasurerDescription fileMeasurer = new FileMeasurerDescription();
+		FileMeasurer fileMeasurer = new FileMeasurer();
 		String thermalThrottleCountPattern = "/sys/devices/system/cpu/cpu%d/thermal_throttle/core_throttle_count";
 		String currentFrequencyPattern = "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_cur_freq";
 		String totalStateTransistionsFile = "/sys/devices/system/cpu/cpu%d/cpufreq/stats/total_trans";
@@ -126,7 +126,7 @@ public class MeasurementValidationService {
 		}
 
 		// create the perf event measurer
-		PerfEventMeasurerDescription perfEventMeasurerDescription = new PerfEventMeasurerDescription();
+		PerfEventMeasurer perfEventMeasurerDescription = new PerfEventMeasurer();
 
 		if (validationConfiguration.get(validateCpuMigrationsKey)) {
 			perfEventMeasurerDescription.addEvent("cpuMigrations",

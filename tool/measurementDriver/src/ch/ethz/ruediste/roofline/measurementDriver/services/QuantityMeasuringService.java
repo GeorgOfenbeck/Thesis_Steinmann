@@ -49,26 +49,26 @@ public class QuantityMeasuringService {
 			"6c426432-5521-4c93-ac65-ec5d51a062bc", "quantity");
 
 	public OperationalIntensity measureOperationalIntensity(
-			KernelDescriptionBase kernel, MemoryTransferBorder border,
+			KernelBase kernel, MemoryTransferBorder border,
 			Operation operation) {
 		return new OperationalIntensity(
 				measureTransferredBytes(kernel, border), measureOperationCount(
 						kernel, operation));
 	}
 
-	public Performance measurePerformance(KernelDescriptionBase kernel,
+	public Performance measurePerformance(KernelBase kernel,
 			Operation operation, ClockType clockType) {
 		return new Performance(measureOperationCount(kernel, operation),
 				measureExecutionTime(kernel, clockType));
 	}
 
-	public Throughput measureThroughput(KernelDescriptionBase kernel,
+	public Throughput measureThroughput(KernelBase kernel,
 			MemoryTransferBorder border, ClockType clockType) {
 		return new Throughput(measureTransferredBytes(kernel, border),
 				measureExecutionTime(kernel, clockType));
 	}
 
-	public OperationCount measureOperationCount(KernelDescriptionBase kernel,
+	public OperationCount measureOperationCount(KernelBase kernel,
 			Operation operation) {
 
 		return measure(kernel, getOperationCountCalculator(operation));
@@ -78,7 +78,7 @@ public class QuantityMeasuringService {
 	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(
 			final Class<T> clazz, String... events) {
 		final MeasurerSet measurerSet = new MeasurerSet();
-		final PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+		final PerfEventMeasurer measurer = new PerfEventMeasurer();
 		measurerSet.setMainMeasurer(measurer);
 
 		measurer.addEvent("count", pmuRepository.getAvailableEvent(events));
@@ -158,7 +158,7 @@ public class QuantityMeasuringService {
 	}
 
 	public TransferredBytes measureTransferredBytes(
-			KernelDescriptionBase kernel, MemoryTransferBorder border) {
+			KernelBase kernel, MemoryTransferBorder border) {
 		return measure(kernel, getTransferredBytesCalculator(border));
 	}
 
@@ -181,7 +181,7 @@ public class QuantityMeasuringService {
 		}
 	}
 
-	public Time measureExecutionTime(KernelDescriptionBase kernel,
+	public Time measureExecutionTime(KernelBase kernel,
 			ClockType clockType) {
 		return measure(kernel, getExecutionTimeCalculator(clockType));
 	}
@@ -205,14 +205,14 @@ public class QuantityMeasuringService {
 	}
 
 	private <T extends Quantity<T>, TCalc extends QuantityCalculator<T>> T measure(
-			KernelDescriptionBase kernel, TCalc calculator) {
+			KernelBase kernel, TCalc calculator) {
 
 		int numMeasurements = 10;
 		// get results for each required measurer set
 		ArrayList<MeasurementResult> measurementResults = new ArrayList<MeasurementResult>();
 		for (MeasurerSet set : calculator.getRequiredMeasurerSets()) {
-			MeasurementDescription measurement = new MeasurementDescription();
-			WorkloadDescription workload = new WorkloadDescription();
+			Measurement measurement = new Measurement();
+			Workload workload = new Workload();
 			workload.setKernel(kernel);
 			workload.setMeasurerSet(set);
 
@@ -238,7 +238,7 @@ public class QuantityMeasuringService {
 		return min(results, Quantity.<T> lessThan());
 	}
 
-	public Quantity<?> measure(KernelDescriptionBase kernel,
+	public Quantity<?> measure(KernelBase kernel,
 			Coordinate measurementPoint) {
 		Class<?> quantity = measurementPoint.get(quantityAxis);
 

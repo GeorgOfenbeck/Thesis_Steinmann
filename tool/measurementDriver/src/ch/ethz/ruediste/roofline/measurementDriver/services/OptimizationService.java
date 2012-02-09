@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
+import ch.ethz.ruediste.roofline.dom.KernelBase;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -53,7 +53,7 @@ public class OptimizationService {
 	 * @return coordinate within the optimizationSpace which gives the lowest
 	 *         measurement result
 	 */
-	public Coordinate minimize(KernelDescriptionBase kernel,
+	public Coordinate minimize(KernelBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint) {
 		return optimize(kernel, optimizationSpace, measurementPoint,
 				Comparison.lessThan);
@@ -71,7 +71,7 @@ public class OptimizationService {
 	 * @return coordinate within the optimizationSpace which gives the highest
 	 *         measurement result
 	 */
-	public Coordinate maximize(KernelDescriptionBase kernel,
+	public Coordinate maximize(KernelBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint) {
 		return optimize(kernel, optimizationSpace, measurementPoint,
 				Comparison.moreThan);
@@ -91,7 +91,7 @@ public class OptimizationService {
 	 * @return coordinate within the optimizationSpace which gives the highest
 	 *         measurement result
 	 */
-	public Coordinate optimize(KernelDescriptionBase kernel,
+	public Coordinate optimize(KernelBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint,
 			Comparison comparison) {
 
@@ -135,7 +135,7 @@ public class OptimizationService {
 		return bestCoordinate;
 	}
 
-	public Coordinate optimizeFull(KernelDescriptionBase kernel,
+	public Coordinate optimizeFull(KernelBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint,
 			IBinaryPredicate<Quantity<?>, Quantity<?>> betterThan) {
 		Coordinate bestCoordinate = null;
@@ -162,7 +162,7 @@ public class OptimizationService {
 		return bestCoordinate;
 	}
 
-	public Coordinate optimizeFast(KernelDescriptionBase kernel,
+	public Coordinate optimizeFast(KernelBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint,
 			IBinaryPredicate<Quantity<?>, Quantity<?>> betterThan) {
 		Coordinate bestCoordinate = null;

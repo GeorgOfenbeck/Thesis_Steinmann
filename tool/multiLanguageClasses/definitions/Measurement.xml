@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="Measurement" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType="MacroDefinitionContainer"
+	javaSuffix="Data"
+	comment="Describes a Measurement">
+	
+	<list name="workloads" type="Workload" comment="Workloads to be used for the measurement"/>
+	
+	<list name="configurators" type="ConfiguratorBase" comment="configurators to be used"/>
+	<list name="rules" type="RuleBase" comment="rules"/>
+</class>

@@ -13,7 +13,7 @@ public class MeasurerSetOutput extends MeasurerSetOutputData {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T, TMeasurer extends IMeasurerDescription<T>> T getMainMeasurerOutput(
+	public <T, TMeasurer extends IMeasurer<T>> T getMainMeasurerOutput(
 			TMeasurer measurer) {
 		if (getMainMeasurerOutput().getMeasurerId() != measurer.getId()) {
 			throw new Error("Measurer is not main measurer of this set");

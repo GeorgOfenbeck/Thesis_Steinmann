@@ -8,7 +8,7 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -77,7 +77,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 						dlpAxis, unrollAxis, iterationsAxis
 
 				))) {
-			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);
 			kernel.setOptimization(optimizationMap.get(instructionSet));

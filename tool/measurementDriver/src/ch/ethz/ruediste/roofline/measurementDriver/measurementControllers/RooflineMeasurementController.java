@@ -53,7 +53,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 				MemoryTransferBorder.LlcRam);
 
 		{
-			TriadKernelDescription kernel = new TriadKernelDescription();
+			TriadKernel kernel = new TriadKernel();
 			kernel.setBufferSize(1024 * 1024 * 2);
 			kernel.setOptimization("-O3");
 			rooflineController.addRooflinePoint("Triad", kernel,
@@ -70,7 +70,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			space.add(Axes.optimizationAxis, "-O3");
 
 			for (Coordinate coordinate : space) {
-				MMMKernelDescription kernel = new MMMKernelDescription();
+				MMMKernel kernel = new MMMKernel();
 				kernel.setMu(2);
 				kernel.setNu(2);
 				kernel.setKu(2);

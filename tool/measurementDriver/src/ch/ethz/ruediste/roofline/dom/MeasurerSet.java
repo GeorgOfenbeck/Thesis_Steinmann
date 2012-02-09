@@ -10,12 +10,12 @@ public class MeasurerSet extends MeasurerSetData {
 	public MeasurerSet() {
 	}
 
-	public MeasurerSet(MeasurerDescriptionBase measurer) {
+	public MeasurerSet(MeasurerBase measurer) {
 		setMainMeasurer(measurer);
 	}
 
-	public Iterable<MeasurerDescriptionBase> getMeasurers() {
-		ArrayList<MeasurerDescriptionBase> result = new ArrayList<MeasurerDescriptionBase>();
+	public Iterable<MeasurerBase> getMeasurers() {
+		ArrayList<MeasurerBase> result = new ArrayList<MeasurerBase>();
 		if (getMainMeasurer() != null) {
 			result.add(getMainMeasurer());
 		}
@@ -28,7 +28,7 @@ public class MeasurerSet extends MeasurerSetData {
 	public Collection<? extends String> getMacroDefinitions(MacroKey key) {
 		ArrayList<String> result = new ArrayList<String>();
 
-		for (MeasurerDescriptionBase mdb : getMeasurers()) {
+		for (MeasurerBase mdb : getMeasurers()) {
 			if (mdb.isMacroDefined(key)) {
 				result.add(mdb.getMacroDefinition(key));
 			}
@@ -38,7 +38,7 @@ public class MeasurerSet extends MeasurerSetData {
 	}
 
 	public void initialize(Coordinate coordinate) {
-		for (MeasurerDescriptionBase mdb : getMeasurers()) {
+		for (MeasurerBase mdb : getMeasurers()) {
 			mdb.initialize(coordinate);
 		}
 	}

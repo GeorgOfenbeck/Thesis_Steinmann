@@ -28,8 +28,8 @@ public class ValidationData {
 		}
 	}
 
-	private PerfEventMeasurerDescription perfEventMeasurer;
-	private FileMeasurerDescription fileMeasurer;
+	private PerfEventMeasurer perfEventMeasurer;
+	private FileMeasurer fileMeasurer;
 
 	final private ArrayList<CpuSpecificFile> thermalThrottleCountFiles = new ArrayList<CpuSpecificFile>();
 	final private ArrayList<CpuSpecificFile> currentFrequencyFiles = new ArrayList<CpuSpecificFile>();
@@ -37,21 +37,21 @@ public class ValidationData {
 	private Configuration validationConfiguration;
 
 	public void setPerfEventMeasurer(
-			PerfEventMeasurerDescription perfEventMeasurer) {
+			PerfEventMeasurer perfEventMeasurer) {
 		this.perfEventMeasurer = perfEventMeasurer;
 
 	}
 
-	public PerfEventMeasurerDescription getPerfEventMeasurer() {
+	public PerfEventMeasurer getPerfEventMeasurer() {
 		return perfEventMeasurer;
 	}
 
-	public void setFileMeasurer(FileMeasurerDescription fileMeasurer) {
+	public void setFileMeasurer(FileMeasurer fileMeasurer) {
 		this.fileMeasurer = fileMeasurer;
 
 	}
 
-	public FileMeasurerDescription getFileMeasurer() {
+	public FileMeasurer getFileMeasurer() {
 		return fileMeasurer;
 	}
 

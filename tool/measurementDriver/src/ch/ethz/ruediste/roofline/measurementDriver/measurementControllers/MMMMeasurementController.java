@@ -37,7 +37,7 @@ public class MMMMeasurementController implements IMeasurementController {
 		space.add(Axes.optimizationAxis, "-O3");
 
 		for (Coordinate coordinate : space) {
-			MMMKernelDescription kernel = new MMMKernelDescription();
+			MMMKernel kernel = new MMMKernel();
 			kernel.setMu(2);
 			kernel.setNu(2);
 			kernel.setKu(2);

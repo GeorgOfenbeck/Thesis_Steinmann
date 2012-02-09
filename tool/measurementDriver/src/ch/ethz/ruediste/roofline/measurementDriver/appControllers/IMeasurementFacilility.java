@@ -9,7 +9,7 @@ public interface IMeasurementFacilility {
 	 * measurement. If available, cached values are reused. Otherwise the
 	 * measuring core is started
 	 */
-	public MeasurementResult measure(MeasurementDescription measurement,
+	public MeasurementResult measure(Measurement measurement,
 			int numberOfMeasurements);
 
 }

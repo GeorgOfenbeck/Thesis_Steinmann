@@ -17,7 +17,7 @@ public class MeasurementCacheTest extends TestBase {
 
 	@Test
 	public void testKeyGeneration() {
-		MeasurementDescription measurement = new MeasurementDescription();
+		Measurement measurement = new Measurement();
 
 		HashService service = injector.getInstance(HashService.class);
 
@@ -37,8 +37,8 @@ public class MeasurementCacheTest extends TestBase {
 		HashService hashService = injector.getInstance(HashService.class);
 
 		// setup measurements
-		MeasurementDescription measurement1 = new MeasurementDescription();
-		MeasurementDescription measurement2 = new MeasurementDescription();
+		Measurement measurement1 = new Measurement();
+		Measurement measurement2 = new Measurement();
 		measurement2.setKernel(new DummyKernelDescription());
 
 		// delete existing cache entry if present
@@ -132,7 +132,7 @@ public class MeasurementCacheTest extends TestBase {
 		controller.hashService = hashService;
 
 		// setup a measurement
-		final MeasurementDescription measurement = new MeasurementDescription();
+		final Measurement measurement = new Measurement();
 
 		// setup a measurement result
 		final MeasurementResult result = new MeasurementResult();

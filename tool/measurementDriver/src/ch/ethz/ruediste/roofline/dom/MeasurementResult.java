@@ -5,7 +5,7 @@ import java.util.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 public class MeasurementResult {
-	private MeasurementDescription measurement;
+	private Measurement measurement;
 	private final List<MeasurementRunOutput> outputs = new ArrayList<MeasurementRunOutput>();
 	private CoreHash coreHash;
 
@@ -13,11 +13,11 @@ public class MeasurementResult {
 		return outputs;
 	}
 
-	public MeasurementDescription getMeasurement() {
+	public Measurement getMeasurement() {
 		return measurement;
 	}
 
-	public void setMeasurement(MeasurementDescription measurement) {
+	public void setMeasurement(Measurement measurement) {
 		this.measurement = measurement;
 	}
 
@@ -34,7 +34,7 @@ public class MeasurementResult {
 	}
 
 	public <TOutput> Iterable<TOutput> getMeasurerOutputs(
-			IMeasurerDescription<TOutput> measurer) {
+			IMeasurer<TOutput> measurer) {
 		List<TOutput> result = new ArrayList<TOutput>();
 		for (MeasurementRunOutput output : getOutputs()) {
 			result.add(output.getMeasurerOutput(measurer));

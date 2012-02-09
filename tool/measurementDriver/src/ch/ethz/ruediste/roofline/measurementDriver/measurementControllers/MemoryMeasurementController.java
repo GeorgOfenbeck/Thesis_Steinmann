@@ -5,7 +5,7 @@ import static ch.ethz.ruediste.roofline.dom.Axes.*;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.MemoryKernelDescription.MemoryOperation;
+import ch.ethz.ruediste.roofline.dom.MemoryKernel.MemoryOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -52,7 +52,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 						memoryOperationAxis, iterationsAxis
 
 				))) {
-			MemoryKernelDescription kernel = new MemoryKernelDescription();
+			MemoryKernel kernel = new MemoryKernel();
 			kernel.initialize(coordinate);
 
 			Throughput throughput = quantityMeasuringService.measureThroughput(

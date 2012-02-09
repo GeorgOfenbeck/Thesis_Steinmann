@@ -5,7 +5,7 @@ import static ch.ethz.ruediste.roofline.dom.Axes.*;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -92,7 +92,7 @@ public class RooflineService {
 		}
 
 		// create the kernel
-		ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+		ArithmeticKernel kernel = new ArithmeticKernel();
 		kernel.initialize(kernelParameters.build());
 
 		Coordinate measurementCoordinate = measurementCoordinateBuilder.build();
@@ -120,13 +120,13 @@ public class RooflineService {
 
 	public Throughput measurePeakThroughput(Algorithm algorithm,
 			MemoryTransferBorder border, ClockType clockType) {
-		KernelDescriptionBase kernel = null;
+		KernelBase kernel = null;
 		CoordinateBuilder kernelParameters = new CoordinateBuilder();
 
 		// create the kernel
 		switch (algorithm) {
 		case Load:
-			kernel = new MemoryKernelDescription();
+			kernel = new MemoryKernel();
 			kernelParameters.set(optimizationAxis, "-O3 -msse");
 			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 10);
 		break;

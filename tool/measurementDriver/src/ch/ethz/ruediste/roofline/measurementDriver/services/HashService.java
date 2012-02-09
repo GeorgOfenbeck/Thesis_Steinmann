@@ -115,7 +115,7 @@ public class HashService {
 	 * hash a measurement. This should be an unique identifier for the
 	 * measurement
 	 */
-	public MeasurementHash getMeasurementHash(MeasurementDescription measurement) {
+	public MeasurementHash getMeasurementHash(Measurement measurement) {
 		return new MeasurementHash(hashObject(measurement));
 	}
 

@@ -17,7 +17,7 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 
 	@SuppressWarnings("unchecked")
 	public <TOutput> Iterable<TOutput> getMeasurerOutputs(
-			IMeasurerDescription<TOutput> measurer) {
+			IMeasurer<TOutput> measurer) {
 
 		ArrayList<TOutput> result = new ArrayList<TOutput>();
 
@@ -30,7 +30,7 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 	}
 
 	public <TOutput> TOutput getMeasurerOutput(
-			IMeasurerDescription<TOutput> measurer) {
+			IMeasurer<TOutput> measurer) {
 		return IterableUtils.single(getMeasurerOutputs(measurer));
 	}
 

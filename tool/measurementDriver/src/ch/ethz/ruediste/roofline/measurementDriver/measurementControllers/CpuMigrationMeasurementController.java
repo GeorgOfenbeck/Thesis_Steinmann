@@ -27,18 +27,18 @@ public class CpuMigrationMeasurementController implements
 	Configuration configuration;
 
 	public void measure(String outputName) throws IOException {
-		CpuMigratingKernelDescription kernel = new CpuMigratingKernelDescription();
+		CpuMigratingKernel kernel = new CpuMigratingKernel();
 		kernel.setTargetCpu(1);
 
-		MeasurementDescription measurement = new MeasurementDescription();
-		WorkloadDescription workload = new WorkloadDescription();
+		Measurement measurement = new Measurement();
+		Workload workload = new Workload();
 		workload.setKernel(kernel);
 		workload.setCpu(0);
 
 		MeasurementResult result = measurementAppController.measure(
 				measurement, 1);
 
-		PerfEventMeasurerDescription validationMeasurer = measurement
+		PerfEventMeasurer validationMeasurer = measurement
 				.getValidationData().getPerfEventMeasurer();
 
 		System.out.println("Number of CPU Migrations: "

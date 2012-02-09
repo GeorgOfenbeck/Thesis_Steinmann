@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<derivedClass
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="CombinedMeasurerDescription" 
-	baseType="MeasurerDescriptionBase"
-	comment="describes a measurer which is combined from other measurer">
-	<list name="measurers" type="MeasurerDescriptionBase" comment="measurers to be executed. The last one is started last"/>
-</derivedClass>

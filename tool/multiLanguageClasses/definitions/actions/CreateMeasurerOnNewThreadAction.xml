@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="CreateMeasurerOnNewThreadAction" 
+	baseType="ActionBase"
+	comment="Action starting a measurer on a new thread. Must be caused by a thread start event">
+
+	<field name="measurer" type="MeasurerSet" comment="measurer to be created for the new thread"/>
+	<field name="startRule" type="RuleBase" comment="rule to determine when the measurer should be started"/>
+	<field name="stopRule" type="RuleBase" comment="rule to determine when the measurer should be stopping"/>	
+</derivedClass>

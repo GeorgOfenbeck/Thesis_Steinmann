@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<derivedClass
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="TriadKernelDescription" 
-	baseType="KernelDescriptionBase"
-	comment="Kernel performing a=b+k*d on a memory buffer">
-  <field  name="bufferSize" type="long" comment="The size of the buffer"/>
-</derivedClass>

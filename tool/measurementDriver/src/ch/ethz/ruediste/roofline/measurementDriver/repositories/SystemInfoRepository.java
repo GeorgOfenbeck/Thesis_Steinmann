@@ -71,13 +71,13 @@ public class SystemInfoRepository {
 
 	private List<PmuDescription> readPMUs(Boolean onlyPresent) {
 		// list all available performance counters
-		ListEventsMeasurerDescription measurer = new ListEventsMeasurerDescription();
+		ListEventsMeasurer measurer = new ListEventsMeasurer();
 		measurer.setOnlyPresent(onlyPresent);
 
-		MeasurementDescription measurement = new MeasurementDescription();
-		WorkloadDescription workload = new WorkloadDescription();
+		Measurement measurement = new Measurement();
+		Workload workload = new Workload();
 		measurement.addWorkload(workload);
-		DummyKernelDescription kernel = new DummyKernelDescription();
+		DummyKernel kernel = new DummyKernel();
 		kernel.setOptimization("-O2");
 
 		workload.setKernel(kernel);
@@ -130,13 +130,13 @@ public class SystemInfoRepository {
 
 	private List<Integer> readPossibleCPUs() {
 		// list all possible cpus
-		FileMeasurerDescription measurer = new FileMeasurerDescription();
+		FileMeasurer measurer = new FileMeasurer();
 		measurer.addFile("/sys/devices/system/cpu/possible");
 
-		MeasurementDescription measurement = new MeasurementDescription();
-		WorkloadDescription workload = new WorkloadDescription();
+		Measurement measurement = new Measurement();
+		Workload workload = new Workload();
 		measurement.addWorkload(workload);
-		DummyKernelDescription kernel = new DummyKernelDescription();
+		DummyKernel kernel = new DummyKernel();
 		kernel.setOptimization("-O2");
 
 		workload.setKernel(kernel);

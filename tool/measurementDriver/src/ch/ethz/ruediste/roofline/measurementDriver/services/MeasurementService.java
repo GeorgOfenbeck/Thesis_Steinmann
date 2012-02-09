@@ -103,7 +103,7 @@ public class MeasurementService implements IMeasurementFacilility {
 		return result;
 	}
 
-	public void compilePreparedMeasuringCore(MeasurementDescription measurement)
+	public void compilePreparedMeasuringCore(Measurement measurement)
 			throws FileNotFoundException, ExecuteException, IOException {
 		runtimeMonitor.compilationCategory.enter();
 		// build
@@ -119,7 +119,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	 * measurement. Returns true if anything changed.
 	 */
 	public boolean prepareMeasuringCoreBuilding(
-			MeasurementDescription measurement) throws Error,
+			Measurement measurement) throws Error,
 			FileNotFoundException {
 		runtimeMonitor.buildPreparationCategory.enter();
 		File measuringCoreDir = measuringCoreLocationService
@@ -149,7 +149,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	 * @throws FileNotFoundException
 	 */
 	private boolean writeMeasurementSchemeRegistration(
-			MeasurementDescription measurement, File measuringCoreDir)
+			Measurement measurement, File measuringCoreDir)
 			throws FileNotFoundException {
 		/*log.trace("creating MeasurementScheme registration file");
 		File measurementSchemeRegistrationFile = new File(measuringCoreDir,
@@ -187,7 +187,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	/**
 	 * write the optimization file. return true if modified
 	 */
-	private boolean writeOptimizationFile(MeasurementDescription measurement,
+	private boolean writeOptimizationFile(Measurement measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 		/*
 		log.trace("creating optimization file");
@@ -207,7 +207,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	/**
 	 * configure the kernel name. return true if changed
 	 */
-	private boolean writeKernelName(MeasurementDescription measurement,
+	private boolean writeKernelName(Measurement measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 		/*
 		log.trace("writing kernel name");
@@ -228,7 +228,7 @@ public class MeasurementService implements IMeasurementFacilility {
 	/**
 	 * writes the macro definitions
 	 */
-	private boolean writeMacroDefinitions(MeasurementDescription measurement,
+	private boolean writeMacroDefinitions(Measurement measurement,
 			File measuringCoreDir) throws FileNotFoundException {
 
 		boolean anythingChanged = false;
@@ -317,15 +317,15 @@ public class MeasurementService implements IMeasurementFacilility {
 	/**
 	 * Pass the request to the MeasurementAppController
 	 */
-	public MeasurementResult measure(MeasurementDescription measurement,
+	public MeasurementResult measure(Measurement measurement,
 			int numberOfMeasurements) {
 		return measurementFacilility.measure(measurement, numberOfMeasurements);
 	}
 
-	public void prepareMeasurement(MeasurementDescription measurementDescription) {
+	public void prepareMeasurement(Measurement measurementDescription) {
 		if (!configuration.get(measureRawKey)
 				&& configuration.get(measurementFrequencyGovernorKey) != null) {
-			RunCommandConfiguratorDescription configurator = new RunCommandConfiguratorDescription();
+			RunCommandConfigurator configurator = new RunCommandConfigurator();
 			measurementDescription.getConfigurators().add(configurator);
 
 			{
@@ -362,7 +362,7 @@ public class MeasurementService implements IMeasurementFacilility {
 
 			}
 
-			SleepConfiguratorDescription sleepConfigurator = new SleepConfiguratorDescription();
+			SleepConfigurator sleepConfigurator = new SleepConfigurator();
 			sleepConfigurator.setSleepBeforeMeasurement(10);
 			sleepConfigurator.setSleepAfterMeasurement(10);
 			measurementDescription.getConfigurators().add(sleepConfigurator);

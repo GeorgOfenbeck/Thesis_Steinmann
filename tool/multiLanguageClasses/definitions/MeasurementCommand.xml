@@ -7,6 +7,6 @@
 	javaBaseType=""
 	comment="Command for a measurement">
 	
-	<field name="measurement" type="MeasurementDescription" comment="the measurement to perform"/>
+	<field name="measurement" type="Measurement" comment="the measurement to perform"/>
 	<field name="numberOfMeasurements" type="int" comment="the number of measurements to perform(for statistical analysis)"/>
 </class>

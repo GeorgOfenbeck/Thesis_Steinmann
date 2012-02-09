@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="MeasurerBase" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType="MacroDefinitionContainer"
+	javaSuffix="Data"
+	comment="Describes a Measurer">
+	<field name="id" type="int" comment="id of the measurer"/>
+</class>

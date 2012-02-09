@@ -4,15 +4,15 @@ import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
-import ch.ethz.ruediste.roofline.dom.MemoryKernelDescription.MemoryOperation;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.dom.MemoryKernel.MemoryOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
 
 public class Axes {
-	public static final Axis<KernelDescriptionBase> kernelAxis = new Axis<KernelDescriptionBase>(
+	public static final Axis<KernelBase> kernelAxis = new Axis<KernelBase>(
 			"a4aa516d-a13c-4ad7-bcde-5176cd3b7bd8", "kernel");
-	public static final Axis<MeasurerDescriptionBase> measurerAxis = new Axis<MeasurerDescriptionBase>(
+	public static final Axis<MeasurerBase> measurerAxis = new Axis<MeasurerBase>(
 			"8f18b16a-47e4-467a-9ec1-e5f09bd681d9", "measurer", null,
 			Axis.classNameFormatter);
 

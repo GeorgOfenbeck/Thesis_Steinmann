@@ -64,7 +64,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	 * IMeasurementFacilility
 	 * #measure(ch.ethz.ruediste.roofline.dom.MeasurementDescription, int)
 	 */
-	public MeasurementResult measure(MeasurementDescription measurement,
+	public MeasurementResult measure(Measurement measurement,
 			int numberOfMeasurements) {
 
 		// add validation measurers
@@ -165,7 +165,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	 * core and hashes the executable. The core hash is stored in
 	 * measurementHashToCoreHash upon return.
 	 */
-	public CoreHash getCoreHash(MeasurementDescription measurement,
+	public CoreHash getCoreHash(Measurement measurement,
 			MeasurementHash measurementHash) throws Exception, IOException {
 
 		// get the core hash if it has already been computed
@@ -208,13 +208,13 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		return result;
 	}
 
-	public void buildMeasuringCore(MeasurementDescription measurement)
+	public void buildMeasuringCore(Measurement measurement)
 			throws Exception {
 		buildMeasuringCore(measurement,
 				hashService.getMeasurementHash(measurement));
 	}
 
-	public void buildMeasuringCore(MeasurementDescription measurement,
+	public void buildMeasuringCore(Measurement measurement,
 			MeasurementHash measurementHash) throws Exception {
 
 		// is the right measurement compiled already?

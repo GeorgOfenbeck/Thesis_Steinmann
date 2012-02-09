@@ -7,7 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernelDescription.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
@@ -58,63 +58,63 @@ public class PerformanceEventScreeningMeasurementController implements
 
 	private void measure(PrintStream out, String pmuName,
 			PerfEventDescription event, PerfEventAttributeDescription attribute) {
-		List<Pair<KernelDescriptionBase, String>> kernels = new ArrayList<Pair<KernelDescriptionBase, String>>();
+		List<Pair<KernelBase, String>> kernels = new ArrayList<Pair<KernelBase, String>>();
 
 		{
-			MemoryKernelDescription kernel = new MemoryKernelDescription();
+			MemoryKernel kernel = new MemoryKernel();
 			kernel.setBufferSize(1024 * 1024 * 2);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel, "MemoryLoad "
+			kernels.add(Pair.of((KernelBase) kernel, "MemoryLoad "
 					+ kernel.getBufferSize()));
 		}
 
 		{
-			MemoryKernelDescription kernel = new MemoryKernelDescription();
+			MemoryKernel kernel = new MemoryKernel();
 			kernel.setBufferSize(1024 * 1024 * 4);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel, "MemoryLoad "
+			kernels.add(Pair.of((KernelBase) kernel, "MemoryLoad "
 					+ kernel.getBufferSize()));
 		}
 
 		{
-			TriadKernelDescription kernel = new TriadKernelDescription();
+			TriadKernel kernel = new TriadKernel();
 			kernel.setBufferSize(1024 * 1024 * 2);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel, "Triad "
+			kernels.add(Pair.of((KernelBase) kernel, "Triad "
 					+ kernel.getBufferSize()));
 		}
 
 		{
-			TriadKernelDescription kernel = new TriadKernelDescription();
+			TriadKernel kernel = new TriadKernel();
 			kernel.setBufferSize(1024 * 1024 * 4);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel, "Triad "
+			kernels.add(Pair.of((KernelBase) kernel, "Triad "
 					+ kernel.getBufferSize()));
 		}
 
 		{
-			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.setIterations(1024 * 1024);
 			kernel.setUnroll(8);
 			kernel.setOperation(ArithmeticOperation.ArithmeticOperation_ADD);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel, "Arithmetic "
+			kernels.add(Pair.of((KernelBase) kernel, "Arithmetic "
 					+ kernel.getIterations()));
 		}
 
 		{
-			ArithmeticKernelDescription kernel = new ArithmeticKernelDescription();
+			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.setIterations(1024 * 1024 * 2);
 			kernel.setUnroll(8);
-			kernels.add(Pair.of((KernelDescriptionBase) kernel, "Arithmetic "
+			kernels.add(Pair.of((KernelBase) kernel, "Arithmetic "
 					+ kernel.getIterations()));
 		}
 
-		for (Pair<KernelDescriptionBase, String> pair : kernels) {
-			PerfEventMeasurerDescription measurer = new PerfEventMeasurerDescription();
+		for (Pair<KernelBase, String> pair : kernels) {
+			PerfEventMeasurer measurer = new PerfEventMeasurer();
 			String eventDefinition = pmuName + "::" + event.getName();
 			if (attribute != null) {
 				eventDefinition += ":" + attribute.getName();
 			}
 			measurer.addEvent("event", eventDefinition);
 
-			MeasurementDescription measurement = new MeasurementDescription();
-			WorkloadDescription workload = new WorkloadDescription();
+			Measurement measurement = new Measurement();
+			Workload workload = new Workload();
 			workload.setKernel(pair.getLeft());
 			workload.setMeasurerSet(new MeasurerSet(measurer));
 

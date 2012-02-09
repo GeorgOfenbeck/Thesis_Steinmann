@@ -61,7 +61,7 @@ public class RooflineController {
 		plot.addPeakThroughput(name, throughput);
 	}
 
-	public void addRooflinePoint(String name, KernelDescriptionBase kernel,
+	public void addRooflinePoint(String name, KernelBase kernel,
 			Operation operation, MemoryTransferBorder border) {
 
 		RooflinePoint point = new RooflinePoint(name,
@@ -73,7 +73,7 @@ public class RooflineController {
 		plot.addPoint(point);
 	}
 
-	public void addRooflinePoint(String name, KernelDescriptionBase kernel,
+	public void addRooflinePoint(String name, KernelBase kernel,
 			OperationCount operationCount, MemoryTransferBorder border) {
 		TransferredBytes transferredBytes = quantityMeasuringService
 				.measureTransferredBytes(kernel, border);
@@ -86,7 +86,7 @@ public class RooflineController {
 		plot.addPoint(point);
 	}
 
-	public void addRooflinePoint(String name, KernelDescriptionBase kernel,
+	public void addRooflinePoint(String name, KernelBase kernel,
 			Operation operation, TransferredBytes transferredBytes) {
 		Time time = quantityMeasuringService.measureExecutionTime(kernel,
 				clockType);

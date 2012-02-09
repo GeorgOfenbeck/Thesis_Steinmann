@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="TscMeasurer" 
+	baseType="MeasurerBase"
+	javaSuffix="Data"
+	comment="describes a measurer which measures execution time">
+	
+</derivedClass>

@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.KernelDescriptionBase;
+import ch.ethz.ruediste.roofline.dom.KernelBase;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -28,12 +28,12 @@ public class OptimizationRepository {
 					"~/.roofline/optimizationCache");
 
 	public static class OptimizationParameters {
-		public KernelDescriptionBase kernel;
+		public KernelBase kernel;
 		public ParameterSpace optimizationSpace;
 		public Coordinate measurementPoint;
 		public Comparison comparison;
 
-		public OptimizationParameters(KernelDescriptionBase kernel,
+		public OptimizationParameters(KernelBase kernel,
 				ParameterSpace optimizationSpace, Coordinate measurementPoint,
 				Comparison comparison) {
 			this.kernel = kernel;
@@ -43,7 +43,7 @@ public class OptimizationRepository {
 		}
 	}
 
-	public String getHash(KernelDescriptionBase kernel,
+	public String getHash(KernelBase kernel,
 			ParameterSpace optimizationSpace, Coordinate measurementPoint,
 			Comparison comparison) {
 		return getHash(new OptimizationParameters(kernel, optimizationSpace,
