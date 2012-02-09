@@ -6,6 +6,7 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType=""
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="Base class of all rule descriptions">
 	
 	<field name="action" type="ActionBase" comment="action to be executed if the rule matches"/>

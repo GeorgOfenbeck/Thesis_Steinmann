@@ -5,6 +5,7 @@
 	name="PerfEventMeasurer" 
 	baseType="MeasurerBase"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="describes a measurer which measures using the perf events">
 	
 	<list name="events" type="PerfEventDefinition" comment="events to be observed"/>

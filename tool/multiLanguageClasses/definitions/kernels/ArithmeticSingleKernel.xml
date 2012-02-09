@@ -5,5 +5,6 @@
 	name="ArithmeticSingleKernel" 
 	baseType="ArithmeticKernel"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="Kernel doing single precision artithmetic operations"> 
 </derivedClass>

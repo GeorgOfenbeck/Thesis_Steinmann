@@ -6,6 +6,7 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType="MacroDefinitionContainer"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="Describes a Kernel">
 	
 	<field name="optimization" type="string" comment="optimization flags to be used for compiling the kernel"/>

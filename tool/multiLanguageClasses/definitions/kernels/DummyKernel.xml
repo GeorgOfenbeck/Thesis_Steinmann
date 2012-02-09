@@ -4,5 +4,6 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="DummyKernel" 
 	baseType="KernelBase"
+	cSuffix="Data"
 	comment="empty kernel">
 </derivedClass>

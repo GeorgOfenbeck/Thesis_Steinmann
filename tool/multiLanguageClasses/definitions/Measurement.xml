@@ -6,6 +6,7 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType="MacroDefinitionContainer"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="Describes a Measurement">
 	
 	<list name="workloads" type="Workload" comment="Workloads to be used for the measurement"/>

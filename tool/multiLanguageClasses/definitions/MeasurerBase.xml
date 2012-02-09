@@ -6,6 +6,7 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType="MacroDefinitionContainer"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="Describes a Measurer">
 	<field name="id" type="int" comment="id of the measurer"/>
 </class>

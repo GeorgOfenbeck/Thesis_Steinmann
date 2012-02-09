@@ -5,6 +5,7 @@
 	name="MMMKernel" 
 	baseType="KernelBase"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="empty kernel">
 	<field name="matrixSize" type="long" comment="Size of the two matrices to multiply"/>
 	<field name="noCheck" type="bool" comment="if true, don't check the multiplication"/>

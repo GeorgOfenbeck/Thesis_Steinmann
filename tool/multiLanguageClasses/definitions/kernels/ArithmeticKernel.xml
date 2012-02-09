@@ -5,6 +5,7 @@
 	name="ArithmeticKernel" 
 	baseType="KernelBase"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="Kernel doing artithmetic operations"> 
 	<field name="iterations" type="long" comment="number of times the operation is performed"/>
 	<field name="unroll" type="int" comment="number of results to be computed"/>

@@ -6,5 +6,6 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType="MacroDefinitionContainer"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="Describes a Configurator">
 </class>

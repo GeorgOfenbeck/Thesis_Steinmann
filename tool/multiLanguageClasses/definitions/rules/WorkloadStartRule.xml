@@ -4,6 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="WorkloadStartRule" 
 	baseType="RuleBase"
+	cSuffix="Data"
 	comment="Rule matching the start of a workload">
 
 	<field name="workloadId" type="int" comment="match only the specified workload"/>	

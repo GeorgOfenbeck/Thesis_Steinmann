@@ -5,6 +5,7 @@
 	name="FileMeasurer" 
 	baseType="MeasurerBase"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="records the content of various files">
 	
 	<list name="filesToRecord" type="string" comment="files to record contets when the measurer starts and stops"/>

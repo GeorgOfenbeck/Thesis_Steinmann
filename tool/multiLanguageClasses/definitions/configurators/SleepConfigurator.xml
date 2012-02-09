@@ -4,6 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="SleepConfigurator" 
 	baseType="ConfiguratorBase"
+	cSuffix="Data"
 	comment="configurator sleeping a while">
 	
 	<field name="sleepBeforeMeasurement" type="long" comment="time to sleep in milliseconds"/>

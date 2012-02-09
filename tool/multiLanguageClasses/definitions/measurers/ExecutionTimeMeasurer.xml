@@ -5,6 +5,7 @@
 	name="ExecutionTimeMeasurer" 
 	baseType="MeasurerBase"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="describes a measurer which measures execution time">
 	
 </derivedClass>

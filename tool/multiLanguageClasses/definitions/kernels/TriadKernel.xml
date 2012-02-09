@@ -4,6 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="TriadKernel" 
 	baseType="KernelBase"
+	cSuffix="Data"
 	comment="Kernel performing a=b+k*d on a memory buffer">
   <field  name="bufferSize" type="long" comment="The size of the buffer"/>
 </derivedClass>

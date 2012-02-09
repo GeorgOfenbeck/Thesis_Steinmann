@@ -4,6 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="CreateMeasurerOnNewThreadAction" 
 	baseType="ActionBase"
+	cSuffix="Data"
 	comment="Action starting a measurer on a new thread. Must be caused by a thread start event">
 
 	<field name="measurer" type="MeasurerSet" comment="measurer to be created for the new thread"/>

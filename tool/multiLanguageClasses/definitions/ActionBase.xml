@@ -6,6 +6,7 @@
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType=""
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="Base class of all action descriptions">
 		
 </class>

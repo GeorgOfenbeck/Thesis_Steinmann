@@ -5,6 +5,7 @@
 	name="ListEventsMeasurer" 
 	baseType="MeasurerBase"
 	javaSuffix="Data"
+	cSuffix="Data"
 	comment="measurer listing all perf events">
 	<field name="onlyPresent" type="bool" comment="return only present PMUs"/>
 </derivedClass>

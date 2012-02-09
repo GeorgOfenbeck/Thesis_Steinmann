@@ -4,6 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="ThreadStartRule" 
 	baseType="RuleBase"
+	cSuffix="Data"
 	comment="Rule matching a thread start">
 
 	<field name="parentTid" type="int" comment="match only if the clone was invoked by the thread with this tid. -1 matches any thread"/>

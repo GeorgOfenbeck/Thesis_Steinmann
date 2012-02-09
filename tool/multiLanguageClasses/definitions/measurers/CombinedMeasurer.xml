@@ -4,6 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="CombinedMeasurer" 
 	baseType="MeasurerBase"
+	cSuffix="Data"
 	comment="describes a measurer which is combined from other measurer">
 	<list name="measurers" type="MeasurerBase" comment="measurers to be executed. The last one is started last"/>
 </derivedClass>
