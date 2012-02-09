@@ -1,11 +1,8 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
+import com.thoughtworks.xstream.annotations.*;
 
 public abstract class MultiLanguageClassBase {
 
@@ -15,6 +12,8 @@ public abstract class MultiLanguageClassBase {
 	protected String name;
 	@XStreamAsAttribute
 	protected String javaSuffix = "";
+	@XStreamAsAttribute
+	protected String cSuffix = "";
 	@XStreamAsAttribute()
 	private String comment;
 
@@ -100,17 +99,31 @@ public abstract class MultiLanguageClassBase {
 		return getFields();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.IMultiLanguageClass
-	 * #getJavaName()
+	/**
+	 * the name of the class for the java source code. Contains the suffix
 	 */
 	public String getJavaName() {
 		if (javaSuffix != null && !javaSuffix.equals("")) {
 			return name + javaSuffix;
 		}
 		return name;
+	}
+
+	/**
+	 * the name of the class for the C source code. Contains the suffix
+	 */
+	public String getCName() {
+		if (cSuffix != null && !cSuffix.equals("")) {
+			return name + cSuffix;
+		}
+		return name;
+	}
+
+	public String getcSuffix() {
+		return cSuffix;
+	}
+
+	public void setcSuffix(String cSuffix) {
+		this.cSuffix = cSuffix;
 	}
 }

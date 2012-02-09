@@ -1,15 +1,12 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.cGenerator;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import org.apache.velocity.VelocityContext;
 
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.CodeGeneratorBase;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.Utility;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageFieldBase;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.*;
+import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.*;
 
 /** generates c code from a shared class */
 public class CCodeGenerator extends CodeGeneratorBase {
@@ -32,7 +29,7 @@ public class CCodeGenerator extends CodeGeneratorBase {
 			VelocityContext context = new VelocityContext();
 			context.put("class", multiLanguageClass);
 			String outputFileName = "generatedC/"
-					+ multiLanguageClass.getName() + ".h";
+					+ multiLanguageClass.getCName() + ".h";
 			String templateName = "cTemplate.vm";
 
 			// collect all referenced classes
@@ -42,7 +39,8 @@ public class CCodeGenerator extends CodeGeneratorBase {
 
 				if (baseType.equals("MultiLanguageObjectBase")) {
 					referencedClasses.add("sharedDOM/" + baseType);
-				} else {
+				}
+				else {
 					referencedClasses.add(baseType);
 				}
 			}

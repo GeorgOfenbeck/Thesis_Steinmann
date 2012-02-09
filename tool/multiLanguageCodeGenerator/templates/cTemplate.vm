@@ -17,7 +17,7 @@
 #end
 
 /** $class.comment */
-class $class.name #if ($class.hascBaseType()) : public $class.cBaseType #end{
+class $class.cName #if ($class.hascBaseType()) : public $class.cBaseType #end{
 #foreach($field in $class.fields)
 	private: 
 	
