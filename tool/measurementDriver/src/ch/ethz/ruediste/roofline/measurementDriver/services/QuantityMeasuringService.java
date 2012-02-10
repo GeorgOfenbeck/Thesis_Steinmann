@@ -80,15 +80,18 @@ public class QuantityMeasuringService {
 		final PerfEventMeasurer measurer = new PerfEventMeasurer();
 		measurerSet.setMainMeasurer(measurer);
 
-		measurer.addEvent("count", pmuRepository.getAvailableEvent(events));
+		final String eventDefinition = pmuRepository.getAvailableEvent(events);
+		measurer.addEvent("count", eventDefinition);
 
 		return new TerminalQuantityCalculator<T>(measurerSet) {
 
 			@Override
 			public T getResult(List<MeasurerSetOutput> outputs) {
-				return Quantity.construct(clazz, single(outputs)
-						.getMainMeasurerOutput(measurer).getEventCount("count")
-						.getScaledCount());
+				PerfEventCount eventCount = single(outputs)
+						.getMainMeasurerOutput(measurer).getEventCount("count");
+				log.debug(String.format("eventDef: %s, %s", eventDefinition,
+						eventCount));
+				return Quantity.construct(clazz, eventCount.getScaledCount());
 			}
 		};
 	}

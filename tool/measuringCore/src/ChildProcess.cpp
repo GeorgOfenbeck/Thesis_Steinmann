@@ -84,6 +84,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 	MultiLanguageSerializationService serializationService;
 
+	printf("reading input\n");
 	// read input
 	ifstream input("config");
 	if (!input.is_open()) {
@@ -97,6 +98,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 	Measurement *measurement = command->getMeasurement();
 
+	printf("notifying configurators: beforeMeasurement()\n");
 	// notify configurators
 	foreach (ConfiguratorBase *configurator, measurement->getConfigurators())
 			{
@@ -109,7 +111,12 @@ int ChildProcess::main(int argc, char* argv[]) {
 	for (int measurementNumber = 0;
 			measurementNumber < command->getNumberOfMeasurements();
 			measurementNumber++) {
+
+		printf("cloning measurement\n");
+		Measurement *measurementClone=(Measurement*)measurement->clone();
+
 		// notify configurators
+		printf("notifying configurators: beforeRun()\n");
 		foreach (ConfiguratorBase *configurator, measurement->getConfigurators())
 				{
 					configurator->beforeRun();
@@ -117,12 +124,13 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 		// start workloads
 		vector<pthread_t> threads;
-		foreach(Workload *workload, measurement->getWorkloads())
+		foreach(Workload *workload, measurementClone->getWorkloads())
 				{
 					printf("start Workload\n");
 					threads.push_back(workload->start());
 				}
 
+		printf("waiting for exit\n");
 		// wait for all workloads to exit
 		foreach(pthread_t thread, threads)
 				{
@@ -131,17 +139,18 @@ int ChildProcess::main(int argc, char* argv[]) {
 						exit(1);
 					}
 				}
-
+		printf("notifying configurators\n");
 		// notify configurators
-		reverse_foreach (ConfiguratorBase *configurator, measurement->getConfigurators())
+		reverse_foreach (ConfiguratorBase *configurator, measurementClone->getConfigurators())
 				{
 					configurator->afterRun();
 				}
+		printf("collecting output\n");
 
 		// add the output
 		MeasurementRunOutput *measurementRunOutput = new MeasurementRunOutput();
 
-		foreach(Workload *workload, measurement->getWorkloads())
+		foreach(Workload *workload, measurementClone->getWorkloads())
 				{
 					measurementRunOutput->getMeasurerSetOutputs().push_back(
 							workload->getOutput());

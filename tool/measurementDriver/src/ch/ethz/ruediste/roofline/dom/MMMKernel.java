@@ -4,6 +4,22 @@ import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 public class MMMKernel extends MMMKernelData {
+	private static final MacroKey algorithmMacro = MacroKey.Create(
+			"RMT_MMM_Algorithm", "specifies the algorithm to be used",
+			"TripleLoop");
+
+	public enum Algorithm {
+		TripleLoop, Blocked, Blas,
+	}
+
+	public void setAlgorithm(Algorithm algorithm) {
+		setMacroDefinition(algorithmMacro, algorithm.toString());
+	}
+
+	public Algorithm getAlgorithm() {
+		return Algorithm.valueOf(getMacroDefinition(algorithmMacro));
+	}
+
 	private static final MacroKey nbMacro = MacroKey.Create("RMT_MMM_Nb",
 			"specifies Nb", "8");
 

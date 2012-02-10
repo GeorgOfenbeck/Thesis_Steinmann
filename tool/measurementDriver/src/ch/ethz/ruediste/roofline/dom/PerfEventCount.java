@@ -9,4 +9,11 @@ public class PerfEventCount extends PerfEventCountData {
 	public boolean isMultiplexed() {
 		return !getTimeEnabled().equals(getTimeRunning());
 	}
+
+	@Override
+	public String toString() {
+		return String.format("raw:%s running:%s enabled:%s scaled:%e",
+				getRawCount(), getTimeRunning(), getTimeEnabled(),
+				getScaledCount());
+	}
 }

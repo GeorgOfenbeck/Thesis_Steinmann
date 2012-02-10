@@ -13,11 +13,16 @@
 #include "macros/RMT_MMM_Mu.h"
 #include "macros/RMT_MMM_Nu.h"
 #include "macros/RMT_MMM_Ku.h"
+#include "macros/RMT_MMM_Algorithm.h"
 
 #define Nb RMT_MMM_Nb
 #define Mu RMT_MMM_Mu
 #define Nu RMT_MMM_Nu
 #define Ku RMT_MMM_Ku
+
+enum Algorithm {
+	TripleLoop, Blocked, Blas,
+};
 
 class MMMKernel: public MMMKernelData {
 	double *a, *b, *c, *check;
@@ -42,8 +47,10 @@ class MMMKernel: public MMMKernelData {
 
 								for (long kdd = kd; kdd < kd + Ku; kdd++)
 									for (long idd = id; idd < id + Mu; idd++)
-										for (long jdd = jd; jdd < jd + Nu; jdd++)
-											c[idd * size + jdd] += a[idd * size + kdd]
+										for (long jdd = jd; jdd < jd + Nu;
+												jdd++)
+											c[idd * size + jdd] += a[idd * size
+													+ kdd]
 													* b[kdd * size + jdd];
 	}
 
@@ -52,7 +59,16 @@ public:
 
 	void initialize();
 	void run() {
-		blas(a, b, c);
+		if (RMT_MMM_Algorithm == TripleLoop) {
+			tripleLoop(a, b, c);
+		}
+
+		if (RMT_MMM_Algorithm == Blocked) {
+			blocked(a, b, c);
+		}
+		if (RMT_MMM_Algorithm == Blas) {
+			blas(a, b, c);
+		}
 	}
 	void dispose();
 

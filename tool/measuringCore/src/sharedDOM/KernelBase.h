@@ -10,7 +10,7 @@
 
 #include "sharedDOM/KernelBaseData.h"
 
-class KernelBase : public KernelBaseData{
+class KernelBase : public KernelBaseData {
 public:
 	KernelBase();
 	virtual ~KernelBase();

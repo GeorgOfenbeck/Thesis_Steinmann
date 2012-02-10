@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -29,15 +30,23 @@ public class MMMMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		ParameterSpace space = new ParameterSpace();
-		for (long i = 64; i <= 128; i *= 2) {
+		for (long i = 16; i <= 16; i *= 2) {
 			space.add(Axes.matrixSizeAxis, i);
 		}
+		Axis<Algorithm> algorithmAxis = new Axis<MMMKernel.Algorithm>(
+				"4762fd9f-88d4-4bdd-b8fa-ae73c7996151", "algorithm");
+
+		space.add(algorithmAxis, Algorithm.TripleLoop);
+		space.add(algorithmAxis, Algorithm.Blocked);
+		space.add(algorithmAxis, Algorithm.Blas);
+
 		space.add(Axes.blockSizeAxis, 16L);
 
 		space.add(Axes.optimizationAxis, "-O3");
 
 		for (Coordinate coordinate : space) {
 			MMMKernel kernel = new MMMKernel();
+			kernel.setAlgorithm(coordinate.get(algorithmAxis));
 			kernel.setMu(2);
 			kernel.setNu(2);
 			kernel.setKu(2);
@@ -61,5 +70,4 @@ public class MMMMeasurementController implements IMeasurementController {
 			System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
 		}
 	}
-
 }

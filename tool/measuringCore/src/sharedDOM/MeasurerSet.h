@@ -42,6 +42,15 @@ public:
 				}
 	}
 
+	void initialize(){
+		getMainMeasurer()->initialize();
+		foreach(MeasurerBase *measurer, getAdditionalMeasurers()){
+			measurer->initialize();
+		}
+		foreach(MeasurerBase *measurer, getValidationMeasurers()){
+			measurer->initialize();
+		}
+	}
 	MeasurerSetOutput* getOutput();
 };
 

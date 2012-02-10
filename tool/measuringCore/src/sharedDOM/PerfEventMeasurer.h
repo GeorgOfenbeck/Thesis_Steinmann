@@ -24,6 +24,7 @@ public:
 	virtual ~PerfEventMeasurer();
 
 	void start(){
+		printf("PerfEventMeasurer::start\n");
 		int ret;
 		/*
 		 * clear counts
@@ -40,6 +41,7 @@ public:
 
 	}
 	void stop(){
+		printf("PerfEventMeasurer::stop()\n");
 		/*
 		 * stop counting
 		 */

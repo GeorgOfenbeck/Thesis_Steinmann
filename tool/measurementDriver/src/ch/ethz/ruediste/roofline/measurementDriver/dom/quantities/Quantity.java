@@ -72,7 +72,7 @@ public abstract class Quantity<TDerived extends Quantity<TDerived>> implements
 
 	public static <T> T construct(Class<T> clazz, double value) {
 		try {
-			return clazz.getConstructor(Double.class).newInstance(value);
+			return clazz.getConstructor(double.class).newInstance(value);
 		}
 		catch (Exception e) {
 			throw new Error(e);

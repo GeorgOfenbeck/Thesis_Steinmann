@@ -49,6 +49,13 @@ pthread_t Workload::start() {
 }
 
 void Workload::startInThread() {
+	printf("Workload: initializing Kernel %p\n",getKernel());
+	getKernel()->initialize();
+
+	printf("Workload: initializing Measurer Set\n");
+	getMeasurerSet()->initialize();
+
+	printf("Workload: setting CPU affinity\n");
 	// set cpu affinity
 	if (getCpu() != -1) {
 		cpu_set_t *mask = CPU_ALLOC(getCpu());
@@ -74,6 +81,7 @@ void Workload::startInThread() {
 
 
 	// perform measurement
+	printf("Workload: perform measurement\n");
 
 	// start additional measurers
 	getMeasurerSet()->startAdditionalMeasurers();

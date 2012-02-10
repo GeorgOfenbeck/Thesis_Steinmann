@@ -217,6 +217,7 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 	}
 #end
 	void ${class.cName}::cloneFrom($class.cName *c){
+	printf("cloning $class.Name\n");
 	## call base method
 	#if ($class.hascBaseType()) 
 	$class.cBaseType::cloneFrom(c); 
@@ -228,8 +229,6 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 			for (unsigned long i=0; i<c->get${field.nameUpperCamel}().size(); i++) {
 				#if ($field.typeDescriptor.reference)
 					if (c->get${field.nameUpperCamel}()[i]!=NULL){
-						//$field.getcItemType() value=new ${field.typeDescriptor.getcName()}();
-						//value->cloneFrom(c->get${field.nameUpperCamel}()[i]);
 						get${field.nameUpperCamel}().push_back(($field.getType()*)c->get${field.nameUpperCamel}()[i]->clone());
 						}
 					else
@@ -240,9 +239,7 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 			}
 		#else
 			#if ($field.typeDescriptor.reference)
-				if (get${field.nameUpperCamel}()!=NULL){
-					//$field.getcType() value=new ${field.typeDescriptor.getcName()}();
-					//value->cloneFrom(c->get${field.nameUpperCamel}());
+				if (c->get${field.nameUpperCamel}()!=NULL){
 					set${field.nameUpperCamel}(($field.getType()*)c->get${field.nameUpperCamel}()->clone());
 				}
 			#else

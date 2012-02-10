@@ -75,7 +75,8 @@ int registerEvent(int parentFd, string eventName){
 	 *
 	 * if mulithreaded, then getpid() must be replaced by gettid()
 	 */
-	fd = perf_event_open(&attr, getpid(), -1, parentFd, 0);
+	int tid=syscall(__NR_gettid);
+	fd = perf_event_open(&attr, tid, -1, parentFd, 0);
 	if (fd < 0)
 		err(1, "cannot create event: %s",eventName.c_str());
 	return fd;
@@ -127,6 +128,7 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 		count->setRawCount(values[0]);
 		count->setTimeEnabled(values[1]);
 		count->setTimeRunning(values[2]);
+		printf("%llu %llu %llu\n",count->getRawCount(),count->getTimeEnabled(),count->getTimeRunning());
 		output->getEventCounts().push_back(count);
 	}
 
