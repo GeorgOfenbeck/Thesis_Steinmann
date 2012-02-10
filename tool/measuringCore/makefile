@@ -34,7 +34,7 @@ endif
 $(foreach kernel,$(KERNEL_NAMES),$(eval include generated/kernelOptimization/kernelOptimization$(kernel).mk))
 
 # the default kernel optimization flags
-KERNEL_OPTIMIZATION_FLAGS=-O1
+DEFAULT_KERNEL_OPTIMIZATION_FLAGS=-O1
 
 # pattern for all kernel sources
 ALL_KERNEL_SOURCES_PATTERN=./src/sharedDOM/%Kernel.cpp
@@ -56,15 +56,16 @@ ALL_KERNEL_SOURCES=$(filter $(ALL_KERNEL_SOURCES_PATTERN), $(ALL_SOURCES))
 ALL_KERNEL_OBJECTS=$(call sourcesToObjects, $(ALL_KERNEL_SOURCES))
 
 # extract the source files for the current kernel, create object file names
-$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter $(KERNEL_DIR)/$(KERNEL_NAME)Kernel.cpp $(KERNEL_DIR)/$(KERNEL_NAME)/%, $(ALL_KERNEL_SOURCES))))
+$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedDOM/$(KERNEL_NAME)Kernel.cpp ./src/sharedDOM/$(KERNEL_NAME)/%, $(ALL_KERNEL_SOURCES))))
 $(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_OBJECTS_$(KERNEL_NAME)=$(call sourcesToObjects, $(KERNEL_SOURCES_$(KERNEL_NAME)))))
 
+UNNAMED_KERNEL_OBJECTS=$(filter-out $(foreach kernel,$(KERNEL_NAMES),$(KERNEL_OBJECTS_$(kernel))), $(ALL_KERNEL_OBJECTS))
 
 # search for .d files in the build directories
 PRESENT_DEP_FILES=$(patsubst ./build/%, build/./%, $(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*"))
 
 # generate .d file names from the source file names
-GENERATED_DEP_FILES=$(call sourcesToDeps, $(SOURCES) $(KERNEL_SOURCES))
+GENERATED_DEP_FILES=$(call sourcesToDeps, $(SOURCES) $(ALL_KERNEL_SOURCES))
 
 # keep only the .d files present which are required
 DEP_FILES=$(filter $(GENERATED_DEP_FILES), $(PRESENT_DEP_FILES))
@@ -100,20 +101,21 @@ $(BUILD_DIR)/./src/sharedDOM/WorkloadClearL1I.o: src/sharedDOM/WorkloadClearL1I.
 # make the kernels depend on the kernel optimization flags
 $(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/kernelOptimization/kernelOptimization$(kernel).mk))
 
+
 # rule for the named kernels
-define KERNEL_RULE_template =
-$(KERNEL_OBJECTS_$(1)): $(BUILD_DIR)/%.o: %.cpp
-	mkdir -p $(BUILD_DIR)/$(dir $<)
-	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
+define KERNEL_RULE_template
+$$(KERNEL_OBJECTS_$(1)): $(BUILD_DIR)/%.o: %.cpp
+	mkdir -p $(BUILD_DIR)/$$(dir $$<)
+	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS_$(1)) -Wa,-ahl=$$(patsubst %.o,%.s,$$@) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $$@ $$<
 endef
-$(foreach kernel,$(KERNEL_NAMES),$(eval $(call KERNEL_RULE_template, $(kernel))))
+$(foreach kernel,$(KERNEL_NAMES),$(eval $(call KERNEL_RULE_template,$(kernel))))
 
 # rule for the remaining kernels
-$(ALL_KERNEL_OBJECTS): $(BUILD_DIR)/%.o: %.cpp
+$(UNNAMED_KERNEL_OBJECTS): $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
-	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
-	
- 
+	$(GCC) $(CFLAGS) $(DEFAULT_KERNEL_OPTIMIZATION_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
+
+
 # the default rule
 $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
