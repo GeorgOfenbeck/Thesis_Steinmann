@@ -17,14 +17,15 @@ map<pid_t, ChildThread*> ChildThread::threadMap;
 
 void ChildThread::processNotification() {
 	pid_t childPid;
-	ChildNotification event;
+	ChildNotification notification;
 	uint32_t arg;
-	asm("":"=a" (childPid), "=b" (event), "=c" (arg)::);
+	asm("":"=a" (childPid), "=b" (notification), "=c" (arg)::);
 
-	printf("childThread:Process %i, event: %i, arg: %i\n", childPid, event,
+	printf("childThread:Process %i, event: %i, arg: %i\n", childPid, notification,
 			arg);
 
 	if (event == ChildNotification_ChildExited) {
+	if (notification == ChildNotification_ChildExiting) {
 			// get the child
 			pthread_mutex_lock(&threadMapMutex);
 
@@ -38,11 +39,11 @@ void ChildThread::processNotification() {
 			pthread_mutex_unlock(&threadMapMutex);
 		}
 
-	if (event == ChildNotification_Started) {
+	if (notification == ChildNotification_Started) {
 		// TODO: implement
 	}
 
-	if (event == ChildNotification_ProcessActions) {
+	if (notification == ChildNotification_ProcessActions) {
 		// invoke child
 		getChildThread(childPid)->processActions();
 	}

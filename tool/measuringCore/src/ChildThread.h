@@ -37,7 +37,12 @@ public:
 
 	static map<pid_t, ChildThread*> threadMap;
 
-	// eax contains pid of process to start
+	/**
+	 * When called,
+	 * eax contains the process to notify
+	 * ebx contains the ChildNotification
+	 * ecx contains the argument
+	 */
 	static void processNotification();
 
 	static ChildThread* getChildThread(pid_t child);

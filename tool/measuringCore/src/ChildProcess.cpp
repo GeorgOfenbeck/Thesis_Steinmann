@@ -140,7 +140,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 		foreach(Workload *workload, measurement->getWorkloads())
 				{
 					measurementRunOutput->getMeasurerSetOutputs().push_back(
-							workload->getMeasurerSet()->getOutput());
+							workload->getOutput());
 				}
 		outputCollection.getOutputs().push_back(measurementRunOutput);
 	}

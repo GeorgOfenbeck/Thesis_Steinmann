@@ -91,6 +91,9 @@ void Workload::startInThread() {
 
 	// stop the validation measurers
 	getMeasurerSet()->stopValidationMeasurers();
+
+	// store output
+	output=getMeasurerSet()->getOutput();
 }
 
 
