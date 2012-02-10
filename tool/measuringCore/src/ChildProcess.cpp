@@ -10,6 +10,7 @@
 #include "sharedDOM/MultiLanguageTestClass.h"
 #include "sharedDOM/MeasurementCommand.h"
 #include "sharedDOM/MeasurementRunOutputCollection.h"
+#include "sharedDOM/MeasurementRunOutput.h"
 #include "baseClasses/SystemInitializer.h"
 
 #include "utils.h"
@@ -27,6 +28,9 @@
 #include <string>
 #include <cstring>
 #include <pthread.h>
+#include "sharedDOM/Measurement.h"
+#include "sharedDOM/ConfiguratorBase.h"
+#include "sharedDOM/Workload.h"
 
 #define THREADCOUNT 2
 using namespace std;

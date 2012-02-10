@@ -12,6 +12,7 @@
 
 #include "sharedDOM/MeasurerSetData.h"
 #include "sharedDOM/MeasurerSetOutput.h"
+#include "sharedDOM/MeasurerBase.h"
 
 class MeasurerSet: public MeasurerSetData {
 public:

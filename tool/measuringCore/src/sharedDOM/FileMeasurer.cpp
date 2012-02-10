@@ -7,6 +7,7 @@
 
 #include "FileMeasurer.h"
 #include "utils.h"
+#include "sharedDOM/FileContent.h"
 #include <string>
 #include <fstream>
 

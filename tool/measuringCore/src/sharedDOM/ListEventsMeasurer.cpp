@@ -8,6 +8,8 @@
 #include "ListEventsMeasurer.h"
 #include "sharedDOM/ListEventsMeasurerOutput.h"
 #include "sharedDOM/PmuDescription.h"
+#include "sharedDOM/PerfEventDescription.h"
+#include "sharedDOM/PerfEventAttributeDescription.h"
 
 #include <perfmon/pfmlib.h>
 #include <perfmon/pfmlib_perf_event.h>

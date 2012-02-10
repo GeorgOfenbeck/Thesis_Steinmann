@@ -6,6 +6,7 @@
  */
 
 #include "RunCommandConfigurator.h"
+#include "sharedDOM/RunCommand.h"
 #include <cstdlib>
 #include <sys/wait.h>
 #include "utils.h"

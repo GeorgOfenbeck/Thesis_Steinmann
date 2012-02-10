@@ -7,6 +7,8 @@
 
 #include "PerfEventMeasurer.h"
 #include "sharedDOM/PerfEventMeasurerOutput.h"
+#include "sharedDOM/PerfEventCount.h"
+#include "sharedDOM/PerfEventDefinition.h"
 #include "baseClasses/SystemInitializer.h"
 
 #include <string>

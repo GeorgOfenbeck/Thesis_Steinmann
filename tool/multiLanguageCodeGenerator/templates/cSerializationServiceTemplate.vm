@@ -207,3 +207,48 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 
 	throw Exception("Parse Error: class "+line+" is not known");;
 }
+
+#foreach($class in $classes)
+#if (!$class.isAbstract())
+	$class.cName * ${class.cName}::clone(){
+		$class.Name *result=new ${class.Name}();
+		result->cloneFrom(this);
+		return result;
+	}
+#end
+	void ${class.cName}::cloneFrom($class.cName *c){
+	## call base method
+	#if ($class.hascBaseType()) 
+	$class.cBaseType::cloneFrom(c); 
+	#end
+	
+	#foreach($field in $class.fields)
+		#if ($field.class.simpleName=="MultiLanguageList")
+		
+			for (unsigned long i=0; i<c->get${field.nameUpperCamel}().size(); i++) {
+				#if ($field.typeDescriptor.reference)
+					if (c->get${field.nameUpperCamel}()[i]!=NULL){
+						//$field.getcItemType() value=new ${field.typeDescriptor.getcName()}();
+						//value->cloneFrom(c->get${field.nameUpperCamel}()[i]);
+						get${field.nameUpperCamel}().push_back(($field.getType()*)c->get${field.nameUpperCamel}()[i]->clone());
+						}
+					else
+						get${field.nameUpperCamel}().push_back(NULL);
+				#else
+					get${field.nameUpperCamel}().push_back(c->get${field.nameUpperCamel}()[i]);
+				#end
+			}
+		#else
+			#if ($field.typeDescriptor.reference)
+				if (get${field.nameUpperCamel}()!=NULL){
+					//$field.getcType() value=new ${field.typeDescriptor.getcName()}();
+					//value->cloneFrom(c->get${field.nameUpperCamel}());
+					set${field.nameUpperCamel}(($field.getType()*)c->get${field.nameUpperCamel}()->clone());
+				}
+			#else
+				set${field.nameUpperCamel}(c->get${field.nameUpperCamel}());
+			#end
+		#end
+	#end
+	}
+#end

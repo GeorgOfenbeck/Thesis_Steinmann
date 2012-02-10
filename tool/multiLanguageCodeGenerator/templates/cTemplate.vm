@@ -13,9 +13,16 @@
 \#include <stdint.h>
 
 #foreach ($reference in $references)
-\#include "${reference}.h"
+class $reference;
+## include "${reference}.h"
 #end
 
+class $class.Name;
+
+#if ($class.hascBaseType())
+\#include "sharedDOM/${class.cBaseType}.h"
+#end
+						
 /** $class.comment */
 class $class.cName #if ($class.hascBaseType()) : public $class.cBaseType #end{
 #foreach($field in $class.fields)
@@ -24,6 +31,7 @@ class $class.cName #if ($class.hascBaseType()) : public $class.cBaseType #end{
 	$field.getcType() $field.name;
 	
 	public:
+	
 	
 	## for lists, there is no setter, but the getter returns a reference to the vector
 	#if ($field.class.simpleName == "MultiLanguageList")
@@ -44,5 +52,13 @@ class $class.cName #if ($class.hascBaseType()) : public $class.cBaseType #end{
 		}
 	#end 
 #end
+
+## create clone method
+public:
+	#if (!$class.isAbstract())
+	virtual $class.cName * clone();
+	#end
+	
+	virtual void cloneFrom($class.cName *c);
 };
 #endif

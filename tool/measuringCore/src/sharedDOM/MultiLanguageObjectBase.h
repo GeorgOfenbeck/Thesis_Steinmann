@@ -14,6 +14,8 @@
 class MultiLanguageObjectBase: public PolymorphicBase {
 public:
 	virtual ~MultiLanguageObjectBase();
+	virtual void cloneFrom(MultiLanguageObjectBase *c){}
+	virtual MultiLanguageObjectBase * clone()=0;
 };
 
 #endif /* MULTILANGUAGEOBJECTBASE_H_ */

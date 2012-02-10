@@ -6,6 +6,7 @@
  */
 
 #include "Workload.h"
+#include "sharedDOM/KernelBase.h"
 
 #include "utils.h"
 #include <sched.h>

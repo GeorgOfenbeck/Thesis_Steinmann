@@ -36,7 +36,8 @@ public class CCodeGenerator extends CodeGeneratorBase {
 			HashSet<String> referencedClasses = new HashSet<String>();
 			if (multiLanguageClass.hascBaseType()) {
 				String baseType = multiLanguageClass.getcBaseType();
-				referencedClasses.add("sharedDOM/" + baseType);
+				referencedClasses.add(//"sharedDOM/" + 
+						baseType);
 			}
 
 			if (multiLanguageClass.getFields() != null) {
@@ -45,8 +46,8 @@ public class CCodeGenerator extends CodeGeneratorBase {
 					if (!field.getTypeDescriptor().isReference()) {
 						continue;
 					}
-					referencedClasses.add("sharedDOM/"
-							+ field.getTypeDescriptor().getName());
+					referencedClasses.add(//"sharedDOM/"+
+							field.getTypeDescriptor().getName());
 				}
 			}
 			context.put("references", referencedClasses.toArray());
