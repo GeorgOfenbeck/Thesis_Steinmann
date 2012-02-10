@@ -21,23 +21,22 @@ void ChildThread::processNotification() {
 	uint32_t arg;
 	asm("":"=a" (childPid), "=b" (notification), "=c" (arg)::);
 
-	printf("childThread:Process %i, event: %i, arg: %i\n", childPid, notification,
-			arg);
+	printf("childThread:Process %i, event: %i, arg: %i\n", childPid,
+			notification, arg);
 
-	if (event == ChildNotification_ChildExited) {
-	if (notification == ChildNotification_ChildExiting) {
-			// get the child
-			pthread_mutex_lock(&threadMapMutex);
+	if (notification == ChildNotification_ChildExited) {
+		// get the child
+		pthread_mutex_lock(&threadMapMutex);
 
-			// check that the child is initialized
-			if (threadMap.count(arg) > 0) {
-				// remove the child from the thread map
-				delete (threadMap[arg]);
-				threadMap.erase(arg);
-			}
-
-			pthread_mutex_unlock(&threadMapMutex);
+		// check that the child is initialized
+		if (threadMap.count(arg) > 0) {
+			// remove the child from the thread map
+			delete (threadMap[arg]);
+			threadMap.erase(arg);
 		}
+
+		pthread_mutex_unlock(&threadMapMutex);
+	}
 
 	if (notification == ChildNotification_Started) {
 		// TODO: implement
@@ -53,17 +52,17 @@ void ChildThread::processNotification() {
 }
 
 void ChildThread::processActions() {
-	printf("child: process Actions %i\n",getPid());
-	while (1){
+	printf("child: process Actions %i\n", getPid());
+	while (1) {
 		// get the next action
-		pair<ActionBase*,EventBase*> pair;
+		pair<ActionBase*, EventBase*> pair;
 		pthread_mutex_lock(&actionQueueMutex);
-		if (actionQueue.empty()){
+		if (actionQueue.empty()) {
 			// break the loop if the queue is empty
 			pthread_mutex_unlock(&actionQueueMutex);
 			return;
 		}
-		pair=actionQueue.front();
+		pair = actionQueue.front();
 		actionQueue.pop();
 		pthread_mutex_unlock(&actionQueueMutex);
 
@@ -89,7 +88,7 @@ ChildThread *ChildThread::getChildThread(pid_t childPid) {
 
 void ChildThread::pushAction(ActionBase *action, EventBase *event) {
 	pthread_mutex_lock(&actionQueueMutex);
-	actionQueue.push(make_pair(action,event));
+	actionQueue.push(make_pair(action, event));
 	pthread_mutex_unlock(&actionQueueMutex);
 }
 

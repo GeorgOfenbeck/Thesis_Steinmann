@@ -13,7 +13,7 @@
 
 class Workload: public WorkloadData {
 
-	MeasurerSetOutput output;
+	MeasurerSetOutput *output;
 
 	void clearL1ICache();
 	void clearCaches();
@@ -37,7 +37,7 @@ public:
 	 * have to be accessed from outside of the workload thread. Use this method to get the results
 	 * at the end of the measurement run.
 	 */
-	MeasurerSetOutput getOutput() {
+	MeasurerSetOutput *getOutput() {
 		return output;
 	}
 

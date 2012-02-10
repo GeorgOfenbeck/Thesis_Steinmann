@@ -21,14 +21,16 @@ int32_t ParentProcess::notifyAddress;
 void ParentProcess::handleChildExited(pid_t stoppedChild) {
 
 	switch (childStates[stoppedChild]) {
+	case ChildState_Stopping:
 	case ChildState_Running:
 		childStates.erase(stoppedChild);
-		queueNotification(mainChild, ChildNotification_ChildExited,
-				stoppedChild);
-		syscall(__NR_tgkill, mainChild, mainChild, SIGTRAP);
+		childNotificationQueue.erase(stoppedChild);
+		childRegs.erase(stoppedChild);
+		queueNotification(stoppedChild, mainChild,
+				ChildNotification_ChildExited, stoppedChild);
 		return;
 	default:
-			break;
+		break;
 	}
 	printf("handleChildExited: transition not supported");
 	exit(0);
@@ -41,7 +43,7 @@ void ParentProcess::handleChildCloned(pid_t clonePid, pid_t stoppedChild) {
 		childStates[clonePid] = ChildState_New;
 		return;
 	default:
-			break;
+		break;
 	}
 	printf("transition not supported");
 	exit(0);
@@ -58,6 +60,7 @@ int ParentProcess::handleSignalReceived(pid_t stoppedChild, int signal) {
 		}
 		break;
 	case ChildState_Running:
+	case ChildState_Stopping:
 	case ChildState_ProcessingNotification:
 		// forward the signal to the child
 		return signal;
@@ -80,26 +83,20 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 	uint32_t arg = regs.edx;
 
 	switch (childStates[stoppedChild]) {
+	case ChildState_Stopping:
 	case ChildState_Running:
 
 		// check if a notification was sent
 		if (regs.eip == notifyAddress) {
-			if (!handleNotification(stoppedChild, event, arg)){
+			if (!handleNotification(stoppedChild, event, arg)) {
 				printf("signal not handled");
 				exit(1);
 			}
-
 		}
 
 		// wether there was a notification or this was a wakeup signal, check the notification queue
-		if (childNotificationQueue.count(stoppedChild) > 0) {
-			queue<pair<ChildNotification, uint32_t> >* queue =
-					childNotificationQueue[stoppedChild];
-			if (!queue->empty()) {
-				setupChildNotification(stoppedChild, queue->front().first,
-						queue->front().second);
-				queue->pop();
-			}
+		if (hasPendingNotification(stoppedChild)) {
+			setupChildNotification(stoppedChild);
 		}
 
 		return;
@@ -108,40 +105,37 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 		if (regs.eip == notifyAddress) {
 
 			if (event == ParentNotification_ProcessingDone) {
+				printf("processingDone %i\n",stoppedChild);
 				// we are done with processing, check the queue
-				if (childNotificationQueue.count(stoppedChild) > 0) {
-					queue<pair<ChildNotification, uint32_t> >* queue =
-							childNotificationQueue[stoppedChild];
-					if (!queue->empty()) {
-						setupChildNotification(stoppedChild,
-								queue->front().first, queue->front().second);
-						queue->pop();
-						return;
-					}
+				if (hasPendingNotification(stoppedChild)) {
+					setupChildNotification(stoppedChild);
+				} else {
+					// there are no more notifications
+
+					// set the new state
+					childStates[stoppedChild] = ChildState_Running;
+
+					// restore previous registers
+					ptrace(PTRACE_SETREGS, stoppedChild, NULL,
+							&childRegs[stoppedChild]);
+
+					// remove previous state from store
+					childRegs.erase(stoppedChild);
 				}
-
-				// if we did not setup a notification above, continue
-				// set the new state
-				childStates[stoppedChild] = ChildState_Running;
-
-				// restore previous state
-				ptrace(PTRACE_SETREGS, stoppedChild, NULL,
-						&childRegs[stoppedChild]);
-
-				// remove previous state from store
-				childRegs.erase(stoppedChild);
 				return;
+			} else {
+
+				// handle normal notifications
+				if (handleNotification(stoppedChild, event, arg))
+					return;
 			}
-
-			// handle normal notifications
-			if (handleNotification(stoppedChild, event, arg))
-				return;
+		} else {
+			// we did not receive a notification, thus the trap must come from a wakeup call, just ignore it
+			return;
 		}
-
-		// we did not receive a notification, thus the trap must come from a wakeup call, just ignore it
-		return;
+		break;
 	default:
-			break;
+		break;
 	}
 
 	printf("transition not supported");
@@ -168,9 +162,11 @@ bool ParentProcess::handleNotification(pid_t stoppedChild,
 			}
 
 			// queue the process actions
-			queueNotification(word, ChildNotification_ProcessActions, 0);
+			queueNotification(stoppedChild, word,
+					ChildNotification_ProcessActions, 0);
 
-			if (childStates.count(word)>0 && childStates[word]==ChildState_Running){
+			if (childStates.count(word) > 0
+					&& childStates[word] == ChildState_Running) {
 				// send a signal to make it stop eventually
 				syscall(__NR_tgkill, mainChild, word, SIGTRAP);
 			}
@@ -188,10 +184,10 @@ bool ParentProcess::handleNotification(pid_t stoppedChild,
 
 void ParentProcess::setupChildNotification(pid_t stoppedChild,
 		ChildNotification event, uint32_t arg) {
+
+	printf("setupNotification: receiver: %i notification: %i arg: %i\n",stoppedChild,event,arg);
 	childStates[stoppedChild] = ChildState_ProcessingNotification;
-
 	user_regs_struct regs;
-
 	// are the registers of the child saved already?
 	if (childRegs.count(stoppedChild) > 0) {
 		// reuse them
@@ -206,19 +202,37 @@ void ParentProcess::setupChildNotification(pid_t stoppedChild,
 		// store them
 		childRegs[stoppedChild] = regs;
 	}
-
 	// push the return address
 	regs.esp -= 4;
 	ptrace(PTRACE_POKEDATA, stoppedChild, regs.esp, regs.eip);
-
 	// set the target address
-	regs.eip = (long) ChildThread::processNotification;
+	regs.eip = (long) (ChildThread::processNotification);
 	regs.eax = stoppedChild;
 	regs.ebx = event;
 	regs.ecx = arg;
-
 	// set the modified
 	ptrace(PTRACE_SETREGS, stoppedChild, NULL, &regs);
+}
+
+void ParentProcess::setupChildNotification(pid_t stoppedChild) {
+	ChildNotification event;
+	uint32_t arg;
+
+	// check if there is a notification
+	if (!hasPendingNotification(stoppedChild)) {
+		printf("queue was empty\n");
+		exit(1);
+	}
+	// pop notification
+	{
+		queue<pair<ChildNotification, uint32_t> >* queue =
+				childNotificationQueue[stoppedChild];
+		event = queue->front().first;
+		arg = queue->front().second;
+		queue->pop();
+	}
+
+	setupChildNotification(stoppedChild, event, arg);
 }
 
 void ParentProcess::traceLoop() {
@@ -242,6 +256,7 @@ void ParentProcess::traceLoop() {
 			if (stoppedPid == mainChild)
 				break;
 
+			printf("WIFEXITED\n");
 			// check if the child has been exited already, if not, do it
 			if (childStates.count(stoppedPid) > 0)
 				handleChildExited(stoppedPid);
@@ -291,8 +306,8 @@ void ParentProcess::traceLoop() {
 	}
 }
 
-void ParentProcess::queueNotification(pid_t receiver, ChildNotification event,
-		uint32_t arg) {
+void ParentProcess::queueNotification(pid_t stoppedChild, pid_t receiver,
+		ChildNotification event, uint32_t arg) {
 	queue<pair<ChildNotification, uint32_t> >* queue;
 	if (childNotificationQueue.count(receiver) > 0) {
 		queue = childNotificationQueue[receiver];
@@ -301,6 +316,25 @@ void ParentProcess::queueNotification(pid_t receiver, ChildNotification event,
 		childNotificationQueue[receiver] = queue;
 	}
 	queue->push(make_pair(event, arg));
+
+	if (stoppedChild != receiver) {
+		switch (childStates[receiver]) {
+		case ChildState_ProcessingNotification:
+		case ChildState_Stopping:
+		case ChildState_New:
+			// child will stop anyways
+			break;
+		case ChildState_Running:
+			syscall(__NR_tgkill, mainChild, receiver, SIGTRAP);
+			childStates[receiver] = ChildState_Stopping;
+			break;
+		}
+	}
+}
+
+bool ParentProcess::hasPendingNotification(pid_t child) {
+	return childNotificationQueue.count(child) > 0
+			&& !childNotificationQueue[child]->empty();
 }
 
 void ParentProcess::notifyParent(ParentNotification event, uint32_t arg) {
