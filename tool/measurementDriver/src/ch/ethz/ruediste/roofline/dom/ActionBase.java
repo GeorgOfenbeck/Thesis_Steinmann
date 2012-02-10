@@ -1,5 +1,9 @@
 package ch.ethz.ruediste.roofline.dom;
 
-public class ActionBase extends ActionBaseData {
+import java.util.Collection;
+
+public abstract class ActionBase extends ActionBaseData {
+
+	public abstract Collection<? extends KernelBase> getKernels();
 
 }

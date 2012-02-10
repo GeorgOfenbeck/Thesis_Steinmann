@@ -86,4 +86,17 @@ public class Measurement extends MeasurementData {
 	public void addWorkload(Workload workload) {
 		getWorkloads().add(workload);
 	}
+
+	public Iterable<KernelBase> getKernels() {
+		ArrayList<KernelBase> result = new ArrayList<KernelBase>();
+		for (Workload workload : getWorkloads()) {
+			if (workload.getKernel() != null) {
+				result.add(workload.getKernel());
+			}
+		}
+		for (RuleBase rule : getRules()) {
+			result.addAll(rule.getKernels());
+		}
+		return result;
+	}
 }

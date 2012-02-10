@@ -4,7 +4,7 @@
 BUILD_DIR=build
 
 # libraries for linking
-LIBS=-lpfm -lstdc++ #-lpapi
+LIBS=-lpfm -lstdc++ -lblas
 
 # command for the compiler
 GCC=ccache gcc
@@ -23,24 +23,21 @@ INCLUDE_DIRS=-I"src" -I"generated"
 DEP_FLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
 
 # setup the kernel used
-KERNEL_NAME=Dummy
-include kernelName.mk
+KERNEL_NAMES=Dummy
+include generated/kernelNames.mk
 
-ifeq ($(KERNEL_NAME),MMM)
+ifneq (,$(findstring MMM, $(KERNEL_NAMES)))
 	LIBS+=-lblas
 endif
+
 # setup the kernel optimization flags
-KERNEL_OPTIMIZATION_FLAGS=-O0
-include kernelOptimization.mk
+$(foreach kernel,$(KERNEL_NAMES),$(eval include generated/kernelOptimization/kernelOptimization$(kernel).mk))
 
-# directory for the kenrels
-KERNEL_DIR=./src/kernels
-
-# Measurment Scheme Registration file
-MEASUREMENT_SCHEME_REGISTRATION_FILE=./generated/MeasurementSchemeRegistration.cpp
+# the default kernel optimization flags
+KERNEL_OPTIMIZATION_FLAGS=-O1
 
 # pattern for all kernel sources
-ALL_KERNEL_SOURCES_PATTERN=$(KERNEL_DIR)/% $(MEASUREMENT_SCHEME_REGISTRATION_FILE)
+ALL_KERNEL_SOURCES_PATTERN=./src/sharedDOM/%Kernel.cpp
 
 sourcesToObjects=$(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(1))))
 sourcesToDeps=$(addprefix $(BUILD_DIR)/, $(addsuffix .d, $(basename $(1))))
@@ -56,10 +53,12 @@ OBJECTS=$(call sourcesToObjects, $(SOURCES))
 
 # extract all source files within the kernel dir 
 ALL_KERNEL_SOURCES=$(filter $(ALL_KERNEL_SOURCES_PATTERN), $(ALL_SOURCES))
+ALL_KERNEL_OBJECTS=$(call sourcesToObjects, $(ALL_KERNEL_SOURCES))
 
 # extract the source files for the current kernel, create object file names
-KERNEL_SOURCES=$(filter $(MEASUREMENT_SCHEME_REGISTRATION_FILE) $(KERNEL_DIR)/$(KERNEL_NAME)Kernel.cpp $(KERNEL_DIR)/$(KERNEL_NAME)/%, $(ALL_KERNEL_SOURCES))
-KERNEL_OBJECTS=$(call sourcesToObjects, $(KERNEL_SOURCES))
+$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter $(KERNEL_DIR)/$(KERNEL_NAME)Kernel.cpp $(KERNEL_DIR)/$(KERNEL_NAME)/%, $(ALL_KERNEL_SOURCES))))
+$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_OBJECTS_$(KERNEL_NAME)=$(call sourcesToObjects, $(KERNEL_SOURCES_$(KERNEL_NAME)))))
+
 
 # search for .d files in the build directories
 PRESENT_DEP_FILES=$(patsubst ./build/%, build/./%, $(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*"))
@@ -83,8 +82,8 @@ clean_kernels:
 	rm -rf $(BUILD_DIR)/$(KERNEL_DIR)
 	
 # creates the executable from the .o files
-$(BUILD_DIR)/measuringCore: $(OBJECTS) $(KERNEL_OBJECTS)
-	$(GCC) -pthread -rdynamic -o $@ $(OBJECTS) $(KERNEL_OBJECTS) $(LIBS)
+$(BUILD_DIR)/measuringCore: $(OBJECTS) $(ALL_KERNEL_OBJECTS)
+	$(GCC) -pthread -rdynamic -o $@ $^ $(LIBS)
 
 #include all dependency files
 include $(DEP_FILES)
@@ -99,10 +98,18 @@ $(BUILD_DIR)/./src/sharedDOM/WorkloadClearL1I.o: src/sharedDOM/WorkloadClearL1I.
 # add more rules here when needed	
 
 # make the kernels depend on the kernel optimization flags
-$(KERNEL_OBJECTS): kernelOptimization.mk
+$(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/kernelOptimization/kernelOptimization$(kernel).mk))
 
-# rule for the kernels
-$(KERNEL_OBJECTS): $(BUILD_DIR)/%.o: %.cpp
+# rule for the named kernels
+define KERNEL_RULE_template =
+$(KERNEL_OBJECTS_$(1)): $(BUILD_DIR)/%.o: %.cpp
+	mkdir -p $(BUILD_DIR)/$(dir $<)
+	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
+endef
+$(foreach kernel,$(KERNEL_NAMES),$(eval $(call KERNEL_RULE_template, $(kernel))))
+
+# rule for the remaining kernels
+$(ALL_KERNEL_OBJECTS): $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 	

@@ -48,9 +48,8 @@ public class QuantityMeasuringService {
 	public static final Axis<Class<?>> quantityAxis = new Axis<Class<?>>(
 			"6c426432-5521-4c93-ac65-ec5d51a062bc", "quantity");
 
-	public OperationalIntensity measureOperationalIntensity(
-			KernelBase kernel, MemoryTransferBorder border,
-			Operation operation) {
+	public OperationalIntensity measureOperationalIntensity(KernelBase kernel,
+			MemoryTransferBorder border, Operation operation) {
 		return new OperationalIntensity(
 				measureTransferredBytes(kernel, border), measureOperationCount(
 						kernel, operation));
@@ -157,8 +156,8 @@ public class QuantityMeasuringService {
 
 	}
 
-	public TransferredBytes measureTransferredBytes(
-			KernelBase kernel, MemoryTransferBorder border) {
+	public TransferredBytes measureTransferredBytes(KernelBase kernel,
+			MemoryTransferBorder border) {
 		return measure(kernel, getTransferredBytesCalculator(border));
 	}
 
@@ -181,8 +180,7 @@ public class QuantityMeasuringService {
 		}
 	}
 
-	public Time measureExecutionTime(KernelBase kernel,
-			ClockType clockType) {
+	public Time measureExecutionTime(KernelBase kernel, ClockType clockType) {
 		return measure(kernel, getExecutionTimeCalculator(clockType));
 	}
 
@@ -215,6 +213,7 @@ public class QuantityMeasuringService {
 			Workload workload = new Workload();
 			workload.setKernel(kernel);
 			workload.setMeasurerSet(set);
+			measurement.addWorkload(workload);
 
 			MeasurementResult result = measurementService.measure(measurement,
 					numMeasurements);
@@ -238,8 +237,7 @@ public class QuantityMeasuringService {
 		return min(results, Quantity.<T> lessThan());
 	}
 
-	public Quantity<?> measure(KernelBase kernel,
-			Coordinate measurementPoint) {
+	public Quantity<?> measure(KernelBase kernel, Coordinate measurementPoint) {
 		Class<?> quantity = measurementPoint.get(quantityAxis);
 
 		if (quantity == Time.class)

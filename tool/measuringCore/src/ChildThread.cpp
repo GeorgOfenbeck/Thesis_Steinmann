@@ -25,7 +25,6 @@ void ChildThread::processNotification() {
 			notification, arg);
 
 	if (notification == ChildNotification_ChildExited) {
-		// get the child
 		pthread_mutex_lock(&threadMapMutex);
 
 		// check that the child is initialized

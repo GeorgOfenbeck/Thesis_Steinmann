@@ -118,9 +118,8 @@ public class MeasurementService implements IMeasurementFacilility {
 	 * prepares the measuring core for the building to perform the specified
 	 * measurement. Returns true if anything changed.
 	 */
-	public boolean prepareMeasuringCoreBuilding(
-			Measurement measurement) throws Error,
-			FileNotFoundException {
+	public boolean prepareMeasuringCoreBuilding(Measurement measurement)
+			throws Error, FileNotFoundException {
 		runtimeMonitor.buildPreparationCategory.enter();
 		File measuringCoreDir = measuringCoreLocationService
 				.getMeasuringCoreDir();
@@ -131,10 +130,10 @@ public class MeasurementService implements IMeasurementFacilility {
 		anythingChanged |= writeMacroDefinitions(measurement, measuringCoreDir);
 
 		// write optimization file
-		anythingChanged |= writeOptimizationFile(measurement, measuringCoreDir);
+		anythingChanged |= writeOptimizationFiles(measurement, measuringCoreDir);
 
 		// write kernel name
-		anythingChanged |= writeKernelName(measurement, measuringCoreDir);
+		anythingChanged |= writeKernelNames(measurement, measuringCoreDir);
 
 		// create measurement scheme registration
 		anythingChanged |= writeMeasurementSchemeRegistration(measurement,
@@ -148,9 +147,8 @@ public class MeasurementService implements IMeasurementFacilility {
 	 * @param measuringCoreDir
 	 * @throws FileNotFoundException
 	 */
-	private boolean writeMeasurementSchemeRegistration(
-			Measurement measurement, File measuringCoreDir)
-			throws FileNotFoundException {
+	private boolean writeMeasurementSchemeRegistration(Measurement measurement,
+			File measuringCoreDir) throws FileNotFoundException {
 		/*log.trace("creating MeasurementScheme registration file");
 		File measurementSchemeRegistrationFile = new File(measuringCoreDir,
 				"generated/MeasurementSchemeRegistration.cpp");
@@ -187,42 +185,63 @@ public class MeasurementService implements IMeasurementFacilility {
 	/**
 	 * write the optimization file. return true if modified
 	 */
-	private boolean writeOptimizationFile(Measurement measurement,
+	private boolean writeOptimizationFiles(Measurement measurement,
 			File measuringCoreDir) throws FileNotFoundException {
-		/*
-		log.trace("creating optimization file");
-		File optimizationFile = new File(measuringCoreDir,
-				"kernelOptimization.mk");
-		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
-				optimizationFile);
-		PrintStream optimizationPrintStream = new PrintStream(updatingStream);
-		optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS=%s\n",
-				measurement.getKernel().getOptimization());
-		optimizationPrintStream.close();
-		return updatingStream.isWriting();
-		*/
-		return false;
+
+		log.trace("creating optimization files");
+		boolean modified = false;
+		HashSet<File> presentFiles = new HashSet<File>();
+		for (KernelBase kernel : measurement.getKernels()) {
+			File optimizationFile = new File(measuringCoreDir,
+					"generated/kernelOptimization/kernelOptimization"
+							+ kernel.getName() + ".mk");
+			presentFiles.add(optimizationFile);
+			optimizationFile.getParentFile().mkdirs();
+			UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
+					optimizationFile);
+			PrintStream optimizationPrintStream = new PrintStream(
+					updatingStream);
+			optimizationPrintStream.printf("KERNEL_OPTIMIZATION_FLAGS_%s=%s\n",
+					kernel.getName(), kernel.getOptimization());
+			optimizationPrintStream.close();
+			modified |= updatingStream.isWriting();
+		}
+
+		modified |= removeFilesNotInSet(new File(measuringCoreDir,
+				"generated/kernelOptimization"), presentFiles);
+
+		return modified;
 	}
 
 	/**
 	 * configure the kernel name. return true if changed
 	 */
-	private boolean writeKernelName(Measurement measurement,
+	private boolean writeKernelNames(Measurement measurement,
 			File measuringCoreDir) throws FileNotFoundException {
-		/*
-		log.trace("writing kernel name");
-		File optimizationFile = new File(measuringCoreDir, "kernelName.mk");
+
+		log.trace("writing kernel namse");
+
+		// open the make file include for writing
+		File kernelNameFile = new File(measuringCoreDir,
+				"generated/kernelNames.mk");
+		kernelNameFile.getParentFile().mkdirs();
 		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
-				optimizationFile);
+				kernelNameFile);
 		PrintStream optimizationPrintStream = new PrintStream(updatingStream);
-		String kernelName = measurement.getKernel().getClass().getSimpleName();
-		kernelName = kernelName.substring(0, kernelName.length()
-				- "KernelDescription".length());
-		optimizationPrintStream.printf("KERNEL_NAME=%s\n", kernelName);
+
+		optimizationPrintStream.printf("KERNEL_NAMES=");
+
+		// print the name of each kernel
+		for (KernelBase kernel : measurement.getKernels()) {
+			optimizationPrintStream.printf("%s ", kernel.getName());
+		}
+
+		optimizationPrintStream.printf("\n");
+
+		// close the output file
 		optimizationPrintStream.close();
 		return updatingStream.isWriting();
-		*/
-		return false;
+
 	}
 
 	/**

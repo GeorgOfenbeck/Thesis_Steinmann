@@ -11,4 +11,14 @@ public class KernelBase extends KernelBaseData {
 		}
 	}
 
+	/**
+	 * returns the name of the kernel without the "Kernel" suffix
+	 */
+	public String getName() {
+		String kernelName = getClass().getSimpleName();
+		kernelName = kernelName.substring(0,
+				kernelName.length() - "Kernel".length());
+		return kernelName;
+	}
+
 }
