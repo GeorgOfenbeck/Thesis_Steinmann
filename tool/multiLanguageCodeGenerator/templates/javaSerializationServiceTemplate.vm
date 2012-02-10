@@ -115,30 +115,32 @@ public class MultiLanguageSerializationService{
 		
 		##iterate over all classes	
 		#foreach($class in $classes)
-			if (o.getClass()==${class.name}.class){
-				output.println("$class.name");
-	
-				## iterate over all fields
-				#foreach($field in $class.allFields)
-				
-					## output field header
-					output.println("${field.name}");
+			#if(!$class.isAbstract())
+				if (o.getClass()==${class.name}.class){
+					output.println("$class.name");
+		
+					## iterate over all fields
+					#foreach($field in $class.allFields)
 					
-					## check if the field is a list
-					#if ($field.class.simpleName=="MultiLanguageList")
-						## print the field size
-						output.println((($class.name)o).get${field.nameUpperCamel}().size());
+						## output field header
+						output.println("${field.name}");
 						
-						## serialize all elements		
-						for($field.typeDescriptor.javaBoxedName value : (($class.name)o).get${field.nameUpperCamel}()){
-							#serializeNonList("value")
-						}
-					#else
-						#serializeNonList("(($class.name)o).get${field.nameUpperCamel}()")
+						## check if the field is a list
+						#if ($field.class.simpleName=="MultiLanguageList")
+							## print the field size
+							output.println((($class.name)o).get${field.nameUpperCamel}().size());
+							
+							## serialize all elements		
+							for($field.typeDescriptor.javaBoxedName value : (($class.name)o).get${field.nameUpperCamel}()){
+								#serializeNonList("value")
+							}
+						#else
+							#serializeNonList("(($class.name)o).get${field.nameUpperCamel}()")
+						#end
 					#end
-				#end
-				return;
-			}
+					return;
+				}
+			#end
 		#end
 		throw new Error("Unknown class: "+o.getClass().getName());
 	}
@@ -167,43 +169,45 @@ private Object DeSerializeImp(Scanner scanner) {
 	}
 	
 	#foreach($class in $classes)	
-		if (scanner.hasNext("$class.name")){
-			// instantiate the resulting class instance
-			$class.name result=new ${class.name}();
-			
-			// remove the class name
-			scanner.next("$class.name");
-			scanner.nextLine();
-			
-			#foreach($field in $class.allFields)
-			{
-				// remove the field name
-				scanner.next("${field.name}");
+		#if(!$class.isAbstract())
+			if (scanner.hasNext("$class.name")){
+				// instantiate the resulting class instance
+				$class.name result=new ${class.name}();
+				
+				// remove the class name
+				scanner.next("$class.name");
 				scanner.nextLine();
 				
-				#if ($field.class.simpleName=="MultiLanguageList")
+				#foreach($field in $class.allFields)
 				{
-					long count=scanner.nextLong();
-					for (int i=0; i<count; i++){
-		
-						#if ($field.typeDescriptor.reference)
-							result.get${field.nameUpperCamel}().add(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
-						#else
-							result.get${field.nameUpperCamel}().add(#parseNonReference());
-							#advanceAfterParseNonReference
-						#end
+					// remove the field name
+					scanner.next("${field.name}");
+					scanner.nextLine();
+					
+					#if ($field.class.simpleName=="MultiLanguageList")
+					{
+						long count=scanner.nextLong();
+						for (int i=0; i<count; i++){
+			
+							#if ($field.typeDescriptor.reference)
+								result.get${field.nameUpperCamel}().add(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
+							#else
+								result.get${field.nameUpperCamel}().add(#parseNonReference());
+								#advanceAfterParseNonReference
+							#end
+						}
 					}
+					#elseif ($field.typeDescriptor.reference)
+						result.set${field.nameUpperCamel}(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
+					#else
+						result.set${field.nameUpperCamel}(#parseNonReference());
+						#advanceAfterParseNonReference
+					#end
 				}
-				#elseif ($field.typeDescriptor.reference)
-					result.set${field.nameUpperCamel}(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
-				#else
-					result.set${field.nameUpperCamel}(#parseNonReference());
-					#advanceAfterParseNonReference
 				#end
+				return result;
 			}
-			#end
-			return result;
-		}
+		#end
 	#end
 		
 	throw new Error("Parse Error");

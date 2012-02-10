@@ -1,11 +1,8 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import com.thoughtworks.xstream.annotations.*;
 
 @XStreamAlias("derivedClass")
 public class MultiLanguageDerivedClass extends MultiLanguageClassBase {
@@ -65,5 +62,11 @@ public class MultiLanguageDerivedClass extends MultiLanguageClassBase {
 
 	public void setBaseClass(MultiLanguageClassBase baseClass) {
 		this.baseClass = baseClass;
+	}
+
+	public boolean isGeneratedJavaClassAbstract() {
+		return isAbstract()
+				|| (baseClass.isAbstract() && javaSuffix != null && !javaSuffix
+						.isEmpty());
 	}
 }

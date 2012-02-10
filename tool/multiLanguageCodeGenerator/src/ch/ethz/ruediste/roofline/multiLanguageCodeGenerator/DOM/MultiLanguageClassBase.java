@@ -136,4 +136,8 @@ public abstract class MultiLanguageClassBase {
 	public void setAbstract(boolean isAbstract) {
 		this.isAbstract = isAbstract;
 	}
+
+	public boolean isGeneratedJavaClassAbstract() {
+		return isAbstract;
+	}
 }
