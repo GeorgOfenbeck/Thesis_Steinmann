@@ -125,6 +125,7 @@ PmuDescription *list_pmu_events(pfm_pmu_t pmu) {
 
 MeasurerOutputBase *ListEventsMeasurer::read() {
 	ListEventsMeasurerOutput *result = new ListEventsMeasurerOutput();
+	result->setMeasurerId(getId());
 
 	for (int pmu = 0; pmu < PFM_PMU_MAX; pmu++) {
 		PmuDescription *pmuDescription = list_pmu_events((pfm_pmu_t) pmu);

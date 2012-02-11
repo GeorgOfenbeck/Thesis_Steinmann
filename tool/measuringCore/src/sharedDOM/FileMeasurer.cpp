@@ -19,6 +19,7 @@ FileMeasurer::~FileMeasurer() {
 
 void FileMeasurer::start(){
 	output=new FileMeasurerOutput();
+	output->setMeasurerId(getId());
 	foreach(string file, getFilesToRecord()){
 		// create content
 		FileContent *content=new FileContent();

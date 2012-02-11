@@ -27,6 +27,7 @@ public:
 		long result=(endTime.tv_sec-startTime.tv_sec)*1e6+endTime.tv_usec-startTime.tv_usec;
 		ExecutionTimeMeasurerOutput *output=new ExecutionTimeMeasurerOutput();
 		output->setUSecs(result);
+		output->setMeasurerId(getId());
 		return output;
 	}
 };

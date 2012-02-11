@@ -38,6 +38,7 @@ public:
 
 	MeasurerOutputBase *read() {
 		CombinedMeasurerOutput *result=new CombinedMeasurerOutput();
+		result->setMeasurerId(getId());
 		foreach(MeasurerBase *measurer, getMeasurers())
 		{
 			MeasurerOutputBase *tmp=measurer->read();

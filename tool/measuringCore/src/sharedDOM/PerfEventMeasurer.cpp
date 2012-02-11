@@ -109,6 +109,7 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 	int ret;
 
 	PerfEventMeasurerOutput *output=new PerfEventMeasurerOutput();
+	output->setMeasurerId(getId());
 	for (size_t i=0; i<fds.size();i++){
 		/*
 		 * read the count + scaling values

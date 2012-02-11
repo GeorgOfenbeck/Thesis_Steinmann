@@ -53,6 +53,7 @@ public:
 
 	MeasurerOutputBase *read(){
 		TscMeasurerOutput *output=new TscMeasurerOutput();
+		output->setMeasurerId(getId());
 		output->setTics(endTime-startTime);
 		return output;
 	}

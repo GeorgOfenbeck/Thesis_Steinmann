@@ -226,12 +226,12 @@ public class QuantityMeasuringService {
 
 		ArrayList<T> results = new ArrayList<T>();
 		// calculate the resulting quantity for all corrresponding results
-		for (int i = 0; i < 10; i++) {
+		for (int runNr = 0; runNr < numMeasurements; runNr++) {
 			ArrayList<MeasurerSetOutput> outputs = new ArrayList<MeasurerSetOutput>();
-			for (int p = 0; p < calculator.getRequiredMeasurerSets().size(); p++) {
-				MeasurerSet set = calculator.getRequiredMeasurerSets().get(p);
-				MeasurementResult result = measurementResults.get(p);
-				outputs.add(result.getOutputs().get(i)
+			for (int setNr = 0; setNr < calculator.getRequiredMeasurerSets().size(); setNr++) {
+				MeasurerSet set = calculator.getRequiredMeasurerSets().get(setNr);
+				MeasurementResult result = measurementResults.get(setNr);
+				outputs.add(result.getOutputs().get(runNr)
 						.getMeasurerSetOutput(set));
 			}
 			results.add(calculator.getResult(outputs));
