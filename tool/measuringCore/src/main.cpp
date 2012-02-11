@@ -44,6 +44,7 @@ void childMain(int argc, char* argv[]) {
 	ChildProcess child;
 	int ret=child.main(argc,argv);
 
+	//printf("Child process done, Retval: %i\n",ret);
 	exit(ret);
 }
 
@@ -107,9 +108,9 @@ pid_t startChildProcess(int argc, char* argv[]) {
 
 
 int main(int argc, char* argv[]) {
-	ChildProcess child;
-	child.main(argc,argv);
-	return 0;
+	//ChildProcess child;
+	//child.main(argc,argv);
+	//return 0;
 
 	printf("Hello World\n");
 
@@ -121,4 +122,5 @@ int main(int argc, char* argv[]) {
 	parent.traceLoop();
 
 	printf("return from main\n");
+	return 0;
 }

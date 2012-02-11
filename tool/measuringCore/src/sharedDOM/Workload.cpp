@@ -11,6 +11,7 @@
 #include "utils.h"
 #include <sched.h>
 #include <pthread.h>
+#include "Exception.h"
 
 Workload::~Workload() {
 	// TODO Auto-generated destructor stub
@@ -32,7 +33,13 @@ void Workload::clearCaches() {
 
 void *Workload::threadStart(void *arg) {
 	Workload *workload = (Workload*) arg;
+	try{
 	workload->startInThread();
+	}
+	catch(Exception e){
+		fprintf(stderr,"Exception occurred: %s\n",e.get_message().c_str());
+		e.print(2);
+	}
 	return NULL;
 }
 
@@ -103,6 +110,11 @@ void Workload::startInThread() {
 
 	// store output
 	output=getMeasurerSet()->getOutput();
+
+	// clean up
+	getKernel()->dispose();
+
+	getMeasurerSet()->dispose();
 }
 
 

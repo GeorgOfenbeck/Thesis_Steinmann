@@ -36,8 +36,8 @@ public class MMMMeasurementController implements IMeasurementController {
 		Axis<Algorithm> algorithmAxis = new Axis<MMMKernel.Algorithm>(
 				"4762fd9f-88d4-4bdd-b8fa-ae73c7996151", "algorithm");
 
-		space.add(algorithmAxis, Algorithm.TripleLoop);
-		space.add(algorithmAxis, Algorithm.Blocked);
+		//space.add(algorithmAxis, Algorithm.TripleLoop);
+		//	space.add(algorithmAxis, Algorithm.Blocked);
 		space.add(algorithmAxis, Algorithm.Blas);
 
 		space.add(Axes.blockSizeAxis, 16L);
@@ -54,12 +54,13 @@ public class MMMMeasurementController implements IMeasurementController {
 			kernel.initialize(coordinate);
 
 			Performance performance = quantityMeasuringService
-					.measurePerformance(kernel, Operation.CompInstr,
+					.measurePerformance(kernel, Operation.DoublePrecisionFlop,
 							ClockType.CoreCycles);
 			System.out.printf("Performance %s: %s\n", coordinate, performance);
 
 			OperationCount operationCount = quantityMeasuringService
-					.measureOperationCount(kernel, Operation.CompInstr);
+					.measureOperationCount(kernel,
+							Operation.DoublePrecisionFlop);
 			System.out
 					.printf("Operations %s: %s\n", coordinate, operationCount);
 

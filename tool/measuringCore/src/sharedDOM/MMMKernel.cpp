@@ -9,7 +9,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-#include <cblas.h>
+//#include <cblas.h>
+#include <mkl_cblas.h>
+#include "Exception.h"
 
 
 void MMMKernel::initialize(){
@@ -48,8 +50,9 @@ void MMMKernel::initialize(){
 
 		// perform check
 		for (size_t i=0; i<size; i++){
-				if (fabs(c[i]-check[i])>1e-5)
-					throw "matrix multiplication error";
+				if (fabs(c[i]-check[i])>1e-5){
+					throw Exception("matrix multiplication error");
+				}
 				c[i]=0;
 			}
 	}
@@ -57,7 +60,7 @@ void MMMKernel::initialize(){
 
 void MMMKernel::blas(double *a, double *b, double *c)
 {
-	long size = getMatrixSize();
+	int size = getMatrixSize();
 	cblas_dgemm(
 			CblasRowMajor,
 			CblasNoTrans, CblasNoTrans,
@@ -68,6 +71,9 @@ void MMMKernel::blas(double *a, double *b, double *c)
 			1,
 			c, size);
 
+	//void DGEMM(const char *transa, const char *transb, const MKL_INT *m, const MKL_INT *n, const MKL_INT *k,
+	  //         const double *alpha, const double *a, const MKL_INT *lda, const double *b, const MKL_INT *ldb,
+	    //       const double *beta, double *c, const MKL_INT *ldc);
 }
 
 void MMMKernel::dispose(){

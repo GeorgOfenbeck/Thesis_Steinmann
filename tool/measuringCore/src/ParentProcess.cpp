@@ -265,8 +265,14 @@ void ParentProcess::traceLoop() {
 
 		// check if the child is known
 		if (childStates.count(stoppedPid) == 0) {
-			printf("received signal from unknow child %i", stoppedPid);
-			exit(1);
+			printf("unknown child stopped %i", stoppedPid);
+			if (WIFSTOPPED(status)){
+				if (ptrace(PTRACE_CONT, stoppedPid, 0, 0) < 0) {
+					perror("cont: error on ptrace syscall");
+					exit(1);
+				}
+			}
+			continue;
 		}
 
 		// check if the child is stopped
@@ -304,6 +310,13 @@ void ParentProcess::traceLoop() {
 			}
 		}
 	}
+
+	// let the main child continue
+	if (ptrace(PTRACE_DETACH, mainChild, 0, 0) < 0) {
+		perror("cont: error on ptrace syscall");
+		exit(1);
+	}
+
 }
 
 void ParentProcess::queueNotification(pid_t stoppedChild, pid_t receiver,

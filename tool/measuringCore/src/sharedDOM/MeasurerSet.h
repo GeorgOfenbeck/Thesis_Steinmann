@@ -42,15 +42,33 @@ public:
 				}
 	}
 
-	void initialize(){
+	void initialize() {
 		getMainMeasurer()->initialize();
-		foreach(MeasurerBase *measurer, getAdditionalMeasurers()){
-			measurer->initialize();
-		}
-		foreach(MeasurerBase *measurer, getValidationMeasurers()){
-			measurer->initialize();
-		}
+		foreach(MeasurerBase *measurer, getAdditionalMeasurers())
+				{
+					measurer->initialize();
+				}
+		foreach(MeasurerBase *measurer, getValidationMeasurers())
+				{
+					measurer->initialize();
+				}
 	}
+
+	void dispose() {
+
+		reverse_foreach(MeasurerBase *measurer, getValidationMeasurers())
+				{
+					measurer->dispose();
+				}
+
+		reverse_foreach(MeasurerBase *measurer, getAdditionalMeasurers())
+				{
+					measurer->dispose();
+				}
+
+		getMainMeasurer()->dispose();
+	}
+
 	MeasurerSetOutput* getOutput();
 };
 

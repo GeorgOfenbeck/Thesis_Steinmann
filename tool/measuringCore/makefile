@@ -4,7 +4,7 @@
 BUILD_DIR=build
 
 # libraries for linking
-LIBS=-lpfm -lstdc++ -lblas
+LIBS=-lpfm -lstdc++ -L/opt/intel/mkl/lib/ia32  -lmkl_intel -lmkl_sequential -lmkl_core
 
 # command for the compiler
 GCC=ccache gcc
@@ -17,7 +17,7 @@ OPTIMIZATION_FLAGS=-O0
 SOURCE_IGNORE_PATTERNS=./src/oldMain.cpp
 
 # additional directories to search for includes
-INCLUDE_DIRS=-I"src" -I"generated"
+INCLUDE_DIRS=-I"src" -I"generated" -I"/opt/intel/mkl/include"
 
 # flags for generating the .d files
 DEP_FLAGS=-MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)"
@@ -65,7 +65,7 @@ UNNAMED_KERNEL_OBJECTS=$(filter-out $(foreach kernel,$(KERNEL_NAMES),$(KERNEL_OB
 PRESENT_DEP_FILES=$(patsubst ./build/%, build/./%, $(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*"))
 
 # generate .d file names from the source file names
-GENERATED_DEP_FILES=$(call sourcesToDeps, $(SOURCES) $(ALL_KERNEL_SOURCES))
+GENERATED_DEP_FILES=$(call sourcesToDeps, $(ALL_SOURCES))
 
 # keep only the .d files present which are required
 DEP_FILES=$(filter $(GENERATED_DEP_FILES), $(PRESENT_DEP_FILES))

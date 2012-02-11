@@ -62,24 +62,44 @@ public class RooflineMeasurementController implements IMeasurementController {
 
 		{
 			ParameterSpace space = new ParameterSpace();
-			for (long i = 64; i <= 1024; i += 64) {
+			for (long i = 64; i <= 900; i += 64) {
 				space.add(Axes.matrixSizeAxis, i);
 			}
 			space.add(Axes.blockSizeAxis, 64L);
 
 			space.add(Axes.optimizationAxis, "-O3");
+			Axis<ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm> algorithmAxis = new Axis<MMMKernel.Algorithm>(
+					"742250a7-5ea2-4a39-b0c6-7145d0c4b292", "algorithm");
 
-			for (Coordinate coordinate : space) {
+			//space.add(
+			//		algorithmAxis,
+			//		ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.TripleLoop);
+			//space.add(algorithmAxis,
+			//		ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.Blocked);
+			space.add(algorithmAxis,
+					ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.Blas);
+
+			for (Coordinate coordinate : space.getAllPoints(space
+					.getAllAxesWithLeastSignificantAxes(algorithmAxis))) {
 				MMMKernel kernel = new MMMKernel();
 				kernel.setMu(2);
 				kernel.setNu(2);
 				kernel.setKu(2);
 				kernel.setNoCheck(true);
+				kernel.setAlgorithm(coordinate.get(algorithmAxis));
 				kernel.initialize(coordinate);
 
-				rooflineController.addRooflinePoint(
-						"MMM" + coordinate.get(Axes.matrixSizeAxis), kernel,
-						Operation.CompInstr, MemoryTransferBorder.LlcRam);
+				String name = "MMM" + coordinate.get(algorithmAxis)
+						+ coordinate.get(Axes.matrixSizeAxis);
+				System.out.printf("Measuring %s\n", name);
+
+				Operation operation = Operation.CompInstr;
+				if (coordinate.get(algorithmAxis) == ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.Blas) {
+
+					operation = Operation.DoublePrecisionFlop;
+				}
+				rooflineController.addRooflinePoint(name, kernel, operation,
+						MemoryTransferBorder.LlcRam);
 			}
 		}
 
