@@ -10,4 +10,14 @@ public class CreateMeasurerOnNewThreadAction extends
 		return Collections.emptyList();
 	}
 
+	@Override
+	public Collection<? extends MeasurerSet> getMeasurerSets() {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<? extends MeasurerBase> getMeasurers() {
+		return Collections.emptyList();
+	}
+
 }

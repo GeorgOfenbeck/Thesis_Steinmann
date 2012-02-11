@@ -94,9 +94,70 @@ public class Measurement extends MeasurementData {
 				result.add(workload.getKernel());
 			}
 		}
-		for (RuleBase rule : getRules()) {
-			result.addAll(rule.getKernels());
+		for (ActionBase action : getActions()) {
+			result.addAll(action.getKernels());
 		}
 		return result;
 	}
+
+	public void setIds() {
+		int workloadId = 0;
+		for (Workload workload : getWorkloads()) {
+			workload.setId(workloadId++);
+		}
+
+		int kernelId = 0;
+		for (KernelBase kernel : getKernels()) {
+			kernel.setId(kernelId++);
+		}
+
+		int measurerSetId = 0;
+		for (MeasurerSet measurerSet : getMeasurerSets()) {
+			measurerSet.setId(measurerSetId++);
+		}
+
+		int measurerId = 0;
+		for (MeasurerBase measurer : getMeasurers()) {
+			measurer.setId(measurerId++);
+		}
+
+	}
+
+	private Iterable<MeasurerSet> getMeasurerSets() {
+		ArrayList<MeasurerSet> result = new ArrayList<MeasurerSet>();
+		for (Workload workload : getWorkloads()) {
+			if (workload.getMeasurerSet() != null) {
+				result.add(workload.getMeasurerSet());
+			}
+		}
+		for (ActionBase action : getActions()) {
+			result.addAll(action.getMeasurerSets());
+		}
+		return result;
+	}
+
+	public Iterable<MeasurerBase> getMeasurers() {
+		ArrayList<MeasurerBase> result = new ArrayList<MeasurerBase>();
+		for (Workload workload : getWorkloads()) {
+			if (workload.getMeasurerSet() != null) {
+				result.addAll(workload.getMeasurerSet().getMeasurers());
+			}
+		}
+		for (ActionBase action : getActions()) {
+			result.addAll(action.getMeasurers());
+		}
+		return result;
+	}
+
+	public Iterable<ActionBase> getActions() {
+		ArrayList<ActionBase> result = new ArrayList<ActionBase>();
+
+		for (RuleBase rule : getRules()) {
+			if (rule.getAction() != null) {
+				result.add(rule.getAction());
+			}
+		}
+		return result;
+	}
+
 }

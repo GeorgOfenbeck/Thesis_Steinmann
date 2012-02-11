@@ -14,7 +14,7 @@ public class MeasurerSet extends MeasurerSetData {
 		setMainMeasurer(measurer);
 	}
 
-	public Iterable<MeasurerBase> getMeasurers() {
+	public Collection<? extends MeasurerBase> getMeasurers() {
 		ArrayList<MeasurerBase> result = new ArrayList<MeasurerBase>();
 		if (getMainMeasurer() != null) {
 			result.add(getMainMeasurer());

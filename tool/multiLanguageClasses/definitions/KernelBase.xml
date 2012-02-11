@@ -10,5 +10,6 @@
 	isAbstract="true"
 	comment="Describes a Kernel">
 	
+	<field name="id" type="int" comment="id of the kernel"/>
 	<field name="optimization" type="string" comment="optimization flags to be used for compiling the kernel"/>
 </class>

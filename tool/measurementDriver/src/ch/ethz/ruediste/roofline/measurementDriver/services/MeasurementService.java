@@ -341,50 +341,53 @@ public class MeasurementService implements IMeasurementFacilility {
 		return measurementFacilility.measure(measurement, numberOfMeasurements);
 	}
 
-	public void prepareMeasurement(Measurement measurementDescription) {
+	public void prepareMeasurement(Measurement measurement) {
+		measurement.setIds();
+		// add the configurator setting the frequency scaling if desired
 		if (!configuration.get(measureRawKey)
 				&& configuration.get(measurementFrequencyGovernorKey) != null) {
-			RunCommandConfigurator configurator = new RunCommandConfigurator();
-			measurementDescription.getConfigurators().add(configurator);
+			addMeasurementFrequencyConfigurator(measurement);
+		}
+	}
 
-			{
-				RunCommand cmd = new RunCommand();
-				configurator.getBeforeMeasurementCommands().add(cmd);
+	/**
+	 * @param measurementDescription
+	 */
+	public void addMeasurementFrequencyConfigurator(
+			Measurement measurementDescription) {
+		RunCommandConfigurator configurator = new RunCommandConfigurator();
+		measurementDescription.getConfigurators().add(configurator);
 
-				String executable = configuration
-						.get(systemConfiguratorExecutableKey);
-				cmd.setExecutable(executable);
-				cmd.getArgs().add(new File(executable).getName());
-				cmd.getArgs().add("governor");
-				cmd.getArgs().add(
-						configuration.get(measurementFrequencyGovernorKey));
-				for (int cpu : systemInfoRepository.getPossibleCPUs()) {
-					cmd.getArgs().add(Integer.toString(cpu));
-				}
+		{
+			RunCommand cmd = new RunCommand();
+			configurator.getBeforeMeasurementCommands().add(cmd);
 
+			String executable = configuration
+					.get(systemConfiguratorExecutableKey);
+			cmd.setExecutable(executable);
+			cmd.getArgs().add(new File(executable).getName());
+			cmd.getArgs().add("governor");
+			cmd.getArgs().add(
+					configuration.get(measurementFrequencyGovernorKey));
+			for (int cpu : systemInfoRepository.getPossibleCPUs()) {
+				cmd.getArgs().add(Integer.toString(cpu));
 			}
 
-			{
-				RunCommand cmd = new RunCommand();
-				configurator.getAfterMeasurementCommands().add(cmd);
+		}
 
-				String executable = configuration
-						.get(systemConfiguratorExecutableKey);
-				cmd.setExecutable(executable);
-				cmd.getArgs().add(new File(executable).getName());
-				cmd.getArgs().add("governor");
-				cmd.getArgs().add(
-						configuration.get(defaultFrequencyGovernorKey));
-				for (int cpu : systemInfoRepository.getPossibleCPUs()) {
-					cmd.getArgs().add(Integer.toString(cpu));
-				}
+		{
+			RunCommand cmd = new RunCommand();
+			configurator.getAfterMeasurementCommands().add(cmd);
 
+			String executable = configuration
+					.get(systemConfiguratorExecutableKey);
+			cmd.setExecutable(executable);
+			cmd.getArgs().add(new File(executable).getName());
+			cmd.getArgs().add("governor");
+			cmd.getArgs().add(configuration.get(defaultFrequencyGovernorKey));
+			for (int cpu : systemInfoRepository.getPossibleCPUs()) {
+				cmd.getArgs().add(Integer.toString(cpu));
 			}
-
-			SleepConfigurator sleepConfigurator = new SleepConfigurator();
-			sleepConfigurator.setSleepBeforeMeasurement(10);
-			sleepConfigurator.setSleepAfterMeasurement(10);
-			measurementDescription.getConfigurators().add(sleepConfigurator);
 
 		}
 	}

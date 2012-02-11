@@ -6,4 +6,8 @@ public abstract class ActionBase extends ActionBaseData {
 
 	public abstract Collection<? extends KernelBase> getKernels();
 
+	public abstract Collection<? extends MeasurerSet> getMeasurerSets();
+
+	public abstract Collection<? extends MeasurerBase> getMeasurers();
+
 }
