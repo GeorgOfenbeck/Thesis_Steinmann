@@ -1,8 +1,12 @@
 package ch.ethz.ruediste.roofline.dom;
 
-import java.util.ArrayList;
+import java.util.*;
+
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 public class MeasurerSetOutput extends MeasurerSetOutputData {
+	@XStreamOmitField
+	private UUID setUid;
 
 	public Iterable<MeasurerOutputBase> getMeasurerOutputs() {
 		ArrayList<MeasurerOutputBase> result = new ArrayList<MeasurerOutputBase>();
@@ -19,5 +23,13 @@ public class MeasurerSetOutput extends MeasurerSetOutputData {
 			throw new Error("Measurer is not main measurer of this set");
 		}
 		return (T) getMainMeasurerOutput();
+	}
+
+	public UUID getSetUid() {
+		return setUid;
+	}
+
+	public void setSetUid(UUID measurerSetUid) {
+		this.setUid = measurerSetUid;
 	}
 }

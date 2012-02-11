@@ -106,7 +106,7 @@ $(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/k
 define KERNEL_RULE_template
 $$(KERNEL_OBJECTS_$(1)): $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(BUILD_DIR)/$$(dir $$<)
-	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS_$(1)) -Wa,-ahl=$$(patsubst %.o,%.s,$$@) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $$@ $$<
+	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS_$(1)) -Wa,-ahl=$$(patsubst %.o,%.s,$$@) $$(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $$@ $$<
 endef
 $(foreach kernel,$(KERNEL_NAMES),$(eval $(call KERNEL_RULE_template,$(kernel))))
 

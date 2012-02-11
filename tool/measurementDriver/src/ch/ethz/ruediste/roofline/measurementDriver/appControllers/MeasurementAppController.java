@@ -154,6 +154,8 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			result.getOutputs().add(outputs.get(i));
 		}
 
+		result.setResultUids();
+
 		// validate
 		measurementValidationService.validate(result);
 
@@ -208,8 +210,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		return result;
 	}
 
-	public void buildMeasuringCore(Measurement measurement)
-			throws Exception {
+	public void buildMeasuringCore(Measurement measurement) throws Exception {
 		buildMeasuringCore(measurement,
 				hashService.getMeasurementHash(measurement));
 	}

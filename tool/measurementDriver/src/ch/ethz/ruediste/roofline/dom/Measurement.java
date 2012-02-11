@@ -1,11 +1,14 @@
 package ch.ethz.ruediste.roofline.dom;
 
+import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.single;
+
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryPredicate;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
@@ -123,7 +126,7 @@ public class Measurement extends MeasurementData {
 
 	}
 
-	private Iterable<MeasurerSet> getMeasurerSets() {
+	public Iterable<MeasurerSet> getMeasurerSets() {
 		ArrayList<MeasurerSet> result = new ArrayList<MeasurerSet>();
 		for (Workload workload : getWorkloads()) {
 			if (workload.getMeasurerSet() != null) {
@@ -158,6 +161,22 @@ public class Measurement extends MeasurementData {
 			}
 		}
 		return result;
+	}
+
+	public MeasurerBase getMeasurer(final int measurerId) {
+		return single(getMeasurers(), new IUnaryPredicate<MeasurerBase>() {
+			public Boolean apply(MeasurerBase arg) {
+				return arg.getId() == measurerId;
+			}
+		});
+	}
+
+	public MeasurerSet getMeasurerSet(final int measurerSetId) {
+		return single(getMeasurerSets(), new IUnaryPredicate<MeasurerSet>() {
+			public Boolean apply(MeasurerSet arg) {
+				return arg.getId() == measurerSetId;
+			}
+		});
 	}
 
 }

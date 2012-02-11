@@ -52,4 +52,24 @@ public class MeasurementResult {
 				});
 	}
 
+	public void setResultUids() {
+		Measurement measurement = getMeasurement();
+
+		for (MeasurementRunOutput runOutput : getOutputs()) {
+			for (MeasurerSetOutput setOutput : runOutput
+					.getMeasurerSetOutputs()) {
+				// set the UID of the set output
+				setOutput.setSetUid(measurement.getMeasurerSet(
+						setOutput.getSetId()).getUid());
+				for (MeasurerOutputBase measurerOutput : setOutput
+						.getMeasurerOutputs()) {
+
+					// set the UID of the measurer output
+					measurerOutput.setMeasurerUid(measurement.getMeasurer(
+							measurerOutput.getMeasurerId()).getUid());
+				}
+			}
+		}
+	}
+
 }

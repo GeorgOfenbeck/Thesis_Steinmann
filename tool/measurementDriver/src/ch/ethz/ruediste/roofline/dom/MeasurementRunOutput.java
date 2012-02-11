@@ -29,8 +29,7 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 		return result;
 	}
 
-	public <TOutput> TOutput getMeasurerOutput(
-			IMeasurer<TOutput> measurer) {
+	public <TOutput> TOutput getMeasurerOutput(IMeasurer<TOutput> measurer) {
 		return IterableUtils.single(getMeasurerOutputs(measurer));
 	}
 
@@ -40,7 +39,7 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 				new IUnaryPredicate<MeasurerSetOutput>() {
 
 					public Boolean apply(MeasurerSetOutput arg) {
-						return arg.getSetId() == set.getId();
+						return arg.getSetUid().equals(set.getUid());
 					}
 				});
 	}

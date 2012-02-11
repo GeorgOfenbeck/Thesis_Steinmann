@@ -534,6 +534,12 @@ The technically most challenging is to interrupt another thread and make it exec
 
 \subsection{Child Thread Lifetime}
 The parent process manages a thread table, which contains the state of each child thread. When a child thread is cloned, the parent receives a signal by ptrace. It will create a new entry in the thread table and set the state to "new". In this state, the child cannot receive messages yet. When the thread is started, the parent process will receive a SIGSTOP from the child. Upon receiving this signal from a thread in the new state, the parent will send the "process" command and mark the thread as processing. As soon as the child is done with the initialization, it will send "done" to the parent. The process is put into the running state. When the child receives a message, the parent will possibly send process to it again. If it exits, it will go the the exit state.
+
+\section{Identifiying Measurers and Measurer Sets}
+When processing the results of one or multiple measurements, on often has to identify which result was generated from which measurer. The straight forward approach would be to give each measurer an unique id, and to store the id of the measurer with the measurer output. Measurers are newly created with each invocation of the measurement driver, possibly leading to new ids. But for caching, the id of the measurers does not matter.
+
+To overcome these problems, two ids are generated for each measurer. One identifier uniquely identifying each instantiated measurer. And an id which is unique within one measurement. When loading a result from cache, the unique identifiers of the loaded result are set to the identifiers of the measurement at hand.
+
 \listoffigures
 
 \bibliographystyle{abbrv}
