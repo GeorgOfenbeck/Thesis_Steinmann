@@ -4,7 +4,7 @@
 BUILD_DIR=build
 
 # libraries for linking
-LIBS=-lpfm -lstdc++ -L/opt/intel/mkl/lib/ia32  -lmkl_intel -lmkl_sequential -lmkl_core
+LIBS=-lpfm -lstdc++ -L/opt/intel/mkl/lib/ia32  -lfftw3 -lm #-lmkl_intel -lmkl_sequential -lmkl_core
 
 # command for the compiler
 GCC=ccache gcc

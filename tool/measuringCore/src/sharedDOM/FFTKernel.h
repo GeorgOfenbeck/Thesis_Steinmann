@@ -10,16 +10,19 @@
 
 #include "sharedDOM/FFTKernelData.h"
 #include "mkl_dfti.h"
+#include <fftw/fftw3.h>
 
 class FFTKernel : public FFTKernelData {
 	double *doubleData;
 	double _Complex *complexData;
 
 	DFTI_DESCRIPTOR_HANDLE mklDescriptor;
+
 	double dummy;
 
 	void four1(double data[], unsigned long nn, int isign);
 	void mklFFT(double _Complex *x, unsigned long nn);
+	void fftwFFT(double _Complex *x, unsigned long nn);
 public:
 	virtual ~FFTKernel();
 

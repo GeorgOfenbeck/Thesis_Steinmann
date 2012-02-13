@@ -18,12 +18,17 @@
 using namespace std;
 
 enum FFTAlgorithm {
-	FFTAlgorithm_NR, FFTAlgorithm_MKL
+	FFTAlgorithm_NR, FFTAlgorithm_MKL, FFTAlgorithm_FFTW
 };
 
 FFTKernel::~FFTKernel() {
 	// TODO Auto-generated destructor stub
 }
+
+static long planSize;
+static bool planInitialized = false;
+static fftw_plan fftwPlan;
+static fftw_complex *fftwData;
 
 double *allocateDoubleData(size_t size) {
 	double *result;
@@ -107,13 +112,16 @@ void FFTKernel::four1(double data[], unsigned long nn, int isign) {
 	//end of the algorithm
 }
 
+void FFTKernel::fftwFFT(double _Complex *x, unsigned long nn) {
+	fftw_execute(fftwPlan);
+}
 void FFTKernel::mklFFT(double _Complex *x, unsigned long nn) {
 
 	MKL_LONG status;
 
-	status = DftiComputeForward(mklDescriptor, x);
+	//status = DftiComputeForward(mklDescriptor, x);
 	if (status != 0) {
-		throw Exception("MKL FFT "+string(DftiErrorMessage(status)));
+		//throw Exception("MKL FFT " + string(DftiErrorMessage(status)));
 	}
 }
 
@@ -123,15 +131,15 @@ void FFTKernel::initialize() {
 	MKL_LONG status;
 
 	if (RMT_FFT_Algorithm == FFTAlgorithm_MKL || !getNoCheck()) {
-		status = DftiCreateDescriptor( &mklDescriptor, DFTI_DOUBLE,
-				DFTI_COMPLEX, 1, getBufferSize());
+		//status = DftiCreateDescriptor( &mklDescriptor, DFTI_DOUBLE,
+		//		DFTI_COMPLEX, 1, getBufferSize());
 		if (status != 0) {
-			throw Exception("MKL FFT "+string(DftiErrorMessage(status)));
+			//throw Exception("MKL FFT " + string(DftiErrorMessage(status)));
 		}
 
-		status = DftiCommitDescriptor(mklDescriptor);
+		//status = DftiCommitDescriptor(mklDescriptor);
 		if (status != 0) {
-			throw Exception("MKL FFT "+string(DftiErrorMessage(status)));
+			//throw Exception("MKL FFT " + string(DftiErrorMessage(status)));
 		}
 	}
 
@@ -177,8 +185,28 @@ void FFTKernel::initialize() {
 		complexData = allocateComplexData(getBufferSize());
 	}
 
-	printf("FFT: initialize done\n");
+	if (RMT_FFT_Algorithm == FFTAlgorithm_FFTW) {
+		if (!planInitialized || planSize != getBufferSize()) {
+			printf("replan \n");
+			if (planInitialized) {
+				fftw_destroy_plan(fftwPlan);
+				free(fftwData);
+			}
 
+			fftwData=(fftw_complex*) fftw_malloc(getBufferSize()*sizeof(fftw_complex));
+
+			fftwPlan = fftw_plan_dft_1d(getBufferSize(), fftwData, fftwData, FFTW_FORWARD,
+					FFTW_MEASURE);
+
+			planSize = getBufferSize();
+			planInitialized = true;
+		}
+		// initialize buffer
+		for (size_t i = 0; i < getBufferSize(); i++) {
+			fftwData[i][0] = drand48();
+			fftwData[i][1] = drand48();
+		}
+	}
 }
 
 void FFTKernel::run() {
@@ -190,6 +218,9 @@ void FFTKernel::run() {
 		mklFFT(complexData, getBufferSize());
 	}
 
+	if (RMT_FFT_Algorithm == FFTAlgorithm_FFTW) {
+		fftwFFT(complexData, getBufferSize());
+	}
 }
 
 void FFTKernel::dispose() {
@@ -200,12 +231,16 @@ void FFTKernel::dispose() {
 	if (RMT_FFT_Algorithm == FFTAlgorithm_MKL) {
 		MKL_LONG status;
 
-		status = DftiFreeDescriptor(&mklDescriptor);
+		//status = DftiFreeDescriptor(&mklDescriptor);
 		if (status != 0) {
-			throw Exception("MKL FFT "+string(DftiErrorMessage(status)));
+			throw Exception("MKL FFT " + string(DftiErrorMessage(status)));
 		}
 
 		free(complexData);
+	}
+
+	if (RMT_FFT_Algorithm == FFTAlgorithm_FFTW) {
+		// nothing to do
 	}
 }
 

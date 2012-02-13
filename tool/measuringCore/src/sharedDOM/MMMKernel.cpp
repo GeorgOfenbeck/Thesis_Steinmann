@@ -60,7 +60,7 @@ void MMMKernel::initialize(){
 void MMMKernel::blas(double *a, double *b, double *c)
 {
 	int size = getMatrixSize();
-	cblas_dgemm(
+	/*cblas_dgemm(
 			CblasRowMajor,
 			CblasNoTrans, CblasNoTrans,
 			size, size, size,
@@ -68,11 +68,8 @@ void MMMKernel::blas(double *a, double *b, double *c)
 			a, size,
 			b, size,
 			1,
-			c, size);
+			c, size);*/
 
-	//void DGEMM(const char *transa, const char *transb, const MKL_INT *m, const MKL_INT *n, const MKL_INT *k,
-	  //         const double *alpha, const double *a, const MKL_INT *lda, const double *b, const MKL_INT *ldb,
-	    //       const double *beta, double *c, const MKL_INT *ldc);
 }
 
 void MMMKernel::dispose(){

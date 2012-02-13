@@ -47,4 +47,15 @@ public class RooflinePlot extends Plot2D {
 				});
 	}
 
+	public Iterable<Performance> getPerformances() {
+		ArrayList<Performance> result = new ArrayList<Performance>();
+		for (RooflinePoint point : points) {
+			result.add(point.getPerformance());
+		}
+		for (Pair<String, Performance> perf : peakPerformances) {
+			result.add(perf.getRight());
+		}
+		return result;
+	}
+
 }

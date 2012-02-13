@@ -98,6 +98,9 @@ public class PlotService {
 		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
 				.getRange(plot.getOperationalIntensities());
 
+		Range<Performance> performanceRange = IterableUtils.getRange(plot
+				.getPerformances());
+
 		outputFile.close();
 
 		// write gnuplot file
@@ -105,15 +108,18 @@ public class PlotService {
 			PrintStream output = new PrintStream(plot.getOutputName()
 					+ ".gnuplot");
 			output.printf("set title '%s'\n", plot.getTitle());
-			output.printf("set terminal postscript color\n");
-			output.printf("set output '%s.ps'\n", plot.getOutputName());
+			output.printf("set terminal pdf color size 28cm,18cm\n");
+			output.printf("set output '%s.pdf'\n", plot.getOutputName());
 
 			output.println("set log x");
-			//output.println("set key left top");
+			output.println("set key outside right top");
 			output.println("set log y");
 			output.printf("set xrange [%g:%g]\n", operationalIntensityRange
 					.getMinimum().getValue() / 2, operationalIntensityRange
 					.getMaximum().getValue() * 2);
+			output.printf("set yrange [%g:%g]\n", performanceRange.getMinimum()
+					.getValue() / 2,
+					performanceRange.getMaximum().getValue() * 2);
 			output.printf("set xlabel '%s [%s]'\n", plot.getxLabel(),
 					plot.getxUnit());
 			output.printf("set ylabel '%s [%s]'\n", plot.getyLabel(),
@@ -123,15 +129,16 @@ public class PlotService {
 
 			List<String> plotLines = new ArrayList<String>();
 			for (Pair<String, Performance> peak : plot.getPeakPerformances()) {
-				plotLines.add(String.format("%e title '%s (%g flop/cycle)'",
+				plotLines.add(String.format("%e title '%s (%.2g flop/cycle)'",
 						peak.getRight().getValue(), peak.getLeft(), peak
 								.getRight().getValue()));
 			}
 
 			for (Pair<String, Throughput> peak : plot.getPeakBandwiths()) {
-				plotLines.add(String.format("%e*x title '%s (%g byte/cycle)'",
-						peak.getRight().getValue(), peak.getLeft(), peak
-								.getRight().getValue()));
+				plotLines.add(String.format(
+						"%e*x title '%s (%.2g byte/cycle)'", peak.getRight()
+								.getValue(), peak.getLeft(), peak.getRight()
+								.getValue()));
 			}
 
 			for (int i = 0; i < plot.getPoints().size(); i++) {

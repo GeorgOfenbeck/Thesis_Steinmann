@@ -10,7 +10,7 @@ public class FFTKernel extends FFTKernelData {
 			"FFTAlgorithm_NR");
 
 	public enum FFTAlgorithm {
-		FFTAlgorithm_NR, FFTAlgorithm_MKL
+		FFTAlgorithm_NR, FFTAlgorithm_MKL, FFTAlgorithm_FFTW
 	}
 
 	public void setAlgorithm(FFTAlgorithm algorithm) {
