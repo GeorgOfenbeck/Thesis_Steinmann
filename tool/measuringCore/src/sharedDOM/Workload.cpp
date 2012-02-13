@@ -12,6 +12,9 @@
 #include <sched.h>
 #include <pthread.h>
 #include "Exception.h"
+#include <string.h>
+
+using namespace std;
 
 Workload::~Workload() {
 	// TODO Auto-generated destructor stub
@@ -39,6 +42,15 @@ void *Workload::threadStart(void *arg) {
 	catch(Exception e){
 		fprintf(stderr,"Exception occurred: %s\n",e.get_message().c_str());
 		e.print(2);
+		exit(1);
+	}
+	catch (string s){
+		fprintf(stderr,"Exception occurred: %s\n",s.c_str());
+		exit(1);
+	}
+	catch (...){
+		fprintf(stderr,"Exception occurred: \n");
+		exit(1);
 	}
 	return NULL;
 }

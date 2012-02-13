@@ -10,6 +10,7 @@
 
 #include "sharedDOM/WorkloadData.h"
 #include "MeasurerSet.h"
+#include "KernelBase.h"
 
 class Workload: public WorkloadData {
 
@@ -20,9 +21,13 @@ class Workload: public WorkloadData {
 	void warmOrClearCaches() {
 		// warm or clear caches
 		if (getWarmCaches()) {
-			//measurer.start();
-			//kernel.warmCaches();
-			//measurer.stop();
+			getMeasurerSet()->startAdditionalMeasurers();
+			getMeasurerSet()->stopAdditionalMeasurers();
+
+			getMeasurerSet()->getMainMeasurer()->start();
+			getMeasurerSet()->getMainMeasurer()->stop();
+
+			getKernel()->warmCaches();
 		} else {
 			clearCaches();
 		}
@@ -30,6 +35,7 @@ class Workload: public WorkloadData {
 
 	static void *threadStart(void *arg);
 	void startInThread();
+
 public:
 
 	/**

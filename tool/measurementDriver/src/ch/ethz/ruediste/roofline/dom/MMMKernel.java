@@ -6,18 +6,18 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterS
 public class MMMKernel extends MMMKernelData {
 	private static final MacroKey algorithmMacro = MacroKey.Create(
 			"RMT_MMM_Algorithm", "specifies the algorithm to be used",
-			"TripleLoop");
+			"MMMAlgorithm_TripleLoop");
 
-	public enum Algorithm {
-		TripleLoop, Blocked, Blas,
+	public enum MMMAlgorithm {
+		MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blas,
 	}
 
-	public void setAlgorithm(Algorithm algorithm) {
+	public void setAlgorithm(MMMAlgorithm algorithm) {
 		setMacroDefinition(algorithmMacro, algorithm.toString());
 	}
 
-	public Algorithm getAlgorithm() {
-		return Algorithm.valueOf(getMacroDefinition(algorithmMacro));
+	public MMMAlgorithm getAlgorithm() {
+		return MMMAlgorithm.valueOf(getMacroDefinition(algorithmMacro));
 	}
 
 	private static final MacroKey nbMacro = MacroKey.Create("RMT_MMM_Nb",

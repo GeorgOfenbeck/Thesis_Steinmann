@@ -130,7 +130,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 					threads.push_back(workload->start());
 				}
 
-		printf("waiting for exit\n");
+		printf("waiting for exit of all workload threads\n");
 		// wait for all workloads to exit
 		foreach(pthread_t thread, threads)
 				{

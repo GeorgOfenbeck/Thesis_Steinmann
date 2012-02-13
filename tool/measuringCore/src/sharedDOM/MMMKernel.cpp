@@ -13,7 +13,6 @@
 #include <mkl_cblas.h>
 #include "Exception.h"
 
-
 void MMMKernel::initialize(){
 	srand48(0);
 	size_t size=getMatrixSize();

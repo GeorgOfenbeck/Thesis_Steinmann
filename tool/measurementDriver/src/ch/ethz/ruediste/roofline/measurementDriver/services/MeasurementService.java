@@ -87,7 +87,7 @@ public class MeasurementService implements IMeasurementFacilility {
 		log.trace("running measurement");
 		commandService.runCommand(buildDir, measuringCoreLocationService
 				.getMeasuringCoreExecutable().getAbsolutePath(),
-				new String[] {}, 0, false);
+				new String[] {}, 0, log.isDebugEnabled());
 
 		// parse measurer output
 		log.trace("parsing measurement output");

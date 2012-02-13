@@ -285,7 +285,7 @@ void ParentProcess::traceLoop() {
 				int event = (status >> 16) & 0xFF;
 				//printf("got sigtrap, event: %i\n", event);
 				if (event == PTRACE_EVENT_EXIT) {
-					printf("SIGTRAP | EVENT_EXIT<<16\n");
+					printf("SIGTRAP | EVENT_EXIT<<16 %i\n",stoppedPid);
 					if (stoppedPid == mainChild)
 						break;
 					handleChildExited(stoppedPid);

@@ -109,7 +109,7 @@ public class PlotService {
 			output.printf("set output '%s.ps'\n", plot.getOutputName());
 
 			output.println("set log x");
-			output.println("set key left top");
+			//output.println("set key left top");
 			output.println("set log y");
 			output.printf("set xrange [%g:%g]\n", operationalIntensityRange
 					.getMinimum().getValue() / 2, operationalIntensityRange

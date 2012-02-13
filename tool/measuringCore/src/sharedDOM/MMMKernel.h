@@ -20,8 +20,8 @@
 #define Nu RMT_MMM_Nu
 #define Ku RMT_MMM_Ku
 
-enum Algorithm {
-	TripleLoop, Blocked, Blas,
+enum MMMAlgorithm {
+	MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blas,
 };
 
 class MMMKernel: public MMMKernelData {
@@ -59,14 +59,14 @@ public:
 
 	void initialize();
 	void run() {
-		if (RMT_MMM_Algorithm == TripleLoop) {
+		if (RMT_MMM_Algorithm == MMMAlgorithm_TripleLoop) {
 			tripleLoop(a, b, c);
 		}
 
-		if (RMT_MMM_Algorithm == Blocked) {
+		if (RMT_MMM_Algorithm == MMMAlgorithm_Blocked) {
 			blocked(a, b, c);
 		}
-		if (RMT_MMM_Algorithm == Blas) {
+		if (RMT_MMM_Algorithm == MMMAlgorithm_Blas) {
 			blas(a, b, c);
 		}
 	}

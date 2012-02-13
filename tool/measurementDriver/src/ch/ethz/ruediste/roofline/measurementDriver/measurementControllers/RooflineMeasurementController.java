@@ -68,7 +68,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			space.add(Axes.blockSizeAxis, 64L);
 
 			space.add(Axes.optimizationAxis, "-O3");
-			Axis<ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm> algorithmAxis = new Axis<MMMKernel.Algorithm>(
+			Axis<ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
 					"742250a7-5ea2-4a39-b0c6-7145d0c4b292", "algorithm");
 
 			//space.add(
@@ -77,7 +77,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			//space.add(algorithmAxis,
 			//		ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.Blocked);
 			space.add(algorithmAxis,
-					ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.Blas);
+					ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm.MMMAlgorithm_Blas);
 
 			for (Coordinate coordinate : space.getAllPoints(space
 					.getAllAxesWithLeastSignificantAxes(algorithmAxis))) {
@@ -94,7 +94,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 				System.out.printf("Measuring %s\n", name);
 
 				Operation operation = Operation.CompInstr;
-				if (coordinate.get(algorithmAxis) == ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.Blas) {
+				if (coordinate.get(algorithmAxis) == ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm.MMMAlgorithm_Blas) {
 
 					operation = Operation.DoublePrecisionFlop;
 				}

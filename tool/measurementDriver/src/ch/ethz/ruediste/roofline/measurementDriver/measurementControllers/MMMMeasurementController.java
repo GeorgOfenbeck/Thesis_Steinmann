@@ -3,7 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm;
+import ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -33,12 +33,12 @@ public class MMMMeasurementController implements IMeasurementController {
 		for (long i = 16; i <= 16; i *= 2) {
 			space.add(Axes.matrixSizeAxis, i);
 		}
-		Axis<Algorithm> algorithmAxis = new Axis<MMMKernel.Algorithm>(
+		Axis<MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
 				"4762fd9f-88d4-4bdd-b8fa-ae73c7996151", "algorithm");
 
 		//space.add(algorithmAxis, Algorithm.TripleLoop);
 		//	space.add(algorithmAxis, Algorithm.Blocked);
-		space.add(algorithmAxis, Algorithm.Blas);
+		space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas);
 
 		space.add(Axes.blockSizeAxis, 16L);
 
