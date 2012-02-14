@@ -1,16 +1,19 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
+import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.addAll;
+
 import java.io.*;
 import java.util.*;
 
 import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.IMeasurementFacilility;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.repositories.*;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -63,6 +66,9 @@ public class MeasurementService implements IMeasurementFacilility {
 
 	@Inject
 	public SystemInfoRepository systemInfoRepository;
+
+	@Inject
+	public ReflectionRepository reflectionRepository;
 
 	/**
 	 * run the measuring core. it has to be built already
@@ -134,6 +140,13 @@ public class MeasurementService implements IMeasurementFacilility {
 
 		// write kernel name
 		anythingChanged |= writeKernelNames(measurement, measuringCoreDir);
+
+		// write present kernels
+		anythingChanged |= writePresentKernels(measurement, measuringCoreDir);
+
+		// write additional flags
+		anythingChanged |= writeAdditionalBuildFlags(measurement,
+				measuringCoreDir);
 
 		// create measurement scheme registration
 		anythingChanged |= writeMeasurementSchemeRegistration(measurement,
@@ -221,7 +234,7 @@ public class MeasurementService implements IMeasurementFacilility {
 
 		log.trace("writing kernel namse");
 
-		// open the make file include for writing
+		// open the file included by the makefile for writing
 		File kernelNameFile = new File(measuringCoreDir,
 				"generated/kernelNames.mk");
 		kernelNameFile.getParentFile().mkdirs();
@@ -229,6 +242,7 @@ public class MeasurementService implements IMeasurementFacilility {
 				kernelNameFile);
 		PrintStream optimizationPrintStream = new PrintStream(updatingStream);
 
+		// write the prefix
 		optimizationPrintStream.printf("KERNEL_NAMES=");
 
 		// print the name of each kernel
@@ -242,6 +256,66 @@ public class MeasurementService implements IMeasurementFacilility {
 		optimizationPrintStream.close();
 		return updatingStream.isWriting();
 
+	}
+
+	private boolean writePresentKernels(Measurement measurement,
+			File measuringCoreDir) throws FileNotFoundException {
+
+		log.trace("writing present kernels");
+
+		// open the file included by the makefile for writing
+		// open the present kernels file
+		File presentKernelsFile = new File(measuringCoreDir,
+				"generated/PresentKernels.h");
+		presentKernelsFile.getParentFile().mkdirs();
+		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
+				presentKernelsFile);
+		PrintStream presentKernelsPrintStream = new PrintStream(updatingStream);
+
+		// print a macro for each kernel
+		for (KernelBase kernel : measurement.getKernels()) {
+			presentKernelsPrintStream.printf("#define RMT_KERNEL_PRESENT_%s\n",
+					kernel.getClass().getSimpleName());
+		}
+
+		// close the output file
+		presentKernelsPrintStream.close();
+		return updatingStream.isWriting();
+	}
+
+	private boolean writeAdditionalBuildFlags(Measurement measurement,
+			File measuringCoreDir) throws FileNotFoundException {
+
+		HashSet<String> additionalIncludeDirSet = new HashSet<String>();
+		for (KernelBase kernel : measurement.getKernels()) {
+			addAll(additionalIncludeDirSet, kernel.getAdditionalIncludeDirs()
+					.split(" "));
+		}
+		String additionalIncludeDirs = StringUtils.join(
+				additionalIncludeDirSet, " ");
+
+		HashSet<String> additionalLibSet = new HashSet<String>();
+		for (KernelBase kernel : measurement.getKernels()) {
+			additionalLibSet.add(kernel.getAdditionalLibraries());
+		}
+		String additionalLibs = StringUtils.join(additionalLibSet, " ");
+
+		// open the file included by the makefile for writing
+		File additionalFlagsFile = new File(measuringCoreDir,
+				"generated/additionalFlags.mk");
+		additionalFlagsFile.getParentFile().mkdirs();
+		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
+				additionalFlagsFile);
+		PrintStream additionalFlagsPrintStream = new PrintStream(updatingStream);
+
+		// print flags
+		additionalFlagsPrintStream.printf("LIBS+=%s\n", additionalLibs);
+		additionalFlagsPrintStream.printf("INCLUDE_DIRS+=%s\n",
+				additionalIncludeDirs);
+
+		// close the output file
+		additionalFlagsPrintStream.close();
+		return updatingStream.isWriting();
 	}
 
 	/**
@@ -263,31 +337,33 @@ public class MeasurementService implements IMeasurementFacilility {
 				.getStaticFieldValues(MacroKey.class,
 						"ch.ethz.ruediste.roofline");
 
-		TreeSet<MacroKey> keySet = new TreeSet<MacroKey>();
-
 		HashSet<File> presentFiles = new HashSet<File>();
 
 		// iterate over all keys and write definition file
-		for (Pair<Class<?>, MacroKey> pair : macros) {
-			log.debug(String.format("found macro %s", pair.getRight()
-					.getMacroName()));
-			MacroKey macro = pair.getRight();
+		for (MacroKey macro : reflectionRepository.getMacroKeys()) {
+			log.debug(String.format("found macro %s", macro.getMacroName()));
 
-			// check if macro keys are unique
-			if (keySet.contains(macro)) {
-				throw new Error("Macro named " + macro.getMacroName()
-						+ " defined multiple times");
-			}
-			keySet.add(macro);
-
+			// open output file
 			File outputFile = new File(macrosDir, macro.getMacroName() + ".h");
 			presentFiles.add(outputFile);
 			UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
 					outputFile);
 			PrintStream output = new PrintStream(updatingStream);
+
+			// get the definition of the macro
+			String macroDefinition = measurement.getMacroDefinition(macro);
+
+			// write normal define
 			output.printf("// %s\n#define %s %s\n", macro.getDescription()
-					.replace("\n", "\n// "), macro.getMacroName(), measurement
-					.getMacroDefinition(macro));
+					.replace("\n", "\n// "), macro.getMacroName(),
+					macroDefinition);
+
+			// check if a combined define can be written
+			if (macroDefinition.matches("[a-zA-Z0-9_]*")) {
+				output.printf("#define %s__%s\n", macro.getMacroName(),
+						macroDefinition);
+			}
+
 			output.close();
 			anythingChanged |= updatingStream.isWriting();
 		}

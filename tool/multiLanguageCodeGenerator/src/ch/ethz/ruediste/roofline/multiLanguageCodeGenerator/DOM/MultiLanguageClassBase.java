@@ -140,4 +140,8 @@ public abstract class MultiLanguageClassBase {
 	public boolean isGeneratedJavaClassAbstract() {
 		return isAbstract;
 	}
+
+	public boolean isKernel() {
+		return name.endsWith("Kernel");
+	}
 }

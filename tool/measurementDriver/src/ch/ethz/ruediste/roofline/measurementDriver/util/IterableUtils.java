@@ -215,4 +215,10 @@ public class IterableUtils {
 		return Range.between(min, max,
 				BinaryPredicates.getComparator(comparator));
 	}
+
+	public static <T> void addAll(Collection<T> coll, T[] array) {
+		for (T item : array) {
+			coll.add(item);
+		}
+	}
 }

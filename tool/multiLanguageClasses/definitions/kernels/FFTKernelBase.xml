@@ -2,12 +2,11 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="FFTKernel" 
+	name="FFTKernelBase" 
 	baseType="KernelBase"
 	javaSuffix="Data"
-	cSuffix="Data"
+	isAbstract="true"
 	comment="Kernel doing an FFT"> 
 	
 	<field name="bufferSize" type="long" comment="Size of the buffer to do the FFT on. must be power of two"/>	
-	<field name="noCheck" type="bool" comment="if true, don't check the multiplication"/>
 </derivedClass>

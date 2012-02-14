@@ -21,4 +21,11 @@ public class KernelBase extends KernelBaseData {
 		return kernelName;
 	}
 
+	public String getAdditionalLibraries() {
+		return "";
+	}
+
+	public String getAdditionalIncludeDirs() {
+		return "";
+	}
 }

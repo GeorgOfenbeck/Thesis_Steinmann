@@ -34,4 +34,23 @@ public class ReflectionRepository {
 		}
 		return configurationKeyMap;
 	}
+
+	public Set<MacroKey> getMacroKeys() {
+		TreeSet<MacroKey> result = new TreeSet<MacroKey>();
+
+		List<Pair<Class<?>, MacroKey>> macroList = ClassFinder
+				.getStaticFieldValues(MacroKey.class,
+						"ch.ethz.ruediste.roofline");
+
+		for (Pair<Class<?>, MacroKey> pair : macroList) {
+			MacroKey macro = pair.getRight();
+			if (result.contains(macro)) {
+				throw new Error("Macro named " + macro.getMacroName()
+						+ " defined multiple times");
+			}
+			result.add(macro);
+		}
+
+		return result;
+	}
 }

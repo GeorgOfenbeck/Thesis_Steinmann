@@ -5,9 +5,18 @@
 \#include <typeinfo>
 \#include <string>
 \#include <cstdio>
+\#include "PresentKernels.h"
 
 #foreach($class in $classes)
+	#if ($class.isKernel())
+#ifdef RMT_KERNEL_PRESENT_$class.name
 \#include "sharedDOM/${class.name}.h"
+\#else
+\#include "sharedDOM/${class.cName}.h"
+#endif
+	#else
+\#include "sharedDOM/${class.name}.h"
+	#end
 #end
 
 using namespace std;
@@ -95,6 +104,9 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 	
 #foreach($class in $classes)
 	#if(!$class.isAbstract())
+		#if ($class.isKernel())
+#ifdef RMT_KERNEL_PRESENT_$class.name
+		#end
 		if (typeid(*o)==typeid($class.name)){
 			output << "$class.name" <<"\n";
 			#foreach($field in $class.allFields)
@@ -121,6 +133,9 @@ void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o, os
 			#end
 			return;
 		}
+		#if ($class.isKernel())
+#endif
+		#end
 	#end
 #end
 	
@@ -169,6 +184,9 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 
 #foreach($class in $classes)		
 	#if(!$class.isAbstract())
+		#if ($class.isKernel())
+#ifdef RMT_KERNEL_PRESENT_$class.name
+		#end
 		if (line.compare("$class.name")==0){
 			$class.name *result=new ${class.name}();
 			
@@ -202,6 +220,9 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 	
 			return result;
 		}
+		#if ($class.isKernel())
+#endif
+		#end
 	#end
 #end
 
@@ -209,12 +230,18 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 }
 
 #foreach($class in $classes)
+#if ($class.isKernel())
+#ifdef RMT_KERNEL_PRESENT_$class.name
+#end
+
 #if (!$class.isAbstract())
+
 	$class.cName * ${class.cName}::clone(){
 		$class.Name *result=new ${class.Name}();
 		result->cloneFrom(this);
 		return result;
 	}
+	
 #end
 	void ${class.cName}::cloneFrom($class.cName *c){
 	printf("cloning $class.Name\n");
@@ -248,4 +275,8 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 		#end
 	#end
 	}
+	
+#if ($class.isKernel())
+#endif
+#end
 #end

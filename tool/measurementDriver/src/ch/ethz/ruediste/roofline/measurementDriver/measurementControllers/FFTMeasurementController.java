@@ -1,12 +1,11 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.Axes.bufferSizeAxis;
+import static ch.ethz.ruediste.roofline.dom.Axes.*;
 
 import java.io.IOException;
 import java.util.HashMap;
 
 import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.FFTKernel.FFTAlgorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
@@ -50,63 +49,55 @@ public class FFTMeasurementController implements IMeasurementController {
 				MemoryTransferBorder.LlcRam);
 
 		ParameterSpace space = new ParameterSpace();
-		for (long i = 1024; i <= 1024 * 1024; i *= 2) {
+		for (long i = 1024; i <= 2 * 1024; i *= 2) {
 			space.add(Axes.bufferSizeAxis, i);
 		}
 
-		for (long i = 72; i < 128; i += 8) {
+		/*for (long i = 72; i < 128; i += 8) {
 			space.add(Axes.bufferSizeAxis, i * 1024L);
-		}
+		}*/
 
-		Axis<FFTAlgorithm> algorithmAxis = new Axis<FFTAlgorithm>(
-				"a0cb4c78-6a15-460b-b7fc-423c6663472a", "algorithm");
+		space.add(kernelAxis, new FFTnrKernel());
+		space.add(kernelAxis, new FFTmklKernel());
+		space.add(kernelAxis, new FFTfftwKernel());
 
-		//space.add(algorithmAxis, FFTAlgorithm.FFTAlgorithm_NR);
-		//space.add(algorithmAxis, FFTAlgorithm.FFTAlgorithm_MKL);
-		space.add(algorithmAxis, FFTAlgorithm.FFTAlgorithm_FFTW);
+		HashMap<Class<?>, String> algorithmName = new HashMap<Class<?>, String>();
+		algorithmName.put(FFTfftwKernel.class, "fftw");
+		algorithmName.put(FFTnrKernel.class, "nr");
+		algorithmName.put(FFTmklKernel.class, "mkl");
 
-		HashMap<FFTAlgorithm, String> algorithmName = new HashMap<FFTKernel.FFTAlgorithm, String>();
-		algorithmName.put(FFTAlgorithm.FFTAlgorithm_MKL, "mkl");
-		algorithmName.put(FFTAlgorithm.FFTAlgorithm_NR, "nr");
-		algorithmName.put(FFTAlgorithm.FFTAlgorithm_NR, "FFTW");
-
-		HashMap<FFTAlgorithm, Operation> algorithmOperation = new HashMap<FFTKernel.FFTAlgorithm, QuantityMeasuringService.Operation>();
-		algorithmOperation.put(FFTAlgorithm.FFTAlgorithm_NR,
-				Operation.CompInstr);
-		algorithmOperation.put(FFTAlgorithm.FFTAlgorithm_MKL,
+		HashMap<Class<?>, Operation> algorithmOperation = new HashMap<Class<?>, QuantityMeasuringService.Operation>();
+		algorithmOperation.put(FFTnrKernel.class, Operation.CompInstr);
+		algorithmOperation.put(FFTmklKernel.class,
 				Operation.DoublePrecisionFlop);
-		algorithmOperation.put(FFTAlgorithm.FFTAlgorithm_FFTW,
+		algorithmOperation.put(FFTfftwKernel.class,
 				Operation.DoublePrecisionFlop);
 
 		space.add(Axes.optimizationAxis, "-O3");
 
 		for (Coordinate coordinate : space) {
 
-			// only process non-power of two buffer sizes for mkl kernel
-			if (coordinate.get(algorithmAxis) == FFTAlgorithm.FFTAlgorithm_NR
+			// skip non-power of two sizes for the NR kernel
+			if (coordinate.get(kernelAxis) instanceof FFTnrKernel
 					&& !IsPowerOfTwo(coordinate.get(bufferSizeAxis)))
 				continue;
 
-			// only process large buffer sizes for MKL kernel
-			if (coordinate.get(algorithmAxis) == FFTAlgorithm.FFTAlgorithm_NR
+			// skip large buffer sizes for the NR kernel
+			if (coordinate.get(kernelAxis) instanceof FFTnrKernel
 					&& coordinate.get(bufferSizeAxis) > 256 * 1024L)
 				continue;
 
-			FFTKernel kernel = new FFTKernel();
-			kernel.setAlgorithm(coordinate.get(algorithmAxis));
-			kernel.setNoCheck(false);
+			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
-			kernel.setNoCheck(true);
+
+			Operation operation = algorithmOperation.get(kernel.getClass());
 
 			Performance performance = quantityMeasuringService
-					.measurePerformance(kernel, algorithmOperation
-							.get(coordinate.get(algorithmAxis)),
-							ClockType.CoreCycles);
+					.measurePerformance(kernel, operation, ClockType.CoreCycles);
 			System.out.printf("Performance %s: %s\n", coordinate, performance);
 
 			OperationCount operationCount = quantityMeasuringService
-					.measureOperationCount(kernel, algorithmOperation
-							.get(coordinate.get(algorithmAxis)));
+					.measureOperationCount(kernel, operation);
 			System.out
 					.printf("Operations %s: %s\n", coordinate, operationCount);
 
@@ -117,7 +108,7 @@ public class FFTMeasurementController implements IMeasurementController {
 			System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
 
 			rooflineController.addRooflinePoint(
-					algorithmName.get(coordinate.get(algorithmAxis))
+					algorithmName.get(kernel.getClass())
 							+ coordinate.get(bufferSizeAxis), kernel,
 					operationCount, MemoryTransferBorder.LlcRam);
 		}
