@@ -45,9 +45,9 @@ This is the paper's abstract \ldots
 \tableofcontents
 
 \section{Introduction}
-In this thesis, we would like to analyze a substantial amount of diverse code using the roofline model presented in \cite{Roofline}. The code can come either in the form of a relatively isolated routine, typically containing a single kernel, or in the form of a larger program, containing multiple different kernels.
+The roofline model \cite{Roofline} premises to be an insightful model for analyzing program performance. To our knowledge, there is no tool capable of easily creating roofline plots. During this master thesis, we would like to create such a tool. Emphasis lies on correctness of the results produced by the tool and on it's maintainability.
 
-While routines are treated as atomic unit, it is desirable to split the larger program into it's different algorithms and do the analysis for each algorithm separately. In the rest of this paper, we will use the term kernel for a routine or part of a program which is analyzed on it's own.
+Code to be measured can come either in the form of a relatively isolated routine, typically containing a single kernel, or in the form of a larger program, containing multiple different kernels. While routines are treated as atomic units, it is desirable to split the larger program into it's different algorithms and do the analysis for each algorithm separately. In the rest of this paper, we will use the term kernel for a routine or part of a program which is analyzed on it's own.
 
 To obtain the peak performance lines for the roofline model, we need to run micro benchmarks. To get the data points for a kernel, we need to measure the performance and the operational intensity. 
 
@@ -57,7 +57,7 @@ Operational intensity is defined as operations per byte of data traffic. Since t
 
 An operation could be a floating point operation, resulting int the well known "flops" unit, either single or double precision. But an operation could as well be defined as machine instruction, integer operation or others.
 
-The point where data traffic is measured is typically between the last level of the processor cache and the DRAM, but it could be measured as well between the different cache levels or between L1 cache and processor.
+The point where data traffic is measured is typically between the last level cache of the processor and the DRAM, but it could be measured as well between the different cache levels or between L1 cache and processor.
 
 The micro benchmarks are typically designed to either transfer as much data per unit of time or to execute as may operations per unit of time. Thus the measurement capabilities needed to evaluate the actual problems can be reused for the benchmarks. 
 
@@ -68,17 +68,19 @@ In summary, we need to measure the following quantities:
 \item operation count
 \end{itemize}
 
-On current processors, measuring these quantities should be possible. For the execution time either the cycle counter or the system timer can be used. The memory traffic can be determined using the performance counters for counting cach misses and write back operations. (what about not temporal stores?) Measuring the operation count depends heavily on the definition of operation, but is typically measurable with the performance counters, too.
+On current processors, measuring these quantities should be possible. For the execution time either the cycle counter or the system timer can be used. The memory traffic can be determined using the performance counters for counting cach misses and write back operations. An other option is to use the counters for bus transfers. Measuring the operation count depends heavily on the definition of operation, but is typically measurable with the performance counters, too.
 
-While each of the measurements above has it's own subtleties, there are some effects affecting all of the above measurements, which we will discuss in the following sections.
+\section{Effects affecting the Measurement of multiple Quantities}
+While each of the measurements required to produce a roofline plot has it's own subtleties, there are some effects affecting multiple measurements, which we will discuss in the following sections.
 
 \subsection{Context Switches}
-
 Unless a special operating system is used, we have to deal with context switches during measurement. On current operating systems, a context switch typically occurs every 10ms due to the timer interrupt. Following the lines of \cite{ComSysProgPersp}, there are two ways to deal with them:
 
 If the execution time of the kernel is small, the operating system will eventually execute the whole kernel without interruption. This can be exploited using the best k measurement scheme. The kernel is repeatedly executed until the k measurements with the smallest execution times show a variation below a certain threshold. These executions were apparently not affected by a context switch, since a context switch would have increased execution time. The HW\_INT\_RCV performance counter could possibly be used as well to detect context switches.
 
 If a single execution of the kernel takes longer than the period of time between two timer interrupts, it will always be affected by a context switch. In this case, the proposed solution is to execute the kernel in a loop until many context switches occurred. The effect of the context switches can be compensated for by reducing the measured time be a certain factor. The factor depends on the actual system.
+
+The linux kernel offers the possibility to count performance events only during the time a thread actually executes, omitting events happening during kernel execution or while other threads run. This was not treated in the book above, and offers interesting new options.
 
 \subsection{Cache}
 Specially for short running kernels, the initial state of the cache can have a big impact on the memory traffic and execution time. [?] The impact can be controlled by making sure the caches are either warm or cold.
@@ -96,6 +98,11 @@ Our kernels and benchmarks will use multi threading. This has to be supported by
 In case of hyper threading, some functional units of a processor core are shared among two threads. This influences the peak performance of the core.
 
 It is possible that the operating system moves a thread from one core to another. Since the overhead of a switching the core is large, it is generally avoided by the scheduler of the operating system. But it can occur, and we have to be prepared for it.
+
+\subsection{Frequency Scaling}
+The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core frequency, a lower core frequency will generally cause a higher percentage of the peak performance to be reached by the kernel.
+
+On Linux, frequency scaling is controlled so called governors. They can be set through the sys file system. The tool offers the possibility to set the governor. In addition, it is possible to read the current frequency. If the frequency changes during a measurement, this is recored as well.
 
 \section{Measurement Tool Architecture}
 Performing measurements requires a kernel, a measurer and a measurement scheme. The kernel contains the code to be measured and can be either custom code or a wrapper around existing code. The measurer is responsible for the actual measuring and produces an output. The measurement scheme finally controls the kernel and the measurer. The three parts together form the Measuring Core.
@@ -292,6 +299,11 @@ All parameters of a measurement are contained within the measurement description
 
 The cache mechanism works using a hash function on the XML representation of the measurement description. After a measurement has been performed, a file named after the hash value of the measurement desciption of the measurement is created and the measurement results are stored therein. Before a measurement is performed, the hash value is computed. If a corresponding file is found, the previous measurement results are reused.
 
+\subsubsection{Identifiying Measurers and Measurer Sets}
+When processing the results of one or multiple measurements, on often has to identify which result was generated from which measurer. The straight forward approach would be to give each measurer an unique id, and to store the id of the measurer with the measurer output. Measurers are newly created with each invocation of the measurement driver, possibly leading to new ids. But for caching, the id of the measurers does not matter.
+
+To overcome these problems, two ids are generated for each measurer. One identifier uniquely identifying each instantiated measurer. And an id which is unique within one measurement. When loading a result from cache, the unique identifiers of the loaded result are set to the identifiers of the measurement at hand.
+
 \subsubsection{Parameter Space}
 
 \subsubsection{Auto Completion}
@@ -304,6 +316,20 @@ The measurement driver supports multiple system architectures. Whenever architec
 \subsection{Measuring Core}
 \umlFloat{CentralClasses}{Central classes of the measuring core}
 The central classes of the Measuring Core are the measurement scheme, the kernel and the measurer. (\umlRef{CentralClasses}) The MeasurementScheme has template arguments for the kernel and the measurer type. The scheme contains nested instances of the kernel and the measurer. This avoids polymorphic calls and allows the compiler to fully optimize the measure function of the measurer, including inlining methods of the kernel and the measurer.
+
+\subsubsection{Core Architecture}
+To fully utilize multi core systems, applications have to be implemented with multiple threads or processes. Measuring such applications is considerably more difficult than measuring single threaded applications. If the thread management is implemented specifically for the measurement at hand, the measuring code can be weaved into it by hand. But if the threads or processes are created within legacy or closed source code, the measuring tool has to take care of detecting the creation of threads and install the necessary measurers. For the roofline measuring tool we will only consider multi threaded applications.
+
+To gain full control over the kernel code, the measurement tool starts the kernel within a child process. The parent process attaches to the child using ptrace. This causes the child to be stopped when certain events occur and the parent is notified. The events include thread creation and breakpoints.
+
+Every kernel thread can raise events at any point. The events include thread creation, breakpoints, starting and stopping of workloads etc. Whenever an event occurs, the rule list has to be searched and the matching actions have to be executed. The rule list is always searched in the thread which raised the event. If the event caused the thread to be stopped and the parent thread to be notified, the parent restarts the thread with a notification of the event which occurred. The thread will search the rule list and continue execution.
+
+Actions can be associated with a thread. In this case, the action is always executed within that thread. Measurers can be associated with a thread, too. In that case, all functions of the measurer have to be called within the specified thread. It is the responsibility of the caller to respect such an association. If necessary, an intermediate action has to be used.
+
+The technically most challenging is to interrupt another thread and make it execute some action. There are two approaches to this problem, either using a signal handler of the thread or using ptrace to call code within the thread. Since installing a signal handler in a thread could cause unwanted side effects, we use the ptrace approach. SIGTRAP is sent to the target thread, which will cause it to be stopped. The parent modifies the thread state of the stopped thread. When the thread resumes execution, it executes some event handling code and then return to the location the thread was interrupted.
+
+\subsubsection{Child Thread Lifetime}
+The parent process manages a thread table, which contains the state of each child thread. When a child thread is cloned, the parent receives a signal by ptrace. It will create a new entry in the thread table and set the state to "new". In this state, the child cannot receive messages yet. When the thread is started, the parent process will receive a SIGSTOP from the child. Upon receiving this signal from a thread in the new state, the parent will send the "process" command and mark the thread as processing. As soon as the child is done with the initialization, it will send "done" to the parent. The process is put into the running state. When the child receives a message, the parent will possibly send process to it again. If it exits, it will go the the exit state.
 
 \subsubsection{Building}
 Each measurement can be performed with different compiler optimization flags and macro definitions. Therefore, the measuring core has to be rebuilt for each measurement, which makes rebuilding the measuring core a frequent operation. It should therefore be as fast as possible. This is archieved by carefully tracking all build dependencies and by using ccache. 
@@ -379,11 +405,6 @@ The code makes use of variadic templates (\cite{Gregor06:variadics_rev_3}).
 \item 0x400001aa   ix86arch::INSTRUCTION\_RETIRED
 \item 0x400001ab   ix86arch::UNHALTED\_REFERENCE\_CYCLES 
 \end{itemize}
-
-\subsection{Frequency Scaling}
-The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core frequency, a lower core frequency will generally cause a higher percentage of the peak performance to be reached by the kernel.
-
-On Linux, frequency scaling is controlled so called governors. They can be set through the sys file system. The tool offers the possibility to set the governor. In addition, it is possible to read the current frequency. If the frequency changes during a measurement, this is recored as well.
 
 \subsection{Experiments}
 To gain insight into the accuracy and precision of the timers available, we run the addition kernel with an exponentially increasing iteration count. The largest iteration count should result in a runtime of about 0.5s. We expect the precision to be high for small iteration counts, a peak variance at around 5 ms due to the task switches, and an increasing precision for higher iteration counts. The accuracy of the minimum should be high for small iteration counts, and include a small overhead if multiple task switches occur during the measurement.
@@ -521,24 +542,7 @@ core 0 1 2 3
 \end{itemize}
 
 
-\section{Core Architecture}
-To fully utilize multi core systems, applications have to be implemented with multiple threads or processes. Measuring such applications is considerably more difficult than measuring single threaded applications. If the thread management is implemented specifically for the measurement at hand, the measuring code can be weaved into it by hand. But if the threads or processes are created within legacy or closed source code, the measuring tool has to take care of detecting the creation of threads and install the necessary measurers. For the roofline measuring tool we will only consider multi threaded applications.
 
-To gain full control over the kernel code, the measurement tool starts the kernel within a child process. The parent process attaches to the child using ptrace. This causes the child to be stopped when certain events occur and the parent is notified. The events include thread creation and breakpoints.
-
-Every kernel thread can raise events at any point. The events include thread creation, breakpoints, starting and stopping of workloads etc. Whenever an event occurs, the rule list has to be searched and the matching actions have to be executed. The rule list is always searched in the thread which raised the event. If the event caused the thread to be stopped and the parent thread to be notified, the parent restarts the thread with a notification of the event which occurred. The thread will search the rule list and continue execution.
-
-Actions can be associated with a thread. In this case, the action is always executed within that thread. Measurers can be associated with a thread, too. In that case, all functions of the measurer have to be called within the specified thread. It is the responsibility of the caller to respect such an association. If necessary, an intermediate action has to be used.
-
-The technically most challenging is to interrupt another thread and make it execute some action. There are two approaches to this problem, either using a signal handler of the thread or using ptrace to call code within the thread. Since installing a signal handler in a thread could cause unwanted side effects, we use the ptrace approach. SIGTRAP is sent to the target thread, which will cause it to be stopped. The parent modifies the thread state of the stopped thread. When the thread resumes execution, it executes some event handling code and then return to the location the thread was interrupted.
-
-\subsection{Child Thread Lifetime}
-The parent process manages a thread table, which contains the state of each child thread. When a child thread is cloned, the parent receives a signal by ptrace. It will create a new entry in the thread table and set the state to "new". In this state, the child cannot receive messages yet. When the thread is started, the parent process will receive a SIGSTOP from the child. Upon receiving this signal from a thread in the new state, the parent will send the "process" command and mark the thread as processing. As soon as the child is done with the initialization, it will send "done" to the parent. The process is put into the running state. When the child receives a message, the parent will possibly send process to it again. If it exits, it will go the the exit state.
-
-\section{Identifiying Measurers and Measurer Sets}
-When processing the results of one or multiple measurements, on often has to identify which result was generated from which measurer. The straight forward approach would be to give each measurer an unique id, and to store the id of the measurer with the measurer output. Measurers are newly created with each invocation of the measurement driver, possibly leading to new ids. But for caching, the id of the measurers does not matter.
-
-To overcome these problems, two ids are generated for each measurer. One identifier uniquely identifying each instantiated measurer. And an id which is unique within one measurement. When loading a result from cache, the unique identifiers of the loaded result are set to the identifiers of the measurement at hand.
 
 \listoffigures
 
