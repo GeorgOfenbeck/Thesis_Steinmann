@@ -21,7 +21,10 @@
 #define Ku RMT_MMM_Ku
 
 enum MMMAlgorithm {
-	MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blas,
+	MMMAlgorithm_TripleLoop,
+	MMMAlgorithm_Blocked,
+	MMMAlgorithm_Blas_Openblas,
+	MMMAlgorithm_Blas_Mkl,
 };
 
 class MMMKernel: public MMMKernelData {
@@ -66,9 +69,14 @@ public:
 		if (RMT_MMM_Algorithm == MMMAlgorithm_Blocked) {
 			blocked(a, b, c);
 		}
-		if (RMT_MMM_Algorithm == MMMAlgorithm_Blas) {
+		if (RMT_MMM_Algorithm == MMMAlgorithm_Blas_Mkl) {
 			blas(a, b, c);
 		}
+
+		if (RMT_MMM_Algorithm == MMMAlgorithm_Blas_Openblas) {
+			blas(a, b, c);
+		}
+
 	}
 	void dispose();
 

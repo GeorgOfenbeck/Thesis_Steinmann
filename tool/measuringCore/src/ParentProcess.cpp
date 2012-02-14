@@ -244,6 +244,7 @@ void ParentProcess::traceLoop() {
 		pid_t stoppedPid;
 
 		// wait for the child
+		printf("Parent: waitForChild\n");
 		stoppedPid = waitpid(-1, &status, __WALL);
 		if (stoppedPid < 0) {
 			perror("mainloop: error on wait");

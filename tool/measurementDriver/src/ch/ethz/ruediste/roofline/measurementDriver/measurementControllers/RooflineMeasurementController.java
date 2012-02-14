@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
@@ -76,8 +77,9 @@ public class RooflineMeasurementController implements IMeasurementController {
 			//		ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.TripleLoop);
 			//space.add(algorithmAxis,
 			//		ch.ethz.ruediste.roofline.dom.MMMKernel.Algorithm.Blocked);
-			space.add(algorithmAxis,
-					ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm.MMMAlgorithm_Blas);
+			space.add(
+					algorithmAxis,
+					ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm.MMMAlgorithm_Blas_Openblas);
 
 			for (Coordinate coordinate : space.getAllPoints(space
 					.getAllAxesWithLeastSignificantAxes(algorithmAxis))) {
@@ -94,7 +96,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 				System.out.printf("Measuring %s\n", name);
 
 				Operation operation = Operation.CompInstr;
-				if (coordinate.get(algorithmAxis) == ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm.MMMAlgorithm_Blas) {
+				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_Blas_Openblas) {
 
 					operation = Operation.DoublePrecisionFlop;
 				}

@@ -9,7 +9,20 @@ public class MMMKernel extends MMMKernelData {
 			"MMMAlgorithm_TripleLoop");
 
 	public enum MMMAlgorithm {
-		MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blas,
+		MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blas_Openblas, MMMAlgorithm_Blas_Mkl
+	}
+
+	@Override
+	public String getAdditionalLibraries() {
+		if (getAlgorithm() == MMMAlgorithm.MMMAlgorithm_Blas_Mkl) {
+			return "-L/opt/intel/mkl/lib/ia32 -lmkl_intel -lmkl_sequential -lmkl_core";
+		}
+
+		if (getAlgorithm() == MMMAlgorithm.MMMAlgorithm_Blas_Openblas) {
+			return "-lblas";
+		}
+
+		return super.getAdditionalLibraries();
 	}
 
 	public void setAlgorithm(MMMAlgorithm algorithm) {

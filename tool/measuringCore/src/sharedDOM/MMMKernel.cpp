@@ -9,8 +9,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
-//#include <cblas.h>
-#include <mkl_cblas.h>
+#include <cblas.h>
 #include "Exception.h"
 
 void MMMKernel::initialize(){
@@ -60,7 +59,7 @@ void MMMKernel::initialize(){
 void MMMKernel::blas(double *a, double *b, double *c)
 {
 	int size = getMatrixSize();
-	/*cblas_dgemm(
+	cblas_dgemm(
 			CblasRowMajor,
 			CblasNoTrans, CblasNoTrans,
 			size, size, size,
@@ -68,8 +67,7 @@ void MMMKernel::blas(double *a, double *b, double *c)
 			a, size,
 			b, size,
 			1,
-			c, size);*/
-
+			c, size);
 }
 
 void MMMKernel::dispose(){
