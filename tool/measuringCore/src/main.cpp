@@ -32,34 +32,27 @@ using namespace boost;
 
 
 
-void childMain(int argc, char* argv[]) {
-	// wait till the parent traces the child
-	ptrace(PTRACE_TRACEME);
-	raise(SIGCHLD);
 
-	// send a notification to let the parent know where the notification instruction is
-	ParentProcess::notifyParent(ParentNotification_ProcessingDone,0);
-
-	// start the child process
-	ChildProcess child;
-	int ret=child.main(argc,argv);
-
-	//printf("Child process done, Retval: %i\n",ret);
-	exit(ret);
-}
 
 pid_t startChildProcess(int argc, char* argv[]) {
-	pid_t childPid = fork();
+	pid_t childPid = vfork();
 
 	if (childPid == 0) {
+		// start the ptrace session
+		ptrace(PTRACE_TRACEME);
+
 		// we are in the child process
-		childMain(argc,argv);
+		execv("childProcess",argv);
+
+		perror("failed to start child process");
 	}
 
 	if (childPid == -1) {
 		perror("fork failed\n");
 		exit(1);
 	}
+
+	printf("ChildPid: %i\n",childPid);
 
 	// wait for the child, will send SIGSTOP when started (due to ptrace)
 	if (waitpid(childPid, NULL, 0) < 0) {
@@ -80,11 +73,29 @@ pid_t startChildProcess(int argc, char* argv[]) {
 		exit(1);
 	}
 
+	printf("restarted\n");
 
-	// the child will first call notify, so we know where the instruction lies
-	if (waitpid(childPid, NULL, 0) < 0) {
+/*
+	int status;
+	// the child will first call notify, so we know where the notify instruction
+	// and the entrance to the child notification code lies
+	if (waitpid(childPid, &status, 0) < 0) {
 		perror("error on wait");
 		exit(1);
+	}
+
+	if (WIFSTOPPED(status)){
+		int stopSig = WSTOPSIG(status);
+		printf("stopped signal: %i\n",stopSig);
+
+		if (stopSig==SIGTRAP){
+			int event = (status >> 16) & 0xFF;
+			printf("event: %i\n",event);
+		}
+
+	}
+	else{
+		printf("not stopped\n");
 	}
 
 	// read the registers
@@ -96,12 +107,15 @@ pid_t startChildProcess(int argc, char* argv[]) {
 
 	// store the address of the notify instruction
 	ParentProcess::notifyAddress=regs.eip;
+	ParentProcess::notificationProcedureEntry=regs.edx;
+
+	printf("parent: notificationProcedureEntry %x\n",ParentProcess::notificationProcedureEntry);
 
 	// restart child, we will wait for it again in the trace loop
 	if (ptrace(PTRACE_CONT, childPid, 0, 0) < 0) {
 		perror("error on ptrace syscall");
 		exit(1);
-	}
+	}*/
 
 	return childPid;
 }

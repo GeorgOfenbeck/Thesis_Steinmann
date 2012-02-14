@@ -14,7 +14,7 @@ CFLAGS=-std=c++0x -Wall -ggdb
 OPTIMIZATION_FLAGS=-O0
 
 # source files to be ignored. separated by space
-SOURCE_IGNORE_PATTERNS=./src/oldMain.cpp
+SOURCE_IGNORE_PATTERNS=./src/oldMain.cpp ./src/main.cpp ./src/ParentProcess.cpp
 
 # additional directories to search for includes
 INCLUDE_DIRS=-I"src" -I"generated" 
@@ -73,7 +73,7 @@ DEP_FILES=$(filter $(GENERATED_DEP_FILES), $(PRESENT_DEP_FILES))
 .PHONY: all clean clean_kernels
 
 # rule for the executable
-all: $(BUILD_DIR)/measuringCore
+all: $(BUILD_DIR)/measuringCore $(BUILD_DIR)/childProcess
 
 # rule for cleaning. just delete the build dir
 clean:
@@ -83,8 +83,11 @@ clean_kernels:
 	rm -rf $(BUILD_DIR)/$(KERNEL_DIR)
 	
 # creates the executable from the .o files
-$(BUILD_DIR)/measuringCore: $(OBJECTS) $(KERNEL_OBJECTS) generated/kernelNames.mk
+$(BUILD_DIR)/childProcess: $(OBJECTS) $(KERNEL_OBJECTS) generated/kernelNames.mk
 	$(GCC) -pthread -rdynamic -o $@ $(OBJECTS) $(KERNEL_OBJECTS) $(LIBS)
+
+$(BUILD_DIR)/measuringCore: $(BUILD_DIR)/./src/main.o $(BUILD_DIR)/./src/ParentProcess.o
+	$(GCC) -o $@ $^ -lstdc++
 
 #include all dependency files
 include $(DEP_FILES)

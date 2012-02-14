@@ -92,7 +92,7 @@ public class MeasurementService implements IMeasurementFacilility {
 		// run measurement
 		log.trace("running measurement");
 		commandService.runCommand(buildDir, measuringCoreLocationService
-				.getMeasuringCoreExecutable().getAbsolutePath(),
+				.getMeasuringCoreParentExecutable().getAbsolutePath(),
 				new String[] {}, 0, log.isDebugEnabled());
 
 		// parse measurer output

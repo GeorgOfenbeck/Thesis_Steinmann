@@ -8,6 +8,8 @@
 #ifndef PARENTPROCESS_H_
 #define PARENTPROCESS_H_
 
+#include "Notifications.h"
+
 #include <sys/types.h>
 #include <sys/user.h>
 #include <map>
@@ -29,17 +31,6 @@ enum ChildEvent{
 
 };
 
-enum ParentNotification{
-	ParentNotification_ProcessingDone,
-	ParentNotification_QueueProcessActions,
-};
-
-enum ChildNotification{
-	ChildNotification_Started,
-	ChildNotification_ProcessActions,
-	ChildNotification_ChildExited,
-};
-
 class ParentProcess {
 	map<pid_t,ChildState> childStates;
 	map<pid_t,user_regs_struct> childRegs;
@@ -58,13 +49,16 @@ class ParentProcess {
 	bool hasPendingNotification(pid_t child);
     void setupChildNotification(pid_t stoppedChild, ChildNotification event, uint32_t arg);
 
+    bool notificationSystemReady;
+    int32_t notifyAddress;
+	int32_t notificationProcedureEntry;
 public:
 	ParentProcess(pid_t mainChild){
 		this->mainChild=mainChild;
+		childStates[mainChild]=ChildState_New;
+		notificationSystemReady=false;
 	}
 	void traceLoop();
-	static void notifyParent(ParentNotification event, uint32_t arg);
-	static int32_t notifyAddress;
 };
 
 #endif /* PARENTPROCESS_H_ */

@@ -125,6 +125,6 @@ public class HashService {
 	public CoreHash hashCurrentlyCompiledMeasuringCore() throws IOException {
 		return new CoreHash(
 				hashFile(measuringCoreLocationService
-						.getMeasuringCoreExecutable()));
+						.getMeasuringCoreChildExecutable()));
 	}
 }

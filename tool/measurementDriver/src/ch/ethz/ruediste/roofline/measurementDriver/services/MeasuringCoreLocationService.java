@@ -37,8 +37,17 @@ public class MeasuringCoreLocationService {
 		return result;
 	}
 
-	public File getMeasuringCoreExecutable() {
+	public File getMeasuringCoreParentExecutable() {
 		File result = new File(getBuildDir(), "measuringCore");
+		if (!result.exists()) {
+			throw new Error("could not find measuringCore: "
+					+ result.getAbsolutePath());
+		}
+		return result;
+	}
+
+	public File getMeasuringCoreChildExecutable() {
+		File result = new File(getBuildDir(), "childProcess");
 		if (!result.exists()) {
 			throw new Error("could not find measuringCore: "
 					+ result.getAbsolutePath());

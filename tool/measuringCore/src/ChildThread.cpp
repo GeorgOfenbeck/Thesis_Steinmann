@@ -6,7 +6,8 @@
  */
 
 #include "ChildThread.h"
-#include "ParentProcess.h"
+#include "Notifications.h"
+#include "ChildProcess.h"
 
 #include <cstdio>
 #include <cstdlib>
@@ -47,7 +48,7 @@ void ChildThread::processNotification() {
 	}
 
 	// notify the parent that the child is done processing
-	ParentProcess::notifyParent(ParentNotification_ProcessingDone, 0);
+	ChildProcess::notifyParent(ParentNotification_ProcessingDone, 0);
 }
 
 void ChildThread::processActions() {
