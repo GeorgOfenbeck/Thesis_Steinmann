@@ -7,6 +7,9 @@
 
 #include "Workload.h"
 #include "sharedDOM/KernelBase.h"
+#include "baseClasses/Locator.h"
+#include "baseClasses/WorkloadStartEvent.h"
+#include "baseClasses/WorkloadStopEvent.h"
 
 #include "utils.h"
 #include <sched.h>
@@ -36,20 +39,17 @@ void Workload::clearCaches() {
 
 void *Workload::threadStart(void *arg) {
 	Workload *workload = (Workload*) arg;
-	try{
-	workload->startInThread();
-	}
-	catch(Exception e){
-		fprintf(stderr,"Exception occurred: %s\n",e.get_message().c_str());
+	try {
+		workload->startInThread();
+	} catch (Exception e) {
+		fprintf(stderr, "Exception occurred: %s\n", e.get_message().c_str());
 		e.print(2);
 		exit(1);
-	}
-	catch (string s){
-		fprintf(stderr,"Exception occurred: %s\n",s.c_str());
+	} catch (string s) {
+		fprintf(stderr, "Exception occurred: %s\n", s.c_str());
 		exit(1);
-	}
-	catch (...){
-		fprintf(stderr,"Exception occurred: \n");
+	} catch (...) {
+		fprintf(stderr, "Exception occurred: \n");
 		exit(1);
 	}
 	return NULL;
@@ -68,7 +68,7 @@ pthread_t Workload::start() {
 }
 
 void Workload::startInThread() {
-	printf("Workload: initializing Kernel %p\n",getKernel());
+	printf("Workload: initializing Kernel %p\n", getKernel());
 	getKernel()->initialize();
 
 	printf("Workload: initializing Measurer Set\n");
@@ -84,6 +84,13 @@ void Workload::startInThread() {
 		sched_setaffinity(0, size, mask);
 	}
 
+	// raise start event
+	{
+		WorkloadStartEvent *startEvent = new WorkloadStartEvent();
+		Locator::dispatchEvent(startEvent);
+		free(startEvent);
+	}
+
 	// start validation measurers. They should validate the warmup, too
 	getMeasurerSet()->startValidationMeasurers();
 
@@ -97,7 +104,6 @@ void Workload::startInThread() {
 	// warm up main measurer
 	getMeasurerSet()->getMainMeasurer()->start();
 	getMeasurerSet()->getMainMeasurer()->stop();
-
 
 	// perform measurement
 	printf("Workload: perform measurement\n");
@@ -120,13 +126,20 @@ void Workload::startInThread() {
 	// stop the validation measurers
 	getMeasurerSet()->stopValidationMeasurers();
 
+	// raise stop event
+	{
+		printf("Workload::rais stop event\n");
+		WorkloadStopEvent *stopEvent = new WorkloadStopEvent(getId());
+		Locator::dispatchEvent(stopEvent);
+		free(stopEvent);
+	}
+
 	// store output
-	output=getMeasurerSet()->getOutput();
+	output = getMeasurerSet()->getOutput();
 
 	// clean up
 	getKernel()->dispose();
 
 	getMeasurerSet()->dispose();
 }
-
 

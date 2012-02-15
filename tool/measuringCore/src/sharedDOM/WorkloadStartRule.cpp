@@ -7,3 +7,9 @@
 
 #include "WorkloadStartRule.h"
 
+
+
+void WorkloadStartRule::handleEvent(EventBase *event)
+{
+}
+

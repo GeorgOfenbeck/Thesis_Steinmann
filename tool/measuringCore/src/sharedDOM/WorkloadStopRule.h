@@ -10,6 +10,8 @@
 
 #include "sharedDOM/WorkloadStopRuleData.h"
 class WorkloadStopRule : public WorkloadStopRuleData{
+public:
+	void handleEvent(EventBase *event);
 };
 
 #endif /* WORKLOADSTOPRULE_H_ */

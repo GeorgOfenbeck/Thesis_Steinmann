@@ -7,3 +7,8 @@
 
 #include "ThreadStartRule.h"
 
+
+void ThreadStartRule::handleEvent(EventBase *event)
+{
+}
+

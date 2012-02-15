@@ -8,8 +8,7 @@
 #include "KernelBase.h"
 
 KernelBase::KernelBase() {
-	// TODO Auto-generated constructor stub
-
+	keepRunning=true;
 }
 
 KernelBase::~KernelBase() {

@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 
-import java.util.*;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -86,7 +86,7 @@ public class QuantityMeasuringService {
 		return new TerminalQuantityCalculator<T>(measurerSet) {
 
 			@Override
-			public T getResult(List<MeasurerSetOutput> outputs) {
+			public T getResult(Iterable<MeasurerSetOutput> outputs) {
 				PerfEventCount eventCount = single(outputs)
 						.getMainMeasurerOutput(measurer).getEventCount("count");
 				log.debug(String.format("eventDef: %s, %s", eventDefinition,
@@ -228,8 +228,10 @@ public class QuantityMeasuringService {
 		// calculate the resulting quantity for all corrresponding results
 		for (int runNr = 0; runNr < numMeasurements; runNr++) {
 			ArrayList<MeasurerSetOutput> outputs = new ArrayList<MeasurerSetOutput>();
-			for (int setNr = 0; setNr < calculator.getRequiredMeasurerSets().size(); setNr++) {
-				MeasurerSet set = calculator.getRequiredMeasurerSets().get(setNr);
+			for (int setNr = 0; setNr < calculator.getRequiredMeasurerSets()
+					.size(); setNr++) {
+				MeasurerSet set = calculator.getRequiredMeasurerSets().get(
+						setNr);
 				MeasurementResult result = measurementResults.get(setNr);
 				outputs.add(result.getOutputs().get(runNr)
 						.getMeasurerSetOutput(set));

@@ -10,6 +10,8 @@
 
 #include "sharedDOM/WorkloadStartRuleData.h"
 class WorkloadStartRule: public WorkloadStartRuleData {
+public:
+	void handleEvent(EventBase *event);
 };
 
 #endif /* WORKLOADSTARTRULE_H_ */

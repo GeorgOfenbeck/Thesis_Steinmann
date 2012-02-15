@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="DiskIoKernel" 
+	baseType="KernelBase"
+	cSuffix="Data"
+	comment="kernel performing disk IO">
+	
+	<field name="fileSize" type="long" comment="size of the temporary file to use"/>
+</derivedClass>

@@ -29,7 +29,7 @@ public class MMMMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		ParameterSpace space = new ParameterSpace();
-		for (long i = 512; i <= 512; i *= 2) {
+		for (long i = 256; i <= 256; i *= 2) {
 			space.add(Axes.matrixSizeAxis, i);
 		}
 		Axis<MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
@@ -38,7 +38,7 @@ public class MMMMeasurementController implements IMeasurementController {
 		//space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_TripleLoop);
 		//space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blocked);
 		space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Openblas);
-		//space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
+		space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
 
 		HashMap<MMMAlgorithm, Operation> algorithmOperation = new HashMap<MMMKernel.MMMAlgorithm, QuantityMeasuringService.Operation>();
 		algorithmOperation.put(MMMAlgorithm.MMMAlgorithm_TripleLoop,

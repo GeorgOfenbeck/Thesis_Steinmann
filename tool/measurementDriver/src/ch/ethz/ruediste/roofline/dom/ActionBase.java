@@ -1,13 +1,19 @@
 package ch.ethz.ruediste.roofline.dom;
 
-import java.util.Collection;
+import java.util.*;
 
 public abstract class ActionBase extends ActionBaseData {
 
-	public abstract Collection<? extends KernelBase> getKernels();
+	public Collection<? extends KernelBase> getKernels() {
+		return new ArrayList<KernelBase>();
+	}
 
-	public abstract Collection<? extends MeasurerSet> getMeasurerSets();
+	public Collection<? extends MeasurerSet> getMeasurerSets() {
+		return new ArrayList<MeasurerSet>();
+	}
 
-	public abstract Collection<? extends MeasurerBase> getMeasurers();
+	public Collection<? extends MeasurerBase> getMeasurers() {
+		return new ArrayList<MeasurerBase>();
+	}
 
 }

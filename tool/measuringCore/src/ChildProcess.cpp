@@ -31,6 +31,7 @@
 #include "sharedDOM/Measurement.h"
 #include "sharedDOM/ConfiguratorBase.h"
 #include "sharedDOM/Workload.h"
+#include "baseClasses/Locator.h"
 
 #define THREADCOUNT 2
 using namespace std;
@@ -104,6 +105,9 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 		printf("cloning measurement\n");
 		Measurement *measurementClone=(Measurement*)measurement->clone();
+
+		// set the measurement in the locator
+		Locator::setMeasurement(measurementClone);
 
 		// notify configurators
 		printf("notifying configurators: beforeRun()\n");
