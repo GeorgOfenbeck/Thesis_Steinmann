@@ -73,6 +73,7 @@ int ParentProcess::handleSignalReceived(pid_t stoppedChild, int signal) {
 			printf("handleSignalReceived() done\n");
 			return 0;
 		}
+		printf("childstate: NEW, signal=%i\n",signal);
 		break;
 	case ChildState_Running:
 	case ChildState_Stopping:

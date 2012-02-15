@@ -24,8 +24,10 @@ class Workload: public WorkloadData {
 			getMeasurerSet()->startAdditionalMeasurers();
 			getMeasurerSet()->stopAdditionalMeasurers();
 
-			getMeasurerSet()->getMainMeasurer()->start();
-			getMeasurerSet()->getMainMeasurer()->stop();
+			if (getMeasurerSet()->getMainMeasurer() != NULL) {
+				getMeasurerSet()->getMainMeasurer()->start();
+				getMeasurerSet()->getMainMeasurer()->stop();
+			}
 
 			getKernel()->warmCaches();
 		} else {

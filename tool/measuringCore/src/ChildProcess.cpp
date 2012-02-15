@@ -104,10 +104,15 @@ int ChildProcess::main(int argc, char* argv[]) {
 			measurementNumber++) {
 
 		printf("cloning measurement\n");
-		Measurement *measurementClone=(Measurement*)measurement->clone();
+		Measurement *measurementClone = (Measurement*) measurement->clone();
 
 		// set the measurement in the locator
 		Locator::setMeasurement(measurementClone);
+
+		// initialize overall measurer set
+		if (measurementClone->getOverallMeasurerSet() != NULL) {
+			measurementClone->getOverallMeasurerSet()->initialize();
+		}
 
 		// notify configurators
 		printf("notifying configurators: beforeRun()\n");
@@ -116,6 +121,10 @@ int ChildProcess::main(int argc, char* argv[]) {
 					configurator->beforeRun();
 				}
 
+		// start overall measurer set
+		if (measurementClone->getOverallMeasurerSet() != NULL) {
+			measurementClone->getOverallMeasurerSet()->start();
+		}
 		// start workloads
 		vector<pthread_t> threads;
 		foreach(Workload *workload, measurementClone->getWorkloads())
@@ -133,6 +142,12 @@ int ChildProcess::main(int argc, char* argv[]) {
 						exit(1);
 					}
 				}
+
+		// stop overall measurer set
+		if (measurementClone->getOverallMeasurerSet() != NULL) {
+			measurementClone->getOverallMeasurerSet()->stop();
+		}
+
 		printf("notifying configurators\n");
 		// notify configurators
 		reverse_foreach (ConfiguratorBase *configurator, measurementClone->getConfigurators())
@@ -149,6 +164,12 @@ int ChildProcess::main(int argc, char* argv[]) {
 					measurementRunOutput->getMeasurerSetOutputs().push_back(
 							workload->getOutput());
 				}
+
+		// add the output of the overall measurer set
+		if (measurementClone->getOverallMeasurerSet() != NULL) {
+			measurementRunOutput->getMeasurerSetOutputs().push_back(
+					measurementClone->getOverallMeasurerSet()->getOutput());
+		}
 		outputCollection.getOutputs().push_back(measurementRunOutput);
 	}
 

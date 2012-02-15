@@ -10,16 +10,24 @@
 #include "sharedDOM/RuleBase.h"
 #include "sharedDOM/Measurement.h"
 #include "sharedDOM/Workload.h"
+#include "sharedDOM/ActionBase.h"
 
 #include "utils.h"
 
 Measurement *Locator::measurement;
+std::vector<IEventListener*> Locator::listeners;
 
 void Locator::dispatchEvent(EventBase *event)
 {
 	foreach(RuleBase *rule, measurement->getRules()){
 		printf("Locator::dispatchEvnet(): loop\n");
-		rule->handleEvent(event);
+		if (rule->doesMatch(event) && rule->getAction()!=NULL){
+			rule->getAction()->execute(event);
+		}
+	}
+
+	foreach (IEventListener *listener, listeners){
+		listener->handleEvent(event);
 	}
 }
 
@@ -38,6 +46,11 @@ Workload* Locator::getWorkload(int id)
 		}
 	}
 	return NULL;
+}
+
+void Locator::addEventListener(IEventListener *listener)
+{
+	listeners.push_back(listener);
 }
 
 KernelBase *Locator::getKernel(int id)

@@ -11,7 +11,7 @@
 #include "sharedDOM/WorkloadStopRuleData.h"
 class WorkloadStopRule : public WorkloadStopRuleData{
 public:
-	void handleEvent(EventBase *event);
+	bool doesMatch(EventBase *event);
 };
 
 #endif /* WORKLOADSTOPRULE_H_ */

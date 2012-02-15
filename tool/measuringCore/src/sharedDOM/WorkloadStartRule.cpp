@@ -7,9 +7,21 @@
 
 #include "WorkloadStartRule.h"
 
+#include "baseClasses/WorkloadStartEvent.h"
 
+#include <typeinfo>
 
-void WorkloadStartRule::handleEvent(EventBase *event)
+bool WorkloadStartRule::doesMatch(EventBase *event)
 {
+	// check if it is a start event
+	if (typeid(*event)==typeid(WorkloadStartEvent)){
+		WorkloadStartEvent *startEvent=(WorkloadStartEvent*)event;
+
+		// check the workload id
+		if (startEvent->getWorkloadId()==getWorkloadId()){
+			return true;
+		}
+	}
+	return false;
 }
 

@@ -24,35 +24,59 @@ public class DiskIoMeasurementController implements IMeasurementController {
 	MeasurementService measurementService;
 
 	public void measure(String outputName) throws IOException {
-		for (int size = 1; size <= 256; size *= 2) {
+		for (int size = 1; size <= 16; size *= 2) {
+			int iterations = 1;
+
 			Measurement measurement = new Measurement();
 			Workload workload = new Workload();
 			measurement.addWorkload(workload);
-			MeasurerSet measurerSet = new MeasurerSet();
-			workload.setMeasurerSet(measurerSet);
 
 			DiskIoKernel kernel = new DiskIoKernel();
 			workload.setKernel(kernel);
-			workload.setWarmCaches(true);
-
-			ExecutionTimeMeasurer measurer = new ExecutionTimeMeasurer();
-			measurerSet.setMainMeasurer(measurer);
+			workload.setWarmCaches(false);
+			workload.setMeasurerSet(new MeasurerSet());
 
 			kernel.setFileSize(1024L * 1024L * size);
-			kernel.setIterations(1);
+			kernel.setIterations(iterations);
+
+			MeasurerSet measurerSet = new MeasurerSet();
+			ExecutionTimeMeasurer measurer = new ExecutionTimeMeasurer();
+			measurerSet.setMainMeasurer(measurer);
+			workload.setMeasurerSet(measurerSet);
+			workload.setWarmCaches(true);
 
 			MeasurementResult result = measurementService.measure(measurement,
 					1);
 
 			long time = single(result.getMeasurerOutputs(measurer)).getUSecs();
 
-			double transfer = size * kernel.getIterations();
+			double transfer = size * iterations;
 
 			double performance = transfer * 1.0e6 / (double) time;
 
 			System.out.printf("performance %d MB: %.3g MB/s\n", size,
 					performance);
 		}
+	}
+
+	/**
+	 * @param measurement
+	 * @param size
+	 * @param iterations
+	 * @return
+	 */
+	public Workload createDiskWorkload(int size, int iterations) {
+		Workload workload = new Workload();
+
+		DiskIoKernel kernel = new DiskIoKernel();
+		workload.setKernel(kernel);
+		workload.setWarmCaches(false);
+		workload.setMeasurerSet(new MeasurerSet());
+
+		kernel.setFileSize(1024L * 1024L * size);
+		kernel.setIterations(iterations);
+
+		return workload;
 	}
 
 }

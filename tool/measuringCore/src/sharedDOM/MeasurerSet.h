@@ -42,8 +42,25 @@ public:
 				}
 	}
 
+	void start(){
+		startValidationMeasurers();
+		startAdditionalMeasurers();
+		if (getMainMeasurer()!=NULL){
+			getMainMeasurer()->start();
+		}
+	}
+
+	void stop(){
+		if (getMainMeasurer()!=NULL){
+			getMainMeasurer()->stop();
+		}
+		stopAdditionalMeasurers();
+		stopValidationMeasurers();
+	}
 	void initialize() {
-		getMainMeasurer()->initialize();
+		if (getMainMeasurer()!=NULL)
+			getMainMeasurer()->initialize();
+
 		foreach(MeasurerBase *measurer, getAdditionalMeasurers())
 				{
 					measurer->initialize();
@@ -66,7 +83,9 @@ public:
 					measurer->dispose();
 				}
 
+		if (getMainMeasurer()!=NULL){
 		getMainMeasurer()->dispose();
+		}
 	}
 
 	MeasurerSetOutput* getOutput();

@@ -14,7 +14,9 @@ MeasurerSetOutput *MeasurerSet::getOutput()
 
 	MeasurerSetOutput *result = new MeasurerSetOutput();
 	result->setSetId(getId());
-	result->setMainMeasurerOutput(getMainMeasurer()->read());
+	if (getMainMeasurer()!=NULL){
+		result->setMainMeasurerOutput(getMainMeasurer()->read());
+	}
 
 	foreach (MeasurerBase *additionalMeasurer, getAdditionalMeasurers())
 			{

@@ -65,8 +65,14 @@ public class MeasurementResult {
 						.getMeasurerOutputs()) {
 
 					// set the UID of the measurer output
-					measurerOutput.setMeasurerUid(measurement.getMeasurer(
-							measurerOutput.getMeasurerId()).getUid());
+					{
+						if (measurerOutput == null) {
+							throw new Error("null measurer output!!!");
+						}
+						MeasurerBase measurer = measurement
+								.getMeasurer(measurerOutput.getMeasurerId());
+						measurerOutput.setMeasurerUid(measurer.getUid());
+					}
 				}
 			}
 		}

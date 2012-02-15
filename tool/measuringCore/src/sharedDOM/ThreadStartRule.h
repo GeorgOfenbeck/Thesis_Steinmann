@@ -11,7 +11,7 @@
 #include "sharedDOM/ThreadStartRuleData.h"
 class ThreadStartRule : public ThreadStartRuleData {
 public:
-	void handleEvent(EventBase *event);
+	bool doesMatch(EventBase *event);
 };
 
 #endif /* THREADSTARTRULE_H_ */

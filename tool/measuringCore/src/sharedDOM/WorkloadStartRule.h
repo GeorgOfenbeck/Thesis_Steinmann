@@ -11,7 +11,7 @@
 #include "sharedDOM/WorkloadStartRuleData.h"
 class WorkloadStartRule: public WorkloadStartRuleData {
 public:
-	void handleEvent(EventBase *event);
+	bool doesMatch(EventBase *event);
 };
 
 #endif /* WORKLOADSTARTRULE_H_ */

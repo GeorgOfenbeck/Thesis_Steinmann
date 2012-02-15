@@ -90,6 +90,10 @@ public class Measurement extends MeasurementData {
 		getWorkloads().add(workload);
 	}
 
+	public void addRule(RuleBase rule) {
+		getRules().add(rule);
+	}
+
 	public Iterable<KernelBase> getKernels() {
 		ArrayList<KernelBase> result = new ArrayList<KernelBase>();
 		for (Workload workload : getWorkloads()) {
@@ -136,6 +140,10 @@ public class Measurement extends MeasurementData {
 		for (ActionBase action : getActions()) {
 			result.addAll(action.getMeasurerSets());
 		}
+
+		if (getOverallMeasurerSet() != null) {
+			result.add(getOverallMeasurerSet());
+		}
 		return result;
 	}
 
@@ -148,6 +156,9 @@ public class Measurement extends MeasurementData {
 		}
 		for (ActionBase action : getActions()) {
 			result.addAll(action.getMeasurers());
+		}
+		if (getOverallMeasurerSet() != null) {
+			result.addAll(getOverallMeasurerSet().getMeasurers());
 		}
 		return result;
 	}

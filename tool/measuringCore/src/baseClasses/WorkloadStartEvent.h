@@ -11,8 +11,22 @@
 #include "EventBase.h"
 
 class WorkloadStartEvent: public EventBase {
+    int workloadId;
 public:
-	virtual ~WorkloadStartEvent();
+    WorkloadStartEvent(int workloadId){
+    	this->workloadId=workloadId;
+    }
+    virtual ~WorkloadStartEvent();
+    int getWorkloadId() const
+    {
+        return workloadId;
+    }
+
+    void setWorkloadId(int workloadId)
+    {
+        this->workloadId = workloadId;
+    }
+
 };
 
 #endif /* WORKLOADSTARTEVENT_H_ */

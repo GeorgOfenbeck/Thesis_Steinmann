@@ -13,4 +13,6 @@
 	
 	<list name="configurators" type="ConfiguratorBase" comment="configurators to be used"/>
 	<list name="rules" type="RuleBase" comment="rules"/>
+	
+	<field name="overallMeasurerSet" type="MeasurerSet" comment="measurer set to be executed from beginning to end of the measurement"/>
 </class>

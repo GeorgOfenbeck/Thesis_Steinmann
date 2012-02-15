@@ -10,7 +10,9 @@ public class MeasurerSetOutput extends MeasurerSetOutputData {
 
 	public Iterable<MeasurerOutputBase> getMeasurerOutputs() {
 		ArrayList<MeasurerOutputBase> result = new ArrayList<MeasurerOutputBase>();
-		result.add(getMainMeasurerOutput());
+		if (getMainMeasurerOutput() != null) {
+			result.add(getMainMeasurerOutput());
+		}
 		result.addAll(getAdditionalMeasurerOutputs());
 		result.addAll(getValidationMeasurerOutputs());
 		return result;

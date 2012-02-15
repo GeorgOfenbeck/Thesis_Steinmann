@@ -245,12 +245,15 @@ public class MeasurementService implements IMeasurementFacilility {
 		// write the prefix
 		optimizationPrintStream.printf("KERNEL_NAMES=");
 
-		// print the name of each kernel
+		// collect kernel names
+		HashSet<String> kernelNames = new HashSet<String>();
 		for (KernelBase kernel : measurement.getKernels()) {
-			optimizationPrintStream.printf("%s ", kernel.getName());
+			kernelNames.add(kernel.getName());
 		}
 
-		optimizationPrintStream.printf("\n");
+		// print the kernel names
+		optimizationPrintStream.printf("%s\n",
+				StringUtils.join(kernelNames, " "));
 
 		// close the output file
 		optimizationPrintStream.close();

@@ -68,12 +68,6 @@ pthread_t Workload::start() {
 }
 
 void Workload::startInThread() {
-	printf("Workload: initializing Kernel %p\n", getKernel());
-	getKernel()->initialize();
-
-	printf("Workload: initializing Measurer Set\n");
-	getMeasurerSet()->initialize();
-
 	printf("Workload: setting CPU affinity\n");
 	// set cpu affinity
 	if (getCpu() != -1) {
@@ -84,9 +78,15 @@ void Workload::startInThread() {
 		sched_setaffinity(0, size, mask);
 	}
 
+	printf("Workload: initializing Kernel %p\n", getKernel());
+	getKernel()->initialize();
+
+	printf("Workload: initializing Measurer Set\n");
+	getMeasurerSet()->initialize();
+
 	// raise start event
 	{
-		WorkloadStartEvent *startEvent = new WorkloadStartEvent();
+		WorkloadStartEvent *startEvent = new WorkloadStartEvent(getId());
 		Locator::dispatchEvent(startEvent);
 		free(startEvent);
 	}
@@ -102,8 +102,10 @@ void Workload::startInThread() {
 	getMeasurerSet()->stopAdditionalMeasurers();
 
 	// warm up main measurer
-	getMeasurerSet()->getMainMeasurer()->start();
-	getMeasurerSet()->getMainMeasurer()->stop();
+	if (getMeasurerSet()->getMainMeasurer()!=NULL){
+		getMeasurerSet()->getMainMeasurer()->start();
+		getMeasurerSet()->getMainMeasurer()->stop();
+	}
 
 	// perform measurement
 	printf("Workload: perform measurement\n");
@@ -112,13 +114,17 @@ void Workload::startInThread() {
 	getMeasurerSet()->startAdditionalMeasurers();
 
 	// start main measurer
-	getMeasurerSet()->getMainMeasurer()->start();
+	if (getMeasurerSet()->getMainMeasurer()!=NULL){
+		getMeasurerSet()->getMainMeasurer()->start();
+	}
 
 	// run kernel
 	getKernel()->run();
 
 	// stop main measurer
-	getMeasurerSet()->getMainMeasurer()->stop();
+	if (getMeasurerSet()->getMainMeasurer()!=NULL){
+		getMeasurerSet()->getMainMeasurer()->stop();
+	}
 
 	// stop additional measurers
 	getMeasurerSet()->stopAdditionalMeasurers();
@@ -128,7 +134,7 @@ void Workload::startInThread() {
 
 	// raise stop event
 	{
-		printf("Workload::rais stop event\n");
+		printf("Workload::raise stop event\n");
 		WorkloadStopEvent *stopEvent = new WorkloadStopEvent(getId());
 		Locator::dispatchEvent(stopEvent);
 		free(stopEvent);

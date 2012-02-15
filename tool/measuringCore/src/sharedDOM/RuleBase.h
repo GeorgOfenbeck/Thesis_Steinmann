@@ -16,7 +16,7 @@ class RuleBase: public RuleBaseData {
 public:
 	virtual ~RuleBase();
 
-	virtual void handleEvent(EventBase *event)=0;
+	virtual bool doesMatch(EventBase *event)=0;
 };
 
 #endif /* RULEBASE_H_ */

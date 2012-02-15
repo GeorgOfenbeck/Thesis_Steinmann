@@ -70,9 +70,15 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		WorkloadStopRule stopRule = new WorkloadStopRule();
 		stopRule.setWorkload(addWorkload);
 		stopRule.setAction(new StopKernelAction(diskIoKernel));
+		measurement.addRule(stopRule);
 
-		measurement.getRules().add(stopRule);
+		// setup rule for waiting for diskIo kernel
+		WorkloadStartRule startRule = new WorkloadStartRule();
+		startRule.setWorkload(addWorkload);
+		startRule.setAction(new WaitForWorkloadAction(diskIoWorkload));
+		measurement.addRule(startRule);
 
+		// perform measurement
 		MeasurementResult result = measurementService.measure(measurement, 1);
 
 		System.out.printf("Execution time disk IO[usec]: %d\n",

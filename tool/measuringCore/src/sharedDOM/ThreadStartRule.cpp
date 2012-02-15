@@ -8,7 +8,8 @@
 #include "ThreadStartRule.h"
 
 
-void ThreadStartRule::handleEvent(EventBase *event)
+bool ThreadStartRule::doesMatch(EventBase *event)
 {
+	return false;
 }
 
