@@ -8,4 +8,5 @@
 	comment="kernel performing disk IO">
 	
 	<field name="fileSize" type="long" comment="size of the temporary file to use"/>
+	<field name="iterations" type="long" comment="number of time the file has to be read. -1 for infinity (untill keepRunning is set to false)"/>
 </derivedClass>

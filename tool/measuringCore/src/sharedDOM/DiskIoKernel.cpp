@@ -10,70 +10,108 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sstream>
 
 using namespace std;
 DiskIoKernel::~DiskIoKernel() {
 	// TODO Auto-generated destructor stub
 }
 
-void DiskIoKernel::initialize()
-{
+void DiskIoKernel::initialize() {
+	{
+		if (posix_memalign((void**)&buffer, 4*1024, bufferSize)!=0)
+		{
+			perror("error allocating buffer");
+		}
+	}
+
 	srand48(0);
+	stringstream fileName;
+	fileName << "diskIO" << getId() << ".tmp";
 
-	string fileName="diskIo";
-	fileName+=getId();
-	fileName+=".tmp";
-
-	fd=open(fileName.c_str(),O_APPEND|O_CREAT|O_WRONLY|O_DIRECT,S_IRWXU);
-	if (fd==-1){
+	// open file in direct mode
+	fd = open(fileName.str().c_str(), O_APPEND | O_CREAT | O_RDWR | O_DIRECT,
+			S_IRWXU);
+	if (fd == -1) {
 		perror("open disk io temporary file");
 	}
 
 	// get length
-	off_t length=lseek(fd,0,SEEK_CUR);
-	if (length==-1){
+	off_t length = lseek(fd, 0, SEEK_END);
+	if (length == -1) {
 		perror("error reading file length");
 	}
 
-	printf("file length: %li\n",length);
+	printf("file length: %li\n", length);
 
+	int writeSize=1024*4;
 	// increase size of file
-	char buffer[512];
-	for (;length<getFileSize();length+=512){
-		for (int i=0; i<512; i+=sizeof(long int)){
-			*(long int*)(&buffer[i])=lrand48();
+	for (; length < getFileSize(); length += writeSize) {
+		for (int i = 0; i < writeSize; i += sizeof(long int)) {
+			*(long int*) (&buffer[i]) = lrand48();
 		}
-		write(fd,buffer,512);
+
+		long written = 0;
+
+		while (written < writeSize) {
+			long ret = write(fd, &(buffer[written]), writeSize - written);
+			if (ret == -1) {
+				printf("written: %li %i\n",written, writeSize);
+				perror("writing to diskIo file");
+				exit(1);
+			} else {
+				written += ret;
+			}
+		}
 	}
 
+	// sync to disk
+	fsync(fd);
 
 }
 
-
-
-void DiskIoKernel::run()
+void DiskIoKernel::readFileOnce()
 {
-	while (isKeepRunning()){
-		// seek to the start of the file
-		if (lseek(fd,0,SEEK_SET)==-1){
+    // seek to the start of the file
+    if (lseek(fd, 0, SEEK_SET) == -1) {
 			perror("seeking to the beginning of the file");
 		}
+    // read the whole file
+    for(off_t position = 0;position < getFileSize();){
+        int ret = read(fd, buffer, bufferSize);
+        if(ret == -1){
+            printf("position: %li\n", position);
+            perror("Error while reading");
+            exit(1);
+        }else{
+            position += ret;
+        }
+    }
 
+}
 
-		char buffer[512];
+void DiskIoKernel::run() {
+	long iterations = 0;
+	while (
+	// if infinite iterations are specified, repeat while keepRunning is true
+	(getIterations() == -1 && isKeepRunning()) ||
+	// if the iterations are bounded, repeat until enough iterations are made
+			(getIterations() > 0 && iterations < getIterations())) {
 
-		for (off_t position=0;position<getFileSize(); position+=512){
-			read(fd,buffer,512);
-		}
+		iterations++;
+
+		readFileOnce();
 	}
 }
 
-
-
-void DiskIoKernel::dispose()
-{
+void DiskIoKernel::dispose() {
 	// close the file
 	close(fd);
+}
+
+void DiskIoKernel::warmCaches()
+{
+	readFileOnce();
 }
 
 

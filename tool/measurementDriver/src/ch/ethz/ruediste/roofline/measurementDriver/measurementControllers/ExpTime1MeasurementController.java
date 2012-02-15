@@ -38,6 +38,8 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		measurement.addWorkload(diskIoWorkload);
 
 		DiskIoKernel diskIoKernel = new DiskIoKernel();
+		diskIoKernel.setFileSize(1024 * 1024 * 1L);
+		diskIoKernel.setIterations(-1);
 		diskIoWorkload.setKernel(diskIoKernel);
 		MeasurerSet diskIoMeasurerSet = new MeasurerSet();
 		diskIoWorkload.setMeasurerSet(diskIoMeasurerSet);
