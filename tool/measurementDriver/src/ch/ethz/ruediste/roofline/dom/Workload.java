@@ -9,6 +9,11 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterS
 
 public class Workload extends WorkloadData {
 
+	public Workload() {
+		setCpu(-1);
+		setMeasurerSet(new MeasurerSet());
+	}
+
 	public Collection<? extends String> getMacroDefinitions(MacroKey key) {
 		ArrayList<String> result = new ArrayList<String>();
 

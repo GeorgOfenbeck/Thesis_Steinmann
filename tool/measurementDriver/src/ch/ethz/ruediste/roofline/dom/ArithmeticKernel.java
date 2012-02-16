@@ -23,6 +23,10 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 		ArithmeticOperation_ADD, ArithmeticOperation_MUL, ArithmeticOperation_MULADD
 	}
 
+	public ArithmeticKernel() {
+		setIterations(10000);
+	}
+
 	public ArithmeticOperation getOperation() {
 		return ArithmeticOperation.valueOf(getMacroDefinition(operationMacro));
 	}
@@ -45,7 +49,7 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 	 */
 
 	private static final MacroKey unrollMacro = MacroKey.Create(
-			"RMT_ARITHMETIC_UNROLL", "number of times to unroll the loop", "1");
+			"RMT_ARITHMETIC_UNROLL", "number of times to unroll the loop", "2");
 
 	public int getUnroll() {
 		return Integer.parseInt(getMacroDefinition(unrollMacro));
@@ -58,7 +62,7 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 	private static final MacroKey dlpMacro = MacroKey
 			.Create("RMT_ARITHMETIC_DLP",
 					"DataLevelParallelism: number of values that should be computed concurrently",
-					"1");
+					"2");
 
 	public int getDlp() {
 		return Integer.parseInt(getMacroDefinition(dlpMacro));

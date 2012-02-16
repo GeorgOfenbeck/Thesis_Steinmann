@@ -78,10 +78,10 @@ void Workload::startInThread() {
 		sched_setaffinity(0, size, mask);
 	}
 
-	printf("Workload: initializing Kernel %p\n", getKernel());
+	printf("Workload %i: initializing Kernel %p\n", getId(),getKernel());
 	getKernel()->initialize();
 
-	printf("Workload: initializing Measurer Set\n");
+	printf("Workload  %i: initializing Measurer Set\n",getId());
 	getMeasurerSet()->initialize();
 
 	// raise start event

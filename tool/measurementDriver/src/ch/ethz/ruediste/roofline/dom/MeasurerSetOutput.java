@@ -18,6 +18,11 @@ public class MeasurerSetOutput extends MeasurerSetOutputData {
 		return result;
 	}
 
+	/**
+	 * returns the main measurer of this measurer set, in a typesafe manner. If
+	 * the provided measurer was not used to generate the main measurer output
+	 * of this set output, an error is thrown.
+	 */
 	@SuppressWarnings("unchecked")
 	public <T, TMeasurer extends IMeasurer<T>> T getMainMeasurerOutput(
 			TMeasurer measurer) {

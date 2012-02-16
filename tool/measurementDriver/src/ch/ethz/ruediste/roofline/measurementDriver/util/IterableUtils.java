@@ -134,6 +134,30 @@ public class IterableUtils {
 		return index;
 	}
 
+	public static <T> Iterable<T> tail(Iterable<T> iterable) {
+		if (isEmpty(iterable)) {
+			throw new Error("cannot get the tail of an empty list");
+		}
+
+		ArrayList<T> result = new ArrayList<T>();
+		boolean first = true;
+		Iterator<T> it = iterable.iterator();
+		while (it.hasNext()) {
+			T item = it.next();
+			if (first) {
+				first = false;
+			}
+			else {
+				result.add(item);
+			}
+		}
+		return result;
+	}
+
+	public static <T> T head(Iterable<T> iterable) {
+		return first(iterable);
+	}
+
 	public static <T> T first(Iterable<T> iterable) {
 		return first(iterable, UnaryPredicates.<T> True());
 	}

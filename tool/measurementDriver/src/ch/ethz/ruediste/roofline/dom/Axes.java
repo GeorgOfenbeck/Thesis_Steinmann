@@ -8,6 +8,7 @@ import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.dom.MemoryKernel.MemoryOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 
 public class Axes {
 	public static final Axis<KernelBase> kernelAxis = new Axis<KernelBase>(
@@ -48,6 +49,10 @@ public class Axes {
 	public static final Axis<InstructionSet> instructionSetAxis = new Axis<InstructionSet>(
 			"920f0443-b04e-4254-a53e-c24b0d30e0cc", "instructionSet",
 			InstructionSet.x87);
+
+	public static final Axis<ClockType> clockTypeAxis = new Axis<ClockType>(
+			"5452e251-7851-437a-a87e-1a9b41c18302", "clockType",
+			ClockType.uSecs);
 
 	private static HashMap<UUID, Axis<?>> axes;
 

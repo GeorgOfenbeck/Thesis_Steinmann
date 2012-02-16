@@ -107,7 +107,7 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 			ArrayList<String> parts = new ArrayList<String>();
 			for (Entry<Axis<?>, Object> entry : coordinates.entrySet()) {
 				parts.add(String.format("%s=%s", entry.getKey(),
-						entry.getValue()));
+						formattedValue(entry.getKey())));
 			}
 			return StringUtils.join(parts, ", ");
 		}
@@ -153,7 +153,7 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 	 * @param value
 	 *            values to add to the axis
 	 */
-	public void add(Axis<?> axis, Collection<? extends Object> value) {
+	public void addAll(Axis<?> axis, Collection<? extends Object> value) {
 		List<Object> list = getValueListOfAxis(axis);
 
 		list.addAll(value);
@@ -182,7 +182,7 @@ public class ParameterSpace implements Iterable<ParameterSpace.Coordinate> {
 			// if the axis is selected, the axis and all its values to the
 			// result
 			if (selectedAxes.contains(entry.getKey())) {
-				result.add(entry.getKey(), entry.getValue());
+				result.addAll(entry.getKey(), entry.getValue());
 			}
 		}
 

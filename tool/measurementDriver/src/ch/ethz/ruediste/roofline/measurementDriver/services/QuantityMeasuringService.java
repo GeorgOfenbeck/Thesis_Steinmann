@@ -198,8 +198,20 @@ public class QuantityMeasuringService {
 					"core::UNHALTED_CORE_CYCLES",
 					"coreduo::UNHALTED_CORE_CYCLES");
 		case ReferenceCycles:
-		case uSecs:
-			throw new Error("Not Supported");
+			return createPerfEventQuantityCalculator(Time.class,
+					"perf::PERF_COUNT_HW_BUS_CYCLES");
+		case uSecs: {
+			final ExecutionTimeMeasurer measurer = new ExecutionTimeMeasurer();
+			final MeasurerSet set = new MeasurerSet(measurer);
+			return new TerminalQuantityCalculator<Time>(set) {
+
+				@Override
+				public Time getResult(Iterable<MeasurerSetOutput> outputs) {
+					return new Time(single(outputs).getMainMeasurerOutput(
+							measurer).getUSecs());
+				}
+			};
+		}
 		default:
 			throw new Error("Should not happen");
 		}

@@ -57,7 +57,7 @@ void ParentProcess::handleChildCloned(pid_t clonePid, pid_t stoppedChild) {
 }
 
 int ParentProcess::handleSignalReceived(pid_t stoppedChild, int signal) {
-	printf("handleSignalReceived()\n");
+	printf("handleSignalReceived() signal: %i\n",signal);
 	switch (childStates[stoppedChild]) {
 	case ChildState_New:
 		// only accept the initial SigStop notification
