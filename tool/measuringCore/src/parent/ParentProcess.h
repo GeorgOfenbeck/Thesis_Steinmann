@@ -27,9 +27,16 @@ enum ChildState{
 	ChildState_Stopping,
 };
 
-enum ChildEvent{
-
-};
+#ifndef PARENTPROCESS_CPP_
+extern
+#endif
+const char *ChildStateNames[]
+#ifdef PARENTPROCESS_CPP_
+                            ={
+		"New","Running","ProcessingNotification","Stopping"
+}
+#endif
+;
 
 class ParentProcess {
 	map<pid_t,ChildState> childStates;
@@ -39,7 +46,7 @@ class ParentProcess {
 	pid_t mainChild;
 
 	void handleChildExited(pid_t stoppedChild);
-	void handleChildCloned(pid_t clonePid, pid_t stoppedChild);
+	void handleChildCloned(pid_t stoppedChild,pid_t clonePid);
 	void setupChildNotification(pid_t stoppedChild);
 	void handleTrapOccured(pid_t stoppedChild);
 	bool handleNotification(pid_t stoppedChild, ParentNotification event, uint32_t arg);

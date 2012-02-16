@@ -5,7 +5,6 @@
  *      Author: ruedi
  */
 
-#include "ParentProcess.h"
 #include "sharedDOM/MultiLanguageSerializationService.h"
 #include "sharedDOM/MultiLanguageTestClass.h"
 #include "sharedDOM/MeasurementCommand.h"

@@ -8,7 +8,7 @@ import java.util.*;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
@@ -93,7 +93,7 @@ public class MeasurementService implements IMeasurementFacilility {
 		log.trace("running measurement");
 		commandService.runCommand(buildDir, measuringCoreLocationService
 				.getMeasuringCoreParentExecutable().getAbsolutePath(),
-				new String[] {}, 0, log.isDebugEnabled());
+				new String[] {}, 0, true);
 
 		// parse measurer output
 		log.trace("parsing measurement output");
@@ -283,6 +283,38 @@ public class MeasurementService implements IMeasurementFacilility {
 
 		// close the output file
 		presentKernelsPrintStream.close();
+		return updatingStream.isWriting();
+	}
+
+	private boolean writeLoglevel(Measurement measurement, File measuringCoreDir)
+			throws FileNotFoundException {
+
+		log.trace("writing loglevel");
+
+		// open the file included by the makefile for writing
+		// open the present kernels file
+		File loglevelFile = new File(measuringCoreDir, "generated/LogLevel.h");
+		loglevelFile.getParentFile().mkdirs();
+		UpdatingFileOutputStream updatingStream = new UpdatingFileOutputStream(
+				loglevelFile);
+		PrintStream loglevelPrintStream = new PrintStream(updatingStream);
+
+		String logLevel = "0";
+		if (log.getLevel() == Level.ERROR)
+			logLevel = "LOGLEVEL_ERROR";
+		if (log.getLevel() == Level.WARN)
+			logLevel = "LOGLEVEL_WARNING";
+		if (log.getLevel() == Level.INFO)
+			logLevel = "LOGLEVEL_INFO";
+		if (log.getLevel() == Level.DEBUG)
+			logLevel = "LOGLEVEL_DEBUG";
+		if (log.getLevel() == Level.TRACE)
+			logLevel = "LOGLEVEL_TRACE";
+
+		loglevelPrintStream.printf("#define LOG_LOGLEVEL %s\n", logLevel);
+
+		// close the output file
+		loglevelPrintStream.close();
 		return updatingStream.isWriting();
 	}
 

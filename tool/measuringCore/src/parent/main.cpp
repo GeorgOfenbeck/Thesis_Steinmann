@@ -26,15 +26,14 @@
 #include <pthread.h>
 #include "ChildProcess.h"
 #include "ParentProcess.h"
+#include "Logger.h"
 
 using namespace std;
 using namespace boost;
 
 
-
-
-
 pid_t startChildProcess(int argc, char* argv[]) {
+	LENTER
 	pid_t childPid = vfork();
 
 	if (childPid == 0) {
@@ -73,50 +72,7 @@ pid_t startChildProcess(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	printf("restarted\n");
-
-/*
-	int status;
-	// the child will first call notify, so we know where the notify instruction
-	// and the entrance to the child notification code lies
-	if (waitpid(childPid, &status, 0) < 0) {
-		perror("error on wait");
-		exit(1);
-	}
-
-	if (WIFSTOPPED(status)){
-		int stopSig = WSTOPSIG(status);
-		printf("stopped signal: %i\n",stopSig);
-
-		if (stopSig==SIGTRAP){
-			int event = (status >> 16) & 0xFF;
-			printf("event: %i\n",event);
-		}
-
-	}
-	else{
-		printf("not stopped\n");
-	}
-
-	// read the registers
-	user_regs_struct regs;
-	if (ptrace(PTRACE_GETREGS, childPid, NULL, &regs) < 0) {
-		perror("error reading child regs");
-		exit(1);
-	}
-
-	// store the address of the notify instruction
-	ParentProcess::notifyAddress=regs.eip;
-	ParentProcess::notificationProcedureEntry=regs.edx;
-
-	printf("parent: notificationProcedureEntry %x\n",ParentProcess::notificationProcedureEntry);
-
-	// restart child, we will wait for it again in the trace loop
-	if (ptrace(PTRACE_CONT, childPid, 0, 0) < 0) {
-		perror("error on ptrace syscall");
-		exit(1);
-	}*/
-
+	LLEAVE
 	return childPid;
 }
 
@@ -126,7 +82,7 @@ int main(int argc, char* argv[]) {
 	//child.main(argc,argv);
 	//return 0;
 
-	printf("Hello World\n");
+	LENTER
 
 	// start the child process
 	pid_t childPid = startChildProcess(argc,argv);
@@ -135,6 +91,6 @@ int main(int argc, char* argv[]) {
 	ParentProcess parent(childPid);
 	parent.traceLoop();
 
-	printf("return from main\n");
+	LLEAVE
 	return 0;
 }

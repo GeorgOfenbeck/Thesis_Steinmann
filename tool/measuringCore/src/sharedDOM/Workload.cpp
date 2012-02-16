@@ -5,6 +5,9 @@
  *      Author: ruedi
  */
 
+#define LOG_ADDITIONAL "id: %i ", getId()
+#include "Logger.h"
+
 #include "Workload.h"
 #include "sharedDOM/KernelBase.h"
 #include "baseClasses/Locator.h"
@@ -68,8 +71,7 @@ pthread_t Workload::start() {
 }
 
 void Workload::startInThread() {
-	printf("Workload: setting CPU affinity\n");
-	// set cpu affinity
+	LTRACE("setting CPU affinity");
 	if (getCpu() != -1) {
 		cpu_set_t *mask = CPU_ALLOC(getCpu());
 		size_t size = CPU_ALLOC_SIZE(getCpu());
@@ -78,74 +80,62 @@ void Workload::startInThread() {
 		sched_setaffinity(0, size, mask);
 	}
 
-	printf("Workload %i: initializing Kernel %p\n", getId(),getKernel());
+	LTRACE("initializing Kernel");
 	getKernel()->initialize();
 
-	printf("Workload  %i: initializing Measurer Set\n",getId());
+	LTRACE("initializing Measurer Set");
 	getMeasurerSet()->initialize();
 
-	// raise start event
+	LTRACE("raise start event")
 	{
 		WorkloadStartEvent *startEvent = new WorkloadStartEvent(getId());
 		Locator::dispatchEvent(startEvent);
 		free(startEvent);
 	}
 
-	// start validation measurers. They should validate the warmup, too
+	LTRACE("starting validation measurers")
 	getMeasurerSet()->startValidationMeasurers();
 
-	// prepare caches
+	LTRACE("warm or clear caches")
 	warmOrClearCaches();
 
-	// warm up additional measurers
-	getMeasurerSet()->startAdditionalMeasurers();
-	getMeasurerSet()->stopAdditionalMeasurers();
-
-	// warm up main measurer
-	if (getMeasurerSet()->getMainMeasurer()!=NULL){
-		getMeasurerSet()->getMainMeasurer()->start();
-		getMeasurerSet()->getMainMeasurer()->stop();
-	}
-
-	// perform measurement
-	printf("Workload: perform measurement\n");
-
-	// start additional measurers
+	LTRACE("start additional measurers")
 	getMeasurerSet()->startAdditionalMeasurers();
 
-	// start main measurer
+	LTRACE("start main measurer")
 	if (getMeasurerSet()->getMainMeasurer()!=NULL){
 		getMeasurerSet()->getMainMeasurer()->start();
 	}
 
-	// run kernel
+	LTRACE("run kernel")
 	getKernel()->run();
 
 	// stop main measurer
+	LTRACE("stop main measurer")
 	if (getMeasurerSet()->getMainMeasurer()!=NULL){
 		getMeasurerSet()->getMainMeasurer()->stop();
 	}
 
-	// stop additional measurers
+	LTRACE("stop additional measurers")
 	getMeasurerSet()->stopAdditionalMeasurers();
 
-	// stop the validation measurers
+	LTRACE("stop the validation measurers")
 	getMeasurerSet()->stopValidationMeasurers();
 
-	// raise stop event
+	LTRACE("raise stop event")
 	{
-		printf("Workload::raise stop event\n");
 		WorkloadStopEvent *stopEvent = new WorkloadStopEvent(getId());
 		Locator::dispatchEvent(stopEvent);
 		free(stopEvent);
 	}
 
-	// store output
+	LTRACE("store output")
 	output = getMeasurerSet()->getOutput();
 
-	// clean up
+	LTRACE("dispose kernel")
 	getKernel()->dispose();
 
+	LTRACE("dispose measurer set")
 	getMeasurerSet()->dispose();
 }
 
