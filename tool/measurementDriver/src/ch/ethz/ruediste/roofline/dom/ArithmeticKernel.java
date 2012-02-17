@@ -72,23 +72,63 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 		setMacroDefinition(dlpMacro, Integer.toString(unroll));
 	}
 
+	private static final MacroKey additionsMacro = MacroKey
+			.Create("RMT_ARITHMETIC_ADDITIONS",
+					"Number of additions to do in each iteration of the balanced kernel",
+					"2");
+
+	public int getAdditions() {
+		return Integer.parseInt(getMacroDefinition(additionsMacro));
+	}
+
+	public void setAdditions(int additions) {
+		setMacroDefinition(additionsMacro, Integer.toString(additions));
+	}
+
+	private static final MacroKey multiplicationsMacro = MacroKey
+			.Create("RMT_ARITHMETIC_MULTIPLICATIONS",
+					"Number of multiplications to do in each iteration of the balanced kernel",
+					"1");
+
+	public int getMultiplications() {
+		return Integer.parseInt(getMacroDefinition(multiplicationsMacro));
+	}
+
+	public void setMultiplications(int multiplications) {
+		setMacroDefinition(multiplicationsMacro,
+				Integer.toString(multiplications));
+	}
+
 	@Override
 	public void initialize(Coordinate coordinate) {
 		super.initialize(coordinate);
-		if (coordinate.contains(iterationsAxis))
+		if (coordinate.contains(iterationsAxis)) {
 			setIterations(coordinate.get(iterationsAxis));
+		}
 
-		if (coordinate.contains(arithmeticOperationAxis))
+		if (coordinate.contains(arithmeticOperationAxis)) {
 			setOperation(coordinate.get(arithmeticOperationAxis));
+		}
 
-		if (coordinate.contains(unrollAxis))
+		if (coordinate.contains(unrollAxis)) {
 			setUnroll(coordinate.get(unrollAxis));
+		}
 
-		if (coordinate.contains(dlpAxis))
+		if (coordinate.contains(dlpAxis)) {
 			setDlp(coordinate.get(dlpAxis));
+		}
 
-		if (coordinate.contains(instructionSetAxis))
+		if (coordinate.contains(arithBalancedAdditionsAxis)) {
+			setAdditions(coordinate.get(arithBalancedAdditionsAxis));
+		}
+
+		if (coordinate.contains(arithBalancedMultiplicationsAxis)) {
+			setMultiplications(coordinate.get(arithBalancedMultiplicationsAxis));
+		}
+
+		if (coordinate.contains(instructionSetAxis)) {
 			setInstructionSet(coordinate.get(instructionSetAxis));
+		}
 	}
 
 	@Override

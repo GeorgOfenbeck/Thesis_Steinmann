@@ -108,5 +108,5 @@ $(foreach kernel,$(KERNEL_NAMES),$(eval $(call KERNEL_RULE_template,$(kernel))))
 # the default rule
 $(BUILD_DIR)/%.o: %.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
-	$(GCC) $(CFLAGS) $(OPTIMIZATION_FLAGS) $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
+	$(GCC) $(CFLAGS) $(OPTIMIZATION_FLAGS) $(DEP_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(INCLUDE_DIRS) -c -o $@ $<
 	

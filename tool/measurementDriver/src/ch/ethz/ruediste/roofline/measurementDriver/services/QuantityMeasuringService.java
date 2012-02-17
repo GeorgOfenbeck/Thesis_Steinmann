@@ -175,8 +175,9 @@ public class QuantityMeasuringService {
 		case LlcRam:
 			return new MultiplyingQuantityCalculator<TransferredBytes>(
 					createPerfEventQuantityCalculator(TransferredBytes.class,
-							"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM"),
-					64);
+							"core::BUS_TRANS_MEM:BOTH_CORES",
+							"coreduo::BUS_TRANS_MEM"),
+							64);
 
 		default:
 			throw new Error("should not happen");
@@ -267,27 +268,32 @@ public class QuantityMeasuringService {
 	public Quantity<?> measure(KernelBase kernel, Coordinate measurementPoint) {
 		Class<?> quantity = measurementPoint.get(quantityAxis);
 
-		if (quantity == Time.class)
+		if (quantity == Time.class) {
 			return measureExecutionTime(kernel,
 					measurementPoint.get(clockTypeAxis));
+		}
 
-		if (quantity == Throughput.class)
+		if (quantity == Throughput.class) {
 			return measureThroughput(kernel,
 					measurementPoint.get(memoryTransferBorderAxis),
 					measurementPoint.get(clockTypeAxis));
+		}
 
-		if (quantity == TransferredBytes.class)
+		if (quantity == TransferredBytes.class) {
 			return measureTransferredBytes(kernel,
 					measurementPoint.get(memoryTransferBorderAxis));
+		}
 
-		if (quantity == OperationCount.class)
+		if (quantity == OperationCount.class) {
 			return measureOperationCount(kernel,
 					measurementPoint.get(operationAxis));
+		}
 
-		if (quantity == Performance.class)
+		if (quantity == Performance.class) {
 			return measurePerformance(kernel,
 					measurementPoint.get(operationAxis),
 					measurementPoint.get(clockTypeAxis));
+		}
 
 		throw new Error("should not happen");
 	}

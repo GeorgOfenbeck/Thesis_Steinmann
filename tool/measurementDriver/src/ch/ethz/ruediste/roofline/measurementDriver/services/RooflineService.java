@@ -35,15 +35,15 @@ public class RooflineService {
 		case Add:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_ADD);
-		break;
+			break;
 		case ArithBalanced:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MULADD);
-		break;
+			break;
 		case Mul:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MUL);
-		break;
+			break;
 		case Load:
 		case MemBalanced:
 		case Store:
@@ -66,19 +66,19 @@ public class RooflineService {
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.DoublePrecisionFlop);
-		break;
+			break;
 		case SSEScalar:
 			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.DoublePrecisionFlop);
-		break;
+			break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.CompInstr);
-		break;
+			break;
 
 		}
 
@@ -89,6 +89,14 @@ public class RooflineService {
 		}
 		for (int i = 1; i < 20; i++) {
 			optimzationSpace.add(dlpAxis, i);
+		}
+
+		// optimize instruction mix, too
+		if (algorithm==Algorithm.ArithBalanced){
+			for (int i = 1; i <= 3; i++) {
+				optimzationSpace.add(arithBalancedAdditionsAxis, i);
+				optimzationSpace.add(arithBalancedMultiplicationsAxis, i);
+			}
 		}
 
 		// create the kernel
@@ -107,9 +115,9 @@ public class RooflineService {
 		// measure the performance
 		Performance performance = quantityMeasuringService.measurePerformance(
 				kernel, measurementCoordinate
-						.get(QuantityMeasuringService.operationAxis),
+				.get(QuantityMeasuringService.operationAxis),
 				measurementCoordinate
-						.get(QuantityMeasuringService.clockTypeAxis));
+				.get(QuantityMeasuringService.clockTypeAxis));
 
 		log.info(String.format(
 				"peak performance for %s %s %s: parameters: %s value: %f",
@@ -129,7 +137,7 @@ public class RooflineService {
 			kernel = new MemoryKernel();
 			kernelParameters.set(optimizationAxis, "-O3 -msse");
 			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 10);
-		break;
+			break;
 		case Add:
 		case ArithBalanced:
 		case Mul:

@@ -32,8 +32,15 @@ public class Axes {
 
 	public static final Axis<Integer> unrollAxis = new Axis<Integer>(
 			"670c8795-de59-4f56-91f6-cb36f4bde788", "unroll", 1);
+
 	public static final Axis<Integer> dlpAxis = new Axis<Integer>(
 			"fec6cd98-a95d-4a3a-86fd-96f3333373ea", "dlp", 1);
+
+	public static final Axis<Integer> arithBalancedAdditionsAxis = new Axis<Integer>(
+			"6bfda8c8-c4f0-4ef0-b14f-e00a905c5796", "additions", 1);
+
+	public static final Axis<Integer> arithBalancedMultiplicationsAxis = new Axis<Integer>(
+			"096d99fe-f745-414e-86a7-57199f9fd19c", "multiplications", 1);
 
 	public static final Axis<ArithmeticOperation> arithmeticOperationAxis = new Axis<ArithmeticOperation>(
 			"5a393897-bb5a-49ed-898d-1eb62a965ba6", "operation",

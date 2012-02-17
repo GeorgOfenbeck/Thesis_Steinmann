@@ -49,16 +49,16 @@ public class FFTMeasurementController implements IMeasurementController {
 				MemoryTransferBorder.LlcRam);
 
 		ParameterSpace space = new ParameterSpace();
-		for (long i = 1024; i <= 2 * 1024; i *= 2) {
-			space.add(Axes.bufferSizeAxis, i);
+		for (long i = 1; i <= 512; i *= 2) {
+			space.add(Axes.bufferSizeAxis, i * 1024);
 		}
 
-		/*for (long i = 72; i < 128; i += 8) {
+		for (long i = 72; i < 128; i += 8) {
 			space.add(Axes.bufferSizeAxis, i * 1024L);
-		}*/
+		}
 
-		space.add(kernelAxis, new FFTnrKernel());
-		space.add(kernelAxis, new FFTmklKernel());
+		//space.add(kernelAxis, new FFTnrKernel());
+		//space.add(kernelAxis, new FFTmklKernel());
 		space.add(kernelAxis, new FFTfftwKernel());
 
 		HashMap<Class<?>, String> algorithmName = new HashMap<Class<?>, String>();
@@ -79,13 +79,15 @@ public class FFTMeasurementController implements IMeasurementController {
 
 			// skip non-power of two sizes for the NR kernel
 			if (coordinate.get(kernelAxis) instanceof FFTnrKernel
-					&& !IsPowerOfTwo(coordinate.get(bufferSizeAxis)))
+					&& !IsPowerOfTwo(coordinate.get(bufferSizeAxis))) {
 				continue;
+			}
 
 			// skip large buffer sizes for the NR kernel
 			if (coordinate.get(kernelAxis) instanceof FFTnrKernel
-					&& coordinate.get(bufferSizeAxis) > 256 * 1024L)
+					&& coordinate.get(bufferSizeAxis) > 256 * 1024L) {
 				continue;
+			}
 
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
@@ -99,7 +101,7 @@ public class FFTMeasurementController implements IMeasurementController {
 			OperationCount operationCount = quantityMeasuringService
 					.measureOperationCount(kernel, operation);
 			System.out
-					.printf("Operations %s: %s\n", coordinate, operationCount);
+			.printf("Operations %s: %s\n", coordinate, operationCount);
 
 			TransferredBytes bytes = quantityMeasuringService
 					.measureTransferredBytes(kernel,
@@ -109,7 +111,7 @@ public class FFTMeasurementController implements IMeasurementController {
 
 			rooflineController.addRooflinePoint(
 					algorithmName.get(kernel.getClass())
-							+ coordinate.get(bufferSizeAxis), kernel,
+					+ coordinate.get(bufferSizeAxis), kernel,
 					operationCount, MemoryTransferBorder.LlcRam);
 		}
 		rooflineController.plot();

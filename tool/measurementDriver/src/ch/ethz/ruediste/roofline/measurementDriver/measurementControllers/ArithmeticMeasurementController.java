@@ -46,7 +46,8 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		space.add(iterationsAxis, 10000L);
 		// space.add(iterationsAxis, 100000L);
 
-		// space.add(arithmeticOperationAxis, ArithmeticOperation.ArithmeticOperation_ADD);
+		//space.add(arithmeticOperationAxis,
+		//		ArithmeticOperation.ArithmeticOperation_ADD);
 		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MUL);
 		space.add(arithmeticOperationAxis,
 				ArithmeticOperation.ArithmeticOperation_MULADD);
@@ -56,7 +57,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 		space.add(instructionSetAxis, InstructionSet.SSEScalar);
 		optimizationMap
-				.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
+		.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
 		operationMap.put(InstructionSet.SSEScalar,
 				Operation.DoublePrecisionFlop);
 
@@ -68,15 +69,17 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		optimizationMap.put(InstructionSet.x87, "-O3");
 		operationMap.put(InstructionSet.x87, Operation.CompInstr);
 
-		space.add(unrollAxis, 14);
-		space.add(dlpAxis, 1);
+		space.add(unrollAxis, 4);
+		space.add(dlpAxis, 3);
+		space.add(arithBalancedAdditionsAxis, 3);
+		space.add(arithBalancedMultiplicationsAxis, 1);
 
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(arithmeticOperationAxis,
 						dlpAxis, unrollAxis, iterationsAxis
 
-				))) {
+						))) {
 			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);

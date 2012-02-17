@@ -303,16 +303,21 @@ public class MeasurementService implements IMeasurementFacilility {
 		PrintStream loglevelPrintStream = new PrintStream(updatingStream);
 
 		String logLevel = "0";
-		if (log.getLevel() == Level.ERROR)
+		if (log.getLevel() == Level.ERROR) {
 			logLevel = "LOGLEVEL_ERROR";
-		if (log.getLevel() == Level.WARN)
+		}
+		if (log.getLevel() == Level.WARN) {
 			logLevel = "LOGLEVEL_WARNING";
-		if (log.getLevel() == Level.INFO)
+		}
+		if (log.getLevel() == Level.INFO) {
 			logLevel = "LOGLEVEL_INFO";
-		if (log.getLevel() == Level.DEBUG)
+		}
+		if (log.getLevel() == Level.DEBUG) {
 			logLevel = "LOGLEVEL_DEBUG";
-		if (log.getLevel() == Level.TRACE)
+		}
+		if (log.getLevel() == Level.TRACE) {
 			logLevel = "LOGLEVEL_TRACE";
+		}
 
 		loglevelPrintStream.printf("#define LOGLEVEL %s\n", logLevel);
 
@@ -398,7 +403,7 @@ public class MeasurementService implements IMeasurementFacilility {
 
 			// check if a combined define can be written
 			if (macroDefinition.matches("[a-zA-Z0-9_]*")) {
-				output.printf("#define %s__%s\n", macro.getMacroName(),
+				output.printf("#define %s__%s 1\n", macro.getMacroName(),
 						macroDefinition);
 			}
 
