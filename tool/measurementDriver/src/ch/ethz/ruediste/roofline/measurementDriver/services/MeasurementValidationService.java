@@ -77,7 +77,7 @@ public class MeasurementValidationService {
 		}
 
 		// get measured CPUs
-		List<Integer> measuredCpus = systemInfoRepository.getPossibleCPUs();
+		List<Integer> measuredCpus = systemInfoRepository.getOnlineCPUs();
 
 		ValidationData validationData = new ValidationData();
 		measurement.setValidationData(validationData);

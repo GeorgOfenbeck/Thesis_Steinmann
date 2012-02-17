@@ -483,7 +483,7 @@ public class MeasurementService implements IMeasurementFacilility {
 			cmd.getArgs().add("governor");
 			cmd.getArgs().add(
 					configuration.get(measurementFrequencyGovernorKey));
-			for (int cpu : systemInfoRepository.getPossibleCPUs()) {
+			for (int cpu : systemInfoRepository.getOnlineCPUs()) {
 				cmd.getArgs().add(Integer.toString(cpu));
 			}
 
@@ -499,7 +499,7 @@ public class MeasurementService implements IMeasurementFacilility {
 			cmd.getArgs().add(new File(executable).getName());
 			cmd.getArgs().add("governor");
 			cmd.getArgs().add(configuration.get(defaultFrequencyGovernorKey));
-			for (int cpu : systemInfoRepository.getPossibleCPUs()) {
+			for (int cpu : systemInfoRepository.getOnlineCPUs()) {
 				cmd.getArgs().add(Integer.toString(cpu));
 			}
 

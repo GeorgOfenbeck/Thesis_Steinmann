@@ -223,7 +223,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 	}
 
 	public ArrayList<Workload> createWorkloads(SystemLoad workload) {
-		List<Integer> cpus = systemInfoRepository.getPossibleCPUs();
+		List<Integer> cpus = systemInfoRepository.getOnlineCPUs();
 		switch (workload) {
 		case AddAll:
 			return createAddWorkloads(cpus);

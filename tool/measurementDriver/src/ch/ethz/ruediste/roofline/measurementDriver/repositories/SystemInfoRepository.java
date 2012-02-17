@@ -53,20 +53,20 @@ public class SystemInfoRepository {
 	public PmuDescription getPMU(final String pmuName) {
 		return singleOrDefault(getAllPmus(),
 				new IUnaryPredicate<PmuDescription>() {
-					public Boolean apply(PmuDescription pmu) {
-						return pmu.getPmuName().equals(pmuName);
-					}
-				});
+			public Boolean apply(PmuDescription pmu) {
+				return pmu.getPmuName().equals(pmuName);
+			}
+		});
 	}
 
 	public PmuDescription getPresentPMU(final String pmuName) {
 		return IterableUtils.singleOrDefault(getAllPmus(),
 				new IUnaryPredicate<PmuDescription>() {
-					public Boolean apply(PmuDescription pmu) {
-						return pmu.getIsPresent()
-								&& pmu.getPmuName().equals(pmuName);
-					}
-				});
+			public Boolean apply(PmuDescription pmu) {
+				return pmu.getIsPresent()
+						&& pmu.getPmuName().equals(pmuName);
+			}
+		});
 	}
 
 	private List<PmuDescription> readPMUs(Boolean onlyPresent) {
@@ -106,10 +106,10 @@ public class SystemInfoRepository {
 				// get list of present pmus from list of all pmus
 				presentPmusImp = where(getAllPmus(),
 						new IUnaryPredicate<PmuDescription>() {
-							public Boolean apply(PmuDescription pmu) {
-								return pmu.getIsPresent();
-							}
-						});
+					public Boolean apply(PmuDescription pmu) {
+						return pmu.getIsPresent();
+					}
+				});
 			}
 			else {
 				// only retrieve the present pmus
@@ -121,7 +121,7 @@ public class SystemInfoRepository {
 		return presentPmusImp;
 	}
 
-	public List<Integer> getPossibleCPUs() {
+	public List<Integer> getOnlineCPUs() {
 		if (possibleCPUs == null) {
 			possibleCPUs = readPossibleCPUs();
 		}
@@ -131,7 +131,7 @@ public class SystemInfoRepository {
 	private List<Integer> readPossibleCPUs() {
 		// list all possible cpus
 		FileMeasurer measurer = new FileMeasurer();
-		measurer.addFile("/sys/devices/system/cpu/possible");
+		measurer.addFile("/sys/devices/system/cpu/online");
 
 		Measurement measurement = new Measurement();
 		Workload workload = new Workload();
