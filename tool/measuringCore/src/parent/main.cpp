@@ -51,7 +51,7 @@ pid_t startChildProcess(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	printf("ChildPid: %i\n",childPid);
+	LDEBUG("Child process pid: %i",childPid)
 
 	// wait for the child, will send SIGSTOP when started (due to ptrace)
 	if (waitpid(childPid, NULL, 0) < 0) {

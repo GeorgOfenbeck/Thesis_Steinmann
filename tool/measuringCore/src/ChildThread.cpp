@@ -5,6 +5,7 @@
  *      Author: ruedi
  */
 
+#include "Logger.h"
 #include "ChildThread.h"
 #include "Notifications.h"
 #include "ChildProcess.h"
@@ -22,8 +23,8 @@ void ChildThread::processNotification() {
 	uint32_t arg;
 	asm("":"=a" (childPid), "=b" (notification), "=c" (arg)::);
 
-	printf("childThread:Process %i, event: %i, arg: %i\n", childPid,
-			notification, arg);
+	LDEBUG("pid %i, notification: %s, arg: %i\n", childPid,
+			ChildNotificationNames[notification], arg);
 
 	if (notification == ChildNotification_ChildExited) {
 		pthread_mutex_lock(&threadMapMutex);
@@ -47,12 +48,14 @@ void ChildThread::processNotification() {
 		getChildThread(childPid)->processActions();
 	}
 
+	LLEAVE
+
 	// notify the parent that the child is done processing
 	ChildProcess::notifyParent(ParentNotification_ProcessingDone, 0);
 }
 
 void ChildThread::processActions() {
-	printf("child: process Actions %i\n", getPid());
+	LENTER
 	while (1) {
 		// get the next action
 		pair<ActionBase*, EventBase*> pair;
@@ -60,6 +63,7 @@ void ChildThread::processActions() {
 		if (actionQueue.empty()) {
 			// break the loop if the queue is empty
 			pthread_mutex_unlock(&actionQueueMutex);
+			LLEAVE
 			return;
 		}
 		pair = actionQueue.front();

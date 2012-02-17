@@ -5,6 +5,7 @@
  *      Author: ruedi
  */
 
+#include "Logger.h"
 #include "PerfEventMeasurer.h"
 #include "sharedDOM/PerfEventMeasurerOutput.h"
 #include "sharedDOM/PerfEventCount.h"
@@ -86,7 +87,7 @@ void PerfEventMeasurer::initialize(){
 	groupFd=-1;
 	for (size_t i=0; i<getEvents().size(); i++){
 		PerfEventDefinition *definition=getEvents()[i];
-		printf("Measuring Event: %s -> %s\n",definition->getName().c_str(),definition->getDefinition().c_str());
+		LDEBUG("Measuring Event: %s -> %s\n",definition->getName().c_str(),definition->getDefinition().c_str());
 
 		int fd=registerEvent(groupFd,definition->getDefinition());
 		fds.push_back(fd);
@@ -129,7 +130,7 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 		count->setRawCount(values[0]);
 		count->setTimeEnabled(values[1]);
 		count->setTimeRunning(values[2]);
-		printf("%llu %llu %llu\n",count->getRawCount(),count->getTimeEnabled(),count->getTimeRunning());
+		LDEBUG("%llu %llu %llu\n",count->getRawCount(),count->getTimeEnabled(),count->getTimeRunning());
 		output->getEventCounts().push_back(count);
 	}
 
@@ -139,7 +140,7 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 // define and register a system initializer.
 static class Initializer: public SystemInitializer{
 	void start(){
-		printf("initializing LibPfm\n");
+		LENTER
 		int ret;
 		/*
 		 * Initialize libpfm library (required before we can use it)
@@ -150,7 +151,8 @@ static class Initializer: public SystemInitializer{
 	}
 
 	void stop(){
-		printf("terminating LibPfm4\n");
+		LENTER
 		pfm_terminate();
+		LLEAVE
 	}
 } dummy2;

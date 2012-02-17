@@ -5,6 +5,7 @@
  *      Author: ruedi
  */
 
+#include "Logger.h"
 #include "sharedDOM/MultiLanguageSerializationService.h"
 #include "sharedDOM/MultiLanguageTestClass.h"
 #include "sharedDOM/MeasurementCommand.h"
@@ -40,10 +41,10 @@ void handleSerializationTest() {
 	MultiLanguageSerializationService serializationService;
 
 	// run the serialization test
-	printf("Running Serialization Test\n");
+	LTRACE("Running Serialization Test");
 
 	// load input
-	printf("Loading input\n");
+	LTRACE("Loading input");
 	ifstream input("serializationTestInput");
 	MultiLanguageTestClass *testObject;
 	testObject = (MultiLanguageTestClass *) serializationService.DeSerialize(
@@ -51,7 +52,7 @@ void handleSerializationTest() {
 	input.close();
 
 	// write output
-	printf("writing output\n");
+	LTRACE("writing output");
 	ofstream output("serializationTestOutput");
 	serializationService.Serialize(testObject, output);
 	output.close();
@@ -75,7 +76,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 	MultiLanguageSerializationService serializationService;
 
-	printf("reading input\n");
+	LTRACE("reading input");
 	// read input
 	ifstream input("config");
 	if (!input.is_open()) {
@@ -89,7 +90,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 	Measurement *measurement = command->getMeasurement();
 
-	printf("notifying configurators: beforeMeasurement()\n");
+	LTRACE("notifying configurators: beforeMeasurement()");
 	// notify configurators
 	foreach (ConfiguratorBase *configurator, measurement->getConfigurators())
 			{
@@ -103,7 +104,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 			measurementNumber < command->getNumberOfMeasurements();
 			measurementNumber++) {
 
-		printf("cloning measurement\n");
+		LTRACE("cloning measurement");
 		Measurement *measurementClone = (Measurement*) measurement->clone();
 
 		// set the measurement in the locator
@@ -120,7 +121,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 		}
 
 		// notify configurators
-		printf("notifying configurators: beforeRun()\n");
+		LTRACE("notifying configurators: beforeRun()");
 		foreach (ConfiguratorBase *configurator, measurement->getConfigurators())
 				{
 					configurator->beforeRun();
@@ -134,11 +135,10 @@ int ChildProcess::main(int argc, char* argv[]) {
 		vector<pthread_t> threads;
 		foreach(Workload *workload, measurementClone->getWorkloads())
 				{
-					printf("start Workload\n");
 					threads.push_back(workload->start());
 				}
 
-		printf("waiting for exit of all workload threads\n");
+		LTRACE("waiting for exit of all workload threads");
 		// wait for all workloads to exit
 		foreach(pthread_t thread, threads)
 				{
@@ -153,13 +153,14 @@ int ChildProcess::main(int argc, char* argv[]) {
 			measurementClone->getOverallMeasurerSet()->stop();
 		}
 
-		printf("notifying configurators\n");
+		LTRACE("notifying configurators: afterRun()");
 		// notify configurators
 		reverse_foreach (ConfiguratorBase *configurator, measurementClone->getConfigurators())
 				{
 					configurator->afterRun();
 				}
-		printf("collecting output\n");
+
+		LTRACE("collecting output");
 
 		// add the output
 		MeasurementRunOutput *measurementRunOutput = new MeasurementRunOutput();
@@ -190,7 +191,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 			}
 
 	// write output
-	printf("writing output\n");
+	LTRACE("writing output");
 	ofstream output("output");
 	serializationService.Serialize(&outputCollection, output);
 	output.close();

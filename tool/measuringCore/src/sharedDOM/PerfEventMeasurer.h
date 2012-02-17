@@ -8,6 +8,7 @@
 #ifndef PERFEVENTMEASURER_H_
 #define PERFEVENTMEASURER_H_
 
+#include "Logger.h"
 #include "sharedDOM/PerfEventMeasurerData.h"
 
 #include "sys/time.h"
@@ -24,7 +25,7 @@ public:
 	virtual ~PerfEventMeasurer();
 
 	void start(){
-		printf("PerfEventMeasurer::start\n");
+		LENTER
 		int ret;
 		/*
 		 * clear counts
@@ -41,7 +42,7 @@ public:
 
 	}
 	void stop(){
-		printf("PerfEventMeasurer::stop()\n");
+		LENTER
 		/*
 		 * stop counting
 		 */

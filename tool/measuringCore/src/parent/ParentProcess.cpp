@@ -66,7 +66,7 @@ int ParentProcess::handleSignalReceived(pid_t stoppedChild, int signal) {
 		// only accept the initial SigStop notification
 		if (signal == SIGSTOP) {
 			if (notificationSystemReady) {
-				printf("handleSignalReceived: notificationSystemReady\n");
+				LTRACE("notificationSystemReady\n");
 				// setup the initilization notification
 				setupChildNotification(stoppedChild, ChildNotification_Started,
 						0);
