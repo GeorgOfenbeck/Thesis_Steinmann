@@ -4,7 +4,7 @@ import static ch.ethz.ruediste.roofline.dom.Axes.clockTypeAxis;
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.*;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
@@ -12,11 +12,10 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementContr
 import ch.ethz.ruediste.roofline.measurementDriver.dom.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Time;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
-import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryFunction;
 
 import com.google.inject.Inject;
 
@@ -39,44 +38,43 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 	@Inject
 	SystemInfoRepository systemInfoRepository;
 
+	private enum SystemLoad {
+		Idle, DiskOther, DiskAll, AddOther, AddAll,
+	}
+
+	private static Axis<SystemLoad> systemLoadAxis = new Axis<SystemLoad>(
+			"dea44497-3db7-4037-8eda-ff1136e158d0", "workload");
+
 	public void measure(String outputName) throws IOException {
 		ParameterSpace space = new ParameterSpace();
 
-		// setup workloads
-		Axis<ArrayList<Workload>> systemLoadAxis = new Axis<ArrayList<Workload>>(
-				"dea44497-3db7-4037-8eda-ff1136e158d0", "workload", null,
-				new IUnaryFunction<ArrayList<Workload>, String>() {
+		// get reference iterations
+		long referenceIterations = getReferenceIterations();
+		System.out.printf("Iteration count without context switches: %d\n",
+				referenceIterations);
 
-					public String apply(ArrayList<Workload> arg) {
-						if (arg.size() == 0) {
-							return "idle";
-						}
-						return first(arg).getKernel().getClass()
-								.getSimpleName()
-								+ arg.size();
-					}
-				});
+		{
+			Time executionTime = measureTime(referenceIterations,
+					ClockType.uSecs, SystemLoad.Idle);
+
+			System.out.printf("Execution time for reference iterations: %s\n",
+					executionTime);
+		}
 
 		// setup the idle system workload
-		space.add(systemLoadAxis, new ArrayList<Workload>());
+		space.add(systemLoadAxis, SystemLoad.Idle);
 
 		// setup workload with disk IO kernels on all but the first core
-		space.add(systemLoadAxis,
-				createDiskIoWorkloads(tail(systemInfoRepository
-						.getPossibleCPUs())));
+		space.add(systemLoadAxis, SystemLoad.DiskOther);
 
-		// setup workload with disk IO kernel son all cores
-		space.add(systemLoadAxis,
-				createDiskIoWorkloads(systemInfoRepository.getPossibleCPUs()));
+		// setup workload with disk IO kernels on all cores
+		space.add(systemLoadAxis, SystemLoad.DiskAll);
 
 		// setup workload with add kernels on all but the first core
-		space.add(
-				systemLoadAxis,
-				createAddWorkloads(tail(systemInfoRepository.getPossibleCPUs())));
+		space.add(systemLoadAxis, SystemLoad.AddOther);
 
 		// setup workload with add kernels on all cores
-		space.add(systemLoadAxis,
-				createAddWorkloads(systemInfoRepository.getPossibleCPUs()));
+		space.add(systemLoadAxis, SystemLoad.AddAll);
 
 		space.add(clockTypeAxis, ClockType.CoreCycles);
 		space.add(clockTypeAxis, ClockType.ReferenceCycles);
@@ -85,63 +83,18 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		for (Coordinate coordinate : space) {
 			boolean enoughIterations = false;
 			for (long iterations = 1; !enoughIterations; iterations *= 2) {
-				Measurement measurement = new Measurement();
-				ArrayList<Workload> systemLoadWorkloads = coordinate
-						.get(systemLoadAxis);
 
-				// add system load workloads to measurement
-				for (Workload loadWorkload : systemLoadWorkloads) {
-					measurement.addWorkload(loadWorkload);
-				}
+				ClockType clockType = coordinate.get(clockTypeAxis);
+				SystemLoad systemLoad = coordinate.get(systemLoadAxis);
 
-				// setup main workload
-				Workload mainWorkload = new Workload();
-				measurement.addWorkload(mainWorkload);
+				Time executionTime = measureTime(iterations, clockType,
+						systemLoad);
 
-				ArithmeticKernel arithmeticKernel = new ArithmeticKernel();
-				arithmeticKernel.setOptimization("-O3");
-				arithmeticKernel.setIterations(iterations);
-				arithmeticKernel
-						.setOperation(ArithmeticOperation.ArithmeticOperation_ADD);
-
-				mainWorkload.setKernel(arithmeticKernel);
-
-				QuantityCalculator<Time> addCalc = quantityMeasuringService
-						.getExecutionTimeCalculator(coordinate
-								.get(clockTypeAxis));
-				mainWorkload.setMeasurerSet(single(addCalc
-						.getRequiredMeasurerSets()));
-
-				// setup stop rules for system load workloads
-				for (Workload loadWorkload : systemLoadWorkloads) {
-					WorkloadStopRule stopRule = new WorkloadStopRule();
-					stopRule.setWorkload(mainWorkload);
-					stopRule.setAction(new StopKernelAction(loadWorkload
-							.getKernel()));
-					measurement.addRule(stopRule);
-				}
-
-				// setup rule for waiting for system load workloads
-				for (Workload loadWorkload : systemLoadWorkloads) {
-					WorkloadStartRule startRule = new WorkloadStartRule();
-					startRule.setWorkload(mainWorkload);
-					startRule
-							.setAction(new WaitForWorkloadAction(loadWorkload));
-					measurement.addRule(startRule);
-				}
-
-				// perform measurement
-				MeasurementResult result = measurementService.measure(
-						measurement, 1);
-
-				Time executionTime = addCalc.getResult(result
-						.getMeasurerSetOutputs(single(addCalc
-								.getRequiredMeasurerSets())));
 				System.out.printf("%s: Iterations: %d Execution time: %s\n",
 						coordinate, iterations, executionTime);
 
 				// check if there are enough iterations already
-				switch (coordinate.get(clockTypeAxis)) {
+				switch (clockType) {
 				case CoreCycles:
 					enoughIterations = executionTime.getValue() > 1e9;
 				break;
@@ -156,6 +109,134 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 			}
 		}
 
+	}
+
+	/**
+	 * @param iterations
+	 * @param clockType
+	 * @param systemLoad
+	 * @return
+	 */
+	public Time measureTime(long iterations, ClockType clockType,
+			SystemLoad systemLoad) {
+		QuantityCalculator<Time> timeCalc = quantityMeasuringService
+				.getExecutionTimeCalculator(clockType);
+
+		Workload mainWorkload = new Workload();
+
+		Measurement measurement = createMeasurement(systemLoad, iterations,
+				timeCalc, mainWorkload);
+
+		// perform measurement
+		MeasurementResult result = measurementService.measure(measurement, 1);
+
+		Time executionTime = timeCalc.getResult(result
+				.getMeasurerSetOutputs(single(timeCalc
+						.getRequiredMeasurerSets())));
+		return executionTime;
+	}
+
+	private long getReferenceIterations() {
+
+		QuantityCalculator<Interrupts> interruptsCalc = quantityMeasuringService
+				.getInterruptsCalculator();
+
+		Workload mainWorkload = new Workload();
+		long lastIterations = 0;
+
+		for (long iterations = 1000;; iterations *= 1.2) {
+			Measurement measurement = createMeasurement(SystemLoad.Idle,
+					iterations, interruptsCalc, mainWorkload);
+
+			// perform measurement
+			MeasurementResult result = measurementService.measure(measurement,
+					10);
+
+			Iterable<MeasurerSetOutput> outputs = result
+					.getMeasurerSetOutputs(single(interruptsCalc
+							.getRequiredMeasurerSets()));
+			// take minimum
+			Interrupts interrupts = min(
+					// turn outputs into quantities
+					select(outputs, Quantity.resultToQuantity(interruptsCalc)),
+					Quantity.<Interrupts> lessThan());
+
+			// check if there were any context switches
+			if (interrupts.getValue() > 0.1) {
+				// return the iteration count without context switches
+				return lastIterations;
+			}
+			lastIterations = iterations;
+		}
+	}
+
+	/**
+	 * @param coordinate
+	 * @param iterations
+	 * @param quantityCalc
+	 * @param mainWorkload
+	 * @return
+	 */
+	public Measurement createMeasurement(SystemLoad systemLoad,
+			long iterations, QuantityCalculator<?> quantityCalc,
+			Workload mainWorkload) {
+		Measurement measurement = new Measurement();
+		ArrayList<Workload> systemLoadWorkloads = createWorkloads(systemLoad);
+
+		// add system load workloads to measurement
+		for (Workload loadWorkload : systemLoadWorkloads) {
+			measurement.addWorkload(loadWorkload);
+		}
+
+		// setup main workload
+
+		measurement.addWorkload(mainWorkload);
+
+		ArithmeticKernel arithmeticKernel = new ArithmeticKernel();
+		arithmeticKernel.setOptimization("-O3");
+		arithmeticKernel.setIterations(iterations);
+		arithmeticKernel
+				.setOperation(ArithmeticOperation.ArithmeticOperation_ADD);
+
+		mainWorkload.setKernel(arithmeticKernel);
+
+		mainWorkload.setMeasurerSet(single(quantityCalc
+				.getRequiredMeasurerSets()));
+
+		// setup stop rules for system load workloads
+		for (Workload loadWorkload : systemLoadWorkloads) {
+			Rule stopRule = new Rule();
+			stopRule.setPredicate(new WorkloadStopEventPredicate(mainWorkload));
+			stopRule.setAction(new StopKernelAction(loadWorkload.getKernel()));
+			measurement.addRule(stopRule);
+		}
+
+		// setup rule for waiting for system load workloads
+		for (Workload loadWorkload : systemLoadWorkloads) {
+			Rule startRule = new Rule();
+			startRule
+					.setPredicate(new WorkloadStartEventPredicate(mainWorkload));
+			startRule.setAction(new WaitForWorkloadAction(loadWorkload));
+			measurement.addRule(startRule);
+		}
+		return measurement;
+	}
+
+	public ArrayList<Workload> createWorkloads(SystemLoad workload) {
+		List<Integer> cpus = systemInfoRepository.getPossibleCPUs();
+		switch (workload) {
+		case AddAll:
+			return createAddWorkloads(cpus);
+		case AddOther:
+			return createAddWorkloads(tail(cpus));
+		case DiskAll:
+			return createDiskIoWorkloads(cpus);
+		case DiskOther:
+			return createDiskIoWorkloads(tail(cpus));
+		case Idle:
+			return new ArrayList<Workload>();
+		}
+		throw new Error("should not happen");
 	}
 
 	public ArrayList<Workload> createDiskIoWorkloads(Iterable<Integer> cpus) {
@@ -181,6 +262,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 
 			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.setOperation(ArithmeticOperation.ArithmeticOperation_ADD);
+			kernel.setOptimization("-O3");
 			kernel.setRunUntilStopped(true);
 			workload.setKernel(kernel);
 			result.add(workload);

@@ -7,7 +7,7 @@
 
 #include "Locator.h"
 
-#include "sharedDOM/RuleBase.h"
+#include "sharedDOM/Rule.h"
 #include "sharedDOM/Measurement.h"
 #include "sharedDOM/Workload.h"
 #include "sharedDOM/ActionBase.h"
@@ -19,11 +19,8 @@ std::vector<IEventListener*> Locator::listeners;
 
 void Locator::dispatchEvent(EventBase *event)
 {
-	foreach(RuleBase *rule, measurement->getRules()){
-		printf("Locator::dispatchEvnet(): loop\n");
-		if (rule->doesMatch(event) && rule->getAction()!=NULL){
-			rule->getAction()->execute(event);
-		}
+	foreach(Rule *rule, measurement->getRules()){
+		rule->handle(event);
 	}
 
 	foreach (IEventListener *listener, listeners){

@@ -2,13 +2,11 @@
 <class
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
-	name="RuleBase" 
+	name="EventPredicateBase" 
 	cBaseType="MultiLanguageObjectBase"
 	javaBaseType=""
-	javaSuffix="Data"
 	cSuffix="Data"
 	isAbstract="true"
-	comment="Base class of all rule descriptions">
+	comment="Base class of all event predicates">
 	
-	<field name="action" type="ActionBase" comment="action to be executed if the rule matches"/>
 </class>

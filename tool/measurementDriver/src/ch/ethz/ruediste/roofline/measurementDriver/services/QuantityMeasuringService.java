@@ -254,6 +254,16 @@ public class QuantityMeasuringService {
 		return min(results, Quantity.<T> lessThan());
 	}
 
+	public QuantityCalculator<ContextSwitches> getContextSwitchesCalculator() {
+		return createPerfEventQuantityCalculator(ContextSwitches.class,
+				"perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
+	}
+
+	public QuantityCalculator<Interrupts> getInterruptsCalculator() {
+		return createPerfEventQuantityCalculator(Interrupts.class,
+				"coreduo::HW_INT_RX");
+	}
+
 	public Quantity<?> measure(KernelBase kernel, Coordinate measurementPoint) {
 		Class<?> quantity = measurementPoint.get(quantityAxis);
 

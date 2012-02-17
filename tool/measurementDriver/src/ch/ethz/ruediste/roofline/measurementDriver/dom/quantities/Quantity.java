@@ -1,6 +1,10 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.quantities;
 
-import ch.ethz.ruediste.roofline.measurementDriver.util.IBinaryPredicate;
+import java.util.Collections;
+
+import ch.ethz.ruediste.roofline.dom.MeasurerSetOutput;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.QuantityCalculator;
+import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 public abstract class Quantity<TDerived extends Quantity<TDerived>> implements
 		Comparable<Quantity<TDerived>> {
@@ -89,6 +93,17 @@ public abstract class Quantity<TDerived extends Quantity<TDerived>> implements
 
 	public TDerived subtracted(TDerived other) {
 		return construct(getValue() - other.getValue());
+	}
+
+	public static <T extends Quantity<T>> IUnaryFunction<MeasurerSetOutput, T> resultToQuantity(
+			final QuantityCalculator<T> calc) {
+		return new IUnaryFunction<MeasurerSetOutput, T>() {
+
+			public T apply(MeasurerSetOutput output) {
+				return calc.getResult(Collections.singleton(output));
+			}
+
+		};
 	}
 
 }

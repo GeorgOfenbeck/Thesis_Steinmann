@@ -15,15 +15,9 @@ WaitForWorkloadAction::~WaitForWorkloadAction() {
 }
 
 void WaitForWorkloadAction::execute(EventBase *event) {
-	// initialize the action only once
-	if (!initialized) {
-		initialized = true;
-		workloadStartRule.setWorkloadId(getWaitForWorkloadId());
-		Locator::addEventListener(this);
-
-		pthread_mutex_init(&mutex, NULL);
-		pthread_cond_init(&condvar, NULL);
-	}
+	// don't wait if the workload is already started
+	if (workloadStarted)
+		return;
 
 	// wait for signal
 	int rc;
@@ -47,12 +41,41 @@ void WaitForWorkloadAction::execute(EventBase *event) {
 
 void WaitForWorkloadAction::handleEvent(EventBase *event) {
 	int rc;
-	if (workloadStartRule.doesMatch(event)) {
-		rc = pthread_cond_signal(&condvar);
+	if (workloadStartEventPredicate.doesMatch(event)) {
+		rc = pthread_mutex_lock(&mutex);
+		if (rc != 0) {
+			printf("mutex_lock: %s", strerror(rc));
+			exit(1);
+		}
+
+		workloadStarted=true;
+
+		rc = pthread_cond_broadcast(&condvar);
 		if (rc != 0) {
 			printf("pthread_cond_signal: %s", strerror(rc));
 			exit(1);
 		}
+
+		rc = pthread_mutex_unlock(&mutex);
+		if (rc != 0) {
+			printf("pthread_mutex_unlock: %s", strerror(rc));
+			exit(1);
+		}
 	}
+}
+
+void WaitForWorkloadAction::initialize() {
+	// initialize the mutexes
+	pthread_mutex_init(&mutex, NULL);
+	pthread_cond_init(&condvar, NULL);
+
+	// listen for start events
+	workloadStartEventPredicate.setWorkloadId(getWaitForWorkloadId());
+	Locator::addEventListener(this);
+}
+
+void WaitForWorkloadAction::dispose() {
+	pthread_mutex_destroy(&mutex);
+	pthread_cond_destroy(&condvar);
 }
 

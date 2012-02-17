@@ -90,7 +90,7 @@ public class Measurement extends MeasurementData {
 		getWorkloads().add(workload);
 	}
 
-	public void addRule(RuleBase rule) {
+	public void addRule(Rule rule) {
 		getRules().add(rule);
 	}
 
@@ -166,7 +166,7 @@ public class Measurement extends MeasurementData {
 	public Iterable<ActionBase> getActions() {
 		ArrayList<ActionBase> result = new ArrayList<ActionBase>();
 
-		for (RuleBase rule : getRules()) {
+		for (Rule rule : getRules()) {
 			if (rule.getAction() != null) {
 				result.add(rule.getAction());
 			}

@@ -31,6 +31,7 @@
 #include "sharedDOM/ConfiguratorBase.h"
 #include "sharedDOM/Workload.h"
 #include "baseClasses/Locator.h"
+#include "sharedDOM/Rule.h"
 
 #define THREADCOUNT 2
 using namespace std;
@@ -111,6 +112,11 @@ int ChildProcess::main(int argc, char* argv[]) {
 		// initialize overall measurer set
 		if (measurementClone->getOverallMeasurerSet() != NULL) {
 			measurementClone->getOverallMeasurerSet()->initialize();
+		}
+
+		// initialize rules
+		foreach (Rule *rule, measurementClone->getRules()){
+			rule->initialize();
 		}
 
 		// notify configurators

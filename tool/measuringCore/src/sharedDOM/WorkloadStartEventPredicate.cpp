@@ -5,13 +5,13 @@
  *      Author: ruedi
  */
 
-#include "WorkloadStartRule.h"
+#include "WorkloadStartEventPredicate.h"
 
 #include "baseClasses/WorkloadStartEvent.h"
 
 #include <typeinfo>
 
-bool WorkloadStartRule::doesMatch(EventBase *event)
+bool WorkloadStartEventPredicate::doesMatch(EventBase *event)
 {
 	// check if it is a start event
 	if (typeid(*event)==typeid(WorkloadStartEvent)){

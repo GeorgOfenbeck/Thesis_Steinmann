@@ -14,6 +14,8 @@
 #define LOGLEVEL_DEBUG 4
 #define LOGLEVEL_TRACE 5
 
+#include "LogLevel.h"
+
 #ifndef LOGLEVEL
 #define LOGLEVEL LOGLEVEL_TRACE
 #endif
@@ -39,31 +41,31 @@
 #if LOGLEVEL>=LOGLEVEL_ERROR
 #define LERROR(msg, ...) LOG_LOG("Error",1,msg,##__VA_ARGS__)
 #else
-#define LERROR(msg, ...)
+#define LERROR(msg, ...) {}
 #endif
 
 #if LOGLEVEL>=LOGLEVEL_WARNING
 #define LWARNING(msg,...) LOG_LOG("Warning",2,msg,##__VA_ARGS__)
 #else
-#define LWARNING(msg, ...)
+#define LWARNING(msg, ...) {}
 #endif
 
 #if LOGLEVEL>=LOGLEVEL_INFO
 #define LINFO(msg,...) LOG_LOG("Info",3,msg,##__VA_ARGS__)
 #else
-#define LINFO(msg, ...)
+#define LINFO(msg, ...) {}
 #endif
 
 #if LOGLEVEL>=LOGLEVEL_DEBUG
 #define LDEBUG(msg,...) LOG_LOG("Debug",4,msg,##__VA_ARGS__)
 #else
-#define LDEBUG(msg, ...)
+#define LDEBUG(msg, ...) {}
 #endif
 
 #if LOGLEVEL>=LOGLEVEL_TRACE
 #define LTRACE(msg,...) LOG_LOG("Trace",5,msg,##__VA_ARGS__)
 #else
-#define LTRACE(msg, ...)
+#define LTRACE(msg, ...) {}
 #endif
 
 #define LENTER LTRACE("entering method")

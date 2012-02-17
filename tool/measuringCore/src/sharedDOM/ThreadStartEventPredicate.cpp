@@ -5,10 +5,10 @@
  *      Author: ruedi
  */
 
-#include "ThreadStartRule.h"
+#include "ThreadStartEventPredicate.h"
 
 
-bool ThreadStartRule::doesMatch(EventBase *event)
+bool ThreadStartEventPredicate::doesMatch(EventBase *event)
 {
 	return false;
 }

@@ -12,7 +12,7 @@
 	<list name="workloads" type="Workload" comment="Workloads to be used for the measurement"/>
 	
 	<list name="configurators" type="ConfiguratorBase" comment="configurators to be used"/>
-	<list name="rules" type="RuleBase" comment="rules"/>
+	<list name="rules" type="Rule" comment="rules"/>
 	
 	<field name="overallMeasurerSet" type="MeasurerSet" comment="measurer set to be executed from beginning to end of the measurement"/>
 </class>

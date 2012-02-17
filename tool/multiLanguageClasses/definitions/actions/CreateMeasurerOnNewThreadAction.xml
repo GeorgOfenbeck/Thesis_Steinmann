@@ -9,6 +9,6 @@
 	comment="Action starting a measurer on a new thread. Must be caused by a thread start event">
 
 	<field name="measurer" type="MeasurerSet" comment="measurer to be created for the new thread"/>
-	<field name="startRule" type="RuleBase" comment="rule to determine when the measurer should be started"/>
-	<field name="stopRule" type="RuleBase" comment="rule to determine when the measurer should be stopping"/>	
+	<field name="startPredicate" type="EventPredicateBase" comment="predicate to determine when the measurer should be started"/>
+	<field name="stopPredicate" type="EventPredicateBase" comment="predicate to determine when the measurer should be stopping"/>	
 </derivedClass>

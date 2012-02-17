@@ -5,12 +5,12 @@
  *      Author: ruedi
  */
 
-#include "WorkloadStopRule.h"
+#include "WorkloadStopEventPredicate.h"
 #include "baseClasses/WorkloadStopEvent.h"
 
 #include <typeinfo>
 
-bool WorkloadStopRule::doesMatch(EventBase *event)
+bool WorkloadStopEventPredicate::doesMatch(EventBase *event)
 {
 	// check if it is a stop event
 	if (typeid(*event)==typeid(WorkloadStopEvent)){

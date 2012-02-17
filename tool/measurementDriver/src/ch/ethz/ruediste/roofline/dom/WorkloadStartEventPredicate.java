@@ -1,14 +1,15 @@
 package ch.ethz.ruediste.roofline.dom;
 
-public class WorkloadStartRule extends WorkloadStartRuleData {
+public class WorkloadStartEventPredicate extends
+		WorkloadStartEventPredicateData {
 
 	private Workload workload;
 
-	public WorkloadStartRule() {
+	public WorkloadStartEventPredicate() {
 		super();
 	}
 
-	public WorkloadStartRule(Workload workload) {
+	public WorkloadStartEventPredicate(Workload workload) {
 		this();
 		this.workload = workload;
 	}

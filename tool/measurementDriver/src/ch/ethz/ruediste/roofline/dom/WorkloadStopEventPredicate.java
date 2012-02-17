@@ -1,7 +1,16 @@
 package ch.ethz.ruediste.roofline.dom;
 
-public class WorkloadStopRule extends WorkloadStopRuleData {
+public class WorkloadStopEventPredicate extends WorkloadStopEventPredicateData {
 	private Workload workload;
+
+	public WorkloadStopEventPredicate() {
+		super();
+	}
+
+	public WorkloadStopEventPredicate(Workload workload) {
+		this();
+		this.workload = workload;
+	}
 
 	@Override
 	public int getWorkloadId() {

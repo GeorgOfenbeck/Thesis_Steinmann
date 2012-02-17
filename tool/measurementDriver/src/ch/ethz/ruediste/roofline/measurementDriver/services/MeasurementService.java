@@ -144,6 +144,9 @@ public class MeasurementService implements IMeasurementFacilility {
 		// write present kernels
 		anythingChanged |= writePresentKernels(measurement, measuringCoreDir);
 
+		// write log level
+		anythingChanged |= writeLoglevel(measurement, measuringCoreDir);
+
 		// write additional flags
 		anythingChanged |= writeAdditionalBuildFlags(measurement,
 				measuringCoreDir);
@@ -311,7 +314,7 @@ public class MeasurementService implements IMeasurementFacilility {
 		if (log.getLevel() == Level.TRACE)
 			logLevel = "LOGLEVEL_TRACE";
 
-		loglevelPrintStream.printf("#define LOG_LOGLEVEL %s\n", logLevel);
+		loglevelPrintStream.printf("#define LOGLEVEL %s\n", logLevel);
 
 		// close the output file
 		loglevelPrintStream.close();

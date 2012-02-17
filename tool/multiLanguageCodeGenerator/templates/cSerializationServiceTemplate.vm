@@ -244,7 +244,7 @@ MultiLanguageObjectBase * MultiLanguageSerializationService::DeSerialize(istream
 	
 #end
 	void ${class.cName}::cloneFrom($class.cName *c){
-	printf("cloning $class.Name\n");
+	//printf("cloning $class.Name\n");
 	## call base method
 	#if ($class.hascBaseType()) 
 	$class.cBaseType::cloneFrom(c); 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="shared.xsd"
+	name="Rule" 
+	cBaseType="MultiLanguageObjectBase"
+	javaBaseType=""
+	javaSuffix="Data"
+	cSuffix="Data"
+	comment="Base class of all rule descriptions">
+	
+	<field name="predicate" type="EventPredicateBase" comment="predicate to indicate if the rule should be executed" />
+	<field name="action" type="ActionBase" comment="action to be executed if the rule matches"/>
+</class>

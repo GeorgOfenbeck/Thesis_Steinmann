@@ -10,22 +10,24 @@
 
 #include "sharedDOM/WaitForWorkloadActionData.h"
 #include "baseClasses/Locator.h"
-#include "sharedDOM/WorkloadStartRule.h"
+#include "sharedDOM/WorkloadStartEventPredicate.h"
 #include <pthread.h>
 
 class WaitForWorkloadAction : public WaitForWorkloadActionData, IEventListener {
-	WorkloadStartRule workloadStartRule;
-	bool initialized;
+	WorkloadStartEventPredicate workloadStartEventPredicate;
 	pthread_mutex_t mutex;
 	pthread_cond_t condvar;
+	bool workloadStarted;
 public:
 	WaitForWorkloadAction(){
-		initialized=false;
+		workloadStarted=false;
 	}
 	virtual ~WaitForWorkloadAction();
 
 	void execute(EventBase *event);
 	void handleEvent(EventBase *event);
+	void initialize();
+	void dispose();
 };
 
 #endif /* WAITFORKERNELACTION_H_ */

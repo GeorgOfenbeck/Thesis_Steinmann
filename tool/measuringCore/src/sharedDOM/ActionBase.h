@@ -14,6 +14,8 @@ class ActionBase: public ActionBaseData {
 public:
 	virtual ~ActionBase();
 	virtual void execute(EventBase *event)=0;
+	virtual void initialize(){};
+	virtual void dispose(){};
 };
 
 #endif /* ACTIONBASE_H_ */
