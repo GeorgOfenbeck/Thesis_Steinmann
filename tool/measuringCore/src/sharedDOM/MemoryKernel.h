@@ -21,6 +21,7 @@ class MemoryKernel: public MemoryKernelData {
 	};
 protected:
 	float *buffer;
+	std::vector<std::pair<void*,long> > getBuffers();
 
 public:
 	char result;

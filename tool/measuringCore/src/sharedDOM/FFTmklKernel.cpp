@@ -50,6 +50,13 @@ void FFTmklKernel::run() {
 	}
 }
 
+std::vector<std::pair<void*,long > > FFTmklKernel::getBuffers()
+{
+	std::vector<std::pair<void*,long > > result;
+	result.push_back(std::make_pair((void*)complexData,getBufferSize()*sizeof(double _Complex)));
+	return result;
+}
+
 void FFTmklKernel::dispose() {
 	MKL_LONG status;
 
@@ -61,11 +68,5 @@ void FFTmklKernel::dispose() {
 	free(complexData);
 }
 
-void FFTmklKernel::warmCaches() {
-	dummy = 0;
-	for (size_t i = 0; i < getBufferSize(); i++) {
-		dummy += complexData[i];
-		dummy *=0.9;
-	}
-}
+
 

@@ -26,18 +26,25 @@ Workload::~Workload() {
 	// TODO Auto-generated destructor stub
 }
 
-static int dummy;
+static char dummy;
 
 void Workload::clearCaches() {
+	LENTER
+
+	getKernel()->clearCaches();
+
 	clearL1ICache();
 	// just access 10M of memory, which is the maximum cache size present in current processors
-	size_t blockSize = 10 * (1 << 20);
+	size_t blockSize = 10 * (1 << 20) ;
 	char *buffer = (char*) malloc(blockSize);
+
+	// bring the whole buffer into memory
 	for (size_t i = 0; i < blockSize; i++) {
 		dummy += buffer[i];
-		//buffer[i]=0;
 	}
+
 	free((void*) buffer);
+	LLEAVE
 }
 
 void *Workload::threadStart(void *arg) {

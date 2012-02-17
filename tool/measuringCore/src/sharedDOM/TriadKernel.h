@@ -13,6 +13,8 @@
 class TriadKernel : public TriadKernelData{
 protected:
 	double *a,*b,*c;
+	std::vector<std::pair<void*,long> > getBuffers();
+
 public:
 
 	void initialize();

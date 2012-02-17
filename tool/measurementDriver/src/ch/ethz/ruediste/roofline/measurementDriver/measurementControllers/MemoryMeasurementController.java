@@ -41,17 +41,17 @@ public class MemoryMeasurementController implements IMeasurementController {
 		space.add(iterationsAxis, 1L);
 
 		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
-		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
+		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
 
 		space.add(optimizationAxis, "-O3 -msse2");
 
-		space.add(bufferSizeAxis, 1024L * 1024 * 10);
+		space.add(bufferSizeAxis, 1024L * 16);
 
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
 						memoryOperationAxis, iterationsAxis
 
-				))) {
+						))) {
 			MemoryKernel kernel = new MemoryKernel();
 			kernel.initialize(coordinate);
 

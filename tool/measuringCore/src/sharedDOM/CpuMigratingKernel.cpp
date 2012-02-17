@@ -9,6 +9,11 @@
 #include <sched.h>
 #include <unistd.h>
 
+std::vector<std::pair<void*,long > > CpuMigratingKernel::getBuffers()
+{
+	std::vector<std::pair<void*,long > >();
+}
+
 void CpuMigratingKernel::run(){
 	int cpu=getTargetCpu();
 

@@ -11,6 +11,9 @@
 #include "sharedDOM/CpuMigratingKernelData.h"
 
 class CpuMigratingKernel: public CpuMigratingKernelData {
+protected:
+	std::vector<std::pair<void*,long> > getBuffers();
+
 public:
 
 	void initialize() {
@@ -18,7 +21,6 @@ public:
 	void run();
 	void dispose() {
 	}
-
 };
 
 #endif /* CPUMIGRATINGKERNEL_H_ */

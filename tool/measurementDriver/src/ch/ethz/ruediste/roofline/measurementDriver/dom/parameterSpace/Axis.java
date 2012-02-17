@@ -2,17 +2,25 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace;
 
 import java.util.UUID;
 
-import ch.ethz.ruediste.roofline.dom.MeasurerBase;
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryFunction;
 
 public class Axis<T> implements Comparable<Axis<?>> {
 
-	public static final IUnaryFunction<MeasurerBase, String> classNameFormatter = new IUnaryFunction<MeasurerBase, String>() {
+	public static <T> IUnaryFunction<T, String> classNameFormatter() {
+		return new IUnaryFunction<T, String>() {
+			public String apply(T arg) {
+				return arg.getClass().getSimpleName();
+			}
+		};
+	}
 
-		public String apply(MeasurerBase arg) {
-			return arg.getClass().getSimpleName();
+	public static final IUnaryFunction<Class<?>, String> clazzNameFormatter = new IUnaryFunction<Class<?>, String>() {
+
+		public String apply(Class<?> arg) {
+			return arg.getSimpleName();
 		}
 	};
+
 	private final T defaultValue;
 	private final String name;
 	private final IUnaryFunction<T, String> formatter;

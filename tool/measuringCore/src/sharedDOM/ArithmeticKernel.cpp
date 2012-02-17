@@ -32,6 +32,11 @@ double ArithmeticKernel::getBase(double exponent, double result) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
 
+std::vector<std::pair<void*,long > > ArithmeticKernel::getBuffers()
+{
+	return std::vector<std::pair<void*,long > >();
+}
+
 void ArithmeticKernel::run() {
 	do {
 		long iterations = getIterations();

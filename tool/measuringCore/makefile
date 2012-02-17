@@ -11,7 +11,7 @@ GCC=ccache gcc
 
 # compilation flags
 CFLAGS=-std=c++0x -Wall -ggdb
-OPTIMIZATION_FLAGS=-O0
+OPTIMIZATION_FLAGS=-O2
 
 # source files to be ignored. separated by space
 SOURCE_IGNORE_PATTERNS=./src/oldMain.cpp 

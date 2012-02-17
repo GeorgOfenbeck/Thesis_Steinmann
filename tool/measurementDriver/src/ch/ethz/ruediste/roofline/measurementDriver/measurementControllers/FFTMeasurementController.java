@@ -7,13 +7,11 @@ import java.util.HashMap;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
 
@@ -40,26 +38,26 @@ public class FFTMeasurementController implements IMeasurementController {
 	}
 
 	public void measure(String outputName) throws IOException {
-		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
+		/*rooflineController.addPeakPerformance("ADD", Algorithm.Add,
 				InstructionSet.SSE);
 		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
 				InstructionSet.SSE);
 
 		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
-				MemoryTransferBorder.LlcRam);
+				MemoryTransferBorder.LlcRam);*/
 
 		ParameterSpace space = new ParameterSpace();
 		for (long i = 1; i <= 512; i *= 2) {
 			space.add(Axes.bufferSizeAxis, i * 1024);
 		}
 
-		for (long i = 72; i < 128; i += 8) {
+		/*for (long i = 72; i < 128; i += 8) {
 			space.add(Axes.bufferSizeAxis, i * 1024L);
-		}
+		}*/
 
-		//space.add(kernelAxis, new FFTnrKernel());
+		space.add(kernelAxis, new FFTnrKernel());
 		//space.add(kernelAxis, new FFTmklKernel());
-		space.add(kernelAxis, new FFTfftwKernel());
+		//space.add(kernelAxis, new FFTfftwKernel());
 
 		HashMap<Class<?>, String> algorithmName = new HashMap<Class<?>, String>();
 		algorithmName.put(FFTfftwKernel.class, "fftw");
@@ -93,15 +91,15 @@ public class FFTMeasurementController implements IMeasurementController {
 			kernel.initialize(coordinate);
 
 			Operation operation = algorithmOperation.get(kernel.getClass());
+			/*
+						Performance performance = quantityMeasuringService
+								.measurePerformance(kernel, operation, ClockType.CoreCycles);
+						System.out.printf("Performance %s: %s\n", coordinate, performance);
 
-			Performance performance = quantityMeasuringService
-					.measurePerformance(kernel, operation, ClockType.CoreCycles);
-			System.out.printf("Performance %s: %s\n", coordinate, performance);
-
-			OperationCount operationCount = quantityMeasuringService
-					.measureOperationCount(kernel, operation);
-			System.out
-			.printf("Operations %s: %s\n", coordinate, operationCount);
+						OperationCount operationCount = quantityMeasuringService
+								.measureOperationCount(kernel, operation);
+						System.out
+						.printf("Operations %s: %s\n", coordinate, operationCount);*/
 
 			TransferredBytes bytes = quantityMeasuringService
 					.measureTransferredBytes(kernel,
@@ -109,11 +107,11 @@ public class FFTMeasurementController implements IMeasurementController {
 
 			System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
 
-			rooflineController.addRooflinePoint(
+			/*rooflineController.addRooflinePoint(
 					algorithmName.get(kernel.getClass())
 					+ coordinate.get(bufferSizeAxis), kernel,
-					operationCount, MemoryTransferBorder.LlcRam);
+					operationCount, MemoryTransferBorder.LlcRam);*/
 		}
-		rooflineController.plot();
+		//rooflineController.plot();
 	}
 }

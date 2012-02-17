@@ -24,10 +24,10 @@ public:
 		x87,
 	};
 
+protected:
 	// solves base**exponent=result, with b unknown
 	static double getBase(double exponent, double result);
-
-private:
+	std::vector<std::pair<void*,long> > getBuffers();
 
 public:
 	double result;

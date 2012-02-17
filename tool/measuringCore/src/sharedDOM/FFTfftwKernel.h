@@ -12,13 +12,15 @@
 
 class FFTfftwKernel: public  FFTfftwKernelData{
 	double dummy;
+	protected:
+	std::vector<std::pair<void*,long> > getBuffers();
+
 public:
 	virtual ~FFTfftwKernel();
 
 	void initialize();
 	void run();
 	void dispose();
-	void warmCaches();
 };
 
 #endif /* FFTFFTWKERNEL_H_ */

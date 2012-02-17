@@ -109,10 +109,8 @@ void DiskIoKernel::dispose() {
 	close(fd);
 }
 
-void DiskIoKernel::warmCaches()
+std::vector<std::pair<void*,long > > DiskIoKernel::getBuffers()
 {
-	readFileOnce();
+	return std::vector<std::pair<void*,long > >();
 }
-
-
 

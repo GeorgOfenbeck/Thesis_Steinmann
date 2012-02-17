@@ -46,16 +46,13 @@ void FFTfftwKernel::run() {
 	fftw_execute(fftwPlan);
 }
 
+std::vector<std::pair<void*,long > > FFTfftwKernel::getBuffers()
+{
+	std::vector<std::pair<void*,long > > result;
+	result.push_back(std::make_pair((void*)fftwData,getBufferSize()*sizeof(double)*2));
+	return result;
+}
+
 void FFTfftwKernel::dispose() {
 	// nothing to do
 }
-
-void FFTfftwKernel::warmCaches() {
-	dummy=0;
-	for (size_t i = 0; i < getBufferSize(); i++) {
-			dummy+=fftwData[i][0];
-			dummy+=fftwData[i][1];
-			dummy*=0.9;
-		}
-}
-

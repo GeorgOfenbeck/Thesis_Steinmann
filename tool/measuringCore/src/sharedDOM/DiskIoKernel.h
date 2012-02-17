@@ -12,6 +12,8 @@ class DiskIoKernel: public DiskIoKernelData {
 	int fd;
 	char *buffer;
 	static const int bufferSize = 1024 * 512;
+protected:
+	std::vector<std::pair<void*,long> > getBuffers();
 public:
 	virtual ~DiskIoKernel();
 
@@ -20,7 +22,6 @@ public:
 	void run();
 
 	void dispose();
-	virtual void warmCaches();
 };
 
 #endif /* DISKIOKERNEL_H_ */

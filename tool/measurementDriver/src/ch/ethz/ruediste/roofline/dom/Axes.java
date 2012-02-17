@@ -12,10 +12,12 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringSer
 
 public class Axes {
 	public static final Axis<KernelBase> kernelAxis = new Axis<KernelBase>(
-			"a4aa516d-a13c-4ad7-bcde-5176cd3b7bd8", "kernel");
+			"a4aa516d-a13c-4ad7-bcde-5176cd3b7bd8", "kernel", null,
+			Axis.<KernelBase> classNameFormatter());
+
 	public static final Axis<MeasurerBase> measurerAxis = new Axis<MeasurerBase>(
 			"8f18b16a-47e4-467a-9ec1-e5f09bd681d9", "measurer", null,
-			Axis.classNameFormatter);
+			Axis.<MeasurerBase> classNameFormatter());
 
 	public static final Axis<Long> bufferSizeAxis = new Axis<Long>(
 			"11d6a840-ff93-4095-9f25-26b668f282f9", "bufferSize",

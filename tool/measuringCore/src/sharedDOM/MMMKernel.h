@@ -58,6 +58,9 @@ class MMMKernel: public MMMKernelData {
 	}
 
 	void blas(double *a, double *b, double *c);
+protected:
+	std::vector<std::pair<void*,long> > getBuffers();
+
 public:
 
 	void initialize();

@@ -20,6 +20,10 @@ void MemoryKernel::initialize(){
 	}
 }
 
+std::vector<std::pair<void*,long > > MemoryKernel::getBuffers()
+{
+}
+
 void MemoryKernel::dispose() {
 	free(buffer);
 }

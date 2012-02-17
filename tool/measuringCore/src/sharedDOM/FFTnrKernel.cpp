@@ -5,6 +5,8 @@
  *      Author: ruedi
  */
 
+#include "Logger.h"
+
 #include "FFTnrKernel.h"
 #include <cmath>
 
@@ -27,6 +29,7 @@ void FFTnrKernel::initialize() {
 #define SWAP(a,b) tempr=(a);(a)=(b);(b)=tempr
 
 void four1(double data[], unsigned long nn, int isign) {
+	LDEBUG("nn: %li",nn)
 	unsigned long n, mmax, m, j, istep, i;
 	double wtemp, wr, wpr, wpi, wi, theta, tempr, tempi;
 
@@ -79,19 +82,20 @@ void four1(double data[], unsigned long nn, int isign) {
 }
 
 void FFTnrKernel::run() {
+	LENTER
 	four1(doubleData, getBufferSize(), 1);
+	LLEAVE
+}
+
+std::vector<std::pair<void*,long > > FFTnrKernel::getBuffers()
+{
+	std::vector<std::pair<void*,long > > result;
+	result.push_back(std::make_pair((void*)doubleData,getBufferSize()*sizeof(double)*2));
+	return result;
 }
 
 void FFTnrKernel::dispose() {
 	free(doubleData);
 }
 
-void FFTnrKernel::warmCaches() {
-	dummy = 0;
-	for (size_t i = 0; i < getBufferSize() * 2; i++) {
-		dummy += doubleData[i];
-		dummy *= 0.9;
-	}
-
-}
 

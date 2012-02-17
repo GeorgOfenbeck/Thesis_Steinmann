@@ -11,6 +11,11 @@
 #include "sharedDOM/DummyKernelData.h"
 
 class DummyKernel :public DummyKernelData{
+	protected:
+	std::vector<std::pair<void*,long> > getBuffers(){
+		return std::vector<std::pair<void*,long> >();
+	}
+
 public:
 	void initialize(){}
 	void run(){

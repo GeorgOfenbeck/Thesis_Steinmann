@@ -15,13 +15,15 @@ class FFTmklKernel : public FFTmklKernelData {
 	double _Complex *complexData;
 	DFTI_DESCRIPTOR_HANDLE mklDescriptor;
 	double _Complex dummy;
+	protected:
+	std::vector<std::pair<void*,long> > getBuffers();
+
 public:
 	virtual ~FFTmklKernel();
 
 	void initialize();
 	void run();
 	void dispose();
-	void warmCaches();
 };
 
 #endif /* FFTMKLKERNEL_H_ */
