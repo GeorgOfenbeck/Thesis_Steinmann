@@ -8,7 +8,7 @@ import java.util.*;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
@@ -302,20 +302,14 @@ public class MeasurementService implements IMeasurementFacilility {
 				loglevelFile);
 		PrintStream loglevelPrintStream = new PrintStream(updatingStream);
 
-		String logLevel = "0";
-		if (log.getLevel() == Level.ERROR) {
-			logLevel = "LOGLEVEL_ERROR";
-		}
-		if (log.getLevel() == Level.WARN) {
-			logLevel = "LOGLEVEL_WARNING";
-		}
-		if (log.getLevel() == Level.INFO) {
+		String logLevel = "LOGLEVEL_WARNING";
+		if (log.isInfoEnabled()) {
 			logLevel = "LOGLEVEL_INFO";
 		}
-		if (log.getLevel() == Level.DEBUG) {
+		if (log.isDebugEnabled()) {
 			logLevel = "LOGLEVEL_DEBUG";
 		}
-		if (log.getLevel() == Level.TRACE) {
+		if (log.isTraceEnabled()) {
 			logLevel = "LOGLEVEL_TRACE";
 		}
 
