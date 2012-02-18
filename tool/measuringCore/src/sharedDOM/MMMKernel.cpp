@@ -5,6 +5,8 @@
  *      Author: ruedi
  */
 
+#include "Logger.h"
+
 #include "MMMKernel.h"
 #include <cstdlib>
 #include <cstring>
@@ -72,6 +74,7 @@ void MMMKernel::blas(double *a, double *b, double *c) {
 }
 
 std::vector<std::pair<void*, long> > MMMKernel::getBuffers() {
+	LENTER
 	size_t size = getMatrixSize();
 	// square the size
 	size *= size;
@@ -80,6 +83,7 @@ std::vector<std::pair<void*, long> > MMMKernel::getBuffers() {
 	result.push_back(std::make_pair((void*) a, size * sizeof(double)));
 	result.push_back(std::make_pair((void*) b, size * sizeof(double)));
 	result.push_back(std::make_pair((void*) c, size * sizeof(double)));
+	LLEAVE
 	return result;
 }
 

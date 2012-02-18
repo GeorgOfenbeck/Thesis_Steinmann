@@ -22,6 +22,9 @@ void MemoryKernel::initialize(){
 
 std::vector<std::pair<void*,long > > MemoryKernel::getBuffers()
 {
+	std::vector<std::pair<void*, long> > result;
+	result.push_back(std::make_pair((void*) buffer, getBufferSize() * sizeof(float)));
+	return result;
 }
 
 void MemoryKernel::dispose() {

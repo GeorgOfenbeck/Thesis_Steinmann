@@ -5,6 +5,7 @@
  *      Author: ruedi
  */
 
+#include "Logger.h"
 #include "KernelBase.h"
 #include "utils.h"
 
@@ -20,6 +21,7 @@ KernelBase::~KernelBase() {
 
 void KernelBase::clearCaches()
 {
+	LENTER
 	typedef pair<void *,long> TBufferPair;
 	foreach(TBufferPair bufferPair,getBuffers()){
 		char *buffer=(char*)bufferPair.first;
@@ -29,6 +31,7 @@ void KernelBase::clearCaches()
 			flushCacheLine(buffer+i);
 		}
 	}
+	LLEAVE
 }
 
 static char dummy;
