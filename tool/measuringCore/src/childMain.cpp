@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 	ChildProcess child;
 	int ret=child.main(argc,argv);
 
-	//printf("Child process done, Retval: %i\n",ret);
+	LDEBUG("Exit value: %i",ret)
 	exit(ret);
 }
 

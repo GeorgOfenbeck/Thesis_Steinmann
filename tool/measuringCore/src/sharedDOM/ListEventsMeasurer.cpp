@@ -4,7 +4,7 @@
  *  Created on: Dec 19, 2011
  *      Author: ruedi
  */
-
+#include "Logger.h"
 #include "ListEventsMeasurer.h"
 #include "sharedDOM/ListEventsMeasurerOutput.h"
 #include "sharedDOM/PmuDescription.h"
@@ -35,7 +35,7 @@ PmuDescription *list_pmu_events(pfm_pmu_t pmu) {
 
 	ret = pfm_get_pmu_info(pmu, &pinfo);
 	if (ret != PFM_SUCCESS) {
-		printf("cannot get pmu info");
+		LDEBUG("cannot get pmu info");
 		return NULL;
 	}
 
@@ -53,16 +53,16 @@ PmuDescription *list_pmu_events(pfm_pmu_t pmu) {
 		PerfEventDescription *eventDescription = new PerfEventDescription();
 		result->getEvents().push_back(eventDescription);
 
-		printf("%s Event: %s::%s (%llX)\n",
+		LDEBUG("%s Event: %s::%s (%llX)",
 				pinfo.is_present ? "Active" : "Supported", pinfo.name,
 				info.name, info.code);
 
-		printf("%s\n", info.desc);
+		LDEBUG("%s", info.desc);
 		eventDescription->setName(info.name);
 		eventDescription->setDescription(info.desc);
 
 		if (info.equiv != NULL) {
-			printf("--> %s\n", info.equiv);
+			LDEBUG("--> %s", info.equiv);
 			eventDescription->setEquivalent(info.equiv);
 		}
 
@@ -79,7 +79,7 @@ PmuDescription *list_pmu_events(pfm_pmu_t pmu) {
 
 			// check if the operation succeeded
 			if (ret != PFM_SUCCESS) {
-				printf("cannot get event attribute info: %i %i %i %s",
+				LDEBUG("cannot get event attribute info: %i %i %i %s",
 						info.nattrs, info.idx, aidx, pfm_strerror(ret));
 			} else {
 				// add an attribute description to the result
@@ -88,7 +88,7 @@ PmuDescription *list_pmu_events(pfm_pmu_t pmu) {
 				eventDescription->getAttributes().push_back(
 						attributeDescription);
 
-				printf(" * %s (%llX): %s\n", attr_info.name, attr_info.code,
+				LDEBUG(" * %s (%llX): %s", attr_info.name, attr_info.code,
 						attr_info.desc);
 
 				// fill the attribute info of the result
@@ -118,7 +118,7 @@ PmuDescription *list_pmu_events(pfm_pmu_t pmu) {
 			}
 		}
 
-		printf("\n");
+		LDEBUG("");
 	}
 	return result;
 }

@@ -349,8 +349,14 @@ int ParentProcess::traceLoop() {
 				if (event == PTRACE_EVENT_EXIT) {
 					LDEBUG("SIGTRAP | EVENT_EXIT<<16 %i", stoppedPid);
 					if (stoppedPid == mainChild){
-						exitStatus=WEXITSTATUS(status);
-						LDEBUG("Exit Status: %i",WEXITSTATUS(status));
+						// retrieve the exit status
+						if (ptrace(PTRACE_GETEVENTMSG, stoppedPid, 0, &exitStatus) < 0) {
+										perror("error on geteventmsg");
+										exit(1);
+									}
+						exitStatus=WEXITSTATUS(exitStatus);
+
+						LDEBUG("Exit Status: %i",exitStatus);
 						break;
 					}
 

@@ -196,6 +196,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 	serializationService.Serialize(&outputCollection, output);
 	output.close();
 
+	LLEAVE
 	return 0;
 }
 
