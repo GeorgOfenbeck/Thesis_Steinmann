@@ -65,7 +65,7 @@ public:
 		childStates[mainChild]=ChildState_New;
 		notificationSystemReady=false;
 	}
-	void traceLoop();
+	int traceLoop();
 };
 
 #endif /* PARENTPROCESS_H_ */

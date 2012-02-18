@@ -89,8 +89,9 @@ int main(int argc, char* argv[]) {
 
 	// start the parent process
 	ParentProcess parent(childPid);
-	parent.traceLoop();
+	int exitStatus=parent.traceLoop();
 
+	LDEBUG("exit: %i",exitStatus)
 	LLEAVE
-	return 0;
+	return exitStatus;
 }

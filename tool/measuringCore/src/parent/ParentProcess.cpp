@@ -290,7 +290,8 @@ void ParentProcess::setupChildNotification(pid_t stoppedChild) {
 	setupChildNotification(stoppedChild, event, arg);
 }
 
-void ParentProcess::traceLoop() {
+int ParentProcess::traceLoop() {
+	int exitStatus=0;
 	while (1) {
 		int status;
 		pid_t stoppedPid;
@@ -308,8 +309,10 @@ void ParentProcess::traceLoop() {
 		// check if the child exited
 		if (WIFEXITED(status)) {
 			// the child exited
-			if (stoppedPid == mainChild)
+			if (stoppedPid == mainChild){
+				exitStatus=WEXITSTATUS(status);
 				break;
+			}
 
 			LDEBUG("WIFEXITED\n");
 			// check if the child has been exited already, if not, do it
@@ -345,8 +348,12 @@ void ParentProcess::traceLoop() {
 				LDEBUG("got sigtrap, event: %i", event);
 				if (event == PTRACE_EVENT_EXIT) {
 					LDEBUG("SIGTRAP | EVENT_EXIT<<16 %i", stoppedPid);
-					if (stoppedPid == mainChild)
+					if (stoppedPid == mainChild){
+						exitStatus=WEXITSTATUS(status);
+						LDEBUG("Exit Status: %i",WEXITSTATUS(status));
 						break;
+					}
+
 					handleChildExited(stoppedPid);
 				} else if (event == PTRACE_EVENT_CLONE) {
 					uint32_t newChildPid;
@@ -375,6 +382,8 @@ void ParentProcess::traceLoop() {
 		perror("cont: error on ptrace syscall");
 		exit(1);
 	}
+
+	return exitStatus;
 
 }
 
