@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.util;
 
 import java.util.Comparator;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public class BinaryPredicates {
 	public static <T> Comparator<T> getComparator(
 			final IBinaryPredicate<T, T> comp) {
@@ -42,6 +44,16 @@ public class BinaryPredicates {
 
 			public Boolean apply(Double arg1, Double arg2) {
 				return arg1 > arg2;
+			}
+		};
+	}
+
+	public static <TL, TR> IBinaryPredicate<Pair<TL, TR>, Pair<TL, TR>> pairRightComparator(
+			final IBinaryPredicate<TR, TR> comparator) {
+		return new IBinaryPredicate<Pair<TL, TR>, Pair<TL, TR>>() {
+
+			public Boolean apply(Pair<TL, TR> arg1, Pair<TL, TR> arg2) {
+				return comparator.apply(arg1.getRight(), arg2.getRight());
 			}
 		};
 	}

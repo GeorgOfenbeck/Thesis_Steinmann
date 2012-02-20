@@ -3,20 +3,20 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 
 public class RooflinePoint {
-	final private String name;
+	final private String label;
 	final private OperationalIntensity operationalIntensity;
 	final private Performance performance;
 
-	public RooflinePoint(String name,
+	public RooflinePoint(String label,
 			OperationalIntensity operationalIntensity, Performance performance) {
 		super();
-		this.name = name;
+		this.label = label;
 		this.operationalIntensity = operationalIntensity;
 		this.performance = performance;
 	}
 
-	public String getName() {
-		return name;
+	public String getLabel() {
+		return label;
 	}
 
 	public OperationalIntensity getOperationalIntensity() {

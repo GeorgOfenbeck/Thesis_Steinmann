@@ -47,7 +47,7 @@ public class MMMMeasurementController implements IMeasurementController {
 
 		{
 			ParameterSpace space = new ParameterSpace();
-			for (long i = 64; i <= 900; i += 64) {
+			for (long i = 64; i <= 400; i += 64) {
 				space.add(Axes.matrixSizeAxis, i);
 			}
 			space.add(Axes.blockSizeAxis, 64L);
@@ -56,9 +56,9 @@ public class MMMMeasurementController implements IMeasurementController {
 			Axis<ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
 					"742250a7-5ea2-4a39-b0c6-7145d0c4b292", "algorithm");
 
-			//space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_TripleLoop);
-			//space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blocked);
-			//space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Openblas);
+			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_TripleLoop);
+			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blocked);
+			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Openblas);
 			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
 
 			for (Coordinate coordinate : space.getAllPoints(space
@@ -69,7 +69,7 @@ public class MMMMeasurementController implements IMeasurementController {
 					if (coordinate.get(Axes.matrixSizeAxis) > 704) {
 						continue;
 					}
-					break;
+				break;
 				}
 				MMMKernel kernel = new MMMKernel();
 				kernel.setMu(2);
@@ -79,24 +79,25 @@ public class MMMMeasurementController implements IMeasurementController {
 				kernel.setAlgorithm(coordinate.get(algorithmAxis));
 				kernel.initialize(coordinate);
 
-				String name = StringUtils.removeStart(
+				String seriesName = StringUtils.removeStart(
 						coordinate.get(algorithmAxis).toString(),
-						"MMMAlgorithm_")
-						+ coordinate.get(Axes.matrixSizeAxis);
-				System.out.printf("Measuring %s\n", name);
+						"MMMAlgorithm_");
+
+				String label = coordinate.get(Axes.matrixSizeAxis).toString();
+				System.out.printf("Measuring %s\n", label);
 
 				Operation operation = Operation.CompInstr;
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					operation = Operation.DoublePrecisionFlop;
-					break;
+				break;
 				case MMMAlgorithm_Blas_Openblas:
-					operation = Operation.DoublePrecisionFlop;
-					break;
+					operation = Operation.CompInstr;
+				break;
 				}
 
-				rooflineController.addRooflinePoint(name, kernel, operation,
-						MemoryTransferBorder.LlcRam);
+				rooflineController.addRooflinePoint(seriesName, label, kernel,
+						operation, MemoryTransferBorder.LlcRam);
 
 				/*Performance performance = quantityMeasuringService
 				.measurePerformance(kernel, operation, ClockType.CoreCycles);
@@ -104,8 +105,7 @@ public class MMMMeasurementController implements IMeasurementController {
 
 				OperationCount operationCount = quantityMeasuringService
 						.measureOperationCount(kernel, operation);
-				System.out
-				.printf("Operations %s: %s\n", coordinate,
+				System.out.printf("Operations %s: %s\n", coordinate,
 						operationCount);
 
 				/*TransferredBytes bytes = quantityMeasuringService

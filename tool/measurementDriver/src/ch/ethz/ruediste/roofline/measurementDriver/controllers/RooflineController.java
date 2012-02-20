@@ -61,42 +61,44 @@ public class RooflineController {
 		plot.addPeakThroughput(name, throughput);
 	}
 
-	public void addRooflinePoint(String name, KernelBase kernel,
-			Operation operation, MemoryTransferBorder border) {
+	public void addRooflinePoint(String seriesName, String label,
+			KernelBase kernel, Operation operation, MemoryTransferBorder border) {
 
-		RooflinePoint point = new RooflinePoint(name,
+		RooflinePoint point = new RooflinePoint(label,
 				quantityMeasuringService.measureOperationalIntensity(kernel,
 						border, operation),
 				quantityMeasuringService.measurePerformance(kernel, operation,
 						clockType));
 		log.info("Added Roofline Point: " + point);
-		plot.addPoint(point);
+		plot.addPoint(seriesName, point);
 	}
 
-	public void addRooflinePoint(String name, KernelBase kernel,
-			OperationCount operationCount, MemoryTransferBorder border) {
+	public void addRooflinePoint(String seriesName, String label,
+			KernelBase kernel, OperationCount operationCount,
+			MemoryTransferBorder border) {
 		TransferredBytes transferredBytes = quantityMeasuringService
 				.measureTransferredBytes(kernel, border);
 		Time time = quantityMeasuringService.measureExecutionTime(kernel,
 				clockType);
-		RooflinePoint point = new RooflinePoint(name, new OperationalIntensity(
-				transferredBytes, operationCount), new Performance(
-				operationCount, time));
+		RooflinePoint point = new RooflinePoint(label,
+				new OperationalIntensity(transferredBytes, operationCount),
+				new Performance(operationCount, time));
 		log.info("Added Roofline Point: " + point);
-		plot.addPoint(point);
+		plot.addPoint(seriesName, point);
 	}
 
-	public void addRooflinePoint(String name, KernelBase kernel,
-			Operation operation, TransferredBytes transferredBytes) {
+	public void addRooflinePoint(String seriesName, String label,
+			KernelBase kernel, Operation operation,
+			TransferredBytes transferredBytes) {
 		Time time = quantityMeasuringService.measureExecutionTime(kernel,
 				clockType);
 		OperationCount operationCount = quantityMeasuringService
 				.measureOperationCount(kernel, operation);
-		RooflinePoint point = new RooflinePoint(name, new OperationalIntensity(
-				transferredBytes, operationCount), new Performance(
-				operationCount, time));
+		RooflinePoint point = new RooflinePoint(label,
+				new OperationalIntensity(transferredBytes, operationCount),
+				new Performance(operationCount, time));
 
-		plot.addPoint(point);
+		plot.addPoint(seriesName, point);
 	}
 
 	public ClockType getClockType() {

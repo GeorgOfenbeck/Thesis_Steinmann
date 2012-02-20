@@ -2,6 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
 import java.util.*;
 
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
@@ -11,7 +12,10 @@ public class RooflinePlot extends Plot2D {
 
 	private final ArrayList<Pair<String, Throughput>> peakBandwidths = new ArrayList<Pair<String, Throughput>>();
 	private final ArrayList<Pair<String, Performance>> peakPerformances = new ArrayList<Pair<String, Performance>>();
-	private final ArrayList<RooflinePoint> points = new ArrayList<RooflinePoint>();
+	private final HashMap<String, RooflineSeries> allSeries = new LinkedHashMap<String, RooflineSeries>();
+	private RooflineSeries currentSeries;
+
+	private boolean autoscale;
 
 	public void addPeakThroughput(String name, Throughput peak) {
 		peakBandwidths.add(Pair.of(name, peak));
@@ -21,8 +25,27 @@ public class RooflinePlot extends Plot2D {
 		peakPerformances.add(Pair.of(name, peak));
 	}
 
+	private RooflineSeries getCurrentSeries() {
+		return currentSeries;
+	}
+
+	public void addPoint(String seriesName, RooflinePoint point) {
+		getSeries(seriesName).addPoint(point);
+	}
+
 	public void addPoint(RooflinePoint point) {
-		points.add(point);
+		getCurrentSeries().addPoint(point);
+	}
+
+	public void setCurrentSeries(String name) {
+		currentSeries = getSeries(name);
+	}
+
+	public RooflineSeries getSeries(String name) {
+		if (!allSeries.containsKey(name)) {
+			allSeries.put(name, new RooflineSeries(name));
+		}
+		return allSeries.get(name);
 	}
 
 	public List<Pair<String, Throughput>> getPeakBandwiths() {
@@ -33,12 +56,16 @@ public class RooflinePlot extends Plot2D {
 		return Collections.unmodifiableList(peakPerformances);
 	}
 
-	public List<RooflinePoint> getPoints() {
-		return Collections.unmodifiableList(points);
+	public List<RooflinePoint> getAllPoints() {
+		ArrayList<RooflinePoint> result = new ArrayList<RooflinePoint>();
+		for (RooflineSeries series : allSeries.values()) {
+			result.addAll(series.getPoints());
+		}
+		return result;
 	}
 
 	public Iterable<OperationalIntensity> getOperationalIntensities() {
-		return IterableUtils.select(getPoints(),
+		return IterableUtils.select(getAllPoints(),
 				new IUnaryFunction<RooflinePoint, OperationalIntensity>() {
 
 					public OperationalIntensity apply(RooflinePoint arg) {
@@ -49,7 +76,7 @@ public class RooflinePlot extends Plot2D {
 
 	public Iterable<Performance> getPerformances() {
 		ArrayList<Performance> result = new ArrayList<Performance>();
-		for (RooflinePoint point : points) {
+		for (RooflinePoint point : getAllPoints()) {
 			result.add(point.getPerformance());
 		}
 		for (Pair<String, Performance> perf : peakPerformances) {
@@ -58,4 +85,44 @@ public class RooflinePlot extends Plot2D {
 		return result;
 	}
 
+	public boolean isAutoscale() {
+		return autoscale;
+	}
+
+	public void setAutoscale(boolean autoscale) {
+		this.autoscale = autoscale;
+	}
+
+	public Range<Double> getXRange() {
+		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
+				.getRange(getOperationalIntensities());
+
+		if (isAutoscale()) {
+			return Range.between(operationalIntensityRange.getMinimum()
+					.getValue() / 2, operationalIntensityRange.getMaximum()
+					.getValue() * 2);
+		}
+		else {
+			return Range.between(0.1, 50.);
+		}
+	}
+
+	public Range<Double> getYRange() {
+		Range<Performance> performanceRange = IterableUtils
+				.getRange(getPerformances());
+
+		// set the scaling
+		if (isAutoscale()) {
+			return Range.between(performanceRange.getMinimum().getValue() / 2,
+					performanceRange.getMaximum().getValue() * 2);
+		}
+		else {
+			return Range.between(0.1, 4.5);
+
+		}
+	}
+
+	public Collection<RooflineSeries> getAllSeries() {
+		return allSeries.values();
+	}
 }

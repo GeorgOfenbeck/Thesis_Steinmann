@@ -36,6 +36,13 @@ public class IterableUtils {
 		return result;
 	}
 
+	public static <T> Iterable<T> order(Iterable<T> iterable,
+			IBinaryPredicate<T, T> before) {
+		List<T> result = toList(iterable);
+		Collections.sort(result, BinaryPredicates.getComparator(before));
+		return result;
+	}
+
 	public static <T> T single(Iterable<T> iterable, IUnaryPredicate<T> pred) {
 		boolean found = false;
 		T foundItem = null;
@@ -162,6 +169,20 @@ public class IterableUtils {
 		return first(iterable, UnaryPredicates.<T> True());
 	}
 
+	public static <T> T last(Iterable<T> iterable) {
+		boolean found = false;
+		T result = null;
+		Iterator<T> it = iterable.iterator();
+		while (it.hasNext()) {
+			result = it.next();
+			found = true;
+		}
+		if (found) {
+			return result;
+		}
+		throw new Error("iterable was empty");
+	}
+
 	public static <T> T first(Iterable<T> iterable, IUnaryPredicate<T> predicate) {
 
 		Iterator<T> it = iterable.iterator();
@@ -240,8 +261,20 @@ public class IterableUtils {
 				BinaryPredicates.getComparator(comparator));
 	}
 
+	public static <T> List<T> toList(Iterable<T> iterable) {
+		ArrayList<T> result = new ArrayList<T>();
+		addAll(result, iterable);
+		return result;
+	}
+
 	public static <T> void addAll(Collection<T> coll, T[] array) {
 		for (T item : array) {
+			coll.add(item);
+		}
+	}
+
+	public static <T> void addAll(Collection<T> coll, Iterable<T> iterable) {
+		for (T item : iterable) {
 			coll.add(item);
 		}
 	}
