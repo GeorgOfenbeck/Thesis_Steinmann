@@ -103,7 +103,7 @@ public class RooflinePlot extends Plot2D {
 					.getValue() * 2);
 		}
 		else {
-			return Range.between(0.1, 50.);
+			return Range.between(0.03, 50.);
 		}
 	}
 
@@ -117,7 +117,7 @@ public class RooflinePlot extends Plot2D {
 					performanceRange.getMaximum().getValue() * 2);
 		}
 		else {
-			return Range.between(0.1, 4.5);
+			return Range.between(0.03, 4.5);
 
 		}
 	}

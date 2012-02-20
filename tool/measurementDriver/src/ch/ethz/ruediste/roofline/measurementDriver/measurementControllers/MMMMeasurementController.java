@@ -1,11 +1,12 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import java.io.IOException;
+import static ch.ethz.ruediste.roofline.dom.Axes.matrixSizeAxis;
 
-import org.apache.commons.lang3.StringUtils;
+import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
@@ -34,6 +35,9 @@ public class MMMMeasurementController implements IMeasurementController {
 	@Inject
 	RooflineController rooflineController;
 
+	@Inject
+	Configuration configuration;
+
 	public void measure(String outputName) throws IOException {
 		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
 				InstructionSet.SSE);
@@ -45,47 +49,133 @@ public class MMMMeasurementController implements IMeasurementController {
 		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
 				MemoryTransferBorder.LlcRam);
 
+		addSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_TripleLoop,
+				MMMAlgorithm.MMMAlgorithm_Blas_Openblas,
+				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
+
+		addBlockedSeries(rooflineController);
+
+		rooflineController.plot();
+	}
+
+	/**
+	 * @param rooflineController
+	 */
+	public void addBlockedSeries(RooflineController rooflineController) {
 		{
+			configuration.push();
+			for (long i = 64; i <= 704; i += 64) {
+				if (i < 400)
+					configuration.set(
+							QuantityMeasuringService.numberOfMeasurementsKey,
+							10);
+				else
+					configuration
+							.set(QuantityMeasuringService.numberOfMeasurementsKey,
+									1);
+
+				MMMKernel kernel = new MMMKernel();
+				kernel.setMatrixSize(i);
+				kernel.setMu(2);
+				kernel.setNu(2);
+				kernel.setKu(2);
+				kernel.setNb(16);
+				kernel.setNoCheck(true);
+				kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blocked);
+				kernel.setOptimization("-O3");
+
+				String label = Long.toString(i);
+				System.out.printf("Measuring %s\n", label);
+
+				Operation operation = Operation.CompInstr;
+
+				rooflineController.addRooflinePoint("MMM-Blocked", label,
+						kernel, operation, MemoryTransferBorder.LlcRam);
+
+				/*Performance performance = quantityMeasuringService
+				.measurePerformance(kernel, operation, ClockType.CoreCycles);
+				System.out.printf("Performance %s: %s\n", coordinate, performance);*/
+
+				OperationCount operationCount = quantityMeasuringService
+						.measureOperationCount(kernel, operation);
+				System.out.printf("Operations Blocked %d: %s\n", i,
+						operationCount);
+
+				/*TransferredBytes bytes = quantityMeasuringService
+						.measureTransferredBytes(kernel,
+								MemoryTransferBorder.LlcRam);*/
+
+				// System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
+			}
+			configuration.pop();
+		}
+	}
+
+	/**
+	 * series may not be blocked
+	 */
+	public void addSeries(RooflineController rooflineController,
+			MMMAlgorithm... algorithms) {
+		{
+			configuration.push();
 			ParameterSpace space = new ParameterSpace();
-			for (long i = 64; i <= 400; i += 64) {
+			for (long i = 100; i <= 2000; i += 100) {
 				space.add(Axes.matrixSizeAxis, i);
 			}
-			space.add(Axes.blockSizeAxis, 64L);
 
 			space.add(Axes.optimizationAxis, "-O3");
 			Axis<ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
 					"742250a7-5ea2-4a39-b0c6-7145d0c4b292", "algorithm");
 
-			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_TripleLoop);
-			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blocked);
-			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Openblas);
-			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
+			for (MMMAlgorithm algorithm : algorithms) {
+				if (algorithm == MMMAlgorithm.MMMAlgorithm_Blocked) {
+					throw new Error(
+							"use addBlockedSeries for Blocked algorithm");
+				}
+				space.add(algorithmAxis, algorithm);
+			}
 
 			for (Coordinate coordinate : space.getAllPoints(space
 					.getAllAxesWithMostSignificantAxes(algorithmAxis))) {
-				switch (coordinate.get(algorithmAxis)) {
-				case MMMAlgorithm_TripleLoop:
-				case MMMAlgorithm_Blocked:
-					if (coordinate.get(Axes.matrixSizeAxis) > 704) {
-						continue;
-					}
-				break;
+				if (coordinate.get(matrixSizeAxis) < 400)
+					configuration.set(
+							QuantityMeasuringService.numberOfMeasurementsKey,
+							10);
+				else
+					configuration
+							.set(QuantityMeasuringService.numberOfMeasurementsKey,
+									1);
+				// skip large sizes for tripple loop
+				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TripleLoop
+						&& coordinate.get(Axes.matrixSizeAxis) > 704) {
+					continue;
 				}
 				MMMKernel kernel = new MMMKernel();
-				kernel.setMu(2);
-				kernel.setNu(2);
-				kernel.setKu(2);
 				kernel.setNoCheck(true);
 				kernel.setAlgorithm(coordinate.get(algorithmAxis));
 				kernel.initialize(coordinate);
 
-				String seriesName = StringUtils.removeStart(
-						coordinate.get(algorithmAxis).toString(),
-						"MMMAlgorithm_");
+				// get the name of the series
+				String seriesName;
+				switch (coordinate.get(algorithmAxis)) {
+				case MMMAlgorithm_Blas_Mkl:
+					seriesName = "MMM-Mkl";
+				break;
+				case MMMAlgorithm_Blas_Openblas:
+					seriesName = "MMM-OpenBlas";
+				break;
+				case MMMAlgorithm_TripleLoop:
+					seriesName = "MMM-TripleLoop";
+				break;
+				default:
+					throw new Error("Should not happen");
 
+				}
+
+				// get the label for the point
 				String label = coordinate.get(Axes.matrixSizeAxis).toString();
-				System.out.printf("Measuring %s\n", label);
 
+				// get the operation to be measured
 				Operation operation = Operation.CompInstr;
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
@@ -114,8 +204,7 @@ public class MMMMeasurementController implements IMeasurementController {
 
 				// System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
 			}
+			configuration.pop();
 		}
-
-		rooflineController.plot();
 	}
 }

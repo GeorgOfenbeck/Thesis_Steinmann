@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="DgemvKernel" 
+	baseType="KernelBase"
+	javaSuffix="Data"
+	cSuffix="Data"
+	comment="Kernel doing Matrix-Vector multiplications"> 
+	<field name="matrixSize" type="long" comment="size of the matrix to be multiplied"/>
+</derivedClass>

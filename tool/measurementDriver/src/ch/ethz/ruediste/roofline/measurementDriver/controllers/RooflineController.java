@@ -63,13 +63,13 @@ public class RooflineController {
 
 	public void addRooflinePoint(String seriesName, String label,
 			KernelBase kernel, Operation operation, MemoryTransferBorder border) {
-
 		RooflinePoint point = new RooflinePoint(label,
 				quantityMeasuringService.measureOperationalIntensity(kernel,
 						border, operation),
 				quantityMeasuringService.measurePerformance(kernel, operation,
 						clockType));
-		log.info("Added Roofline Point: " + point);
+		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
+				label, point));
 		plot.addPoint(seriesName, point);
 	}
 
@@ -83,7 +83,9 @@ public class RooflineController {
 		RooflinePoint point = new RooflinePoint(label,
 				new OperationalIntensity(transferredBytes, operationCount),
 				new Performance(operationCount, time));
-		log.info("Added Roofline Point: " + point);
+
+		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
+				label, point));
 		plot.addPoint(seriesName, point);
 	}
 
@@ -98,6 +100,9 @@ public class RooflineController {
 				new OperationalIntensity(transferredBytes, operationCount),
 				new Performance(operationCount, time));
 
+		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
+				label, point));
+
 		plot.addPoint(seriesName, point);
 	}
 
@@ -111,5 +116,9 @@ public class RooflineController {
 
 	public void plot() throws ExecuteException, IOException {
 		plotService.plot(plot);
+	}
+
+	public void setTitle(String title) {
+		plot.setTitle(title);
 	}
 }

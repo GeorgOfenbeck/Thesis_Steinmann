@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
@@ -16,6 +17,11 @@ import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoReposi
 import com.google.inject.Inject;
 
 public class QuantityMeasuringService {
+	public static ConfigurationKey<Integer> numberOfMeasurementsKey = ConfigurationKey
+			.Create(Integer.class,
+					"qms.numberOfMeasurements",
+					"number of measurements the QuantityMeasuringService should perform to get reliable results",
+					10);
 	private static Logger log = Logger
 			.getLogger(QuantityMeasuringService.class);
 	@Inject
@@ -23,6 +29,9 @@ public class QuantityMeasuringService {
 
 	@Inject
 	SystemInfoRepository pmuRepository;
+
+	@Inject
+	Configuration configuration;
 
 	public enum Operation {
 		SinglePrecisionFlop, DoublePrecisionFlop, CompInstr, SSEFlop,
@@ -176,8 +185,7 @@ public class QuantityMeasuringService {
 			return new MultiplyingQuantityCalculator<TransferredBytes>(
 					createPerfEventQuantityCalculator(TransferredBytes.class,
 							"core::BUS_TRANS_MEM:BOTH_CORES",
-							"coreduo::BUS_TRANS_MEM"),
-							64);
+							"coreduo::BUS_TRANS_MEM"), 64);
 
 		default:
 			throw new Error("should not happen");
@@ -221,7 +229,8 @@ public class QuantityMeasuringService {
 	private <T extends Quantity<T>, TCalc extends QuantityCalculator<T>> T measure(
 			KernelBase kernel, TCalc calculator) {
 
-		int numMeasurements = 10;
+		int numMeasurements = configuration.get(numberOfMeasurementsKey);
+
 		// get results for each required measurer set
 		ArrayList<MeasurementResult> measurementResults = new ArrayList<MeasurementResult>();
 		for (MeasurerSet set : calculator.getRequiredMeasurerSets()) {

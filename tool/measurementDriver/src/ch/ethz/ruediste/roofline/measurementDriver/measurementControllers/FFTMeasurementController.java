@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
@@ -33,36 +35,56 @@ public class FFTMeasurementController implements IMeasurementController {
 	@Inject
 	RooflineController rooflineController;
 
+	@Inject
+	Configuration configuration;
+
 	private boolean IsPowerOfTwo(long x) {
 		return (x & (x - 1)) == 0;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void measure(String outputName) throws IOException {
-		/*rooflineController.addPeakPerformance("ADD", Algorithm.Add,
+		RooflineController rooflineController2 = rooflineController;
+		rooflineController2.addPeakPerformance("ADD", Algorithm.Add,
 				InstructionSet.SSE);
-		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
+		rooflineController2.addPeakPerformance("MUL", Algorithm.Mul,
 				InstructionSet.SSE);
 
-		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
-				MemoryTransferBorder.LlcRam);*/
+		rooflineController2.addPeakThroughput("MemLoad", Algorithm.Load,
+				MemoryTransferBorder.LlcRam);
 
+		addPoints(rooflineController2, FFTnrKernel.class, FFTmklKernel.class,
+				FFTfftwKernel.class);
+		rooflineController2.plot();
+	}
+
+	/**
+	 * @param rooflineController
+	 */
+	public void addPoints(RooflineController rooflineController,
+			Class<? extends FFTKernelBase>... clazzes) {
 		ParameterSpace space = new ParameterSpace();
-		for (long i = 1; i <= 512; i *= 2) {
-			space.add(Axes.bufferSizeAxis, i * 1024);
+		for (long i = 32; i <= 10000 * 1024L; i *= 2) {
+			space.add(Axes.bufferSizeAxis, i);
 		}
 
 		/*for (long i = 72; i < 128; i += 8) {
 			space.add(Axes.bufferSizeAxis, i * 1024L);
 		}*/
 
-		space.add(kernelAxis, new FFTnrKernel());
-		//space.add(kernelAxis, new FFTmklKernel());
-		//space.add(kernelAxis, new FFTfftwKernel());
+		for (Class<? extends FFTKernelBase> clazz : clazzes) {
+			try {
+				space.add(kernelAxis, clazz.getConstructor().newInstance());
+			}
+			catch (Exception e) {
+				throw new Error(e);
+			}
+		}
 
 		HashMap<Class<?>, String> algorithmName = new HashMap<Class<?>, String>();
-		algorithmName.put(FFTfftwKernel.class, "fftw");
-		algorithmName.put(FFTnrKernel.class, "nr");
-		algorithmName.put(FFTmklKernel.class, "mkl");
+		algorithmName.put(FFTfftwKernel.class, "FFT-FFTW");
+		algorithmName.put(FFTnrKernel.class, "FFT-NR");
+		algorithmName.put(FFTmklKernel.class, "FFT-MKL");
 
 		HashMap<Class<?>, Operation> algorithmOperation = new HashMap<Class<?>, QuantityMeasuringService.Operation>();
 		algorithmOperation.put(FFTnrKernel.class, Operation.CompInstr);
@@ -73,8 +95,17 @@ public class FFTMeasurementController implements IMeasurementController {
 
 		space.add(Axes.optimizationAxis, "-O3");
 
+		configuration.push();
 		for (Coordinate coordinate : space) {
 
+			if (coordinate.get(bufferSizeAxis) > 64 * 1024L) {
+				configuration.set(
+						QuantityMeasuringService.numberOfMeasurementsKey, 1);
+			}
+			else {
+				configuration.set(
+						QuantityMeasuringService.numberOfMeasurementsKey, 10);
+			}
 			// skip non-power of two sizes for the NR kernel
 			if (coordinate.get(kernelAxis) instanceof FFTnrKernel
 					&& !IsPowerOfTwo(coordinate.get(bufferSizeAxis))) {
@@ -83,7 +114,13 @@ public class FFTMeasurementController implements IMeasurementController {
 
 			// skip large buffer sizes for the NR kernel
 			if (coordinate.get(kernelAxis) instanceof FFTnrKernel
-					&& coordinate.get(bufferSizeAxis) > 256 * 1024L) {
+					&& coordinate.get(bufferSizeAxis) > 1024 * 1024L) {
+				continue;
+			}
+
+			// skip large buffer sizes for the FFTW kernel
+			if (coordinate.get(kernelAxis) instanceof FFTfftwKernel
+					&& coordinate.get(bufferSizeAxis) > 128 * 1024L) {
 				continue;
 			}
 
@@ -107,11 +144,11 @@ public class FFTMeasurementController implements IMeasurementController {
 
 			System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
 
-			/*rooflineController.addRooflinePoint(
-					algorithmName.get(kernel.getClass())
-					+ coordinate.get(bufferSizeAxis), kernel,
-					operationCount, MemoryTransferBorder.LlcRam);*/
+			rooflineController.addRooflinePoint(
+					algorithmName.get(kernel.getClass()),
+					coordinate.get(bufferSizeAxis).toString(), kernel,
+					operation, MemoryTransferBorder.LlcRam);
 		}
-		//rooflineController.plot();
+		configuration.pop();
 	}
 }

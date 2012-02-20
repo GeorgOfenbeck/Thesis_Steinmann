@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="DaxpyKernel" 
+	baseType="KernelBase"
+	javaSuffix="Data"
+	cSuffix="Data"
+	comment="Kernel doing Vector-Vector multiplications"> 
+	<field name="vectorSize" type="long" comment="size of the vectors to be multiplied"/>
+</derivedClass>

@@ -253,7 +253,16 @@ public class PlotService {
 		for (double magnitude = pow(10, floor(log10(min))); magnitude < max; magnitude *= 10) {
 			// output a major tick if we are already larger than the minimum
 			if (magnitude > min) {
-				ticks.add(String.format("\"%.0f\" %g 0", magnitude, magnitude));
+				String label = StringUtils.strip(
+						String.format("%f", magnitude), "0");
+				// add a zero before the decimal point
+				if (label.startsWith(".")) {
+					label = "0" + label;
+				}
+				// strip a single dot at the end
+				label = StringUtils.stripEnd(label, ".");
+
+				ticks.add(String.format("\"%s\" %g 0", label, magnitude));
 			}
 			// iterate over the minor ticks
 			for (int i = 1; i < 9; i++) {
