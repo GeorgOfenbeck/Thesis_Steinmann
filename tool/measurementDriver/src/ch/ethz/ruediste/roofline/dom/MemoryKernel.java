@@ -7,6 +7,28 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterS
 /** Kernel just loading a memory block into memory */
 public class MemoryKernel extends MemoryKernelData {
 
+	private static final MacroKey dlpMacro = MacroKey.Create("RMT_MEMORY_DLP",
+			"DataLevelParallelism: buffers to work on concurrently", "2");
+
+	public int getDlp() {
+		return Integer.parseInt(getMacroDefinition(dlpMacro));
+	}
+
+	public void setDlp(int unroll) {
+		setMacroDefinition(dlpMacro, Integer.toString(unroll));
+	}
+
+	private static final MacroKey unrollMacro = MacroKey.Create(
+			"RMT_MEMORY_UNROLL", "number of times to unroll the loop", "2");
+
+	public int getUnroll() {
+		return Integer.parseInt(getMacroDefinition(unrollMacro));
+	}
+
+	public void setUnroll(int unroll) {
+		setMacroDefinition(unrollMacro, Integer.toString(unroll));
+	}
+
 	private static final MacroKey operationMacro = MacroKey
 			.Create("RMT_MEMORY_OPERATION",
 					"specifies the memory operation to be used",
@@ -23,6 +45,12 @@ public class MemoryKernel extends MemoryKernelData {
 
 		if (coordinate.contains(iterationsAxis))
 			setIterations(coordinate.get(iterationsAxis));
+
+		if (coordinate.contains(dlpAxis))
+			setDlp(coordinate.get(dlpAxis));
+
+		if (coordinate.contains(unrollAxis))
+			setUnroll(coordinate.get(unrollAxis));
 	}
 
 	public enum MemoryOperation {

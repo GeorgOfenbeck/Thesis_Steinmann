@@ -40,30 +40,39 @@ public class MemoryMeasurementController implements IMeasurementController {
 		ParameterSpace space = new ParameterSpace();
 		space.add(iterationsAxis, 1L);
 
-		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
-		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
+		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
+		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
 
 		space.add(optimizationAxis, "-O3 -msse2");
 
-		space.add(bufferSizeAxis, 1024L * 16);
+		for (int i = 1; i <= 4; i++) {
+			space.add(dlpAxis, i);
+		}
+		for (int i = 1; i <= 4; i++) {
+			space.add(unrollAxis, i);
+		}
+
+		space.add(bufferSizeAxis, 1024L * 1024L);
 
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
 						memoryOperationAxis, iterationsAxis
 
-						))) {
+				))) {
 			MemoryKernel kernel = new MemoryKernel();
 			kernel.initialize(coordinate);
 
 			Throughput throughput = quantityMeasuringService.measureThroughput(
 					kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
-			System.out.printf("performance %s: %s\n", coordinate, throughput);
+			//System.out.printf("throughput %s: %s\n", coordinate, throughput);
 
 			TransferredBytes transferredBytes = quantityMeasuringService
 					.measureTransferredBytes(kernel,
 							MemoryTransferBorder.LlcRam);
-			System.out.printf("transferred bytes %s: %s\n", coordinate,
-					transferredBytes);
+
+			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
+					coordinate.toString(memoryOperationAxis, bufferSizeAxis,
+							dlpAxis, unrollAxis), throughput, transferredBytes);
 		}
 	}
 }
