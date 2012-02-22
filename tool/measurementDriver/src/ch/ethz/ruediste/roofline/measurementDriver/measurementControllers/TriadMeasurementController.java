@@ -4,10 +4,12 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.TriadKernel;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Throughput;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
 
 import com.google.inject.Inject;
 
@@ -24,16 +26,34 @@ public class TriadMeasurementController implements IMeasurementController {
 	@Inject
 	QuantityMeasuringService quantityMeasuringService;
 
+	@Inject
+	RooflineController rooflineController;
+
 	public void measure(String outputName) throws IOException {
 
-		TriadKernel kernel = new TriadKernel();
-		kernel.setBufferSize(1024L * 1024L);
-		kernel.setOptimization("-O3 -msse2");
+		rooflineController.setTitle("Triad");
+		rooflineController.addDefaultPeaks();
 
-		Throughput throughput = quantityMeasuringService.measureThroughput(
-				kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
+		for (long size = 10000; size < 100000; size += 10000) {
+			TriadKernel kernel = new TriadKernel();
+			kernel.setBufferSize(size);
+			kernel.setOptimization("-O3 -msse2");
 
-		System.out.printf("Throughput :%s\n", throughput);
+			rooflineController.addRooflinePoint("Triad", Long.toString(size),
+					kernel, Operation.DoublePrecisionFlop,
+					MemoryTransferBorder.LlcRam);
+
+			Throughput throughput = quantityMeasuringService.measureThroughput(
+					kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
+
+			OperationCount operations = quantityMeasuringService
+					.measureOperationCount(kernel, Operation.SSEFlop);
+
+			System.out.printf("size %d: throughput: %s operations: %s\n", size,
+					throughput, operations);
+		}
+
+		rooflineController.plot();
 	}
 
 }

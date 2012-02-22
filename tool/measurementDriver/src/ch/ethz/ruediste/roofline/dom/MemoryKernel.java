@@ -35,7 +35,7 @@ public class MemoryKernel extends MemoryKernelData {
 	}
 
 	private static final MacroKey prefetchTypeMacro = MacroKey.Create(
-			"RMT_MEMORY_PREFETCH_TYPE", "prefetch type", "256");
+			"RMT_MEMORY_PREFETCH_TYPE", "prefetch type", "_MM_HINT_NTA");
 
 	public PrefetchType getPrefetchType() {
 		return PrefetchType.valueOf(getMacroDefinition(prefetchTypeMacro));
