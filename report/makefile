@@ -1,6 +1,6 @@
 UMLET_JAR=~/Umlet/umlet.jar
 
-sourcesToImages=$(addprefix out/, $(addsuffix .png, $(basename $(1))))
+sourcesToImages=$(addprefix out/, $(addsuffix .pdf, $(basename $(1))))
 
 DIAGRAM_SOURCES=$(shell find -L -name "*.uxf" \( -path "./diagrams/*" \) -print)
 DIAGRAM_IMAGES=$(call sourcesToImages, $(DIAGRAM_SOURCES))
@@ -31,7 +31,7 @@ out/report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES)
 	$(LATEX) $(FLAGS) ../report.tex
 	$(LATEX) $(FLAGS) ../report.tex
 	
-out/%.png: %.uxf
-	java -jar $(UMLET_JAR) -action=convert -format=png -filename=$< -output=$@
+out/%.pdf: %.uxf
+	java -jar $(UMLET_JAR) -action=convert -format=pdf -filename=$< -output=$@
 	
 	

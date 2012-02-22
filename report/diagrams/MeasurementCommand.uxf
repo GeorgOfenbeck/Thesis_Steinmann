@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <diagram program="umlet" version="11.3">
-  <zoom_level>13</zoom_level>
+  <zoom_level>10</zoom_level>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>156</x>
-      <y>234</y>
-      <w>325</w>
-      <h>182</h>
+      <x>190</x>
+      <y>230</y>
+      <w>250</w>
+      <h>140</h>
     </coordinates>
     <panel_attributes>Measurement
 --
@@ -17,34 +17,34 @@ overallMeasurerSet: MeasurerSet</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>156</x>
-      <y>130</y>
-      <w>325</w>
-      <h>65</h>
+      <x>190</x>
+      <y>150</y>
+      <w>250</w>
+      <h>50</h>
     </coordinates>
     <panel_attributes>MeasurementCommand
 --
-desiredNumberOfOutputs: int</panel_attributes>
+runCount: int</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>273</x>
-      <y>156</y>
-      <w>64</w>
-      <h>103</h>
+      <x>280</x>
+      <y>170</y>
+      <w>50</w>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=&lt;</panel_attributes>
-    <additional_attributes>39;78;39;39</additional_attributes>
+    <additional_attributes>30;60;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>533</x>
-      <y>234</y>
-      <w>130</w>
-      <h>52</h>
+      <x>480</x>
+      <y>230</y>
+      <w>100</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>Rule
 --
@@ -54,10 +54,10 @@ desiredNumberOfOutputs: int</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>533</x>
-      <y>299</y>
-      <w>130</w>
-      <h>52</h>
+      <x>480</x>
+      <y>280</y>
+      <w>100</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>Workload
 --</panel_attributes>
@@ -66,10 +66,10 @@ desiredNumberOfOutputs: int</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>533</x>
-      <y>364</y>
-      <w>130</w>
-      <h>52</h>
+      <x>480</x>
+      <y>330</y>
+      <w>100</w>
+      <h>40</h>
     </coordinates>
     <panel_attributes>Configurator
 --
@@ -79,37 +79,37 @@ desiredNumberOfOutputs: int</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>442</x>
-      <y>286</y>
-      <w>116</w>
-      <h>64</h>
+      <x>410</x>
+      <y>270</y>
+      <w>90</w>
+      <h>50</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-</panel_attributes>
-    <additional_attributes>91;39;39;39</additional_attributes>
+m1=*</panel_attributes>
+    <additional_attributes>70;30;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>442</x>
-      <y>351</y>
-      <w>116</w>
-      <h>64</h>
+      <x>410</x>
+      <y>320</y>
+      <w>90</w>
+      <h>50</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-</panel_attributes>
-    <additional_attributes>91;39;39;39</additional_attributes>
+m1=*</panel_attributes>
+    <additional_attributes>70;30;30;30</additional_attributes>
   </element>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>442</x>
-      <y>221</y>
-      <w>116</w>
-      <h>64</h>
+      <x>410</x>
+      <y>220</y>
+      <w>90</w>
+      <h>50</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
-</panel_attributes>
-    <additional_attributes>91;39;39;39</additional_attributes>
+m1=*</panel_attributes>
+    <additional_attributes>70;30;30;30</additional_attributes>
   </element>
 </diagram>

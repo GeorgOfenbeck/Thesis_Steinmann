@@ -4,8 +4,8 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>210</x>
-      <y>130</y>
+      <x>340</x>
+      <y>260</y>
       <w>170</w>
       <h>40</h>
     </coordinates>
@@ -16,8 +16,8 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>70</x>
-      <y>70</y>
+      <x>200</x>
+      <y>200</y>
       <w>100</w>
       <h>100</h>
     </coordinates>
@@ -28,8 +28,8 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>210</x>
-      <y>70</y>
+      <x>340</x>
+      <y>200</y>
       <w>170</w>
       <h>40</h>
     </coordinates>
@@ -40,8 +40,8 @@
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>140</x>
-      <y>120</y>
+      <x>270</x>
+      <y>250</y>
       <w>90</w>
       <h>50</h>
     </coordinates>
@@ -51,8 +51,8 @@
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>140</x>
-      <y>60</y>
+      <x>270</x>
+      <y>190</y>
       <w>90</w>
       <h>50</h>
     </coordinates>

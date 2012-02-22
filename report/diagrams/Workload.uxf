@@ -4,8 +4,8 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>70</x>
-      <y>130</y>
+      <x>100</x>
+      <y>150</y>
       <w>100</w>
       <h>60</h>
     </coordinates>
@@ -17,8 +17,8 @@ cpu: int</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>200</x>
-      <y>130</y>
+      <x>230</x>
+      <y>150</y>
       <w>100</w>
       <h>60</h>
     </coordinates>
@@ -29,8 +29,8 @@ cpu: int</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>140</x>
-      <y>130</y>
+      <x>170</x>
+      <y>150</y>
       <w>80</w>
       <h>50</h>
     </coordinates>
@@ -40,8 +40,8 @@ cpu: int</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>70</x>
-      <y>210</y>
+      <x>100</x>
+      <y>230</y>
       <w>100</w>
       <h>110</h>
     </coordinates>
@@ -52,8 +52,8 @@ cpu: int</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>90</x>
-      <y>160</y>
+      <x>120</x>
+      <y>180</y>
       <w>50</w>
       <h>70</h>
     </coordinates>
@@ -63,8 +63,8 @@ cpu: int</panel_attributes>
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>320</x>
-      <y>210</y>
+      <x>350</x>
+      <y>230</y>
       <w>110</w>
       <h>120</h>
     </coordinates>
@@ -75,8 +75,8 @@ cpu: int</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>140</x>
-      <y>200</y>
+      <x>170</x>
+      <y>220</y>
       <w>200</w>
       <h>50</h>
     </coordinates>
@@ -86,8 +86,8 @@ cpu: int</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>140</x>
-      <y>220</y>
+      <x>170</x>
+      <y>240</y>
       <w>200</w>
       <h>70</h>
     </coordinates>
@@ -99,8 +99,8 @@ m1=*</panel_attributes>
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>140</x>
-      <y>260</y>
+      <x>170</x>
+      <y>280</y>
       <w>200</w>
       <h>70</h>
     </coordinates>

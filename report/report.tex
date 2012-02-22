@@ -5,7 +5,7 @@
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
 \usepackage{graphicx} 
 
-\newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[width=\textwidth]{diagrams/#1.png}\end{center}}
+\newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[scale=0.5]{diagrams/#1.pdf}\end{center}}
 
 \newcommand{\umlFloat}[2]{
 \begin{figure}[tbh]
@@ -242,9 +242,17 @@ is executed.
 
 \umlDiagram{Rule}
 
-We intentionally directly describe parts
-of the Measuring Core in the multi language classes. This allows the MeasuringCore to directly use the information contained
-therein and thus helps to keep the core simple.
+The following diagram shows all classes describing a measurement together:
+
+\umlDiagram{MeasurementCommandFull}
+
+A measurement is usually repeated multiple times, to get an idea of the
+distribution of the results. Each repetition is called measurement run.
+In each run, the outputs of all measurers are collected. At the end of the
+measurement, the core serializes the results of all runs into a single file,
+which is read by the driver.
+
+\umlDiagram{MeasurementRunOutput}
 
 
 \subsection{Multi Language Infrastructure}
@@ -318,7 +326,7 @@ Classes project. The generated Java code is linked by the Measurement Driver
 project. The generated C code is linked by the Measuring Core. The following
 Diagram shows these dependencies:
 
-\umlDiagram{CodeGenerationDependencies}
+\umlDiagram{MultiLanguageCodeGeneration}
 
 \subsubsection{Serialization and Deserialization}
 Along with the source code for each class, a service serializing and

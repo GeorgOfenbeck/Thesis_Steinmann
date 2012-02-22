@@ -100,9 +100,9 @@ int ChildProcess::main(int argc, char* argv[]) {
 	MeasurementRunOutputCollection outputCollection;
 
 	// perform measurements
-	for (int measurementNumber = 0;
-			measurementNumber < command->getNumberOfMeasurements();
-			measurementNumber++) {
+	for (int runNumber = 0;
+			runNumber < command->getRunCount();
+			runNumber++) {
 
 		LTRACE("cloning measurement");
 		Measurement *measurementClone = (Measurement*) measurement->clone();

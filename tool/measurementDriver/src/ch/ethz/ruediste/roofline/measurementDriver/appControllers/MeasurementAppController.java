@@ -113,7 +113,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				// create measurement command
 				MeasurementCommand command = new MeasurementCommand();
 				command.setMeasurement(measurement);
-				command.setNumberOfMeasurements(numberOfMeasurements
+				command.setRunCount(numberOfMeasurements
 						- outputs.size());
 
 				// perform measurement
