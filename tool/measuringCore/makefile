@@ -10,7 +10,7 @@ LIBS=-lpfm -lstdc++
 GCC=ccache gcc
 
 # compilation flags
-CFLAGS=-std=c++0x -Wall -ggdb
+CFLAGS=-Wall -ggdb
 OPTIMIZATION_FLAGS=-O2
 
 # source files to be ignored. separated by space

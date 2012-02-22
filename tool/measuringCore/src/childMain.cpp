@@ -10,6 +10,7 @@
 #include "Notifications.h"
 #include "ChildThread.h"
 #include <stdint.h>
+#include <stdlib.h>
 
 int main(int argc, char* argv[]) {
 	LDEBUG("address of notification procedure entry: %x", (uint32_t) ChildThread::processNotification)

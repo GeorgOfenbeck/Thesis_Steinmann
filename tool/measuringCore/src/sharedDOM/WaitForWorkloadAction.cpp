@@ -9,6 +9,8 @@
 #include "baseClasses/Locator.h"
 
 #include <string.h>
+#include <cstdio>
+#include <cstdlib>
 
 WaitForWorkloadAction::~WaitForWorkloadAction() {
 	// TODO Auto-generated destructor stub

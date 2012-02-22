@@ -21,6 +21,7 @@ public class PlotService {
 	public CommandService commandService;
 
 	static int pointTypes[] = { 5, 7, 9, 11, 13, };
+	static String lineColors[] = { "black", "red", "gren", "blue", "#FFFF00" };
 
 	public void plot(HistogramPlot plot) throws ExecuteException, IOException {
 		Histogram hist = plot.getHistogram();
@@ -116,6 +117,9 @@ public class PlotService {
 			// disable border
 			output.println("unset border");
 
+			// set the point size
+			output.println("set pointsize 0.5");
+
 			// add gray background
 			output.println("set object 1 rectangle from graph 0,0 to graph 1,1 behind fillcolor rgb\"#E0E0E0\" lw 0");
 
@@ -162,7 +166,7 @@ public class PlotService {
 							.<String, Performance> pairRightComparator(Quantity
 									.<Performance> moreThan()))) {
 				// set the default color
-				String lineColor = "rgb\"#808080\"";
+				String lineColor = "rgb\"#B0B0B0\"";
 				if (first) {
 					first = false;
 					// set the color of the first line
@@ -184,7 +188,7 @@ public class PlotService {
 							.<String, Throughput> pairRightComparator(Quantity
 									.<Throughput> moreThan()))) {
 				// set the default color
-				String lineColor = "rgb\"#808080\"";
+				String lineColor = "rgb\"#B0B0B0\"";
 				if (first) {
 					first = false;
 					// set the color of the first line
@@ -205,9 +209,10 @@ public class PlotService {
 
 				plotLines
 						.add(String
-								.format("'%s.data' index %d title '%s' with linespoints lw 6 lt -1 pt %d lc rgb\"black\"",
+								.format("'%s.data' index %d title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
 										plot.getOutputName(), i,
-										series.getName(), getPointType(i)));
+										series.getName(), getPointType(i),
+										getLineColor(i)));
 
 				// add label for the first and the last point
 				printLabel(output, first(series.getPoints()));
@@ -235,10 +240,16 @@ public class PlotService {
 						.getValue(), firstPoint.getPerformance().getValue());
 	}
 
-	int getPointType(int index) {
+	private int getPointType(int index) {
 		if (index >= pointTypes.length)
 			throw new Error("too many series, add more point types");
 		return pointTypes[index];
+	}
+
+	private String getLineColor(int index) {
+		if (index >= lineColors.length)
+			throw new Error("too many series, add more line colors");
+		return lineColors[index];
 	}
 
 	/**

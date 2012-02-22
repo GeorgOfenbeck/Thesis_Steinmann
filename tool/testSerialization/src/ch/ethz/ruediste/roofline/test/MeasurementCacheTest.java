@@ -39,7 +39,7 @@ public class MeasurementCacheTest extends TestBase {
 		// setup measurements
 		Measurement measurement1 = new Measurement();
 		Measurement measurement2 = new Measurement();
-		measurement2.setKernel(new DummyKernelDescription());
+		measurement2.setOverallMeasurerSet(new MeasurerSet());
 
 		// delete existing cache entry if present
 		measurementResultRepository.delete(hashService
@@ -61,7 +61,7 @@ public class MeasurementCacheTest extends TestBase {
 		result2.setMeasurement(measurement1);
 		{
 			MeasurementRunOutput output = new MeasurementRunOutput();
-			output.setMainMeasurerOutput(new ExecutionTimeMeasurerOutput());
+			output.getMeasurerSetOutputs().add(new MeasurerSetOutput());
 			result2.getOutputs().add(output);
 		}
 
@@ -138,7 +138,7 @@ public class MeasurementCacheTest extends TestBase {
 		final MeasurementResult result = new MeasurementResult();
 		for (int i = 0; i < 10; i++) {
 			MeasurementRunOutput output = new MeasurementRunOutput();
-			output.setMainMeasurerOutput(new PerfEventMeasurerOutput());
+			output.getMeasurerSetOutputs().add(new MeasurerSetOutput());
 			result.getOutputs().add(output);
 		}
 		result.setMeasurement(measurement);

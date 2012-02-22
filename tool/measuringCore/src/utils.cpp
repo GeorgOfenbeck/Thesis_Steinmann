@@ -8,11 +8,3 @@
 
 #include "utils.h"
 
-
-utils::~utils(){}
-
-/*template<>
-size_t utils::args_size(){
-	return 0;
-}*/
-

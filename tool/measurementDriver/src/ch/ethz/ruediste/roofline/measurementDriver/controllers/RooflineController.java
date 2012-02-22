@@ -121,4 +121,12 @@ public class RooflineController {
 	public void setTitle(String title) {
 		plot.setTitle(title);
 	}
+
+	public void addDefaultPeaks() {
+		addPeakPerformance("ADD", Algorithm.Add, InstructionSet.SSE);
+		addPeakPerformance("MUL", Algorithm.Mul, InstructionSet.SSE);
+
+		addPeakThroughput("MemLoad", Algorithm.Load,
+				MemoryTransferBorder.LlcRam);
+	}
 }

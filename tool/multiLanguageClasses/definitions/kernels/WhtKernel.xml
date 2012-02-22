@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="WhtKernel" 
+	baseType="KernelBase"
+	javaSuffix="Data"
+	cSuffix="Data"
+	comment="Kernel doing an WHT"> 
+	
+	<field name="bufferSizeExp" type="int" comment="Size of the buffer to do the WHT on is 2**exp"/>	
+</derivedClass>

@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <sys/wait.h>
 #include "utils.h"
+#include <cstdio>
 
 using namespace std;
 

@@ -19,6 +19,7 @@
 #include <pthread.h>
 #include "Exception.h"
 #include <string.h>
+#include <cstdio>
 
 using namespace std;
 
