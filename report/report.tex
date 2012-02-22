@@ -122,13 +122,12 @@ The measurement tool is used to generate and display measurement results. Often,
 
 \umlDiagram{ToolComponents}
 
-Data transfer between the measuring core and the measurement driver is achieved using serialized objects stored in files. The classes of this Shared DOM are shown in the following diagram:
+Data transfer between the measuring core and the measurement driver is achieved using serialized objects stored in files. The root class for describing a measurement is a MeasurementCommand. It contains the number of times the measurement should be repeated, as well as the actual Measurement. The kernels are contained within the workloads, and rules allow to respond to various events happening during the measurement.
 
 \umlDiagram{MultiLanguageClasses}
 
-Each MeasurementDescription describes how to perform a measurement. It contains a MeasurementSchemeDescription, a KernelDescription and a MeasurerDescription. Each description contains all information required to set up the respective part of the Measuring Core (type, parameters, \ldots).
-
 We intentionally directly describe Measuring Core parts in the multi language classes. This allows the MeasuringCore to directly use the information contained therein and thus helps to keep the core simple.
+
 
 \subsection{Multi Language Infrastructure}
 The multi language classes are used from both C++ and Java. To avoid having to manually synchronize two versions of the same class, the source code for the C++ and the Java implementation is generated from an XML definition by the Multi Language Code Generator. The XML definition contains class and field definitions only, no code. If class specific code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
@@ -381,19 +380,6 @@ static class Initializer: public SystemInitializer{
 \end{verbatim}
 
 Whenever a SystemInitializer is instantiated, the instance is registered in a static global list. On system startup and shutdown, the start() respective stop() method of all registered SystemInitializers is called.
-
-\subsubsection{Type Registry}
-The Measuring Core receives kernel, measurement scheme and measurer descriptions and needs to instantiate the corresponding kernels, measurement schemes and measurers. Conceptually, each description class is associated to exactly one object class. The description describes instances of the associated object class. In code, the realtionships are represented using typedefs and they are checked using concept checking (\cite{siek01_concept_check}).
-
-The object classes are grouped by base classes. The TypeRegistry templated class is instantiated for each base class. For each object class a TypeRegisterer is instantiated as static global variable (static means only visible in the file that defines the variable). The constructor of the TypeRegisterer creates a TypeRegistryEntry for the object class and adds it to the corresponding TypeRegistry instantiation.
-
-\umlDiagram{TypeRegistry}
-
-The MeasurerScheme has template type parameters for the measurer and the kernel it operates on. This allows the compiler to do optimizations, which is important for small kernels. The type registry supports this by accepting a number of arguments along with the description. The arguments sent to the TypeRegistryEntries for matching. The matching is based on the dynamic type of the provided arguments and the TArgs type arguments of the TypeRegistryEntry. When creating an object, the arguments are passed to the object constructor.
-
-The methods on the TypeRegistry have type arguments. These will be set to the base classes of the arguments. But the important information is the actual type of the arguments. Therefore the arguments are packed into a vector and sent to the TypeRegistryEntries which use dynamic\_cast to determine if the arguments match the type arguments. Dynamic cast needs pointers to a polymorphic class. Since void pointers are not polymorphic, pointers to PolymorphicBase are used.
-
-The code makes use of variadic templates (\cite{Gregor06:variadics_rev_3}).
 
 \section{Measuring Execution Time}
 \begin{itemize}
