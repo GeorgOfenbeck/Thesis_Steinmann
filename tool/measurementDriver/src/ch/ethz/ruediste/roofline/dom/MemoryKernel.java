@@ -18,6 +18,33 @@ public class MemoryKernel extends MemoryKernelData {
 		setMacroDefinition(dlpMacro, Integer.toString(unroll));
 	}
 
+	private static final MacroKey prefetchDistanceMacro = MacroKey.Create(
+			"RMT_MEMORY_PREFETCH_DIST", "distance to prefetch", "256");
+
+	public long getPrefetchDistance() {
+		return Integer.parseInt(getMacroDefinition(prefetchDistanceMacro));
+	}
+
+	public void setPrefetchDistance(long prefetchDistance) {
+		setMacroDefinition(prefetchDistanceMacro,
+				Long.toString(prefetchDistance));
+	}
+
+	public enum PrefetchType {
+		_MM_HINT_T0, _MM_HINT_T1, _MM_HINT_T2, _MM_HINT_NTA
+	}
+
+	private static final MacroKey prefetchTypeMacro = MacroKey.Create(
+			"RMT_MEMORY_PREFETCH_TYPE", "prefetch type", "256");
+
+	public PrefetchType getPrefetchType() {
+		return PrefetchType.valueOf(getMacroDefinition(prefetchTypeMacro));
+	}
+
+	public void setPrefetchType(PrefetchType prefetchType) {
+		setMacroDefinition(prefetchTypeMacro, prefetchType.toString());
+	}
+
 	private static final MacroKey unrollMacro = MacroKey.Create(
 			"RMT_MEMORY_UNROLL", "number of times to unroll the loop", "2");
 

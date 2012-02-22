@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.dom.MemoryKernel.MemoryOperation;
+import ch.ethz.ruediste.roofline.dom.MemoryKernel.PrefetchType;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -37,11 +38,16 @@ public class MemoryMeasurementController implements IMeasurementController {
 	public QuantityMeasuringService quantityMeasuringService;
 
 	public void measure(String outputName) throws IOException {
+		Axis<Long> prefetchDistanceAxis = new Axis<Long>(
+				"a1242032-756e-4d56-b0f1-4f9c63e6b2a9", "prefetchDistance");
+		Axis<PrefetchType> prefetchTypeAxis = new Axis<PrefetchType>(
+				"b7d2b922-dfba-4c76-bdf2-65108a6b4a29", "prefetchType");
+
 		ParameterSpace space = new ParameterSpace();
 		space.add(iterationsAxis, 1L);
 
-		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
-		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
+		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
+		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
 
 		space.add(optimizationAxis, "-O3 -msse2");
 
@@ -52,6 +58,14 @@ public class MemoryMeasurementController implements IMeasurementController {
 			space.add(unrollAxis, i);
 		}
 
+		space.add(prefetchDistanceAxis, 0L);
+		for (long i = 64; i <= 2048; i++)
+			space.add(prefetchDistanceAxis, i);
+
+		for (PrefetchType type : PrefetchType.values()) {
+			space.add(prefetchTypeAxis, type);
+		}
+
 		space.add(bufferSizeAxis, 1024L * 1024L);
 
 		for (Coordinate coordinate : space.getAllPoints(space
@@ -60,6 +74,9 @@ public class MemoryMeasurementController implements IMeasurementController {
 
 				))) {
 			MemoryKernel kernel = new MemoryKernel();
+			kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
+			kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));
+
 			kernel.initialize(coordinate);
 
 			Throughput throughput = quantityMeasuringService.measureThroughput(
@@ -72,7 +89,8 @@ public class MemoryMeasurementController implements IMeasurementController {
 
 			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
 					coordinate.toString(memoryOperationAxis, bufferSizeAxis,
-							dlpAxis, unrollAxis), throughput, transferredBytes);
+							dlpAxis, unrollAxis, prefetchDistanceAxis,
+							prefetchTypeAxis), throughput, transferredBytes);
 		}
 	}
 }

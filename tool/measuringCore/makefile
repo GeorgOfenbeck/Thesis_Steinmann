@@ -100,7 +100,7 @@ $(SPIRAL_OBJECTS):$(BUILD_DIR)/%.o: %.c
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O3 -msse2 $(DEP_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(INCLUDE_DIRS) -c -o $@ $<
 
-$(BUILD_DIR)/./src/sharedDOM/MultiLanguageSerializationService.o: src/sharedDOM/MultiLanguageSerializationService.cpp
+$(BUILD_DIR)/./generated/sharedDOM/MultiLanguageSerializationService.o: generated/sharedDOM/MultiLanguageSerializationService.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 	

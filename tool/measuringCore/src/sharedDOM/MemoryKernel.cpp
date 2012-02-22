@@ -11,6 +11,8 @@
 #include "macros/RMT_MEMORY_DLP.h"
 #include "macros/RMT_MEMORY_UNROLL.h"
 #include "macros/RMT_MEMORY_OPERATION.h"
+#include "macros/RMT_MEMORY_PREFETCH_DIST.h"
+#include "macros/RMT_MEMORY_PREFETCH_TYPE.h"
 
 #define UNROLL RMT_MEMORY_UNROLL
 #define DLP RMT_MEMORY_DLP
@@ -18,7 +20,7 @@
 void MemoryKernel::initialize() {
 	size_t size = getBufferSize();
 	// allocate buffer pointers
-	if (posix_memalign((void**) (&buffer), 16,
+	if (posix_memalign((void**) (&buffer), CacheLineSize,
 			DLP * UNROLL * size * sizeof(float*)) != 0) {
 		throw "could not allocate memory";
 	}
@@ -56,13 +58,17 @@ void MemoryKernel::run() {
 
 		// calculate the xor
 		for (long i = 0; i < bufferSize * UNROLL; i += 4 * UNROLL) {
-			//for (int p=0; p<DLP; p++)
-				//__asm__ ("PREFETCHT0 %0"::"m" (buffer[p*bufferSize*UNROLL+i+4*UNROLL]));
+#ifndef RMT_MEMORY_PREFETCH_DIST__0
+			for (int p=0; p<DLP; p++)
+				_mm_prefetch(&buffer[p*bufferSize*UNROLL+i+RMT_MEMORY_PREFETCH_DIST],RMT_MEMORY_PREFETCH_TYPE);
+#endif
 			for (int j = 0; j < UNROLL; j+=2) {
 				for (int p = 0; p < DLP; p++) {
 					//printf("%li\n",i + j * 4);
-					ch[p] = _mm_xor_ps(ch[p],
-							_mm_load_ps(&(buffer[p*bufferSize*UNROLL+i + j * 4])));
+					__m128 tmp;
+					tmp=_mm_load_ps(&(buffer[p*bufferSize*UNROLL+i + j * 4]));
+					//__asm("MOVNTDQA %1,%0":"=x"(tmp):"m"(buffer[p*bufferSize*UNROLL+i + j * 4]));
+					ch[p] = _mm_xor_ps(ch[p],tmp);
 				}
 			}
 		}
