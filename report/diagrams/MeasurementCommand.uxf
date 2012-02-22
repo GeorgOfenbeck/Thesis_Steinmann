@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="11.3">
+  <zoom_level>13</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>156</x>
+      <y>234</y>
+      <w>325</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>Measurement
+--
+overallMeasurerSet: MeasurerSet</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>156</x>
+      <y>130</y>
+      <w>325</w>
+      <h>65</h>
+    </coordinates>
+    <panel_attributes>MeasurementCommand
+--
+desiredNumberOfOutputs: int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>273</x>
+      <y>156</y>
+      <w>64</w>
+      <h>103</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;</panel_attributes>
+    <additional_attributes>39;78;39;39</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>533</x>
+      <y>234</y>
+      <w>130</w>
+      <h>52</h>
+    </coordinates>
+    <panel_attributes>Rule
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>533</x>
+      <y>299</y>
+      <w>130</w>
+      <h>52</h>
+    </coordinates>
+    <panel_attributes>Workload
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>533</x>
+      <y>364</y>
+      <w>130</w>
+      <h>52</h>
+    </coordinates>
+    <panel_attributes>Configurator
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>442</x>
+      <y>286</y>
+      <w>116</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>91;39;39;39</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>442</x>
+      <y>351</y>
+      <w>116</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>91;39;39;39</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>442</x>
+      <y>221</y>
+      <w>116</w>
+      <h>64</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+</panel_attributes>
+    <additional_attributes>91;39;39;39</additional_attributes>
+  </element>
+</diagram>

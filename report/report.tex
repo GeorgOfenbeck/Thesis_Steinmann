@@ -5,13 +5,7 @@
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
 \usepackage{graphicx} 
 
-\usepackage{../multind}
-\makeindex{referencedFiles}
-
-\newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[width=\textwidth]{uml/#1.png}\end{center}}
-
-%\newcommand{\file}[1]{\marginpar{\footnotesize \convertword{#1}{/}{/ }}\index{referencedFiles}{\convertword{#1}{\-}{}@\convertword{#1}{/}{/ }}}
-\newcommand{\file}[1]{}
+\newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[width=\textwidth]{diagrams/#1.png}\end{center}}
 
 \newcommand{\umlFloat}[2]{
 \begin{figure}[tbh]
@@ -45,21 +39,46 @@ This is the paper's abstract \ldots
 \tableofcontents
 
 \section{Introduction}
-The roofline model \cite{Roofline} premises to be an insightful model for analyzing program performance. To our knowledge, there is no tool capable of easily creating roofline plots. During this master thesis, we would like to create such a tool. Emphasis lies on correctness of the results produced by the tool and on it's maintainability.
+The roofline model \cite{Roofline} premises to be an insightful model for
+analyzing program performance. To our knowledge, there is no tool capable of
+easily creating roofline plots. During this master thesis, we would like to
+create such a tool. Emphasis lies on correctness of the results produced by the
+tool and on it's maintainability.
 
-Code to be measured can come either in the form of a relatively isolated routine, typically containing a single kernel, or in the form of a larger program, containing multiple different kernels. While routines are treated as atomic units, it is desirable to split the larger program into it's different algorithms and do the analysis for each algorithm separately. In the rest of this paper, we will use the term kernel for a routine or part of a program which is analyzed on it's own.
+Code to be measured can come either in the form of a relatively isolated
+routine, typically containing a single kernel, or in the form of a larger
+program, containing multiple different kernels. While routines are treated as
+atomic units, it is desirable to split the larger program into it's different
+algorithms and do the analysis for each algorithm separately. In the rest of
+this paper, we will use the term kernel for a routine or part of a program which
+is analyzed on it's own.
 
-To obtain the peak performance lines for the roofline model, we need to run micro benchmarks. To get the data points for a kernel, we need to measure the performance and the operational intensity. 
+To obtain the peak performance lines for the roofline model, we need to run
+micro benchmarks. To get the data points for a kernel, we need to measure the
+performance and the operational intensity. 
 
-Performance is defined as amount of work per unit of time. The amount of work and how it is defined is determined by the actual kernel and may not be need to be measured directly by the measurement tool. The time required to do the work has to be measured.
+Performance is defined as amount of work per unit of time. The amount of work
+and how it is defined is determined by the actual kernel and may not be need to
+be measured directly by the measurement tool. The time required to do the work
+has to be measured.
 
-Operational intensity is defined as operations per byte of data traffic. Since the operational intensity cannot be measured directly, we have to measure the operation count and the data traffic. Depending on the problem, different definitions of operation and data traffic make sense.
+Operational intensity is defined as operations per byte of data traffic. Since
+the operational intensity cannot be measured directly, we have to measure the
+operation count and the data traffic. Depending on the problem, different
+definitions of operation and data traffic make sense.
 
-An operation could be a floating point operation, resulting int the well known "flops" unit, either single or double precision. But an operation could as well be defined as machine instruction, integer operation or others.
+An operation could be a floating point operation, resulting int the well known
+"flops" unit, either single or double precision. But an operation could as well
+be defined as machine instruction, integer operation or others.
 
-The point where data traffic is measured is typically between the last level cache of the processor and the DRAM, but it could be measured as well between the different cache levels or between L1 cache and processor.
+The point where data traffic is measured is typically between the last level
+cache of the processor and the DRAM, but it could be measured as well between
+the different cache levels or between L1 cache and processor.
 
-The micro benchmarks are typically designed to either transfer as much data per unit of time or to execute as may operations per unit of time. Thus the measurement capabilities needed to evaluate the actual problems can be reused for the benchmarks. 
+The micro benchmarks are typically designed to either transfer as much data per
+unit of time or to execute as may operations per unit of time. Thus the
+measurement capabilities needed to evaluate the actual problems can be reused
+for the benchmarks. 
 
 In summary, we need to measure the following quantities:
 \begin{itemize}
@@ -68,73 +87,183 @@ In summary, we need to measure the following quantities:
 \item operation count
 \end{itemize}
 
-On current processors, measuring these quantities should be possible. For the execution time either the cycle counter or the system timer can be used. The memory traffic can be determined using the performance counters for counting cach misses and write back operations. An other option is to use the counters for bus transfers. Measuring the operation count depends heavily on the definition of operation, but is typically measurable with the performance counters, too.
+On current processors, measuring these quantities should be possible. For the
+execution time either the cycle counter or the system timer can be used. The
+memory traffic can be determined using the performance counters for counting
+cach misses and write back operations. An other option is to use the counters
+for bus transfers. Measuring the operation count depends heavily on the
+definition of operation, but is typically measurable with the performance
+counters, too.
 
-\section{Effects affecting the Measurement of multiple Quantities}
-While each of the measurements required to produce a roofline plot has it's own subtleties, there are some effects affecting multiple measurements, which we will discuss in the following sections.
+\section{Effects Affecting the Measurement of Multiple Quantities}
+While each of the measurements required to produce a roofline plot has it's own
+subtleties, there are some effects affecting multiple measurements, which we
+will discuss in the following sections.
 
 \subsection{Context Switches}
-Unless a special operating system is used, we have to deal with context switches during measurement. On current operating systems, a context switch typically occurs every 10ms due to the timer interrupt. Following the lines of \cite{ComSysProgPersp}, there are two ways to deal with them:
+Unless a special operating system is used, we have to deal with context switches
+during measurement. On current operating systems, a context switch typically
+occurs every 10ms due to the timer interrupt. Following the lines of
+\cite{ComSysProgPersp}, there are two ways to deal with them:
 
-If the execution time of the kernel is small, the operating system will eventually execute the whole kernel without interruption. This can be exploited using the best k measurement scheme. The kernel is repeatedly executed until the k measurements with the smallest execution times show a variation below a certain threshold. These executions were apparently not affected by a context switch, since a context switch would have increased execution time. The HW\_INT\_RCV performance counter could possibly be used as well to detect context switches.
+If the execution time of the kernel is small, the operating system will
+eventually execute the whole kernel without interruption. This can be exploited
+using the best k measurement scheme. The kernel is repeatedly executed until the
+k measurements with the smallest execution times show a variation below a
+certain threshold. These executions were apparently not affected by a context
+switch, since a context switch would have increased execution time. The
+HW\_INT\_RCV performance counter could possibly be used as well to detect
+context switches.
 
-If a single execution of the kernel takes longer than the period of time between two timer interrupts, it will always be affected by a context switch. In this case, the proposed solution is to execute the kernel in a loop until many context switches occurred. The effect of the context switches can be compensated for by reducing the measured time be a certain factor. The factor depends on the actual system.
+If a single execution of the kernel takes longer than the period of time between
+two timer interrupts, it will always be affected by a context switch. In this
+case, the proposed solution is to execute the kernel in a loop until many
+context switches occurred. The effect of the context switches can be compensated
+for by reducing the measured time be a certain factor. The factor depends on the
+actual system.
 
-The linux kernel offers the possibility to count performance events only during the time a thread actually executes, omitting events happening during kernel execution or while other threads run. This was not treated in the book above, and offers interesting new options.
+The linux kernel offers the possibility to count performance events only during
+the time a thread actually executes, omitting events happening during kernel
+execution or while other threads run. This was not treated in the book above,
+and offers interesting new options.
 
 \subsection{Cache}
-Specially for short running kernels, the initial state of the cache can have a big impact on the memory traffic and execution time. [?] The impact can be controlled by making sure the caches are either warm or cold.
+Specially for short running kernels, the initial state of the cache can have a
+big impact on the memory traffic and execution time. [?] The impact can be
+controlled by making sure the caches are either warm or cold.
 
-To get a cold cache, a memory block with a larger size than the last level cache should be accessed directly before executing the kernel. This causes all cache lines containing data of the working set to be evicted. In a similar manner, enough code should be executed to clear the L1 code cache.
+To get a cold cache, a memory block with a larger size than the last level cache
+should be accessed directly before executing the kernel. This causes all cache
+lines containing data of the working set to be evicted. In a similar manner,
+enough code should be executed to clear the L1 code cache.
 
-To get a warm cache, the kernel is usually executed once before starting the measurement. This causes the working set to be loaded in the caches, if it fits, and the code to be in the cache as well.
+To get a warm cache, the kernel is usually executed once before starting the
+measurement. This causes the working set to be loaded in the caches, if it fits,
+and the code to be in the cache as well.
 
 \subsection{System Load}
-Specially if the measurement includes context switches, the system load has a big impact on the measurement result. But due to caching effects, even the k best measurement scheme might be affected by the system load. Since we can control the system the measurements are performed on, we can control system load. But none the less, it should be recorded along with the measurement, in case something goes wrong with the measurement system setup.
+Specially if the measurement includes context switches, the system load has a
+big impact on the measurement result. But due to caching effects, even the k
+best measurement scheme might be affected by the system load. Since we can
+control the system the measurements are performed on, we can control system
+load. But none the less, it should be recorded along with the measurement, in
+case something goes wrong with the measurement system setup.
 
 \subsection{Multi Threading}
-Our kernels and benchmarks will use multi threading. This has to be supported by the measurement tool. Since some caches as well as part of the memory bandwidth might be shared among different cores, multi threading can have various effects on the amount of transferred memory and the available bandwidth.
+Our kernels and benchmarks will use multi threading. This has to be supported by
+the measurement tool. Since some caches as well as part of the memory bandwidth
+might be shared among different cores, multi threading can have various effects
+on the amount of transferred memory and the available bandwidth.
 
-In case of hyper threading, some functional units of a processor core are shared among two threads. This influences the peak performance of the core.
+In case of hyper threading, some functional units of a processor core are shared
+among two threads. This influences the peak performance of the core.
 
-It is possible that the operating system moves a thread from one core to another. Since the overhead of a switching the core is large, it is generally avoided by the scheduler of the operating system. But it can occur, and we have to be prepared for it.
+It is possible that the operating system moves a thread from one core to
+another. Since the overhead of a switching the core is large, it is generally
+avoided by the scheduler of the operating system. But it can occur, and we have
+to be prepared for it.
 
 \subsection{Frequency Scaling}
-The core frequency is not constant in current processors. Since the memory latencies and throughputs do not scale with the core frequency, a lower core frequency will generally cause a higher percentage of the peak performance to be reached by the kernel.
+The core frequency is not constant in current processors. Since the memory
+latencies and throughputs do not scale with the core frequency, a lower core
+frequency will generally cause a higher percentage of the peak performance to be
+reached by the kernel.
 
-On Linux, frequency scaling is controlled so called governors. They can be set through the sys file system. The tool offers the possibility to set the governor. In addition, it is possible to read the current frequency. If the frequency changes during a measurement, this is recored as well.
+On Linux, frequency scaling is controlled so called governors. They can be set
+through the sys file system. The tool offers the possibility to set the
+governor. In addition, it is possible to read the current frequency. If the
+frequency changes during a measurement, this is recored as well.
 
 \section{Measurement Tool Architecture}
-Performing measurements requires a kernel, a measurer and a measurement scheme. The kernel contains the code to be measured and can be either custom code or a wrapper around existing code. The measurer is responsible for the actual measuring and produces an output. The measurement scheme finally controls the kernel and the measurer. The three parts together form the Measuring Core.
+Performing measurements requires a kernel, a measurer and a measurement scheme.
+The kernel contains the code to be measured and can be either custom code or a
+wrapper around existing code. The measurer is responsible for the actual
+measuring and produces an output. The measurement scheme finally controls the
+kernel and the measurer. The three parts together form the Measuring Core.
 
-We decided that the Measuring Core should be implemented in the C++ language. To simplify development and maintenance, we tried to keep the amount of C++ code as small as possible. The rest is written in Java.
+We decided that the Measuring Core should be implemented in the C++ language. To
+simplify development and maintenance, we tried to keep the amount of C++ code as
+small as possible. The rest is written in Java.
 
-To allow all possible optimizations, it must be possible to pass compile time arguments to the Measuring Core and recompile for each measurement.
+To allow all possible optimizations, it must be possible to pass compile time
+arguments to the Measuring Core and recompile for each measurement.
 
 \subsection{Component Collaboration}
-The tool consists of two main components: The Measuring Core, which performs the actual measurements, and the Measurement Driver, which controls the core.
+The tool consists of two main components: The Measuring Core, which performs the
+actual measurements, and the Measurement Driver, which controls the core.
 
-A measurement is controlled by a measurement specific routine (one per measurement), which iterates through all parameter points to be examined, compiles and starts the Measuring Core and processes the results. This should result in straight forward code for controlling the measurements and, since the control code is written in Java, a minimal amount of new concepts has to be learned.
+A measurement is controlled by a measurement specific routine (one per
+measurement), which iterates through all parameter points to be examined,
+compiles and starts the Measuring Core and processes the results. This should
+result in straight forward code for controlling the measurements and, since the
+control code is written in Java, a minimal amount of new concepts has to be
+learned.
 
-During the development of measurement control routines, it is expected that many changes do not affect the parameter points. To speed up repeated measurements after changes to the measurement driver, the measurement results are cached. Thus, as long as the measurement parameters are not changed, the measurement does not need to be repeated.
+During the development of measurement control routines, it is expected that many
+changes do not affect the parameter points. To speed up repeated measurements
+after changes to the measurement driver, the measurement results are cached.
+Thus, as long as the measurement parameters are not changed, the measurement
+does not need to be repeated.
 
-The measurement tool is used to generate and display measurement results. Often, the measurement results lead to changes to the tool itself. Thus, switches between using the tool and developing the tool are frequent. To support these switches, a frontend program is provided. It compiles the measurement driver and executes it. It can be started using a shell script called "rot". The result files of a measurement are placed in the current working directory.
+The measurement tool is used to generate and display measurement results. Often,
+the measurement results lead to changes to the tool itself. Thus, switches
+between using the tool and developing the tool are frequent. To support these
+switches, a frontend program is provided. It compiles the measurement driver and
+executes it. It can be started using a shell script called "rot". The result
+files of a measurement are placed in the current working directory.
 
 \umlDiagram{ToolComponents}
 
-Data transfer between the measuring core and the measurement driver is achieved using serialized objects stored in files. The root class for describing a measurement is a MeasurementCommand. It contains the number of times the measurement should be repeated, as well as the actual Measurement. The kernels are contained within the workloads, and rules allow to respond to various events happening during the measurement.
+Data transfer between the measuring core and the measurement driver is achieved
+using serialized objects stored in files. Classes of these objects are
+used both from C++ and Java and therefore called multi language classes. They
+are described using XML. Source code for both languages is generated. For
+details, see \ref{sec:MultiLanguageInfrastructure} 
 
-\umlDiagram{MultiLanguageClasses}
+The root class for describing a measurement is a MeasurementCommand.
+It contains the number of times the measurement should be repeated, as well as
+the actual Measurement. The kernels are contained within the workloads, and
+rules allow to respond to various events happening during the measurement.
 
-We intentionally directly describe Measuring Core parts in the multi language classes. This allows the MeasuringCore to directly use the information contained therein and thus helps to keep the core simple.
+\umlDiagram{MeasurementCommand}
+
+A workload describes what should be run and measured on one core. Each workload
+is run within a separate thread, which is optionally pinned to a fixed core. In
+this thread, the validation measurers are started, the caches are warmed up, the
+additional measurers are started, followed by the main measurer. Then the kernel
+is run and the measurers are stopped. 
+
+\umlDiagram{Workload}
+
+During the measurement, events are raised. For example: start of a workload, end
+of a workload, start of a thread etc. These events are matched against the event
+predicates stored in the rules. If a predicate matches, the action of the rule
+is executed.
+
+\umlDiagram{Rule}
+
+We intentionally directly describe parts
+of the Measuring Core in the multi language classes. This allows the MeasuringCore to directly use the information contained
+therein and thus helps to keep the core simple.
 
 
 \subsection{Multi Language Infrastructure}
-The multi language classes are used from both C++ and Java. To avoid having to manually synchronize two versions of the same class, the source code for the C++ and the Java implementation is generated from an XML definition by the Multi Language Code Generator. The XML definition contains class and field definitions only, no code. If class specific code is needed, it has to be implemented separately for each language and merged with the field definitions using inheritance.
+\label{sec:MultiLanguageInfrastructure}
+The multi language classes are used from both C++ and Java. To avoid having to
+manually synchronize two versions of the same class, the source code for the C++
+and the Java implementation is generated from an XML definition by the Multi
+Language Code Generator. The XML definition contains class and field definitions
+only, no code. If class specific code is needed, it has to be implemented
+separately for each language and merged with the field definitions using
+inheritance.
 
-The multi language class definitions, written in XML, are parsed using a serialization library called XStream. XStream maps classes to an XML representation. The classes used to define the multi language classes are shown in \umlRef{MultiLanguageClassDefinition}.
+The multi language class definitions, written in XML, are parsed using a
+serialization library called XStream. XStream maps classes to an XML
+representation. The classes used to define the multi language classes are shown
+in \umlRef{MultiLanguageClassDefinition}.
 
-\umlFloat{MultiLanguageClassDefinition}{Classes representing a multi language class definition}
+\umlFloat{MultiLanguageClassDefinition}{Classes representing a multi language
+class definition}
 
 The following is an example of a class definition:
 \begin{verbatim}
@@ -159,20 +288,42 @@ The following is an example of a class definition:
 </class>
 \end{verbatim}
 
-After the definitions are loaded, Velocity templates are used to generate all source code.
+After the definitions are loaded, Velocity templates are used to generate all
+source code.
 
-A normal class has a C and a Java base type. The C base type has to directly or indirectly inherit from MultiLanguageObjectBase, which is a polymorphic class. This allows to use the RTTI (RunTime Type Information). Java base types have no such constraint (due to the implicit common base class Object). The base types are just included in the generated source code, but have no other effect on the code generation.
+A normal class has a C and a Java base type. The C base type has to directly or
+indirectly inherit from MultiLanguageObjectBase, which is a polymorphic class.
+This allows to use the RTTI (RunTime Type Information). Java base types have no
+such constraint (due to the implicit common base class Object). The base types
+are just included in the generated source code, but have no other effect on the
+code generation.
 
-A derived class names another multi language class as base type. The C and Java base types are set to that class. The fields of the base class are included in the serialization process. If just the C and Java base types would be set to the multi language class used as base class, the generated class would still derive from the base class, but the fields of the base class would not be included in the serialization process.
+A derived class names another multi language class as base type. The C and Java
+base types are set to that class. The fields of the base class are included in
+the serialization process. If just the C and Java base types would be set to the
+multi language class used as base class, the generated class would still derive
+from the base class, but the fields of the base class would not be included in
+the serialization process.
 
-Often it is necessary to mix hand written code with the generated code. To support this, a suffix can be specified, which is added to the name of the generated class. Only the name of the generated class is affected, not the type name used for references to the class. A class named without the specified suffix has to be provided manually, and should derive from the generated class. Any additional code as well as additional fields can be included in the hand written class.
+Often it is necessary to mix hand written code with the generated code. To
+support this, a suffix can be specified, which is added to the name of the
+generated class. Only the name of the generated class is affected, not the type
+name used for references to the class. A class named without the specified
+suffix has to be provided manually, and should derive from the generated class.
+Any additional code as well as additional fields can be included in the hand
+written class.
 
-The class definitions and the generated code is located in the Multi Language Classes project. The generated Java code is linked by the Measurement Driver project. The generated C code is linked by the Measuring Core. The following Diagram shows these dependencies:
+The class definitions and the generated code is located in the Multi Language
+Classes project. The generated Java code is linked by the Measurement Driver
+project. The generated C code is linked by the Measuring Core. The following
+Diagram shows these dependencies:
 
 \umlDiagram{CodeGenerationDependencies}
 
 \subsubsection{Serialization and Deserialization}
-Along with the source code for each class, a service serializing and deserializing multi language objects to/from a simple text based format is generated for both languages. It supports the following primitive types:
+Along with the source code for each class, a service serializing and
+deserializing multi language objects to/from a simple text based format is
+generated for both languages. It supports the following primitive types:
 \begin{itemize}
 \item double
 \item integer
@@ -181,15 +332,32 @@ Along with the source code for each class, a service serializing and deserializi
 \item string
 \end{itemize}
 
-References to other multi language classes are supported. The serializer does not recognize if the same object can be reached multiple times within the same object graph. Each time it encounters an object, the object is serialized instead of referencing the previous serialization.
+References to other multi language classes are supported. The serializer does
+not recognize if the same object can be reached multiple times within the same
+object graph. Each time it encounters an object, the object is serialized
+instead of referencing the previous serialization.
 
-Lists containing one of the supported primitive types as well as containing references to multi language classes are supported.
+Lists containing one of the supported primitive types as well as containing
+references to multi language classes are supported.
 
-The service implementations for both languages follow the same structure. Each has two methods, one for serialization and one for deserialization. 
+The service implementations for both languages follow the same structure. Each
+has two methods, one for serialization and one for deserialization. 
 
-The serialization method receives an object and an output stream. The  method body contains an if for each known serializable class, which checks if the class of the object received is equal to the serializable class. If true, the value of all fields of the class and it's base classes get serialized. For references, the  serialization method is called recursively with the same output stream and the  referenced object as parameters.
+The serialization method receives an object and an output stream. The  method
+body contains an if for each known serializable class, which checks if the class
+of the object received is equal to the serializable class. If true, the value of
+all fields of the class and it's base classes get serialized. For references,
+the  serialization method is called recursively with the same output stream and
+the  referenced object as parameters.
 
-The deserialization method works analogous to the serialization method. It receives an input stream. The method body contains an if for each known serializable class, which checks if the next line of the input names  the serializable class. If true, a new instance of the class is created and the value of all fields are read from the input and set on the created instance, including all fields declared in a base class. If a reference is encountered, the deserialization method is called recursively with the same input, and the returned instance is used as field value.
+The deserialization method works analogous to the serialization method. It
+receives an input stream. The method body contains an if for each known
+serializable class, which checks if the next line of the input names  the
+serializable class. If true, a new instance of the class is created and the
+value of all fields are read from the input and set on the created instance,
+including all fields declared in a base class. If a reference is encountered,
+the deserialization method is called recursively with the same input, and the
+returned instance is used as field value.
 
 \subsection{How To}
 \subsubsection{Install}
@@ -197,10 +365,15 @@ see INSTALL file in tool directory
 
 \subsubsection{Create New Kernels}
 \begin{itemize}
-\item create the xml description of your kernel description in multiLanguageClasses/definitions/kernels
+\item create the xml description of your kernel description in
+multiLanguageClasses/definitions/kernels
 \item run "rmt help" to generate the multi language code from you description
-\item create your kernel implementation in measuringCore/kernels. Subclass "Kernel", parameterized to the description class you've created. Implement "initialize()", "run()" and "dispose()".
-\item register your kernel class. In the cpp file of your kernel implementation, include "typeRegistry/TypeRegisterer.h" and instantiate a static global variable of type "TypeRegisterer", parameterized to your kernel implementation.
+\item create your kernel implementation in measuringCore/kernels. Subclass
+"Kernel", parameterized to the description class you've created. Implement
+"initialize()", "run()" and "dispose()".
+\item register your kernel class. In the cpp file of your kernel implementation,
+include "typeRegistry/TypeRegisterer.h" and instantiate a static global variable
+of type "TypeRegisterer", parameterized to your kernel implementation.
 \item use your kernel from a measurement
 \end{itemize}
 
@@ -213,7 +386,8 @@ see INSTALL file in tool directory
 \subsubsection{Add Configuration Key}
 The configuration is used to set various flags in the measurement driver.
 \begin{itemize}
-\item add public static field of type ConfigurationKey to any class within the measurement driver.
+\item add public static field of type ConfigurationKey to any class within the
+measurement driver.
 \end{itemize}
 
 \subsubsection{Generate Annotated Assembly}
@@ -221,7 +395,8 @@ The configuration is used to set various flags in the measurement driver.
 \item in Eclipse, hit build (Ctrl+B)
 \item change the kernel header file (make it recompile)
 \item build again
-\item from the console window, copy the compiler invocation for MeasurementSchemeRegistration.cpp
+\item from the console window, copy the compiler invocation for
+MeasurementSchemeRegistration.cpp
 \item open a terminal and go to tool/measuringCore/Debug.
 \item paste the compiler invocation
 \item insert "-Wa,-ahl=ass.s", check optimization flags
@@ -231,77 +406,172 @@ The configuration is used to set various flags in the measurement driver.
 \end{itemize}
 
 \subsection{Frontend}
-The measurement tool is a console tool controlled using command line options. Measurement results are either directly dispalyed on the console, dumped to a data file or processed, usually for generating a graph. The graph is typically stored as a file. But unlike normal tools, the source code is expected to change frequently, and the user likely switches often between coding and using the tool.
+The measurement tool is a console tool controlled using command line options.
+Measurement results are either directly dispalyed on the console, dumped to a
+data file or processed, usually for generating a graph. The graph is typically
+stored as a file. But unlike normal tools, the source code is expected to change
+frequently, and the user likely switches often between coding and using the
+tool.
 
-To support this usage pattern, the build process has been integrated into the normal tool operation. The frontend is used to first trigger the build process and then invoke the measurement driver. Otherwise, the user would have to keep to console windowses open, one for building and one for measuring, and not to forget building to see the changes made to the source code.
+To support this usage pattern, the build process has been integrated into the
+normal tool operation. The frontend is used to first trigger the build process
+and then invoke the measurement driver. Otherwise, the user would have to keep
+to console windowses open, one for building and one for measuring, and not to
+forget building to see the changes made to the source code.
 
-After building, the frontend starts the the measurement driver, forwarding it's own command line. Certain flags are used to control the operation of the fronted. These are not forwarded.
+After building, the frontend starts the the measurement driver, forwarding it's
+own command line. Certain flags are used to control the operation of the
+fronted. These are not forwarded.
 
-The frontend has a configuration system. The known configuration keys are defined at the top of the Main class. There are three configuration sources. The default configuration stored in a configuration file. It contains templates which are expanded during the build process. The result is included as resource in the generated JAR file. Flags of the default configuration can be overwritten using a user configuration file, which is located by default under "~/.roofline/frontendconfig". This location can be changed using a command line argument. Finally, the command line options known by the frontend are used to modify the configuration flags after they have been loaded. 
+The frontend has a configuration system. The known configuration keys are
+defined at the top of the Main class. There are three configuration sources. The
+default configuration stored in a configuration file. It contains templates
+which are expanded during the build process. The result is included as resource
+in the generated JAR file. Flags of the default configuration can be overwritten
+using a user configuration file, which is located by default under
+"~/.roofline/frontendconfig". This location can be changed using a command line
+argument. Finally, the command line options known by the frontend are used to
+modify the configuration flags after they have been loaded. 
 
 \subsection{Measurement Driver}
-It was tried to follow best engineering practices for the design of the measurement driver. Unit tests (junit), mocks (jmock), and dependency injection  (guice) are used. Furthermore, a domain model (DOM), controllers, repositories and stateless services are used as described in \cite{evans2004domain}. Describing all these concepts lies beyond the scope of this report. It is assumed that the reader has a basic understanding of the named concepts.
+For the design of the measurement driver, we used software engineering best
+practice, namely unit testing (junit), mocks (jmock), and dependency
+injection (guice). Further a domain model (DOM), controllers, repositories and
+stateless services as described in \cite{evans2004domain}.
+Describing all these concepts lies beyond the scope of this report. It is
+assumed that the reader has a basic understanding of the mentioned concepts.
 
 \subsubsection{Commands}
-A command is represented by a class deriving from ICommandController and should be placed in the commands package. A command has a name and a description, which should be the return value of the getName() respectivley getDescription() methods of the command. The measurement driver expects a command name as first argument. The name is matched against the names of all available commands. If a command matches, the execute() method of a new instance of the corresponding class is called with the remaining command line arguments as parameter.
+A command is represented by a class deriving from ICommandController and should
+be placed in the commands package. A command has a name and a description, which
+should be the return value of the getName() respectivley getDescription()
+methods of the command. The measurement driver expects a command name as first
+argument. The name is matched against the names of all available commands. If a
+command matches, the execute() method of a new instance of the corresponding
+class is called with the remaining command line arguments as parameter.
 
 \subsubsection{Dependency Injection Configuration}
-Generally, a convention over configuration approach was chosen for the configuration of the dependency injection. The conventions as well as optional exceptions are defined in the MainModule. 
+Generally, a convention over configuration approach was chosen for the
+configuration of the dependency injection. The conventions as well as optional
+exceptions are defined in the MainModule. 
 The convetions are:
 \begin{description}
-\item[Services] all classes in the services package are bound to themselves as singletons
-\item[Application Controllers] all classes in the appControllers package are bound to themselves as singletons
-\item[Measurement Series] all classes deriving form IMeasurementSeries in the measurement series package are bound to the IMeasurementSeries interface annotated with their name
-\item[Commands] all classes deriving from ICommand in the commands package are bound to the ICommand interface annotated with their name
+\item[Services] all classes in the services package are bound to themselves as
+singletons
+\item[Application Controllers] all classes in the appControllers package are
+bound to themselves as singletons
+\item[Measurement Series] all classes deriving form IMeasurementSeries in the
+measurement series package are bound to the IMeasurementSeries interface
+annotated with their name
+\item[Commands] all classes deriving from ICommand in the commands package are
+bound to the ICommand interface annotated with their name
 \end{description}
 
 \subsubsection{Configuration}
 The design goal was to create a configuration system which
 \begin{itemize}
-\item allows to set configuration flags from the command line and from configuration files
+\item allows to set configuration flags from the command line and from
+configuration files
 \item can manage some form of comment for the flags
 \item makes the available flags transparent
 \item supports user specific configuration
 \end{itemize}
 
-\file{measurementDriver/src/ch/ethz/ruediste/roofline/measurementDriver/ConfigurationKey.java}
-The central class of our solution is the configuration key. A configuration key contains a string key which identifies the configuration flag it represents. In addition, it contains a description and the default value of the flag. It has a template parameter which defines the data type of the flag. This removes the necessity to use type casts when reading configuration flags. Configuration keys should be stored in public static variables. The help command scans all classes of the measurement driver for such configuration keys and prints the key string and the description. After the configuration is loaded, it is checked if a configuration key is defined for each configuration flag specified. If a configuration key is missing (or more likely, a configuration flag has been misspelled in the configuration) an error is generated.
+The central class of our solution is the configuration key. A configuration key
+contains a string key which identifies the configuration flag it represents. In
+addition, it contains a description and the default value of the flag. It has a
+template parameter which defines the data type of the flag. This removes the
+necessity to use type casts when reading configuration flags. Configuration keys
+should be stored in public static variables. The help command scans all classes
+of the measurement driver for such configuration keys and prints the key string
+and the description. After the configuration is loaded, it is checked if a
+configuration key is defined for each configuration flag specified. If a
+configuration key is missing (or more likely, a configuration flag has been
+misspelled in the configuration) an error is generated.
 
-The following paragraphs describe the sources of configuration flag definitions in order of decreasing precedence. 
+The following paragraphs describe the sources of configuration flag definitions
+in order of decreasing precedence. 
 
-The command line is scanned for arguments starting with a dash. Such arguments are expected to be in the form of "-$<$flag key$>$=$<$value$>$" and specifies that the configuration with the specified flag key should have the specified value. Configuration flag definitions on the command line have highest precedence.
+The command line is scanned for arguments starting with a dash. Such arguments
+are expected to be in the form of "-$<$flag key$>$=$<$value$>$" and specifies
+that the configuration with the specified flag key should have the specified
+value. Configuration flag definitions on the command line have highest
+precedence.
 
-Next come two configuration files. They both have the same format: each line consists of the flag key, followed by an equal sign and the flag value. 
+Next come two configuration files. They both have the same format: each line
+consists of the flag key, followed by an equal sign and the flag value. 
 
-The first file is the user configuration file. By default it is located under \textasciitilde/.roofline/config, but this can be changed using the "userConfigFile" configuration flag, in particular by overwriting the flag on the command line.
+The first file is the user configuration file. By default it is located under
+\textasciitilde/.roofline/config, but this can be changed using the
+"userConfigFile" configuration flag, in particular by overwriting the flag on
+the command line.
 
-The second file is the default configuration. It is located in the source code of the measurement driver, and can be loaded from the classpath. It contains some placeholders, which are expanded during the build process.
+The second file is the default configuration. It is located in the source code
+of the measurement driver, and can be loaded from the classpath. It contains
+some placeholders, which are expanded during the build process.
 
-Finally, the flag definitions with lowest precedence are the default values given in the configuration keys.
+Finally, the flag definitions with lowest precedence are the default values
+given in the configuration keys.
 
 \subsubsection{Preprocessor Macros}
-Preprocessor macros are used to allow flexible compile time parameterization of the measuring core. The macros are defined by the measurement driver. Before the compilation of the measuring core, the measurement driver writes the definition of each macro to a separate include file. This allows the build system to track macro definition changes for and to recompile only the required parts.
+Preprocessor macros are used to allow flexible compile time parameterization of
+the measuring core. The macros are defined by the measurement driver. Before the
+compilation of the measuring core, the measurement driver writes the definition
+of each macro to a separate include file. This allows the build system to track
+macro definition changes for and to recompile only the required parts.
 
-In the measurement driver, each macro is identified by a macro key, which contains the macro name, a description and the default value. The macro definitions are stored in classes deriving from MacroDefinitionContainer. The classes should define macro keys by placing them in private static variables. To access the macro definition, getters and setters have to be provided. 
+In the measurement driver, each macro is identified by a macro key, which
+contains the macro name, a description and the default value. The macro
+definitions are stored in classes deriving from MacroDefinitionContainer. The
+classes should define macro keys by placing them in private static variables. To
+access the macro definition, getters and setters have to be provided. 
 
-When the measuring core is configured to perform a measurement, the macro keys are collected from the classes of the measurement driver using reflection. Then the macro definitions are extracted from the measurement definition and referenced objects. If no definition is given for a macro, the default definition found in the macro key is used. If contradicting definitions are found, an error is raised.
+When the measuring core is configured to perform a measurement, the macro keys
+are collected from the classes of the measurement driver using reflection. Then
+the macro definitions are extracted from the measurement definition and
+referenced objects. If no definition is given for a macro, the default
+definition found in the macro key is used. If contradicting definitions are
+found, an error is raised.
 
 \umlDiagram{MacroDefinitions}
 
 \subsubsection{Measurement Controllers}
-The operation of the measurement driver is controlled by the measurement controllers. They define which measurements to perform and how to process the output. The measure command instantiates a measurement controller and calls the measure() method.
+The operation of the measurement driver is controlled by the measurement
+controllers. They define which measurements to perform and how to process the
+output. The measure command instantiates a measurement controller and calls the
+measure() method.
 
 \subsubsection{Measurement Result Caching}
-The measurement controllers mix the definition of the measurement parameters and the processing of the output. Thus, if the output processing logic needs to be modified, the measurements have to be performed again. This causes a delay, which is avoided by cachin the measurement results. 
+The measurement controllers mix the definition of the measurement parameters and
+the processing of the output. Thus, if the output processing logic needs to be
+modified, the measurements have to be performed again. This causes a delay,
+which is avoided by cachin the measurement results. 
 
-All parameters of a measurement are contained within the measurement description and the referenced objects. Therefore, if the measurement description is identical to a measurement description of a previous measurement, the result of the previous measurement can be reused. 
+All parameters of a measurement are contained within the measurement description
+and the referenced objects. Therefore, if the measurement description is
+identical to a measurement description of a previous measurement, the result of
+the previous measurement can be reused. 
 
-The cache mechanism works using a hash function on the XML representation of the measurement description. After a measurement has been performed, a file named after the hash value of the measurement desciption of the measurement is created and the measurement results are stored therein. Before a measurement is performed, the hash value is computed. If a corresponding file is found, the previous measurement results are reused.
+The cache mechanism works using a hash function on the XML representation of the
+measurement description. After a measurement has been performed, a file named
+after the hash value of the measurement desciption of the measurement is created
+and the measurement results are stored therein. Before a measurement is
+performed, the hash value is computed. If a corresponding file is found, the
+previous measurement results are reused.
 
 \subsubsection{Identifiying Measurers and Measurer Sets}
-When processing the results of one or multiple measurements, on often has to identify which result was generated from which measurer. The straight forward approach would be to give each measurer an unique id, and to store the id of the measurer with the measurer output. Measurers are newly created with each invocation of the measurement driver, possibly leading to new ids. But for caching, the id of the measurers does not matter.
+When processing the results of one or multiple measurements, on often has to
+identify which result was generated from which measurer. The straight forward
+approach would be to give each measurer an unique id, and to store the id of the
+measurer with the measurer output. Measurers are newly created with each
+invocation of the measurement driver, possibly leading to new ids. But for
+caching, the id of the measurers does not matter.
 
-To overcome these problems, two ids are generated for each measurer. One identifier uniquely identifying each instantiated measurer. And an id which is unique within one measurement. When loading a result from cache, the unique identifiers of the loaded result are set to the identifiers of the measurement at hand.
+To overcome these problems, two ids are generated for each measurer. One
+identifier uniquely identifying each instantiated measurer. And an id which is
+unique within one measurement. When loading a result from cache, the unique
+identifiers of the loaded result are set to the identifiers of the measurement
+at hand.
 
 \subsubsection{Parameter Space}
 
@@ -310,62 +580,161 @@ To overcome these problems, two ids are generated for each measurer. One identif
 \subsubsection{Plotting}
 
 \subsubsection{Architecture Specific Behavior}
-The measurement driver supports multiple system architectures. Whenever architecture dependent code is required, it must be factored out into strategies. Since we expect the strategies to be tightly coupled with the calling code, the strategies for all architectures are defined right where they are needed. The other option would be to try to define some general strategies. Rules are used for pattern selection. These rules are reused throughout the driver.
+The measurement driver supports multiple system architectures. Whenever
+architecture dependent code is required, it must be factored out into
+strategies. Since we expect the strategies to be tightly coupled with the
+calling code, the strategies for all architectures are defined right where they
+are needed. The other option would be to try to define some general strategies.
+Rules are used for pattern selection. These rules are reused throughout the
+driver.
 
 \subsection{Measuring Core}
 \umlFloat{CentralClasses}{Central classes of the measuring core}
-The central classes of the Measuring Core are the measurement scheme, the kernel and the measurer. (\umlRef{CentralClasses}) The MeasurementScheme has template arguments for the kernel and the measurer type. The scheme contains nested instances of the kernel and the measurer. This avoids polymorphic calls and allows the compiler to fully optimize the measure function of the measurer, including inlining methods of the kernel and the measurer.
+The central classes of the Measuring Core are the measurement scheme, the kernel
+and the measurer. (\umlRef{CentralClasses}) The MeasurementScheme has template
+arguments for the kernel and the measurer type. The scheme contains nested
+instances of the kernel and the measurer. This avoids polymorphic calls and
+allows the compiler to fully optimize the measure function of the measurer,
+including inlining methods of the kernel and the measurer.
 
 \subsubsection{Core Architecture}
-To fully utilize multi core systems, applications have to be implemented with multiple threads or processes. Measuring such applications is considerably more difficult than measuring single threaded applications. If the thread management is implemented specifically for the measurement at hand, the measuring code can be weaved into it by hand. But if the threads or processes are created within legacy or closed source code, the measuring tool has to take care of detecting the creation of threads and install the necessary measurers. For the roofline measuring tool we will only consider multi threaded applications.
+To fully utilize multi core systems, applications have to be implemented with
+multiple threads or processes. Measuring such applications is considerably more
+difficult than measuring single threaded applications. If the thread management
+is implemented specifically for the measurement at hand, the measuring code can
+be weaved into it by hand. But if the threads or processes are created within
+legacy or closed source code, the measuring tool has to take care of detecting
+the creation of threads and install the necessary measurers. For the roofline
+measuring tool we will only consider multi threaded applications.
 
-To gain full control over the kernel code, the measurement tool starts the kernel within a child process. The parent process attaches to the child using ptrace. This causes the child to be stopped when certain events occur and the parent is notified. The events include thread creation and breakpoints.
+To gain full control over the kernel code, the measurement tool starts the
+kernel within a child process. The parent process attaches to the child using
+ptrace. This causes the child to be stopped when certain events occur and the
+parent is notified. The events include thread creation and breakpoints.
 
-Every kernel thread can raise events at any point. The events include thread creation, breakpoints, starting and stopping of workloads etc. Whenever an event occurs, the rule list has to be searched and the matching actions have to be executed. The rule list is always searched in the thread which raised the event. If the event caused the thread to be stopped and the parent thread to be notified, the parent restarts the thread with a notification of the event which occurred. The thread will search the rule list and continue execution.
+Every kernel thread can raise events at any point. The events include thread
+creation, breakpoints, starting and stopping of workloads etc. Whenever an event
+occurs, the rule list has to be searched and the matching actions have to be
+executed. The rule list is always searched in the thread which raised the event.
+If the event caused the thread to be stopped and the parent thread to be
+notified, the parent restarts the thread with a notification of the event which
+occurred. The thread will search the rule list and continue execution.
 
-Actions can be associated with a thread. In this case, the action is always executed within that thread. Measurers can be associated with a thread, too. In that case, all functions of the measurer have to be called within the specified thread. It is the responsibility of the caller to respect such an association. If necessary, an intermediate action has to be used.
+Actions can be associated with a thread. In this case, the action is always
+executed within that thread. Measurers can be associated with a thread, too. In
+that case, all functions of the measurer have to be called within the specified
+thread. It is the responsibility of the caller to respect such an association.
+If necessary, an intermediate action has to be used.
 
-The technically most challenging is to interrupt another thread and make it execute some action. There are two approaches to this problem, either using a signal handler of the thread or using ptrace to call code within the thread. Since installing a signal handler in a thread could cause unwanted side effects, we use the ptrace approach. SIGTRAP is sent to the target thread, which will cause it to be stopped. The parent modifies the thread state of the stopped thread. When the thread resumes execution, it executes some event handling code and then return to the location the thread was interrupted.
+The technically most challenging is to interrupt another thread and make it
+execute some action. There are two approaches to this problem, either using a
+signal handler of the thread or using ptrace to call code within the thread.
+Since installing a signal handler in a thread could cause unwanted side effects,
+we use the ptrace approach. SIGTRAP is sent to the target thread, which will
+cause it to be stopped. The parent modifies the thread state of the stopped
+thread. When the thread resumes execution, it executes some event handling code
+and then return to the location the thread was interrupted.
 
 \subsubsection{Child Thread Lifetime}
-The parent process manages a thread table, which contains the state of each child thread. When a child thread is cloned, the parent receives a signal by ptrace. It will create a new entry in the thread table and set the state to "new". In this state, the child cannot receive messages yet. When the thread is started, the parent process will receive a SIGSTOP from the child. Upon receiving this signal from a thread in the new state, the parent will send the "process" command and mark the thread as processing. As soon as the child is done with the initialization, it will send "done" to the parent. The process is put into the running state. When the child receives a message, the parent will possibly send process to it again. If it exits, it will go the the exit state.
+The parent process manages a thread table, which contains the state of each
+child thread. When a child thread is cloned, the parent receives a signal by
+ptrace. It will create a new entry in the thread table and set the state to
+"new". In this state, the child cannot receive messages yet. When the thread is
+started, the parent process will receive a SIGSTOP from the child. Upon
+receiving this signal from a thread in the new state, the parent will send the
+"process" command and mark the thread as processing. As soon as the child is
+done with the initialization, it will send "done" to the parent. The process is
+put into the running state. When the child receives a message, the parent will
+possibly send process to it again. If it exits, it will go the the exit state.
 
 \subsubsection{Building}
-Each measurement can be performed with different compiler optimization flags and macro definitions. Therefore, the measuring core has to be rebuilt for each measurement, which makes rebuilding the measuring core a frequent operation. It should therefore be as fast as possible. This is archieved by carefully tracking all build dependencies and by using ccache. 
+Each measurement can be performed with different compiler optimization flags and
+macro definitions. Therefore, the measuring core has to be rebuilt for each
+measurement, which makes rebuilding the measuring core a frequent operation. It
+should therefore be as fast as possible. This is archieved by carefully tracking
+all build dependencies and by using ccache. 
 
-CCache is a compiler cache. Whenever the compiler is run, ccache hashes all input files, together with the compiler flags. It then checks if it's cache already contains an entry for the hash value. If this is not the case, ccache runs the compiler and stores the output together with the hash value of the input in it's cache. If the hash value is present already, it does not run the compiler but uses the compiler output stored in it's cache. This considerably speeds up recompilations.
+CCache is a compiler cache. Whenever the compiler is run, ccache hashes all
+input files, together with the compiler flags. It then checks if it's cache
+already contains an entry for the hash value. If this is not the case, ccache
+runs the compiler and stores the output together with the hash value of the
+input in it's cache. If the hash value is present already, it does not run the
+compiler but uses the compiler output stored in it's cache. This considerably
+speeds up recompilations.
 
-But ccache still has to build the hash values and copy the compiler output, which takes some time. This is where tracking the build dependencies comes in. The following parameters can change between measurements:
+But ccache still has to build the hash values and copy the compiler output,
+which takes some time. This is where tracking the build dependencies comes in.
+The following parameters can change between measurements:
 \begin{description}
 \item[Macro definitions]
-Each macro definition is stored in a separate file, which is only updated by the measurement driver if the macro definition changes. Every source file which needs a macro definition includes the corresponding file. These inclusions are tracked and allow to only recompile the affected source files.
+Each macro definition is stored in a separate file, which is only updated by the
+measurement driver if the macro definition changes. Every source file which
+needs a macro definition includes the corresponding file. These inclusions are
+tracked and allow to only recompile the affected source files.
 \item[Compiler flags] 
-Only the measurer, measurement scheme and kernel need to be compiled using the compiler flags specified by the measurement. The compiler flags used for the rest of the measuring core do not affect the measurement results. The compiler flags are stored in a separate file. Whenever it is changed, the parts affected are recompiled.
+Only the measurer, measurement scheme and kernel need to be compiled using the
+compiler flags specified by the measurement. The compiler flags used for the
+rest of the measuring core do not affect the measurement results. The compiler
+flags are stored in a separate file. Whenever it is changed, the parts affected
+are recompiled.
 \item[Combination of measurer, measurement scheme and kernel]
-The measurement scheme has template parameters for the kernel and the measurer. The measurement driver stores the template instantiation used for a specific measurement in a separate file, which is recompiled whenever it is changed.
+The measurement scheme has template parameters for the kernel and the measurer.
+The measurement driver stores the template instantiation used for a specific
+measurement in a separate file, which is recompiled whenever it is changed.
 \end{description}
 
-\file{measuringCore/makefile}
-The build process is controlled using the gnu make utility \cite{make}. Make automatically determines which parts of a program have to be recompiled, based on rules stored in a makefile. Each rule consists of target files, prerequisite files and a recipe. Make checks the modification times of the target and the prerequisite files. If any prerequisite is newer than any target, the recipe is executed in order to update the traget files. The recipe is a sequence of shell commands.
+The build process is controlled using the gnu make utility \cite{make}. Make
+automatically determines which parts of a program have to be recompiled, based
+on rules stored in a makefile. Each rule consists of target files, prerequisite
+files and a recipe. Make checks the modification times of the target and the
+prerequisite files. If any prerequisite is newer than any target, the recipe is
+executed in order to update the traget files. The recipe is a sequence of shell
+commands.
 
-The makefile used for the measuring core first instructs make to use the find utility to get a list of all source files (with .cpp extension) in the measuringCore/src and measuringCore/generated directories.
+The makefile used for the measuring core first instructs make to use the find
+utility to get a list of all source files (with .cpp extension) in the
+measuringCore/src and measuringCore/generated directories.
 
-The list of all source files is split into the kernel sources and the normal sources. The kernel sources are the source files which are to be compiled using the optimization flags specific to the current measurement. The optimization flags for the normal source files do not depend on the measurement, and thus do not need to be recompiled when the optimization flags for the measurement change.
+The list of all source files is split into the kernel sources and the normal
+sources. The kernel sources are the source files which are to be compiled using
+the optimization flags specific to the current measurement. The optimization
+flags for the normal source files do not depend on the measurement, and thus do
+not need to be recompiled when the optimization flags for the measurement
+change.
 
-Since every measurement requires exactly one kernel, not all kernels need to be built for every measurement. This is reflected in the makefile removing all files from the kernel sources but the MeasurementSchemeRegistration, the source file for the current kernel and all source files in a subdirectory named after the current kernel.
+Since every measurement requires exactly one kernel, not all kernels need to be
+built for every measurement. This is reflected in the makefile removing all
+files from the kernel sources but the MeasurementSchemeRegistration, the source
+file for the current kernel and all source files in a subdirectory named after
+the current kernel.
 
-From the normal sources and the kernel sources, the file names of the object files in the build directory are generated. The measuring core executable depends on these object files. Pattern rules are used to trigger the compile the source files into the object files.
+From the normal sources and the kernel sources, the file names of the object
+files in the build directory are generated. The measuring core executable
+depends on these object files. Pattern rules are used to trigger the compile the
+source files into the object files.
 
-There is a rule without recipe with the kernel objects as target and the file containing the measurement specific optimization flags as prerequisite. This causes the file containing the optimization flags to be added as prerequisite for each kernel object file.
+There is a rule without recipe with the kernel objects as target and the file
+containing the measurement specific optimization flags as prerequisite. This
+causes the file containing the optimization flags to be added as prerequisite
+for each kernel object file.
 
-In the C programming language, it is possible to include other files in a source file. Of course, the compiled code depends on the contents of the included files, too. To track these build dependencies, the compiler is instructed to generate rules without recipes with the object file as target and the source file together with the included files as prerequisites. The generated rules are stored in .d files in the build directory and are included in the makefile.
+In the C programming language, it is possible to include other files in a source
+file. Of course, the compiled code depends on the contents of the included
+files, too. To track these build dependencies, the compiler is instructed to
+generate rules without recipes with the object file as target and the source
+file together with the included files as prerequisites. The generated rules are
+stored in .d files in the build directory and are included in the makefile.
 
-If special compilation flags are required for a source file, a rule should be added near the end of the makefile.
+If special compilation flags are required for a source file, a rule should be
+added near the end of the makefile.
 
 \subsubsection{System Initialization}
-We chose a modular approach to initialize the measuring core. Whenever a system part needs to run code when the program starts or shuts down, it can instantiate a class derived from SystemInitializer.
-\file{measuringCore/baseClasses/SystemInitializer.h}
-This is preferably archieved by declaring a global static variable named dummy in a .cpp file. Example:
+We chose a modular approach to initialize the measuring core. Whenever a system
+part needs to run code when the program starts or shuts down, it can instantiate
+a class derived from SystemInitializer.
+
+This is preferably archieved by declaring a global static variable named dummy
+in a .cpp file. Example:
 \begin{verbatim}
 // define and register a system initializer.
 static class Initializer: public SystemInitializer{
@@ -379,7 +748,9 @@ static class Initializer: public SystemInitializer{
 } dummy;
 \end{verbatim}
 
-Whenever a SystemInitializer is instantiated, the instance is registered in a static global list. On system startup and shutdown, the start() respective stop() method of all registered SystemInitializers is called.
+Whenever a SystemInitializer is instantiated, the instance is registered in a
+static global list. On system startup and shutdown, the start() respective
+stop() method of all registered SystemInitializers is called.
 
 \section{Measuring Execution Time}
 \begin{itemize}
@@ -393,14 +764,30 @@ Whenever a SystemInitializer is instantiated, the instance is registered in a st
 \end{itemize}
 
 \subsection{Experiments}
-To gain insight into the accuracy and precision of the timers available, we run the addition kernel with an exponentially increasing iteration count. The largest iteration count should result in a runtime of about 0.5s. We expect the precision to be high for small iteration counts, a peak variance at around 5 ms due to the task switches, and an increasing precision for higher iteration counts. The accuracy of the minimum should be high for small iteration counts, and include a small overhead if multiple task switches occur during the measurement.
+To gain insight into the accuracy and precision of the timers available, we run
+the addition kernel with an exponentially increasing iteration count. The
+largest iteration count should result in a runtime of about 0.5s. We expect the
+precision to be high for small iteration counts, a peak variance at around 5 ms
+due to the task switches, and an increasing precision for higher iteration
+counts. The accuracy of the minimum should be high for small iteration counts,
+and include a small overhead if multiple task switches occur during the
+measurement.
 
 \subsection{Experiment 1}
-The goal of this experiment is to show the effects of task switches and disk IO on measuring execution time. As far as possible, we'd like to exclude the effects of shared memory bandwidth. 
+The goal of this experiment is to show the effects of task switches and disk IO
+on measuring execution time. As far as possible, we'd like to exclude the
+effects of shared memory bandwidth. 
 
-We measure the arithmetic add kernel. Iteration count is increased until total execution time is about half a second. We measure at both the minimal and maximal CPU frequency. We measure on an idle system, when another arithmetic kernel runs or when heavy disk IO is performed. We let the system load threads run on all of the system's CPU. Separate measurements for core cycles, bus cycles, gettimeofday(), times (user time)
+We measure the arithmetic add kernel. Iteration count is increased until total
+execution time is about half a second. We measure at both the minimal and
+maximal CPU frequency. We measure on an idle system, when another arithmetic
+kernel runs or when heavy disk IO is performed. We let the system load threads
+run on all of the system's CPU. Separate measurements for core cycles, bus
+cycles, gettimeofday(), times (user time)
 
-We estimate the execution time for one iteration. We take the time for the highest iteration count where we can still get measurement runs without any interrupts. This time is divided by the respective iteration count.
+We estimate the execution time for one iteration. We take the time for the
+highest iteration count where we can still get measurement runs without any
+interrupts. This time is divided by the respective iteration count.
 
 Graphs (idle, disk, arithmetic): 
 
@@ -411,10 +798,17 @@ Graphs (idle, disk, arithmetic):
 \end{itemize}
 
 \subsection{Experiment 2}
-Investigate the effects of task switches on a memory intensive kernel. Repeat experiment 1 with both a memory load and write kernel
+Investigate the effects of task switches on a memory intensive kernel. Repeat
+experiment 1 with both a memory load and write kernel
 
 \subsection{Experiment 3}
-Measure the influences of shared memory bandwidth on the runtime. Depending on the system architecture, we expect to measure shared bandwidth effects. We measure a memory load and a memory write kernel. We measure on idle system and while running memory load and write kernel on the other CPUs. Buffer sizes are larger than cache size. Measure core cycles. Measure at min and max frequency. Buffer size chosen such that execution time is around half a scheduling time segment.
+Measure the influences of shared memory bandwidth on the runtime. Depending on
+the system architecture, we expect to measure shared bandwidth effects. We
+measure a memory load and a memory write kernel. We measure on idle system and
+while running memory load and write kernel on the other CPUs. Buffer sizes are
+larger than cache size. Measure core cycles. Measure at min and max frequency.
+Buffer size chosen such that execution time is around half a scheduling time
+segment.
 
 One plot per kernel combination (load/load, load/write, write/load, write/write)
 \begin{itemize}
@@ -423,12 +817,20 @@ One plot per kernel combination (load/load, load/write, write/load, write/write)
 
 
 \subsection{Experiment 4}
-Unfortunately, even on a very lightly loaded system, any task can be executed on any other core. Caused by the shared memory bandwidth, this could affect short running kernels, and result in wrong measurement results of a whole measurement series. We show this by starting two memory intensive, short running kernels simultaneously. Solution: introduce sleeps between measurement runs, to make sure they are independently measured.
+Unfortunately, even on a very lightly loaded system, any task can be executed on
+any other core. Caused by the shared memory bandwidth, this could affect short
+running kernels, and result in wrong measurement results of a whole measurement
+series. We show this by starting two memory intensive, short running kernels
+simultaneously. Solution: introduce sleeps between measurement runs, to make
+sure they are independently measured.
 
 with and without sleep: X: measurement number Y: time[cycles]
 
 \subsection{Experiment 5}
-For long running measurements, it is sufficient to make sure that the average system load is low. The side effects of code running on other kernels will be smoothed out. This is shown on various average loads (none, 1 2 3 5 10 20 40 50 75 100)
+For long running measurements, it is sufficient to make sure that the average
+system load is low. The side effects of code running on other kernels will be
+smoothed out. This is shown on various average loads (none, 1 2 3 5 10 20 40 50
+75 100)
 
 X: system load Y: rel error
 X: system load Y: variance
@@ -478,17 +880,30 @@ core *+0 *+1 *+2 *+3
 \end{itemize}
 
 \subsection{Experiments}
-To gain insight into the accuracy and precision of the memory transfer methods, we run the addition kernel with an exponentially increasing iteration count. The largest iteration count should result in a runtime of about 0.5s. We expect the precision to be high for small iteration counts, a peak variance at around 5 ms due to the task switches, and an increasing precision for higher iteration counts. The accuracy of the minimum should be high for small iteration counts, and include a small overhead if multiple task switches occur during the measurement.
+To gain insight into the accuracy and precision of the memory transfer methods,
+we run the addition kernel with an exponentially increasing iteration count. The
+largest iteration count should result in a runtime of about 0.5s. We expect the
+precision to be high for small iteration counts, a peak variance at around 5 ms
+due to the task switches, and an increasing precision for higher iteration
+counts. The accuracy of the minimum should be high for small iteration counts,
+and include a small overhead if multiple task switches occur during the
+measurement.
 
 \subsection{Experiment 1}
-The first series of measurements is about the overhead of task switches on the measured memory transfer. We measure an arithmetic kernel and mem load and write, with buffer sizes which fit into the cache and which do not fit. We measure on an idle system, and with an arithmetic kernel on the other CPUs.
+The first series of measurements is about the overhead of task switches on the
+measured memory transfer. We measure an arithmetic kernel and mem load and
+write, with buffer sizes which fit into the cache and which do not fit. We
+measure on an idle system, and with an arithmetic kernel on the other CPUs.
 
 X: iteration count Y: rel error 
 X: iteration count Y: ints
 X: iteration count Y: task switches
 
 \subsection{Experiment 2}
-The second measurement series is about the separation of measuring transfer volume of different threads. We measure mem load and write with large buffers. We measure on an idle system and with mem kernels on the other CPUs. Execution time: about .5 s
+The second measurement series is about the separation of measuring transfer
+volume of different threads. We measure mem load and write with large buffers.
+We measure on an idle system and with mem kernels on the other CPUs. Execution
+time: about .5 s
 
 X: cpu map Y: rel error
 
@@ -533,7 +948,7 @@ core 0 1 2 3
 \listoffigures
 
 \bibliographystyle{abbrv}
-\bibliography{../report.bib}
+\bibliography{report.bib}
 
 \printindex{referencedFiles}{Referenced Files}
 

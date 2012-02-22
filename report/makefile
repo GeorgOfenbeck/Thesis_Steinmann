@@ -1,4 +1,13 @@
-ARGOUML_JAR=~/argouml-0.34/argouml.jar
+UMLET_JAR=~/Umlet/umlet.jar
+
+sourcesToImages=$(addprefix out/, $(addsuffix .png, $(basename $(1))))
+
+DIAGRAM_SOURCES=$(shell find -L -name "*.uxf" \( -path "./diagrams/*" \) -print)
+DIAGRAM_IMAGES=$(call sourcesToImages, $(DIAGRAM_SOURCES))
+
+LATEX=cd out && pdflatex
+FLAGS=-interaction=nonstopmode
+
 .PHONY: report clean quick
 report: report.pdf
 
@@ -6,28 +15,23 @@ clean:
 	rm -rf out
 
 quick: 
-	cd out &&\
-	pdflatex ../report.tex
+	$(LATEX) $(FLAGS) ../report.tex
 	cp out/report.pdf report.pdf
 
-out/uml/timestamp: ../masterthesis.uml
-	rm -rf out/uml
-	mkdir -p out/uml
-	java -jar $(ARGOUML_JAR) -batch \
-	-command "org.argouml.uml.ui.ActionOpenProject=../masterthesis.uml" \
-	-command "org.argouml.uml.ui.ActionSaveAllGraphics=out/uml"
-	touch out/uml/timestamp
 out:
 	mkdir out
-	mkdir out/uml
+	mkdir out/diagrams
 
 report.pdf: out/report.pdf
 	cp out/report.pdf report.pdf
 
-out/report.pdf: report.tex report.bib out # out/uml/timestamp
-	cd out &&\
-	pdflatex ../report.tex &&\
-	bibtex report &&\
-	makeindex referencedFiles &&\
-	pdflatex ../report.tex &&\
-	pdflatex ../report.tex
+out/report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES)
+	$(LATEX) $(FLAGS) ../report.tex
+	cd out && bibtex report 
+	$(LATEX) $(FLAGS) ../report.tex
+	$(LATEX) $(FLAGS) ../report.tex
+	
+out/%.png: %.uxf
+	java -jar $(UMLET_JAR) -action=convert -format=png -filename=$< -output=$@
+	
+	
