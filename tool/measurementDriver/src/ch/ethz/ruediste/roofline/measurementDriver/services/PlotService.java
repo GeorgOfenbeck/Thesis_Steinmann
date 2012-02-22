@@ -21,7 +21,7 @@ public class PlotService {
 	public CommandService commandService;
 
 	static int pointTypes[] = { 5, 7, 9, 11, 13, };
-	static String lineColors[] = { "black", "red", "gren", "blue", "#FFFF00" };
+	static String lineColors[] = { "black", "red", "green", "blue", "#FFFF00" };
 
 	public void plot(HistogramPlot plot) throws ExecuteException, IOException {
 		Histogram hist = plot.getHistogram();

@@ -8,8 +8,7 @@ import java.util.HashMap;
 import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
@@ -44,18 +43,11 @@ public class FFTMeasurementController implements IMeasurementController {
 
 	@SuppressWarnings("unchecked")
 	public void measure(String outputName) throws IOException {
-		RooflineController rooflineController2 = rooflineController;
-		rooflineController2.addPeakPerformance("ADD", Algorithm.Add,
-				InstructionSet.SSE);
-		rooflineController2.addPeakPerformance("MUL", Algorithm.Mul,
-				InstructionSet.SSE);
+		rooflineController.addDefaultPeaks();
 
-		rooflineController2.addPeakThroughput("MemLoad", Algorithm.Load,
-				MemoryTransferBorder.LlcRam);
-
-		addPoints(rooflineController2, FFTnrKernel.class, FFTmklKernel.class,
-				FFTfftwKernel.class);
-		rooflineController2.plot();
+		addPoints(rooflineController, FFTnrKernel.class, FFTmklKernel.class,
+				FFTfftwKernel.class, FFTSpiralKernel.class);
+		rooflineController.plot();
 	}
 
 	/**
@@ -85,12 +77,15 @@ public class FFTMeasurementController implements IMeasurementController {
 		algorithmName.put(FFTfftwKernel.class, "FFT-FFTW");
 		algorithmName.put(FFTnrKernel.class, "FFT-NR");
 		algorithmName.put(FFTmklKernel.class, "FFT-MKL");
+		algorithmName.put(FFTSpiralKernel.class, "FFT-Spiral");
 
 		HashMap<Class<?>, Operation> algorithmOperation = new HashMap<Class<?>, QuantityMeasuringService.Operation>();
 		algorithmOperation.put(FFTnrKernel.class, Operation.CompInstr);
 		algorithmOperation.put(FFTmklKernel.class,
 				Operation.DoublePrecisionFlop);
 		algorithmOperation.put(FFTfftwKernel.class,
+				Operation.DoublePrecisionFlop);
+		algorithmOperation.put(FFTSpiralKernel.class,
 				Operation.DoublePrecisionFlop);
 
 		space.add(Axes.optimizationAxis, "-O3");
@@ -124,6 +119,11 @@ public class FFTMeasurementController implements IMeasurementController {
 				continue;
 			}
 
+			// skip large buffer sizes for the Spiral kernel (does not support them)
+			if (coordinate.get(kernelAxis) instanceof FFTSpiralKernel
+					&& coordinate.get(bufferSizeAxis) > 8192L) {
+				continue;
+			}
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 

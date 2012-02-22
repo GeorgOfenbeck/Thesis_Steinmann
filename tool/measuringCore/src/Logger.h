@@ -24,6 +24,8 @@
 #define LOG_ADDITIONAL ""
 #endif
 
+#include <cstdio>
+
 #define LOG_LOG(name,level,msg,...) { \
 	if (level<=LOGLEVEL_WARNING){\
 			fprintf(stderr,"%s %s:%s():%i",name, __FILE__,__FUNCTION__,__LINE__);\

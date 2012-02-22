@@ -59,8 +59,11 @@ void *Workload::threadStart(void *arg) {
 	} catch (string s) {
 		fprintf(stderr, "Exception occurred: %s\n", s.c_str());
 		exit(1);
+	} catch (const char* str){
+		fprintf(stderr, "Exception occurred: %s\n", str);
+				exit(1);
 	} catch (...) {
-		fprintf(stderr, "Exception occurred: \n");
+		fprintf(stderr, "Exception occurred \n");
 		exit(1);
 	}
 	return NULL;

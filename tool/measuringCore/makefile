@@ -38,6 +38,7 @@ sourcesToDeps=$(addprefix $(BUILD_DIR)/, $(addsuffix .d, $(basename $(1))))
 
 # search for the source files in the ./src directory. Filter out the ignored source files
 ALL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.cpp" \( -path "./src/*" -o -path "./generated/*" \) -print))
+SPIRAL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.c" \( -path "./src/spiralFFT/*" \) -print))
 
 # extract the source files for the current kernels, create object file names
 $(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedDOM/$(KERNEL_NAME)Kernel.cpp ./src/sharedDOM/$(KERNEL_NAME)/%, $(ALL_SOURCES))))
@@ -55,16 +56,17 @@ PARENT_OBJECTS=$(call sourcesToObjects, $(PARENT_SOURCES))
 CHILD_SOURCES=$(filter-out $(KERNEL_SOURCES) $(PARENT_SOURCES) ./src/sharedDOM/%Kernel.cpp, $(ALL_SOURCES))
 CHILD_OBJECTS=$(call sourcesToObjects, $(CHILD_SOURCES))
 
+SPIRAL_OBJECTS=$(call sourcesToObjects, $(SPIRAL_SOURCES))
 # search for .d files in the build directories
 PRESENT_DEP_FILES=$(patsubst ./build/%, build/./%, $(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*"))
 
 # generate .d file names from the source file names
-GENERATED_DEP_FILES=$(call sourcesToDeps, $(ALL_SOURCES))
+GENERATED_DEP_FILES=$(call sourcesToDeps, $(ALL_SOURCES) $(SPIRAL_SOURCES))
 
 # keep only the .d files present which are required
 DEP_FILES=$(filter $(GENERATED_DEP_FILES), $(PRESENT_DEP_FILES))
 
-.PHONY: all clean clean_kernels 
+.PHONY: all clean clean_kernels print
 
 # rule for the executable
 all: $(BUILD_DIR)/measuringCore $(BUILD_DIR)/childProcess
@@ -73,9 +75,12 @@ all: $(BUILD_DIR)/measuringCore $(BUILD_DIR)/childProcess
 clean:
 	rm -rf $(BUILD_DIR)/
 	
+print: 
+	@echo $(CHILD_SOURCES)
+	
 # creates the executable from the .o files
-$(BUILD_DIR)/childProcess: $(CHILD_OBJECTS) $(KERNEL_OBJECTS) generated/kernelNames.mk
-	$(GCC) -pthread -rdynamic -o $@ $(CHILD_OBJECTS) $(KERNEL_OBJECTS) $(LIBS)
+$(BUILD_DIR)/childProcess: $(CHILD_OBJECTS) $(KERNEL_OBJECTS) $(SPIRAL_OBJECTS) generated/kernelNames.mk
+	$(GCC) -pthread -rdynamic -o $@ $(CHILD_OBJECTS) $(KERNEL_OBJECTS)  $(SPIRAL_OBJECTS) $(LIBS)
 
 $(BUILD_DIR)/measuringCore: $(PARENT_OBJECTS) $(BUILD_DIR)/./src/Notifications.o
 	$(GCC) -o $@ $(PARENT_OBJECTS) $(BUILD_DIR)/./src/Notifications.o -lstdc++
@@ -91,7 +96,14 @@ $(BUILD_DIR)/./src/sharedDOM/WorkloadClearL1I.o: src/sharedDOM/WorkloadClearL1I.
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -ftemplate-depth=4096 -c -o $@ $<
 # add more rules here when needed	
+$(SPIRAL_OBJECTS):$(BUILD_DIR)/%.o: %.c
+	mkdir -p $(BUILD_DIR)/$(dir $<)
+	$(GCC) $(CFLAGS) -O3 -msse2 $(DEP_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(INCLUDE_DIRS) -c -o $@ $<
 
+$(BUILD_DIR)/./src/sharedDOM/MultiLanguageSerializationService.o: src/sharedDOM/MultiLanguageSerializationService.cpp
+	mkdir -p $(BUILD_DIR)/$(dir $<)
+	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
+	
 # make the kernels depend on the kernel optimization flags
 $(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/kernelOptimization/kernelOptimization$(kernel).mk))
 
