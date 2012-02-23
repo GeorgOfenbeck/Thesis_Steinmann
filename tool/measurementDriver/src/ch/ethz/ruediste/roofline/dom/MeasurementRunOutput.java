@@ -15,21 +15,36 @@ public class MeasurementRunOutput extends MeasurementRunOutputData {
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	public <TOutput> Iterable<TOutput> getMeasurerOutputs(
 			IMeasurer<TOutput> measurer) {
 
 		ArrayList<TOutput> result = new ArrayList<TOutput>();
 
 		for (MeasurerOutputBase mob : getMeasurerOutputs()) {
-			if (mob.getMeasurerId() == measurer.getId())
-				result.add((TOutput) mob);
+			if (mob.isFrom(measurer))
+				result.add(mob.cast(measurer));
 		}
 
 		return result;
 	}
 
 	public <TOutput> TOutput getMeasurerOutput(IMeasurer<TOutput> measurer) {
+		return IterableUtils.single(getMeasurerOutputs(measurer));
+	}
+
+	public Iterable<MeasurerOutputBase> getMeasurerOutputs(MeasurerBase measurer) {
+
+		ArrayList<MeasurerOutputBase> result = new ArrayList<MeasurerOutputBase>();
+
+		for (MeasurerOutputBase mob : getMeasurerOutputs()) {
+			if (mob.isFrom(measurer))
+				result.add(mob);
+		}
+
+		return result;
+	}
+
+	public MeasurerOutputBase getMeasurerOutput(MeasurerBase measurer) {
 		return IterableUtils.single(getMeasurerOutputs(measurer));
 	}
 

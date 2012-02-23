@@ -15,4 +15,21 @@ public class MeasurerOutputBase extends MeasurerOutputBaseData {
 	public void setMeasurerUid(UUID measurerUid) {
 		this.measurerUid = measurerUid;
 	}
+
+	@SuppressWarnings("unchecked")
+	public <TOutput> TOutput cast(IMeasurer<TOutput> measurer) {
+		if (!measurer.getUid().equals(measurerUid)) {
+			throw new Error(
+					"measurer output was not created from the given measurer");
+		}
+		return (TOutput) this;
+	}
+
+	public <TOutput> boolean isFrom(IMeasurer<TOutput> measurer) {
+		return isFrom((MeasurerBase) measurer);
+	}
+
+	public boolean isFrom(MeasurerBase measurer) {
+		return measurer.getUid().equals(measurerUid);
+	}
 }

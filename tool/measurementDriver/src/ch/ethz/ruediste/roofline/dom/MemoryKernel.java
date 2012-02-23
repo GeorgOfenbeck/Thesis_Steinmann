@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.dom;
 import static ch.ethz.ruediste.roofline.dom.Axes.*;
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
 
 /** Kernel just loading a memory block into memory */
 public class MemoryKernel extends MemoryKernelData {
@@ -90,5 +91,10 @@ public class MemoryKernel extends MemoryKernelData {
 
 	public void setOperation(MemoryOperation operation) {
 		setMacroDefinition(operationMacro, operation.toString());
+	}
+
+	@Override
+	public TransferredBytes getExpectedTransferredBytes() {
+		return new TransferredBytes(getBufferSize() * getUnroll() * getDlp());
 	}
 }

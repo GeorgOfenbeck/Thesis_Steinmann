@@ -19,13 +19,13 @@ public class MultiplyingQuantityCalculator<T extends Quantity<T>> extends
 	private double factor;
 
 	@Override
-	public T getResult(Iterable<MeasurerSetOutput> outputs) {
+	public T getResult(Iterable<MeasurerOutputBase> outputs) {
 		return inner.getResult(outputs).multiplied(factor);
 	}
 
 	@Override
-	public List<MeasurerSet> getRequiredMeasurerSets() {
-		return inner.getRequiredMeasurerSets();
+	public List<MeasurerBase> getRequiredMeasurers() {
+		return inner.getRequiredMeasurers();
 	}
 
 }

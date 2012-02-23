@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.quantities;
 
 import java.util.Collections;
 
-import ch.ethz.ruediste.roofline.dom.MeasurerSetOutput;
+import ch.ethz.ruediste.roofline.dom.MeasurerOutputBase;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
@@ -95,11 +95,11 @@ public abstract class Quantity<TDerived extends Quantity<TDerived>> implements
 		return construct(getValue() - other.getValue());
 	}
 
-	public static <T extends Quantity<T>> IUnaryFunction<MeasurerSetOutput, T> resultToQuantity(
+	public static <T extends Quantity<T>> IUnaryFunction<MeasurerOutputBase, T> resultToQuantity(
 			final QuantityCalculator<T> calc) {
-		return new IUnaryFunction<MeasurerSetOutput, T>() {
+		return new IUnaryFunction<MeasurerOutputBase, T>() {
 
-			public T apply(MeasurerSetOutput output) {
+			public T apply(MeasurerOutputBase output) {
 				return calc.getResult(Collections.singleton(output));
 			}
 

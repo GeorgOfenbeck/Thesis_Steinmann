@@ -2,7 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
 import java.util.ArrayList;
 
-import ch.ethz.ruediste.roofline.dom.MeasurerSetOutput;
+import ch.ethz.ruediste.roofline.dom.MeasurerOutputBase;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 
 public class AddingQuantityCalculator<T extends Quantity<T>> extends
@@ -14,8 +14,8 @@ public class AddingQuantityCalculator<T extends Quantity<T>> extends
 	}
 
 	@Override
-	protected T combineResults(ArrayList<MeasurerSetOutput> leftOutputs,
-			ArrayList<MeasurerSetOutput> rightOutputs) {
+	protected T combineResults(ArrayList<MeasurerOutputBase> leftOutputs,
+			ArrayList<MeasurerOutputBase> rightOutputs) {
 		return left.getResult(leftOutputs).added(right.getResult(rightOutputs));
 	}
 

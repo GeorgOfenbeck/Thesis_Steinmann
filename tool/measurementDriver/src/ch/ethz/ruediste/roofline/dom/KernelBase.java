@@ -1,7 +1,11 @@
 package ch.ethz.ruediste.roofline.dom;
 
 import static ch.ethz.ruediste.roofline.dom.Axes.optimizationAxis;
+
+import org.apache.commons.lang.NotImplementedException;
+
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
 
 public class KernelBase extends KernelBaseData {
 
@@ -27,5 +31,9 @@ public class KernelBase extends KernelBaseData {
 
 	public String getAdditionalIncludeDirs() {
 		return "";
+	}
+
+	public TransferredBytes getExpectedTransferredBytes() {
+		throw new NotImplementedException();
 	}
 }

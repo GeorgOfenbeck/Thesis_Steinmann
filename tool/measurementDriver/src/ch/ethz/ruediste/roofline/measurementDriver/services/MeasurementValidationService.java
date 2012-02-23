@@ -121,7 +121,7 @@ public class MeasurementValidationService {
 
 		// is there any file to record?
 		if (!fileMeasurer.getFilesToRecord().isEmpty()) {
-	//		measurement.addValidationMeasurer(fileMeasurer);
+			//		measurement.addValidationMeasurer(fileMeasurer);
 			validationData.setFileMeasurer(fileMeasurer);
 		}
 
@@ -140,7 +140,7 @@ public class MeasurementValidationService {
 
 		// is there any event to measure
 		if (!perfEventMeasurerDescription.getEvents().isEmpty()) {
-		//	measurement.addValidationMeasurer(perfEventMeasurerDescription);
+			//	measurement.addValidationMeasurer(perfEventMeasurerDescription);
 			validationData.setPerfEventMeasurer(perfEventMeasurerDescription);
 		}
 	}

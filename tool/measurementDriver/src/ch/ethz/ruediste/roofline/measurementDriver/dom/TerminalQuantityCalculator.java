@@ -2,21 +2,21 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.dom.MeasurerSet;
+import ch.ethz.ruediste.roofline.dom.MeasurerBase;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 
 public abstract class TerminalQuantityCalculator<T extends Quantity<T>> extends
 		QuantityCalculator<T> {
 
-	protected final MeasurerSet requiredMeasurerSet;
+	protected final MeasurerBase requiredMeasurer;
 
-	public TerminalQuantityCalculator(MeasurerSet requiredMeasurerSet) {
-		this.requiredMeasurerSet = requiredMeasurerSet;
+	public TerminalQuantityCalculator(MeasurerBase requiredMeasurer) {
+		this.requiredMeasurer = requiredMeasurer;
 
 	}
 
 	@Override
-	public List<MeasurerSet> getRequiredMeasurerSets() {
-		return Collections.<MeasurerSet> singletonList(requiredMeasurerSet);
+	public List<MeasurerBase> getRequiredMeasurers() {
+		return Collections.<MeasurerBase> singletonList(requiredMeasurer);
 	}
 }

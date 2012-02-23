@@ -42,7 +42,15 @@ public class MeasurementResult {
 		return result;
 	}
 
-	public Iterable<MeasurerSetOutput> getMeasurerSetOutputs(
+	public Iterable<MeasurerOutputBase> getMeasurerOutputsUntyped(MeasurerBase measurer) {
+		List<MeasurerOutputBase> result = new ArrayList<MeasurerOutputBase>();
+		for (MeasurementRunOutput output : getOutputs()) {
+			result.add(output.getMeasurerOutput(measurer));
+		}
+		return result;
+	}
+
+	public Iterable<MeasurerSetOutput> getMeasurerSetOutputsUntyped(
 			final MeasurerSet measurerSet) {
 		return IterableUtils.select(getOutputs(),
 				new IUnaryFunction<MeasurementRunOutput, MeasurerSetOutput>() {

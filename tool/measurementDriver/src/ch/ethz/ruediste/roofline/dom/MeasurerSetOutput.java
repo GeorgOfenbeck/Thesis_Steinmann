@@ -23,13 +23,12 @@ public class MeasurerSetOutput extends MeasurerSetOutputData {
 	 * the provided measurer was not used to generate the main measurer output
 	 * of this set output, an error is thrown.
 	 */
-	@SuppressWarnings("unchecked")
 	public <T, TMeasurer extends IMeasurer<T>> T getMainMeasurerOutput(
 			TMeasurer measurer) {
-		if (getMainMeasurerOutput().getMeasurerId() != measurer.getId()) {
+		if (!getMainMeasurerOutput().isFrom(measurer)) {
 			throw new Error("Measurer is not main measurer of this set");
 		}
-		return (T) getMainMeasurerOutput();
+		return getMainMeasurerOutput().cast(measurer);
 	}
 
 	public UUID getSetUid() {

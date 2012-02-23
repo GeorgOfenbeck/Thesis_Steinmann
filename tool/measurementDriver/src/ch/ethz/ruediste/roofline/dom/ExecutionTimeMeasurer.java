@@ -4,8 +4,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
-public class ExecutionTimeMeasurer extends
-		ExecutionTimeMeasurerData implements
+public class ExecutionTimeMeasurer extends ExecutionTimeMeasurerData implements
 		IMeasurer<ExecutionTimeMeasurerOutput> {
 
 	/**

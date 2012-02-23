@@ -4,8 +4,8 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
-public class TscMeasurer extends TscMeasurerData
-		implements IMeasurer<TscMeasurerOutput> {
+public class TscMeasurer extends TscMeasurerData implements
+		IMeasurer<TscMeasurerOutput> {
 
 	/**
 	 * creates statistics of all event counts in the given measurement result

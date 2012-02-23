@@ -20,34 +20,33 @@ public abstract class CombiningQuantityCalculator<T extends Quantity<T>>
 	}
 
 	@Override
-	public ArrayList<MeasurerSet> getRequiredMeasurerSets() {
-		ArrayList<MeasurerSet> result = new ArrayList<MeasurerSet>();
-		result.addAll(left.getRequiredMeasurerSets());
-		result.addAll(right.getRequiredMeasurerSets());
+	public ArrayList<MeasurerBase> getRequiredMeasurers() {
+		ArrayList<MeasurerBase> result = new ArrayList<MeasurerBase>();
+		result.addAll(left.getRequiredMeasurers());
+		result.addAll(right.getRequiredMeasurers());
 		return result;
 	}
 
 	@Override
-	final public T getResult(Iterable<MeasurerSetOutput> outputs) {
-		ArrayList<MeasurerSetOutput> leftOutputs = new ArrayList<MeasurerSetOutput>();
-		ArrayList<MeasurerSetOutput> rightOutputs = new ArrayList<MeasurerSetOutput>();
+	final public T getResult(Iterable<MeasurerOutputBase> outputs) {
+		ArrayList<MeasurerOutputBase> leftOutputs = new ArrayList<MeasurerOutputBase>();
+		ArrayList<MeasurerOutputBase> rightOutputs = new ArrayList<MeasurerOutputBase>();
 
 		// assing all provided outputs to the left or the right calculator
-		for (final MeasurerSetOutput output : outputs) {
-			// predicate indicating a measurer set was used to generate the current output
-			IUnaryPredicate<MeasurerSet> predicate = new IUnaryPredicate<MeasurerSet>() {
-				public Boolean apply(MeasurerSet arg) {
-					return arg.getUid().equals(output.getSetUid());
+		for (final MeasurerOutputBase output : outputs) {
+			// predicate indicating a measurer was used to generate the current output
+			IUnaryPredicate<MeasurerBase> predicate = new IUnaryPredicate<MeasurerBase>() {
+				public Boolean apply(MeasurerBase arg) {
+					return arg.getUid().equals(output.getMeasurerUid());
 				}
 			};
 
 			// check if the output belongs to the left calculator
-			if (IterableUtils.any(left.getRequiredMeasurerSets(), predicate)) {
+			if (IterableUtils.any(left.getRequiredMeasurers(), predicate)) {
 				leftOutputs.add(output);
 			}
 			else {
-				if (!IterableUtils.any(right.getRequiredMeasurerSets(),
-						predicate)) {
+				if (!IterableUtils.any(right.getRequiredMeasurers(), predicate)) {
 					throw new Error(
 							"no matching measurer set found for the supplied output");
 				}
@@ -60,7 +59,7 @@ public abstract class CombiningQuantityCalculator<T extends Quantity<T>>
 	}
 
 	protected abstract T combineResults(
-			ArrayList<MeasurerSetOutput> leftOutputs,
-			ArrayList<MeasurerSetOutput> rightOutputs);
+			ArrayList<MeasurerOutputBase> leftOutputs,
+			ArrayList<MeasurerOutputBase> rightOutputs);
 
 }

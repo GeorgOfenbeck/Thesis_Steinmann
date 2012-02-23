@@ -85,19 +85,17 @@ public class QuantityMeasuringService {
 
 	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(
 			final Class<T> clazz, String... events) {
-		final MeasurerSet measurerSet = new MeasurerSet();
 		final PerfEventMeasurer measurer = new PerfEventMeasurer();
-		measurerSet.setMainMeasurer(measurer);
 
 		final String eventDefinition = pmuRepository.getAvailableEvent(events);
 		measurer.addEvent("count", eventDefinition);
 
-		return new TerminalQuantityCalculator<T>(measurerSet) {
+		return new TerminalQuantityCalculator<T>(measurer) {
 
 			@Override
-			public T getResult(Iterable<MeasurerSetOutput> outputs) {
-				PerfEventCount eventCount = single(outputs)
-						.getMainMeasurerOutput(measurer).getEventCount("count");
+			public T getResult(Iterable<MeasurerOutputBase> outputs) {
+				PerfEventCount eventCount = single(outputs).cast(measurer)
+						.getEventCount("count");
 				log.debug(String.format("eventDef: %s, %s", eventDefinition,
 						eventCount));
 				return Quantity.construct(clazz, eventCount.getScaledCount());
@@ -211,13 +209,11 @@ public class QuantityMeasuringService {
 					"perf::PERF_COUNT_HW_BUS_CYCLES");
 		case uSecs: {
 			final ExecutionTimeMeasurer measurer = new ExecutionTimeMeasurer();
-			final MeasurerSet set = new MeasurerSet(measurer);
-			return new TerminalQuantityCalculator<Time>(set) {
+			return new TerminalQuantityCalculator<Time>(measurer) {
 
 				@Override
-				public Time getResult(Iterable<MeasurerSetOutput> outputs) {
-					return new Time(single(outputs).getMainMeasurerOutput(
-							measurer).getUSecs());
+				public Time getResult(Iterable<MeasurerOutputBase> outputs) {
+					return new Time(single(outputs).cast(measurer).getUSecs());
 				}
 			};
 		}
@@ -233,11 +229,11 @@ public class QuantityMeasuringService {
 
 		// get results for each required measurer set
 		ArrayList<MeasurementResult> measurementResults = new ArrayList<MeasurementResult>();
-		for (MeasurerSet set : calculator.getRequiredMeasurerSets()) {
+		for (MeasurerBase measurer : calculator.getRequiredMeasurers()) {
 			Measurement measurement = new Measurement();
 			Workload workload = new Workload();
 			workload.setKernel(kernel);
-			workload.setMeasurerSet(set);
+			workload.setMeasurerSet(new MeasurerSet(measurer));
 			measurement.addWorkload(workload);
 
 			MeasurementResult result = measurementService.measure(measurement,
@@ -249,14 +245,14 @@ public class QuantityMeasuringService {
 		ArrayList<T> results = new ArrayList<T>();
 		// calculate the resulting quantity for all corrresponding results
 		for (int runNr = 0; runNr < numMeasurements; runNr++) {
-			ArrayList<MeasurerSetOutput> outputs = new ArrayList<MeasurerSetOutput>();
-			for (int setNr = 0; setNr < calculator.getRequiredMeasurerSets()
+			ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
+			for (int setNr = 0; setNr < calculator.getRequiredMeasurers()
 					.size(); setNr++) {
-				MeasurerSet set = calculator.getRequiredMeasurerSets().get(
+				MeasurerBase measurer = calculator.getRequiredMeasurers().get(
 						setNr);
 				MeasurementResult result = measurementResults.get(setNr);
 				outputs.add(result.getOutputs().get(runNr)
-						.getMeasurerSetOutput(set));
+						.getMeasurerOutput(measurer));
 			}
 			results.add(calculator.getResult(outputs));
 		}

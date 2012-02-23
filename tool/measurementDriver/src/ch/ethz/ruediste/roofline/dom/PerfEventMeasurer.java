@@ -11,12 +11,10 @@ import org.apache.log4j.Logger;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
-public class PerfEventMeasurer extends
-		PerfEventMeasurerData implements
+public class PerfEventMeasurer extends PerfEventMeasurerData implements
 		IMeasurer<PerfEventMeasurerOutput> {
 
-	private static Logger log = Logger
-			.getLogger(PerfEventMeasurer.class);
+	private static Logger log = Logger.getLogger(PerfEventMeasurer.class);
 
 	public static ConfigurationKey<Boolean> validateEventWasRunningKey = ConfigurationKey
 			.Create(Boolean.class,

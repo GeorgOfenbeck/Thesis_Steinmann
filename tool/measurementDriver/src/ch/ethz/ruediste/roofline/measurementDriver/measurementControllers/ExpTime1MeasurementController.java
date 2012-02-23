@@ -131,8 +131,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		MeasurementResult result = measurementService.measure(measurement, 1);
 
 		Time executionTime = timeCalc.getResult(result
-				.getMeasurerSetOutputs(single(timeCalc
-						.getRequiredMeasurerSets())));
+				.getMeasurerOutputsUntyped(single(timeCalc.getRequiredMeasurers())));
 		return executionTime;
 	}
 
@@ -152,9 +151,9 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 			MeasurementResult result = measurementService.measure(measurement,
 					10);
 
-			Iterable<MeasurerSetOutput> outputs = result
-					.getMeasurerSetOutputs(single(interruptsCalc
-							.getRequiredMeasurerSets()));
+			Iterable<MeasurerOutputBase> outputs = result
+					.getMeasurerOutputsUntyped(single(interruptsCalc
+							.getRequiredMeasurers()));
 			// take minimum
 			Interrupts interrupts = min(
 					// turn outputs into quantities
@@ -200,8 +199,8 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 
 		mainWorkload.setKernel(arithmeticKernel);
 
-		mainWorkload.setMeasurerSet(single(quantityCalc
-				.getRequiredMeasurerSets()));
+		mainWorkload.setMeasurerSet(new MeasurerSet(single(quantityCalc
+				.getRequiredMeasurers())));
 
 		// setup stop rules for system load workloads
 		for (Workload loadWorkload : systemLoadWorkloads) {
