@@ -43,6 +43,7 @@ public class FFTMeasurementController implements IMeasurementController {
 
 	@SuppressWarnings("unchecked")
 	public void measure(String outputName) throws IOException {
+		rooflineController.setTitle("Fast Fourier Transformation");
 		rooflineController.addDefaultPeaks();
 
 		addPoints(rooflineController, FFTnrKernel.class, FFTmklKernel.class,

@@ -8,8 +8,7 @@ import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
@@ -39,15 +38,8 @@ public class MMMMeasurementController implements IMeasurementController {
 	Configuration configuration;
 
 	public void measure(String outputName) throws IOException {
-		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
-				InstructionSet.SSE);
-		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
-				InstructionSet.SSE);
-		rooflineController.addPeakPerformance("ABal", Algorithm.ArithBalanced,
-				InstructionSet.SSE);
-
-		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
-				MemoryTransferBorder.LlcRam);
+		rooflineController.setTitle("Matrix-Matrix-Multiplication");
+		rooflineController.addDefaultPeaks();
 
 		addSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_TripleLoop,
 				MMMAlgorithm.MMMAlgorithm_Blas_Openblas,
@@ -65,14 +57,16 @@ public class MMMMeasurementController implements IMeasurementController {
 		{
 			configuration.push();
 			for (long i = 64; i <= 704; i += 64) {
-				if (i < 400)
+				if (i < 400) {
 					configuration.set(
 							QuantityMeasuringService.numberOfMeasurementsKey,
 							10);
-				else
+				}
+				else {
 					configuration
-							.set(QuantityMeasuringService.numberOfMeasurementsKey,
-									1);
+					.set(QuantityMeasuringService.numberOfMeasurementsKey,
+							1);
+				}
 
 				MMMKernel kernel = new MMMKernel();
 				kernel.setMatrixSize(i);
@@ -137,14 +131,16 @@ public class MMMMeasurementController implements IMeasurementController {
 
 			for (Coordinate coordinate : space.getAllPoints(space
 					.getAllAxesWithMostSignificantAxes(algorithmAxis))) {
-				if (coordinate.get(matrixSizeAxis) < 400)
+				if (coordinate.get(matrixSizeAxis) < 400) {
 					configuration.set(
 							QuantityMeasuringService.numberOfMeasurementsKey,
 							10);
-				else
+				}
+				else {
 					configuration
-							.set(QuantityMeasuringService.numberOfMeasurementsKey,
-									1);
+					.set(QuantityMeasuringService.numberOfMeasurementsKey,
+							1);
+				}
 				// skip large sizes for tripple loop
 				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TripleLoop
 						&& coordinate.get(Axes.matrixSizeAxis) > 704) {
@@ -160,13 +156,13 @@ public class MMMMeasurementController implements IMeasurementController {
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					seriesName = "MMM-Mkl";
-				break;
+					break;
 				case MMMAlgorithm_Blas_Openblas:
 					seriesName = "MMM-OpenBlas";
-				break;
+					break;
 				case MMMAlgorithm_TripleLoop:
 					seriesName = "MMM-TripleLoop";
-				break;
+					break;
 				default:
 					throw new Error("Should not happen");
 
@@ -180,10 +176,10 @@ public class MMMMeasurementController implements IMeasurementController {
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					operation = Operation.DoublePrecisionFlop;
-				break;
+					break;
 				case MMMAlgorithm_Blas_Openblas:
 					operation = Operation.CompInstr;
-				break;
+					break;
 				}
 
 				rooflineController.addRooflinePoint(seriesName, label, kernel,

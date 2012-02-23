@@ -31,3 +31,17 @@ sudo cp rot.autocompletion /etc/bash_completion.d/rot
 
 7. build the system configurator
 cd systemConfigurator; sudo make super; cd ..
+
+Additional Libraries
+********************
+Various kernels require additional libraries:
+
+-MKL: Intel Math Kernel Libraries
+They can be downloaded for free for non-commercial purposes from the Intel website. 
+Go to evaluation, the link is at the very bottom.
+
+-OpenBlas
+sudo apt-get install libopenblas-dev
+
+-Spiral-WHT
+got to tools/lib and install the library contained in spiral-wht-1.8.tgz 

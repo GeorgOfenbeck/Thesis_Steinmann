@@ -323,7 +323,7 @@ int ParentProcess::traceLoop() {
 
 		// check if the child is known
 		if (childStates.count(stoppedPid) == 0) {
-			LWARNING("unknown child stopped %i", stoppedPid);
+			LDEBUG("unknown child stopped %i", stoppedPid);
 			if (WIFSTOPPED(status)) {
 				int stopSig = WSTOPSIG(status);
 				LDEBUG("stopped by signal %s",strsignal(stopSig))

@@ -1,3 +1,9 @@
 out/
 report.brf
 report.synctex.gz
+report.aux
+report.lof
+report.log
+report.out
+report.toc
+

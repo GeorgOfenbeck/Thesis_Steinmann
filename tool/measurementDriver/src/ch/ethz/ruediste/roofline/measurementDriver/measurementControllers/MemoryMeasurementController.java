@@ -51,7 +51,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 
 		space.add(optimizationAxis, "-O3 -msse2");
 
-		for (int i = 1; i <= 4; i++) {
+		for (int i = 1; i <= 1; i++) {
 			space.add(dlpAxis, i);
 		}
 		for (int i = 1; i <= 4; i++) {
@@ -59,8 +59,9 @@ public class MemoryMeasurementController implements IMeasurementController {
 		}
 
 		space.add(prefetchDistanceAxis, 0L);
-		for (long i = 64; i <= 2048; i++)
+		for (long i = 64; i <= 2048; i*=2) {
 			space.add(prefetchDistanceAxis, i);
+		}
 
 		for (PrefetchType type : PrefetchType.values()) {
 			space.add(prefetchTypeAxis, type);
@@ -72,7 +73,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
 						memoryOperationAxis, iterationsAxis
 
-				))) {
+						))) {
 			MemoryKernel kernel = new MemoryKernel();
 			kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
 			kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));

@@ -1,0 +1,20 @@
+Development Environment Setup
+-----------------------------
+
+The report can be entirely developed from within eclipse. To do so, install texclipse. 
+Update site:
+http://texlipse.sourceforge.net/
+
+To draw the UML diagrams, Umlet is used. There is an eclipse plugin and a standalone application, 
+both located in the root folder. Copy
+
+com.umlet.plugin_11.3.0.jar
+
+to your eclipse plugin directory.
+
+Extract 
+
+umlet_11_3.zip
+
+to your home folder. The makefile of the report uses the standalone application to render
+the diagrams. 
