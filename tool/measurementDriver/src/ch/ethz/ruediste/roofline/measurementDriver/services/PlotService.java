@@ -5,12 +5,15 @@ import static java.lang.Math.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.DistributionPlot.DistributionPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.BinaryPredicates;
 
@@ -79,6 +82,60 @@ public class PlotService {
 			output.printf("plot '%s.data' with points \n", plot.getOutputName());
 			// output.printf("pause mouse\n");
 
+			output.close();
+		}
+
+		// show output
+		commandService.runCommand(new File("."), "gnuplot",
+				new String[] { plot.getOutputName() + ".gnuplot" });
+	}
+
+	public void plot(DistributionPlot plot) throws ExecuteException,
+			IOException {
+
+		List<DistributionPlotSeries> allSeries = plot.getAllSeries();
+
+		// print data file
+		final PrintStream outputFile = new PrintStream(plot.getOutputName()
+				+ ".data");
+
+		for (DistributionPlotSeries series : allSeries) {
+			for (Entry<Long, DescriptiveStatistics> entry : series
+					.getStatisticsMap().entrySet()) {
+
+				DescriptiveStatistics statistics = entry.getValue();
+				outputFile.printf("%d %e %e %e %e\n", entry.getKey(),
+						statistics.getPercentile(25), statistics.getMin(),
+						statistics.getMax(), statistics.getPercentile(75));
+			}
+			outputFile.printf("\n\n");
+		}
+		outputFile.close();
+
+		// write gnuplot files
+		{
+			PrintStream output = new PrintStream(plot.getOutputName()
+					+ ".gnuplot");
+			output.printf("set title '%s'\n", plot.getTitle());
+			output.printf("set terminal pdf color\n");
+			output.printf("set output '%s.pdf'\n", plot.getOutputName());
+			output.printf("set log x\n");
+			output.printf("set log y\n");
+
+			List<String> plotLines = new ArrayList<String>();
+
+			for (int seriesNr = 0; seriesNr < allSeries.size(); seriesNr++) {
+				DistributionPlotSeries series = allSeries.get(seriesNr);
+
+				plotLines
+						.add(String
+								.format("'%s.data' index %d title '%s' with candlesticks whiskerbars",
+										plot.getOutputName(), seriesNr,
+										series.getName()));
+			}
+
+			output.println("plot \\");
+			output.print(StringUtils.join(plotLines, ",\\\n"));
 			output.close();
 		}
 

@@ -95,6 +95,17 @@ public class MemoryKernel extends MemoryKernelData {
 
 	@Override
 	public TransferredBytes getExpectedTransferredBytes() {
-		return new TransferredBytes(getBufferSize() * getUnroll() * getDlp());
+		switch (getOperation()) {
+		case MemoryOperation_READ:
+			return new TransferredBytes(getBufferSize() * getUnroll()
+					* getDlp() * 4);
+		case MemoryOperation_WRITE:
+			return new TransferredBytes(getBufferSize() * getUnroll()
+					* getDlp() * 4 * 2);
+		default:
+			throw new Error("Should not happen");
+
+		}
+
 	}
 }
