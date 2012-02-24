@@ -1,0 +1,179 @@
+\#include "${includeFile}.h"
+\#include "baseClasses/Serializer.h"
+\#include <typeinfo>
+\#include "Exception.h"
+\#include <iostream>
+\#include "sharedEntities/MultiLanguageSerializationService.h"
+
+#if(!$class.isAbstract())
+static class Serializer${class.name}: public Serializer{
+	bool canSerialize(MultiLanguageObjectBase *obj){
+		return typeid(*obj)==typeid($class.name);
+	}
+	
+#macro(serializeNonList $field )
+	#if ($field.typeDescriptor.reference)
+		ctx->Serialize((MultiLanguageObjectBase*)value,output);
+	#else
+		#if ($field.type == "string")
+			// escape strings
+			output<<escapeString(value)<<"\n";
+		#else
+			output<<value<<"\n";
+		#end
+	#end
+#end 
+
+	void serialize(MultiLanguageObjectBase *o, ostream &output, SerializationContext *ctx){
+		if (o==NULL){
+			output<<"<null>\n";
+			return;
+		}
+		
+		
+		output << "$class.name" <<"\n";
+		#foreach($field in $class.allFields)
+			{
+				output << "${field.name}\n";
+				$field.cType value=((${class.name}*)o)->get${field.nameUpperCamel}();
+				
+				#if ($field.class.simpleName=="MultiLanguageList")
+				{
+					$field.cType list=value;
+					unsigned size= list.size();
+					output << size << "\n";
+				
+					for (unsigned i=0; i<size; i++){
+						$field.getcItemType() value=list[i];
+						#serializeNonList($field)
+					}
+				}
+			
+				#else
+					#serializeNonList($field)
+				#end
+			}
+		#end
+
+	}
+
+	bool canDeSerialize(string className){
+		return className.compare("$class.name")==0;
+	}
+	
+#macro(deSerializeNonList $field )
+	#if ($field.typeDescriptor.reference)
+		${field.typeDescriptor.cName}* value
+			=(${field.typeDescriptor.cName}*) ctx->DeSerialize(input);
+	#else
+		#if ($field.type == "bool")
+			int value;
+		#else
+			${field.typeDescriptor.cName} value;
+		#end
+		
+		getline(input,line);
+		#if ($field.type == "string")
+			value=deEscapeString(line);
+		#else
+			if (sscanf(line.c_str(),"${field.typeDescriptor.scanfSpecification}",&value)!=1){
+				throw Exception((std::string)"Parse Error: could not parse "+line+" as $field.type using scanf specification ${field.typeDescriptor.scanfSpecification}. "
+				+ "Was parsing $field.name of $class.name");
+			}
+		#end
+	#end
+#end 
+	
+	MultiLanguageObjectBase *deSerialize(istream &input, DeSerializationContext *ctx){
+		string line;
+	
+		if (input.eof()){
+			throw Exception("deserializing: unexpected end of input");
+		}
+		
+		if (!input.good()){
+			throw Exception("deserializing: something's wrong with the input stream");
+		}
+	
+
+		$class.name *result=new ${class.name}();
+		
+		#foreach($field in $class.allFields)
+		{
+			getline(input,line);
+			if (line.compare("${field.name}")!=0){
+				throw Exception("Parse Error. Field $field.name of class $class.name expected. got "+line);
+			}
+			#if ($field.class.simpleName=="MultiLanguageList")
+			{
+				## read the line with the count
+				getline(input,line);
+				int count;
+				if (sscanf(line.c_str(),"%i",&count)!=1){
+					throw Exception("Parse Error. could not parse item count of list $field.name of $class.name. Item count string is "+line);
+				}
+				
+				## parse all elements
+				for (int i=0; i<count; i++){
+					#deSerializeNonList($field)
+					result->get${field.nameUpperCamel}().push_back(value);
+				}
+			}
+			#else
+				#deSerializeNonList($field)
+				result->set${field.nameUpperCamel}(value);
+			#end
+		}
+		#end
+
+		return result;
+	}
+	
+} dummy;
+#end ##is abstract
+
+## *************************
+##  Implementation of Clone
+## *************************
+
+#if (!$class.isAbstract())
+	$class.cName * ${class.cName}::clone(){
+		$class.Name *result=new ${class.Name}();
+		result->cloneFrom(this);
+		return result;
+	}
+#end
+
+void ${class.cName}::cloneFrom($class.cName *c){
+	//printf("cloning $class.Name\n");
+	## call base method
+	#if ($class.hascBaseType()) 
+	$class.cBaseType::cloneFrom(c); 
+	#end
+	
+	#foreach($field in $class.fields)
+		#if ($field.class.simpleName=="MultiLanguageList")
+		
+			for (unsigned long i=0; i<c->get${field.nameUpperCamel}().size(); i++) {
+				#if ($field.typeDescriptor.reference)
+					if (c->get${field.nameUpperCamel}()[i]!=NULL){
+						get${field.nameUpperCamel}().push_back(($field.getType()*)(((MultiLanguageObjectBase*)($field.getType()*)c->get${field.nameUpperCamel}()[i])->clone()));
+						}
+					else
+						get${field.nameUpperCamel}().push_back(NULL);
+				#else
+					get${field.nameUpperCamel}().push_back(c->get${field.nameUpperCamel}()[i]);
+				#end
+			}
+		#else
+			#if ($field.typeDescriptor.reference)
+				if (c->get${field.nameUpperCamel}()!=NULL){
+					set${field.nameUpperCamel}(($field.getType()*)(((MultiLanguageObjectBase*)($field.getType()*)c->get${field.nameUpperCamel}())->clone()));
+				}
+			#else
+				set${field.nameUpperCamel}(c->get${field.nameUpperCamel}());
+			#end
+		#end
+	#end
+}
+

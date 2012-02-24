@@ -41,7 +41,7 @@ ALL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.cpp"
 SPIRAL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.c" \( -path "./src/spiralFFT/*" \) -print))
 
 # build the names of the source files for each named kernel
-$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./src/sharedEntities/kernels/$(KERNEL_NAME)/%, $(ALL_SOURCES))))
+$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./src/sharedEntities/kernels/$(KERNEL_NAME)/% ./generated/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./generated/sharedEntities/kernels/$(KERNEL_NAME)/%, $(ALL_SOURCES))))
 $(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_OBJECTS_$(KERNEL_NAME)=$(call sourcesToObjects, $(KERNEL_SOURCES_$(KERNEL_NAME)))))
 
 #combine the sources and objects of the individual kernels to a list
@@ -53,7 +53,7 @@ PARENT_SOURCES=$(filter ./src/parent/%.cpp, $(ALL_SOURCES))
 PARENT_OBJECTS=$(call sourcesToObjects, $(PARENT_SOURCES))
 
 # assign the remaining sources to the child
-CHILD_SOURCES=$(filter-out $(SPIRAL_SOURCES) $(PARENT_SOURCES) ./src/sharedEntities/kernels/%, $(ALL_SOURCES))
+CHILD_SOURCES=$(filter-out $(SPIRAL_SOURCES) $(PARENT_SOURCES) ./src/sharedEntities/kernels/% ./generated/sharedEntities/kernels/%, $(ALL_SOURCES))
 CHILD_OBJECTS=$(call sourcesToObjects, $(CHILD_SOURCES))
 
 SPIRAL_OBJECTS=$(call sourcesToObjects, $(SPIRAL_SOURCES))

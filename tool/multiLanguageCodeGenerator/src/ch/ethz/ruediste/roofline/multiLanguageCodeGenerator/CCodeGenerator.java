@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.velocity.VelocityContext;
+import org.apache.velocity.*;
 
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.*;
 
@@ -23,18 +23,18 @@ public class CCodeGenerator extends CodeGeneratorBase {
 			}
 		}
 
+		Template headerTemplate = getTemplate("cTemplate.vm");
+		Template cppTemplate = getTemplate("cppTemplate.vm");
+
 		// generate java code for all classes
 		for (MultiLanguageClassBase multiLanguageClass : multiLanguageClasses) {
 			// initialize context
 			VelocityContext context = new VelocityContext();
 			context.put("class", multiLanguageClass);
-			String outputFileName = "generatedC/";
+			String outputPathName = "generatedC/";
 			if (!multiLanguageClass.getPath().isEmpty())
-				outputFileName += StringUtils.join(
+				outputPathName += StringUtils.join(
 						multiLanguageClass.getPath(), "/") + "/";
-			outputFileName += multiLanguageClass.getCName() + ".h";
-
-			String templateName = "cTemplate.vm";
 
 			// collect all referenced classes
 			HashSet<String> referencedClasses = new HashSet<String>();
@@ -66,19 +66,22 @@ public class CCodeGenerator extends CodeGeneratorBase {
 			context.put("references", referencedClasses.toArray());
 
 			// generate output
-			applyTemplate(outputFileName, templateName, context, "cClass");
+			applyTemplate(headerTemplate, context, outputPathName
+					+ multiLanguageClass.getCName() + ".h");
+
+			// gemerate c[[ fo;e
+			context = new VelocityContext();
+			context.put("class", multiLanguageClass);
+			String includeFile = "sharedEntities/";
+			if (!multiLanguageClass.getPath().isEmpty()) {
+				includeFile += StringUtils.join(multiLanguageClass.getPath(),
+						"/") + "/";
+			}
+			includeFile += multiLanguageClass.getName();
+			context.put("includeFile", includeFile);
+			applyTemplate(cppTemplate, context, outputPathName
+					+ multiLanguageClass.getName() + ".cpp");
+
 		}
-
-		// generate serializer service and type enum
-
-		// initialize context
-		VelocityContext context = new VelocityContext();
-		context.put("classes", multiLanguageClasses);
-
-		// generate SerializerService
-		String outputFileName = "generatedC/MultiLanguageSerializationService.cpp";
-		String templateName = "cSerializationServiceTemplate.vm";
-		applyTemplate(outputFileName, templateName, context,
-				"cSerializationService");
 	}
 }

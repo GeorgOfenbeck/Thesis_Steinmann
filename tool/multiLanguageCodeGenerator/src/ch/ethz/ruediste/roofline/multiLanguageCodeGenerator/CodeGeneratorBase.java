@@ -1,15 +1,10 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.*;
+import org.apache.velocity.app.*;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.log.LogChute;
 
@@ -48,6 +43,10 @@ public abstract class CodeGeneratorBase {
 		velocityEngine = new VelocityEngine();
 		velocityEngine.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM,
 				new ConsoleLogger());
+		velocityEngine.setProperty(Velocity.RESOURCE_LOADER, "classPath");
+		velocityEngine
+				.setProperty("classPath.resource.loader.class",
+						"org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
 		velocityEngine.init();
 	}
 
@@ -59,25 +58,24 @@ public abstract class CodeGeneratorBase {
 		return new FileWriter(file);
 	}
 
+	protected Template getTemplate(String templateName) {
+		return velocityEngine.getTemplate(templateName);
+	}
+
 	/** applies a template and puts the output in the specified file */
-	protected void applyTemplate(String outputFileName, String templateName,
-			VelocityContext context, String logTag) {
+	protected void applyTemplate(Template template, VelocityContext context,
+			String outputFileName) {
 		try {
 			// open output writer
 			FileWriter writer = openWriter(outputFileName);
 
-			// load template
-			InputStream input = ClassLoader
-					.getSystemResourceAsStream(templateName);
-
 			// generate output
-			velocityEngine.evaluate(context, writer, logTag,
-					new InputStreamReader(input));
+			template.merge(context, writer);
 
 			// close files
 			writer.close();
-			input.close();
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

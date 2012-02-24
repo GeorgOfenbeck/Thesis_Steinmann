@@ -149,10 +149,6 @@ public abstract class MultiLanguageClassBase {
 		return isAbstract;
 	}
 
-	public boolean isKernel() {
-		return name.endsWith("Kernel");
-	}
-
 	/**
 	 * the path to the class. This is the package in the Java source code and
 	 * the folder in the C++ source code

@@ -4,9 +4,8 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.velocity.VelocityContext;
+import org.apache.velocity.*;
 
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.*;
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
 
 /** Generates Java for a list of multi language classes */
@@ -31,6 +30,8 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 				+ MultiLanguageClassBase.javaBasePackage.replace(".", "/")
 				+ "/";
 
+		Template javaTemplate = getTemplate("javaTemplate.vm");
+
 		// generate java code for all classes
 		for (MultiLanguageClassBase multiLanguageClass : multiLanguageClasses) {
 
@@ -41,13 +42,11 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 
 			context.put("StringUtils", StringUtils.class);
 
-			String templateName = "javaTemplate.vm";
-
 			String outputFileName = basePath
 					+ StringUtils.join(multiLanguageClass.getPath(), "/") + "/"
 					+ multiLanguageClass.getJavaName() + ".java";
 
-			applyTemplate(outputFileName, templateName, context, "javaClass");
+			applyTemplate(javaTemplate, context, outputFileName);
 		}
 
 		// generate SerializerService
@@ -59,9 +58,8 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 
 		String outputFileName = basePath
 				+ "MultiLanguageSerializationService.java";
-		String templateName = "javaSerializationServiceTemplate.vm";
-		applyTemplate(outputFileName, templateName, context,
-				"javaSerializationService");
+		applyTemplate(getTemplate("javaSerializationServiceTemplate.vm"),
+				context, outputFileName);
 
 	}
 

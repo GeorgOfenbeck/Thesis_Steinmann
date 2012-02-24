@@ -11,13 +11,26 @@
 #include <ostream>
 #include "MultiLanguageObjectBase.h"
 
+class SerializationContext {
+public:
+	void Serialize(MultiLanguageObjectBase *o, std::ostream &output);
+};
+
+class DeSerializationContext {
+public:
+	MultiLanguageObjectBase * DeSerialize(std::istream &input);
+};
+
 class MultiLanguageSerializationService {
 public:
+
 	MultiLanguageSerializationService();
 	virtual ~MultiLanguageSerializationService();
 
 	void Serialize(MultiLanguageObjectBase *o, std::ostream &output);
 	MultiLanguageObjectBase * DeSerialize(std::istream &input);
+
+
 };
 
 #endif /* MULTILANGUAGESERIALIZATIONSERVICE_H_ */
