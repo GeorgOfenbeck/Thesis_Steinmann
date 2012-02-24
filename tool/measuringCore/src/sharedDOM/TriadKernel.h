@@ -18,13 +18,7 @@ protected:
 public:
 
 	void initialize();
-	void run(){
-		for (long p=0;p<1;p++){
-			for (long i=0; i<getBufferSize(); i++){
-				a[i]=b[i]+2.34*c[i];
-			}
-		}
-	}
+	void run();
 	void dispose();
 };
 

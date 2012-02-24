@@ -10,14 +10,20 @@
 #include <cstring>
 
 void TriadKernel::initialize() {
+	srand48(0);
 	size_t size = getBufferSize() * sizeof(double);
+
+	// allocate the buffers
 	a = (double*) malloc(size);
 	b = (double*) malloc(size);
 	c = (double*) malloc(size);
 
-	memset(a, 0, size);
-	memset(b, 0, size);
-	memset(c, 0, size);
+	// initialize the buffers
+	for (long i=0; i<getBufferSize(); i++){
+		a[i]=drand48();
+		b[i]=drand48();
+		c[i]=drand48();
+	}
 }
 
 std::vector<std::pair<void*, long> > TriadKernel::getBuffers() {
@@ -28,6 +34,14 @@ std::vector<std::pair<void*, long> > TriadKernel::getBuffers() {
 	result.push_back(std::make_pair((void*) b, size));
 	result.push_back(std::make_pair((void*) c, size));
 	return result;
+}
+
+void TriadKernel::run() {
+	for (long p = 0; p < 1; p++) {
+		for (long i = 0; i < getBufferSize(); i++) {
+			a[i] = b[i] + 2.34 * c[i];
+		}
+	}
 }
 
 void TriadKernel::dispose() {

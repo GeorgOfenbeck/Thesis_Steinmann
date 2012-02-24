@@ -37,17 +37,16 @@ public class TriadMeasurementController implements IMeasurementController {
 		for (long size = 10000; size < 100000; size += 10000) {
 			TriadKernel kernel = new TriadKernel();
 			kernel.setBufferSize(size);
-			kernel.setOptimization("-O3 -msse2");
+			kernel.setOptimization("-O3");
 
 			rooflineController.addRooflinePoint("Triad", Long.toString(size),
-					kernel, Operation.DoublePrecisionFlop,
-					MemoryTransferBorder.LlcRam);
+					kernel, Operation.CompInstr, MemoryTransferBorder.LlcRam);
 
 			Throughput throughput = quantityMeasuringService.measureThroughput(
 					kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
 
 			OperationCount operations = quantityMeasuringService
-					.measureOperationCount(kernel, Operation.SSEFlop);
+					.measureOperationCount(kernel, Operation.CompInstr);
 
 			System.out.printf("size %d: throughput: %s operations: %s\n", size,
 					throughput, operations);

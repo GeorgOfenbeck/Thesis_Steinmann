@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="11.3">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Package</type>
+    <coordinates>
+      <x>170</x>
+      <y>120</y>
+      <w>450</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;XML&gt;&gt;
+MultiLanguageEntityDefinitions</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Package</type>
+    <coordinates>
+      <x>170</x>
+      <y>470</y>
+      <w>450</w>
+      <h>110</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;C++&gt;&gt;
+MeasuringCore</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Package</type>
+    <coordinates>
+      <x>170</x>
+      <y>250</y>
+      <w>450</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Java&gt;&gt;
+MeasurementDriver</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>190</x>
+      <y>310</y>
+      <w>420</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>TriadMeasurementController
+--
+measure()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>190</x>
+      <y>170</y>
+      <w>140</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>TriadKernel
+--
+bufferSize: long</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>410</x>
+      <y>390</y>
+      <w>200</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>QuantityMeasuringService
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>190</x>
+      <y>390</y>
+      <w>210</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>RooflineController
+
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>240</x>
+      <y>330</y>
+      <w>50</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.</panel_attributes>
+    <additional_attributes>30;60;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>480</x>
+      <y>330</y>
+      <w>50</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;.</panel_attributes>
+    <additional_attributes>30;60;30;30</additional_attributes>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>180</x>
+      <y>520</y>
+      <w>200</w>
+      <h>40</h>
+    </coordinates>
+    <panel_attributes>TriadKernel
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

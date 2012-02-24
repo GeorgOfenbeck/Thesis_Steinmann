@@ -1,6 +1,9 @@
 Development Environment Setup
 -----------------------------
 
+To get all required latex packages, do
+sudo apt-get install texlive-latex-recommended
+
 The report can be entirely developed from within eclipse. To do so, install texclipse. 
 Update site:
 http://texlipse.sourceforge.net/

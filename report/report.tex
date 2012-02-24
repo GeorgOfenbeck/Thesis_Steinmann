@@ -1,5 +1,7 @@
 \documentclass[a4paper,12pt]{article}
-%\usepackage{../stringstrings}
+\usepackage{color}
+\usepackage{listings}
+
 \usepackage{makeidx}
 
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
@@ -24,7 +26,12 @@
 }
 \newcommand{\umlRef}[1]{\autoref{#1}}
 
-
+\lstset{
+  showstringspaces=false,
+  breaklines=true,
+  tabsize=4,
+  numbers=left, stepnumber=2, numberstyle=\tiny, numbersep=10pt
+}
 \title{Applying the Roofline Model}
 \author{Ruedi Steinmann}
 \date{\today}
@@ -254,6 +261,205 @@ which is read by the driver.
 
 \umlDiagram{MeasurementRunOutput}
 
+\subsection{Tour of a Measurement}
+In this section, we'll look at the components specific to a measurement. To make
+sure you don't get lost, here is the tour map: 
+\umlDiagram{MeasurementTourMap}
+
+First, we'll look at the kernel. It is defined in
+an XML file:
+\begin{lstlisting}[language=XML]
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	name="TriadKernel" <!-- name of the class -->
+	baseType="KernelBase"
+	cSuffix="Data"
+	comment="Kernel performing a=b+k*d 
+		on a memory buffer">
+	<field  
+		name="bufferSize" 
+		type="long" 
+		comment="The size of the buffer"/>
+</derivedClass>
+\end{lstlisting}
+
+Kernels are always derived from KernelBase, hence the derivedClass element on
+line 2 and the base type defined on line 6. 
+
+The cSuffix is given as 'Data' on
+line 7. This causes the generated class to be named 'TriadKernelData'. The
+measuring core implements 'TriadKernel', which derives from TriadKernelData. The
+serialization service will instantiate the derived class. This mechanism allows
+to use a derived class, optionally with additional code and data, to be used in
+the measuring core. This is how the actual algorithm is implemented. We'll look
+at this later.
+
+On line 10 starts a field definition. Fields and getters/setters are generated
+for the field.
+
+Next comes the class controlling the whole measurement. 
+\begin{lstlisting}[language=JAVA]
+package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
+
+public class TriadMeasurementController implements IMeasurementController {
+
+	public String getName() {
+		return "triad";
+	}
+
+	public String getDescription() {
+		return "runs the triad kernel";
+	}
+
+	@Inject
+	public QuantityMeasuringService quantityMeasuringService;
+
+	@Inject
+	public RooflineController rooflineController;
+	
+	public void measure(String outputName) throws IOException {
+	...
+	}
+}
+\end{lstlisting}
+The class implements IMeasurementController and has to be placed in the
+measurementControllers package. The measure command will instantiate the class
+and call the measure() method. The getName() method returns the name of the
+measurement, which is used to identify the measurement.
+
+The two fields with the @Inject attribute are initialzed by the dependency
+injection framework when the class is instantiated. The quantity measuring
+service allows to measure quantities like operation count, transferred bytes,
+performance etc. The roofline controller manages a roofline plot. We will see
+how these facilities are used when we look at the body of the measure function:
+
+\begin{lstlisting}[language=JAVA]
+public void measure(String outputName){
+	rooflineController.setTitle("Triad");
+	rooflineController.addDefaultPeaks();
+
+	for (long size = 10000; size < 100000; size += 10000) {
+		// initialize kernel
+		TriadKernel kernel = new TriadKernel();
+		kernel.setBufferSize(size);
+		kernel.setOptimization("-O3");
+
+		// add a roofline point
+		rooflineController.addRooflinePoint(
+			"Triad", Long.toString(size),
+			kernel, Operation.CompInstr,
+			MemoryTransferBorder.LlcRam);
+
+		// measure the throughput
+		Throughput throughput = quantityMeasuringService.measureThroughput(
+			kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
+
+		// measure the operation count
+		OperationCount operations = quantityMeasuringService
+			.measureOperationCount(kernel, Operation.CompInstr);
+
+		// print throughput and operation count
+		System.out.printf("size %d: throughput: %s operations: %s\n", size,
+			throughput, operations);
+	}
+
+	rooflineController.plot();
+}
+\end{lstlisting}
+
+First the roofline plot is initialized with the title and the default peaks.
+Then, for each buffer size, the kernel is initialized. For each kernel, the
+optimization flags used to compile the kernel have to be specified.
+
+Then the roofline controller is instructed to add a roofline point to the plot.
+The first argument is the series name, next the label of the data point. Points
+with the same series name are connected with a line in the plot. The rest of the
+arguments specify the kernel and how the required quantities should be measured.
+
+In the rest of the loop, the throughput and the operation count are measured and
+printed to the console. This is an example of how to use the quantity measuring
+service.
+
+The last statement of the measure() body causes the plot to be output to a file
+in the current directory. This involves the invocation of gnuplot.
+
+During the invocation of addRooflinePoint() and the quantity measuring service a
+lot was going on under the hood. First a measurement was created from the
+kernel and the measurers required to measure the requested quantities. Then was
+checked if there is already a result for the measurement in the cache. If not,
+the measurement was serialized, the measuring core was configured, built
+and started. Then the result of the core was parsed and stored in the cache.
+And finally, the requested quantities were caculated.
+
+The only measurement specific part involved in this process is the
+implementation of the kernel. First the header:
+
+\begin{lstlisting}[language=C++]
+class TriadKernel : public TriadKernelData{
+	double *a,*b,*c;
+	
+protected:
+	std::vector<std::pair<void*,long> > getBuffers();
+
+public:
+	void initialize();
+	void run();
+	void dispose();
+};
+\end{lstlisting}
+
+The kernel requires three buffers. All declared methods override methods
+from the KernelBase. The buffers are allocated and initialized in
+initialize() and freed in dispose(). getBuffers() returns the buffers along with
+their sizes. This is used to clear the or warm the caches. run() contains the
+actual algorithm. 
+
+
+\begin{lstlisting}[language=C++]
+void TriadKernel::initialize() {
+	srand48(0);
+	size_t size = getBufferSize() * sizeof(double);
+
+	// allocate the buffers
+	a = (double*) malloc(size);
+	b = (double*) malloc(size);
+	c = (double*) malloc(size);
+
+	// initialize the buffers
+	for (long i=0; i<getBufferSize(); i++){
+		a[i]=drand48();
+		b[i]=drand48();
+		c[i]=drand48();
+	}
+}
+
+std::vector<std::pair<void*, long> > TriadKernel::getBuffers() {
+	size_t size = getBufferSize() * sizeof(double);
+
+	std::vector<std::pair<void*, long> > result;
+	result.push_back(std::make_pair((void*) a, size));
+	result.push_back(std::make_pair((void*) b, size));
+	result.push_back(std::make_pair((void*) c, size));
+	return result;
+}
+
+void TriadKernel::run() {
+	for (long p = 0; p < 1; p++) {
+		for (long i = 0; i < getBufferSize(); i++) {
+			a[i] = b[i] + 2.34 * c[i];
+		}
+	}
+}
+
+void TriadKernel::dispose() {
+	free(a);
+	free(b);
+	free(c);
+}
+
+\end{lstlisting}
 
 \subsection{Multi Language Infrastructure}
 \label{sec:MultiLanguageInfrastructure}
