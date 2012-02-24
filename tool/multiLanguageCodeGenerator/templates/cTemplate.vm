@@ -14,13 +14,12 @@
 
 #foreach ($reference in $references)
 class $reference;
-## include "${reference}.h"
 #end
 
 class $class.Name;
 
-#if ($class.hascBaseType())
-\#include "sharedDOM/${class.cBaseType}.h"
+#if ($class.class.simpleName=="MultiLanguageDerivedClass")
+\#include "${baseClassInclude}.h"
 #end
 						
 /** $class.comment */

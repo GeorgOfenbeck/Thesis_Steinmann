@@ -2,9 +2,12 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.DummyKernel;
+import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 
 import com.google.inject.Inject;
 

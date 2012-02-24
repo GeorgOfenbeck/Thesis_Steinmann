@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<class
+<derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="ListEventsMeasurerOutput" 
-	cBaseType="MeasurerOutputBase"
-	javaBaseType="MeasurerOutputBase"
+	baseType="MeasurerOutputBase"
 	comment="result of the list events measurer">
 	
 	<list name="pmus" type="PmuDescription" comment="list of the available PMUs"/>
-</class>
+</derivedClass>

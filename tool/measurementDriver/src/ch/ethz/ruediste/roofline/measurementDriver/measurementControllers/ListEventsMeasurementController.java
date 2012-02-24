@@ -2,11 +2,11 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.*;
 
-import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
+import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 
 import com.google.inject.Inject;
 

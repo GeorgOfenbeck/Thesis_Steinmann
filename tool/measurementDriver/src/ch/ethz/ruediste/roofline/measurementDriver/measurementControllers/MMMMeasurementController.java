@@ -1,11 +1,10 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.Axes.matrixSizeAxis;
+import static ch.ethz.ruediste.roofline.entities.Axes.matrixSizeAxis;
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm;
+import ch.ethz.ruediste.roofline.entities.Axes;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
@@ -15,6 +14,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
 import com.google.inject.Inject;
 
@@ -64,8 +65,8 @@ public class MMMMeasurementController implements IMeasurementController {
 				}
 				else {
 					configuration
-					.set(QuantityMeasuringService.numberOfMeasurementsKey,
-							1);
+							.set(QuantityMeasuringService.numberOfMeasurementsKey,
+									1);
 				}
 
 				MMMKernel kernel = new MMMKernel();
@@ -118,7 +119,7 @@ public class MMMMeasurementController implements IMeasurementController {
 			}
 
 			space.add(Axes.optimizationAxis, "-O3");
-			Axis<ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
+			Axis<MMMKernel.MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
 					"742250a7-5ea2-4a39-b0c6-7145d0c4b292", "algorithm");
 
 			for (MMMAlgorithm algorithm : algorithms) {
@@ -138,8 +139,8 @@ public class MMMMeasurementController implements IMeasurementController {
 				}
 				else {
 					configuration
-					.set(QuantityMeasuringService.numberOfMeasurementsKey,
-							1);
+							.set(QuantityMeasuringService.numberOfMeasurementsKey,
+									1);
 				}
 				// skip large sizes for tripple loop
 				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TripleLoop
@@ -156,13 +157,13 @@ public class MMMMeasurementController implements IMeasurementController {
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					seriesName = "MMM-Mkl";
-					break;
+				break;
 				case MMMAlgorithm_Blas_Openblas:
 					seriesName = "MMM-OpenBlas";
-					break;
+				break;
 				case MMMAlgorithm_TripleLoop:
 					seriesName = "MMM-TripleLoop";
-					break;
+				break;
 				default:
 					throw new Error("Should not happen");
 
@@ -176,10 +177,10 @@ public class MMMMeasurementController implements IMeasurementController {
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					operation = Operation.DoublePrecisionFlop;
-					break;
+				break;
 				case MMMAlgorithm_Blas_Openblas:
 					operation = Operation.CompInstr;
-					break;
+				break;
 				}
 
 				rooflineController.addRooflinePoint(seriesName, label, kernel,

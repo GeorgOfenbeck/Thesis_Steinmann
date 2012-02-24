@@ -40,8 +40,8 @@ sourcesToDeps=$(addprefix $(BUILD_DIR)/, $(addsuffix .d, $(basename $(1))))
 ALL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.cpp" \( -path "./src/*" -o -path "./generated/*" \) -print))
 SPIRAL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.c" \( -path "./src/spiralFFT/*" \) -print))
 
-# extract the source files for the current kernels, create object file names
-$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedDOM/$(KERNEL_NAME)Kernel.cpp ./src/sharedDOM/$(KERNEL_NAME)/%, $(ALL_SOURCES))))
+# build the names of the source files for each named kernel
+$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./src/sharedEntities/kernels/$(KERNEL_NAME)/%, $(ALL_SOURCES))))
 $(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_OBJECTS_$(KERNEL_NAME)=$(call sourcesToObjects, $(KERNEL_SOURCES_$(KERNEL_NAME)))))
 
 #combine the sources and objects of the individual kernels to a list
@@ -53,7 +53,7 @@ PARENT_SOURCES=$(filter ./src/parent/%.cpp, $(ALL_SOURCES))
 PARENT_OBJECTS=$(call sourcesToObjects, $(PARENT_SOURCES))
 
 # assign the remaining sources to the child
-CHILD_SOURCES=$(filter-out $(KERNEL_SOURCES) $(PARENT_SOURCES) ./src/sharedDOM/%Kernel.cpp, $(ALL_SOURCES))
+CHILD_SOURCES=$(filter-out $(SPIRAL_SOURCES) $(PARENT_SOURCES) ./src/sharedEntities/kernels/%, $(ALL_SOURCES))
 CHILD_OBJECTS=$(call sourcesToObjects, $(CHILD_SOURCES))
 
 SPIRAL_OBJECTS=$(call sourcesToObjects, $(SPIRAL_SOURCES))
@@ -92,7 +92,7 @@ include $(DEP_FILES)
 # special rules for certain files ....
 
 # compile without optimization, to ease generation of code for flushing L1 caches
-$(BUILD_DIR)/./src/sharedDOM/WorkloadClearL1I.o: src/sharedDOM/WorkloadClearL1I.cpp
+$(BUILD_DIR)/./src/sharedEntities/WorkloadClearL1I.o: src/sharedEntities/WorkloadClearL1I.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -ftemplate-depth=4096 -c -o $@ $<
 # add more rules here when needed	
@@ -100,7 +100,7 @@ $(SPIRAL_OBJECTS):$(BUILD_DIR)/%.o: %.c
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O3 -msse2 $(DEP_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(INCLUDE_DIRS) -c -o $@ $<
 
-$(BUILD_DIR)/./generated/sharedDOM/MultiLanguageSerializationService.o: generated/sharedDOM/MultiLanguageSerializationService.cpp
+$(BUILD_DIR)/./generated/sharedEntities/MultiLanguageSerializationService.o: generated/sharedEntities/MultiLanguageSerializationService.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 	

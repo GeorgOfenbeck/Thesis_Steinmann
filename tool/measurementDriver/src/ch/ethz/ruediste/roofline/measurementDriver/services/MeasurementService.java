@@ -10,10 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.IMeasurementFacilility;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.*;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.configurators.*;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;

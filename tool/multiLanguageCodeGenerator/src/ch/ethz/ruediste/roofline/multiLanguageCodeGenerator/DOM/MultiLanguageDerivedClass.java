@@ -32,7 +32,7 @@ public class MultiLanguageDerivedClass extends MultiLanguageClassBase {
 
 	@Override
 	public String getJavaBaseType() {
-		return baseType;
+		return baseClass.getJavaNameQualified();
 	}
 
 	@Override

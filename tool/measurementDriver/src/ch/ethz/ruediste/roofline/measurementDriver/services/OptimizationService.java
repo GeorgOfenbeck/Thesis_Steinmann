@@ -4,13 +4,13 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.KernelBase;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.OptimizationRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.util.IBinaryPredicate;
+import ch.ethz.ruediste.roofline.sharedEntities.KernelBase;
 
 import com.google.inject.Inject;
 

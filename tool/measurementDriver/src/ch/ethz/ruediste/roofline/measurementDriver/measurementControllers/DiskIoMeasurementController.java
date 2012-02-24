@@ -4,9 +4,12 @@ import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.sin
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.services.MeasurementService;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.DiskIoKernel;
+import ch.ethz.ruediste.roofline.sharedEntities.measurers.ExecutionTimeMeasurer;
 
 import com.google.inject.Inject;
 

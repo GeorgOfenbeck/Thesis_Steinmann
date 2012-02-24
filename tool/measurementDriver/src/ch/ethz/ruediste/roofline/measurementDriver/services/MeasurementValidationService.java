@@ -8,10 +8,12 @@ import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.ValidationData.CpuSpecificFile;
+import ch.ethz.ruediste.roofline.entities.*;
+import ch.ethz.ruediste.roofline.entities.ValidationData.CpuSpecificFile;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
+import ch.ethz.ruediste.roofline.sharedEntities.Measurement;
+import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 
 import com.google.inject.Inject;
 

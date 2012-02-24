@@ -2,9 +2,9 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
 import java.util.ArrayList;
 
-import ch.ethz.ruediste.roofline.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public abstract class CombiningQuantityCalculator<T extends Quantity<T>>
 		extends QuantityCalculator<T> {

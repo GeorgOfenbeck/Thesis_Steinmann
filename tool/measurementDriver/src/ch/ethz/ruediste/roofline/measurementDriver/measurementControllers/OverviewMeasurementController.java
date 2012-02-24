@@ -2,12 +2,13 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.MMMKernel.MMMAlgorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.sharedEntities.InstructionSet;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
 import com.google.inject.Inject;
 
@@ -36,6 +37,7 @@ public class OverviewMeasurementController implements IMeasurementController {
 	@Inject
 	FFTMeasurementController fftMeasurementController;
 
+	@SuppressWarnings("unchecked")
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Overview");
 		rooflineController.addPeakPerformance("ADD", Algorithm.Add,

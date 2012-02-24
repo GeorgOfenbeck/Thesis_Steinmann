@@ -1,61 +1,56 @@
 <?xml version="1.0" standalone="yes"?>
-<xs:schema 
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"  
-	>
-        <xs:element name="class">
-          <xs:complexType>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="class">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="classBaseType">
+					<xs:attribute name="cBaseType" type="xs:string" use="required" />
+					<xs:attribute name="javaBaseType" type="xs:string"
+						use="required" />
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
 
-          		<xs:choice minOccurs="0" maxOccurs="unbounded">
-                    <xs:element name="field" type="fieldType" />
-          			<xs:element name="list" type="listType"/>
-          		</xs:choice>
+	<xs:element name="derivedClass">
+		<xs:complexType>
+			<xs:complexContent>
+				<xs:extension base="classBaseType">
+					<xs:attribute name="baseType" type="xs:string" use="required" />
+				</xs:extension>
+			</xs:complexContent>
+		</xs:complexType>
+	</xs:element>
 
-          	<xs:attribute name="name" type="xs:string" use="required"/>
-          	<xs:attribute name="cBaseType" type="xs:string" use="required" />
-          	<xs:attribute name="javaBaseType" type="xs:string" use="required"/>
-          	<xs:attribute name="javaSuffix" type="xs:string" use="optional"/>
-          	<xs:attribute name="cSuffix" type="xs:string" use="optional"/>
-          	<xs:attribute name="isAbstract" type="xs:boolean" use="optional"/>
-          	<xs:attribute name="comment" type="xs:string" use="optional"/>
-          </xs:complexType>
 
-        </xs:element>
-        
-        <xs:element name="derivedClass">
-          <xs:complexType>
+	<xs:complexType name="classBaseType">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="field" type="fieldType" />
+			<xs:element name="list" type="listType" />
+		</xs:choice>
 
-          		<xs:choice minOccurs="0" maxOccurs="unbounded">
-                    <xs:element name="field" type="fieldType" />
-          			<xs:element name="list" type="listType"/>
-          		</xs:choice>
+		<xs:attribute name="javaSuffix" type="xs:string" use="optional" />
+		<xs:attribute name="cSuffix" type="xs:string" use="optional" />
+		<xs:attribute name="isAbstract" type="xs:boolean" use="optional" />
+		<xs:attribute name="comment" type="xs:string" use="optional" />
+	</xs:complexType>
 
-          	<xs:attribute name="name" type="xs:string" use="required"/>
-          	<xs:attribute name="baseType" type="xs:string" use="required" />
-          	<xs:attribute name="javaSuffix" type="xs:string" use="optional"/>
-          	<xs:attribute name="cSuffix" type="xs:string" use="optional"/>
-          	<xs:attribute name="isAbstract" type="xs:boolean" use="optional"/>
-          	<xs:attribute name="comment" type="xs:string" use="optional"/>
-          </xs:complexType>
+	<xs:complexType name="fieldBaseType">
+		<xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="type" type="xs:string" use="required"></xs:attribute>
+		<xs:attribute name="comment" type="xs:string" use="optional"></xs:attribute>
+	</xs:complexType>
 
-        </xs:element>
-  
+	<xs:complexType name="fieldType">
+		<xs:complexContent>
+			<xs:extension base="fieldBaseType"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
 
-        <xs:complexType name="fieldBaseType">
-        	<xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
-        	<xs:attribute name="type" type="xs:string" use="required"></xs:attribute>
-        	<xs:attribute name="comment" type="xs:string" use="optional"></xs:attribute>
-        </xs:complexType>
+	<xs:complexType name="listType">
+		<xs:complexContent>
+			<xs:extension base="fieldBaseType"></xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
 
-        <xs:complexType name="fieldType">
-        	<xs:complexContent>
-        		<xs:extension base="fieldBaseType"></xs:extension>
-        	</xs:complexContent>
-        </xs:complexType>
-
-    <xs:complexType name="listType">
-    	<xs:complexContent>
-    		<xs:extension base="fieldBaseType"></xs:extension>
-    	</xs:complexContent>
-    </xs:complexType>
-   
 </xs:schema>

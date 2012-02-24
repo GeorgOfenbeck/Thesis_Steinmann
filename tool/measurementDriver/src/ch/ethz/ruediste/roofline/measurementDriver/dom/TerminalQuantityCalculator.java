@@ -2,8 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.dom.MeasurerBase;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
+import ch.ethz.ruediste.roofline.sharedEntities.MeasurerBase;
 
 public abstract class TerminalQuantityCalculator<T extends Quantity<T>> extends
 		QuantityCalculator<T> {

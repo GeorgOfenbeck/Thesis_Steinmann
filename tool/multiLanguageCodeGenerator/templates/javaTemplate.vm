@@ -4,7 +4,7 @@
 ##
 ## A list always has a new list instance as default value.
 ##
-package ch.ethz.ruediste.roofline.dom;
+package $class.javaPackage;
 
 import java.util.LinkedList;
 import java.util.List;

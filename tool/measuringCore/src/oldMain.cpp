@@ -1,9 +1,9 @@
-#include "sharedDOM/MultiLanguageSerializationService.h"
-#include "sharedDOM/MultiLanguageTestClass.h"
-#include "sharedDOM/MeasurementDescription.h"
-#include "sharedDOM/MeasurementCommand.h"
-#include "sharedDOM/MeasurementRunOutputCollection.h"
-#include "sharedDOM/MeasurementRunOutput.h"
+#include "sharedEntities/MultiLanguageSerializationService.h"
+#include "sharedEntities/MultiLanguageTestClass.h"
+#include "sharedEntities/MeasurementDescription.h"
+#include "sharedEntities/MeasurementCommand.h"
+#include "sharedEntities/MeasurementRunOutputCollection.h"
+#include "sharedEntities/MeasurementRunOutput.h"
 #include "typeRegistry/TypeRegistry.h"
 #include "typeRegistry/TypeRegistryEntry.h"
 #include "baseClasses/KernelBase.h"
@@ -81,7 +81,7 @@ using namespace std;
  }
  */
 
-#include "sharedDOM/MemoryKernelDescription.h"
+#include "sharedEntities/MemoryKernelDescription.h"
 
 /*
  * Print a progress bar. Completed is the amount of work which is completed already,

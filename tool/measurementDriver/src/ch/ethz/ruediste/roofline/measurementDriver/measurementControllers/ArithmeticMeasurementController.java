@@ -1,14 +1,12 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.Axes.*;
+import static ch.ethz.ruediste.roofline.entities.Axes.*;
 
 import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -17,6 +15,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
+import ch.ethz.ruediste.roofline.sharedEntities.InstructionSet;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 
 import com.google.inject.Inject;
 
@@ -57,7 +58,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 		space.add(instructionSetAxis, InstructionSet.SSEScalar);
 		optimizationMap
-		.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
+				.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
 		operationMap.put(InstructionSet.SSEScalar,
 				Operation.DoublePrecisionFlop);
 
@@ -79,7 +80,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 				.getAllAxesWithLeastSignificantAxes(arithmeticOperationAxis,
 						dlpAxis, unrollAxis, iterationsAxis
 
-						))) {
+				))) {
 			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);

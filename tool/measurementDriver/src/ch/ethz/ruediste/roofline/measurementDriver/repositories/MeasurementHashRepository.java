@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.*;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class MeasurementHashRepository {
 	private static Logger log = Logger

@@ -1,5 +1,7 @@
 package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
 
+import java.util.*;
+
 /**
  * Describes the type of a field. Various information is needed for a field type
  * in order to generate the source code in both C and Java, and for
@@ -15,6 +17,7 @@ public class FieldTypeDescriptor {
 	private boolean isReference;
 	private String cDefault;
 	private String javaDefault;
+	private List<String> path = new ArrayList<String>();
 
 	/**
 	 * Initialize an instance
@@ -56,12 +59,13 @@ public class FieldTypeDescriptor {
 	 * @param name
 	 *            Name of the MultiLanugageClass.
 	 */
-	public FieldTypeDescriptor(String name) {
+	public FieldTypeDescriptor(MultiLanguageClassBase clazz) {
 		isReference = true;
-		this.name = name;
+		this.name = clazz.getName();
+		this.path = clazz.getPath();
 		this.cName = name;
-		this.javaName = name;
-		this.javaBoxedName = name;
+		this.javaName = clazz.getJavaNameQualified();
+		this.javaBoxedName = javaName;
 		this.cDefault = "NULL";
 	}
 
@@ -127,5 +131,13 @@ public class FieldTypeDescriptor {
 
 	public boolean hasJavaDefault() {
 		return javaDefault != null && !javaDefault.isEmpty();
+	}
+
+	public List<String> getPath() {
+		return path;
+	}
+
+	public void setPath(List<String> path) {
+		this.path = path;
 	}
 }

@@ -1,17 +1,18 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import static ch.ethz.ruediste.roofline.dom.Axes.*;
+import static ch.ethz.ruediste.roofline.entities.Axes.*;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 
 import com.google.inject.Inject;
 
@@ -35,15 +36,15 @@ public class RooflineService {
 		case Add:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_ADD);
-			break;
+		break;
 		case ArithBalanced:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MULADD);
-			break;
+		break;
 		case Mul:
 			kernelParameters.set(arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MUL);
-			break;
+		break;
 		case Load:
 		case MemBalanced:
 		case Store:
@@ -66,19 +67,19 @@ public class RooflineService {
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.DoublePrecisionFlop);
-			break;
+		break;
 		case SSEScalar:
 			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.DoublePrecisionFlop);
-			break;
+		break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
 					QuantityMeasuringService.Operation.CompInstr);
-			break;
+		break;
 
 		}
 
@@ -92,7 +93,7 @@ public class RooflineService {
 		}
 
 		// optimize instruction mix, too
-		if (algorithm==Algorithm.ArithBalanced){
+		if (algorithm == Algorithm.ArithBalanced) {
 			for (int i = 1; i <= 3; i++) {
 				optimzationSpace.add(arithBalancedAdditionsAxis, i);
 				optimzationSpace.add(arithBalancedMultiplicationsAxis, i);
@@ -115,9 +116,9 @@ public class RooflineService {
 		// measure the performance
 		Performance performance = quantityMeasuringService.measurePerformance(
 				kernel, measurementCoordinate
-				.get(QuantityMeasuringService.operationAxis),
+						.get(QuantityMeasuringService.operationAxis),
 				measurementCoordinate
-				.get(QuantityMeasuringService.clockTypeAxis));
+						.get(QuantityMeasuringService.clockTypeAxis));
 
 		log.info(String.format(
 				"peak performance for %s %s %s: parameters: %s value: %f",
@@ -137,7 +138,7 @@ public class RooflineService {
 			kernel = new MemoryKernel();
 			kernelParameters.set(optimizationAxis, "-O3 -msse");
 			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 10);
-			break;
+		break;
 		case Add:
 		case ArithBalanced:
 		case Mul:

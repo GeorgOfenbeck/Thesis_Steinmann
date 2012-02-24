@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.ethz.ruediste.roofline.dom.MultiLanguageSerializationService;
-import ch.ethz.ruediste.roofline.dom.MultiLanguageTestClass;
+import ch.ethz.ruediste.roofline.sharedEntities.MultiLanguageTestClass;
 
 //import com.sun.xml.internal.ws.util.ByteArrayBuffer;
 

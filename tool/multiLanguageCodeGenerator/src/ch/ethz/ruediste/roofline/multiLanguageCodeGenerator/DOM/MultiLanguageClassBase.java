@@ -2,14 +2,22 @@ package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
 
 import java.util.*;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.thoughtworks.xstream.annotations.*;
 
 public abstract class MultiLanguageClassBase {
+	public static final String javaBasePackage = "ch.ethz.ruediste.roofline.sharedEntities";
 
 	@XStreamImplicit
 	private LinkedList<MultiLanguageFieldBase> fields = new LinkedList<MultiLanguageFieldBase>();
-	@XStreamAsAttribute
+
+	@XStreamOmitField
 	protected String name;
+
+	@XStreamOmitField
+	private List<String> path = new ArrayList<String>();
+
 	@XStreamAsAttribute
 	protected String javaSuffix = "";
 	@XStreamAsAttribute
@@ -143,5 +151,29 @@ public abstract class MultiLanguageClassBase {
 
 	public boolean isKernel() {
 		return name.endsWith("Kernel");
+	}
+
+	/**
+	 * the path to the class. This is the package in the Java source code and
+	 * the folder in the C++ source code
+	 */
+	public List<String> getPath() {
+		return path;
+	}
+
+	public void setPath(List<String> path) {
+		this.path = path;
+	}
+
+	public String getJavaNameQualified() {
+		return getJavaPackage() + "." + name;
+	}
+
+	public String getJavaPackage() {
+		String result = javaBasePackage;
+		if (!path.isEmpty()) {
+			result = result + "." + StringUtils.join(path, ".");
+		}
+		return result;
 	}
 }

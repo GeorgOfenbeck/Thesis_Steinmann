@@ -1,12 +1,9 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.Axes.*;
+import static ch.ethz.ruediste.roofline.entities.Axes.*;
 
 import java.io.IOException;
 
-import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.MemoryKernel.MemoryOperation;
-import ch.ethz.ruediste.roofline.dom.MemoryKernel.PrefetchType;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -15,6 +12,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.MemoryOperation;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.PrefetchType;
 
 import com.google.inject.Inject;
 
@@ -59,7 +59,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 		}
 
 		space.add(prefetchDistanceAxis, 0L);
-		for (long i = 64; i <= 2048; i*=2) {
+		for (long i = 64; i <= 2048; i *= 2) {
 			space.add(prefetchDistanceAxis, i);
 		}
 
@@ -73,7 +73,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
 						memoryOperationAxis, iterationsAxis
 
-						))) {
+				))) {
 			MemoryKernel kernel = new MemoryKernel();
 			kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
 			kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));

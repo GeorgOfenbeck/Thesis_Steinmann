@@ -11,12 +11,13 @@ public class Utility {
 		for (File file : directory.listFiles()) {
 			if (file.isDirectory()) {
 				deleteDirectory(file);
-			} else {
-				System.out.println("deleting file " + file.getAbsolutePath());
+			}
+			else {
+				//System.out.println("deleting file " + file.getAbsolutePath());
 				file.delete();
 			}
 		}
-		System.out.println("deleting directory " + directory.getAbsolutePath());
+		//System.out.println("deleting directory " + directory.getAbsolutePath());
 		directory.delete();
 	}
 }

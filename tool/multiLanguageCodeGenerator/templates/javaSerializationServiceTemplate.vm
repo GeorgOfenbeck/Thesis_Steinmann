@@ -1,6 +1,6 @@
 ## see the documentation for more information
 
-package ch.ethz.ruediste.roofline.dom;
+package $javaBasePackage;
 
 import java.io.*;
 import java.util.Scanner;
@@ -116,7 +116,7 @@ public class MultiLanguageSerializationService{
 		##iterate over all classes	
 		#foreach($class in $classes)
 			#if(!$class.isAbstract())
-				if (o.getClass()==${class.name}.class){
+				if (o.getClass()==${class.javaNameQualified}.class){
 					output.println("$class.name");
 		
 					## iterate over all fields
@@ -128,14 +128,14 @@ public class MultiLanguageSerializationService{
 						## check if the field is a list
 						#if ($field.class.simpleName=="MultiLanguageList")
 							## print the field size
-							output.println((($class.name)o).get${field.nameUpperCamel}().size());
+							output.println((($class.javaNameQualified)o).get${field.nameUpperCamel}().size());
 							
 							## serialize all elements		
-							for($field.typeDescriptor.javaBoxedName value : (($class.name)o).get${field.nameUpperCamel}()){
+							for($field.typeDescriptor.javaBoxedName value : (($class.javaNameQualified)o).get${field.nameUpperCamel}()){
 								#serializeNonList("value")
 							}
 						#else
-							#serializeNonList("(($class.name)o).get${field.nameUpperCamel}()")
+							#serializeNonList("(($class.javaNameQualified)o).get${field.nameUpperCamel}()")
 						#end
 					#end
 					return;
@@ -172,7 +172,7 @@ private Object DeSerializeImp(Scanner scanner) {
 		#if(!$class.isAbstract())
 			if (scanner.hasNext("$class.name")){
 				// instantiate the resulting class instance
-				$class.name result=new ${class.name}();
+				$class.javaNameQualified result=new ${class.javaNameQualified}();
 				
 				// remove the class name
 				scanner.next("$class.name");

@@ -2,9 +2,9 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.quantities;
 
 import java.util.Collections;
 
-import ch.ethz.ruediste.roofline.dom.MeasurerOutputBase;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
+import ch.ethz.ruediste.roofline.sharedEntities.MeasurerOutputBase;
 
 public abstract class Quantity<TDerived extends Quantity<TDerived>> implements
 		Comparable<Quantity<TDerived>> {

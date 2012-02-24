@@ -1,13 +1,12 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.dom.Axes.clockTypeAxis;
+import static ch.ethz.ruediste.roofline.entities.Axes.clockTypeAxis;
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 
 import java.io.IOException;
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -16,6 +15,11 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 
 import com.google.inject.Inject;
 
@@ -131,7 +135,8 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		MeasurementResult result = measurementService.measure(measurement, 1);
 
 		Time executionTime = timeCalc.getResult(result
-				.getMeasurerOutputsUntyped(single(timeCalc.getRequiredMeasurers())));
+				.getMeasurerOutputsUntyped(single(timeCalc
+						.getRequiredMeasurers())));
 		return executionTime;
 	}
 

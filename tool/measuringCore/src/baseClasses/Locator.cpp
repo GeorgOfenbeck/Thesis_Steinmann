@@ -7,10 +7,10 @@
 
 #include "Locator.h"
 
-#include "sharedDOM/Rule.h"
-#include "sharedDOM/Measurement.h"
-#include "sharedDOM/Workload.h"
-#include "sharedDOM/ActionBase.h"
+#include "sharedEntities/Rule.h"
+#include "sharedEntities/Measurement.h"
+#include "sharedEntities/Workload.h"
+#include "sharedEntities/ActionBase.h"
 
 #include "utils.h"
 

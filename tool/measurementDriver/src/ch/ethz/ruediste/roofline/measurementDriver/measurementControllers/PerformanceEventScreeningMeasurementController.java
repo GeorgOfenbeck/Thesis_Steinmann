@@ -6,12 +6,15 @@ import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.dom.*;
-import ch.ethz.ruediste.roofline.dom.ArithmeticKernel.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 
 import com.google.inject.Inject;
 
@@ -63,29 +66,29 @@ public class PerformanceEventScreeningMeasurementController implements
 		{
 			MemoryKernel kernel = new MemoryKernel();
 			kernel.setBufferSize(1024 * 1024 * 2);
-			kernels.add(Pair.of((KernelBase) kernel, "MemoryLoad "
-					+ kernel.getBufferSize()));
+			kernels.add(Pair.of((KernelBase) kernel,
+					"MemoryLoad " + kernel.getBufferSize()));
 		}
 
 		{
 			MemoryKernel kernel = new MemoryKernel();
 			kernel.setBufferSize(1024 * 1024 * 4);
-			kernels.add(Pair.of((KernelBase) kernel, "MemoryLoad "
-					+ kernel.getBufferSize()));
+			kernels.add(Pair.of((KernelBase) kernel,
+					"MemoryLoad " + kernel.getBufferSize()));
 		}
 
 		{
 			TriadKernel kernel = new TriadKernel();
 			kernel.setBufferSize(1024 * 1024 * 2);
-			kernels.add(Pair.of((KernelBase) kernel, "Triad "
-					+ kernel.getBufferSize()));
+			kernels.add(Pair.of((KernelBase) kernel,
+					"Triad " + kernel.getBufferSize()));
 		}
 
 		{
 			TriadKernel kernel = new TriadKernel();
 			kernel.setBufferSize(1024 * 1024 * 4);
-			kernels.add(Pair.of((KernelBase) kernel, "Triad "
-					+ kernel.getBufferSize()));
+			kernels.add(Pair.of((KernelBase) kernel,
+					"Triad " + kernel.getBufferSize()));
 		}
 
 		{
@@ -93,16 +96,16 @@ public class PerformanceEventScreeningMeasurementController implements
 			kernel.setIterations(1024 * 1024);
 			kernel.setUnroll(8);
 			kernel.setOperation(ArithmeticOperation.ArithmeticOperation_ADD);
-			kernels.add(Pair.of((KernelBase) kernel, "Arithmetic "
-					+ kernel.getIterations()));
+			kernels.add(Pair.of((KernelBase) kernel,
+					"Arithmetic " + kernel.getIterations()));
 		}
 
 		{
 			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.setIterations(1024 * 1024 * 2);
 			kernel.setUnroll(8);
-			kernels.add(Pair.of((KernelBase) kernel, "Arithmetic "
-					+ kernel.getIterations()));
+			kernels.add(Pair.of((KernelBase) kernel,
+					"Arithmetic " + kernel.getIterations()));
 		}
 
 		for (Pair<KernelBase, String> pair : kernels) {

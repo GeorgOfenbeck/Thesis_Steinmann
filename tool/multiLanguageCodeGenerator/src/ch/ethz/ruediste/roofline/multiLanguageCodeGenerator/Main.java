@@ -3,9 +3,9 @@ package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.*;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.cGenerator.CCodeGenerator;
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.javaGenerator.JavaCodeGenerator;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -16,19 +16,21 @@ public class Main {
 	public static void main(String args[]) throws FileNotFoundException {
 
 		// get input filenames
-		File[] inputFiles = scanClassDefinitionDirectory(new File(
-				"./definitions"));
+		File classDefinitionDirectory = new File("./definitions");
+
+		File[] inputFiles = scanClassDefinitionDirectory(classDefinitionDirectory);
 
 		// create Type Descriptors
 		HashMap<String, FieldTypeDescriptor> typeDescriptors = createTypeDescriptorsForPrimitiveTypes();
 
 		// load the class definitions
-		List<MultiLanguageClassBase> classes = loadClassDefinitions(inputFiles);
+		List<MultiLanguageClassBase> classes = loadClassDefinitions(inputFiles,
+				classDefinitionDirectory);
 
 		// create type descriptor for each loaded class
 		for (MultiLanguageClassBase multiLanguageClass : classes) {
 			typeDescriptors.put(multiLanguageClass.getName(),
-					new FieldTypeDescriptor(multiLanguageClass.getName()));
+					new FieldTypeDescriptor(multiLanguageClass));
 		}
 
 		// set type descriptors of all fields in all classes
@@ -78,9 +80,14 @@ public class Main {
 				multiLanguageClass.getBaseType(), multiLanguageClass.getName()));
 	}
 
-	/** load all class definitions defined in the given input files */
+	/**
+	 * load all class definitions defined in the given input files
+	 * 
+	 * @param classDefinitionDirectory
+	 *            base directory of the class definitions
+	 */
 	private static List<MultiLanguageClassBase> loadClassDefinitions(
-			File[] inputFiles) {
+			File[] inputFiles, File classDefinitionDirectory) {
 		// inistialize XStream
 		XStream xStream = createXStream();
 
@@ -91,12 +98,48 @@ public class Main {
 			// load the input
 			MultiLanguageClassBase multiLanguageClass = (MultiLanguageClassBase) xStream
 					.fromXML(inputFile);
-			System.out.println(xStream.toXML(multiLanguageClass));
+
+			// set the name and the path of the loaded class
+			multiLanguageClass.setName(StringUtils.removeEnd(
+					inputFile.getName(), ".xml"));
+			multiLanguageClass.setPath(getRelativePath(
+					classDefinitionDirectory, inputFile.getParentFile()));
+
+			System.out.printf("name: %s path: %s\n",
+					multiLanguageClass.getName(),
+					StringUtils.join(multiLanguageClass.getPath(), "/"));
+			//System.out.println(xStream.toXML(multiLanguageClass));
 
 			// add class to the list of classes
 			classes.add(multiLanguageClass);
 		}
 		return classes;
+	}
+
+	/**
+	 * get's the relative path from parent to child
+	 * 
+	 * @param classDefinitionDirectory
+	 * @param parentFile
+	 * @return
+	 */
+	private static List<String> getRelativePath(File parent, File child) {
+		File current = child;
+		ArrayList<String> result = new ArrayList<String>();
+
+		while (!current.equals(parent)) {
+			// add the current directory to the path
+			result.add(current.getName());
+
+			// move one level up in the hierarchy
+			current = current.getParentFile();
+		}
+
+		// since we added the directories in reverse order, 
+		// reverse the result
+		Collections.reverse(result);
+
+		return result;
 	}
 
 	/**

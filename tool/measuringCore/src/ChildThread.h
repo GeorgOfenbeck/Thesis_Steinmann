@@ -7,7 +7,7 @@
 
 #ifndef CHILDTHREAD_H_
 #define CHILDTHREAD_H_
-#include "sharedDOM/ActionBase.h"
+#include "sharedEntities/ActionBase.h"
 #include <map>
 #include <sys/types.h>
 #include <queue>

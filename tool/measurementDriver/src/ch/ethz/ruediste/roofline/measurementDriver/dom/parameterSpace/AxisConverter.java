@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace;
 
-import ch.ethz.ruediste.roofline.dom.Axes;
+import ch.ethz.ruediste.roofline.entities.Axes;
 
 import com.thoughtworks.xstream.converters.*;
 import com.thoughtworks.xstream.io.*;
