@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
+package ch.ethz.ruediste.roofline.sharedEntityGenerator;
 
 import java.io.*;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.apache.velocity.app.*;
 import org.apache.velocity.runtime.RuntimeServices;
 import org.apache.velocity.runtime.log.LogChute;
 
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
+import ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.MultiLanguageClassBase;
 
 /**
  * base class for code generators. Initializes the velocity engine and provides

@@ -1,11 +1,11 @@
-package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
+package ch.ethz.ruediste.roofline.sharedEntityGenerator;
 
 import java.io.*;
 import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.*;
+import ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.*;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;

@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
+package ch.ethz.ruediste.roofline.sharedEntityGenerator;
 
 import java.io.File;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.*;
 
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.MultiLanguageClassBase;
+import ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.MultiLanguageClassBase;
 
 /** Generates Java for a list of multi language classes */
 public class JavaCodeGenerator extends CodeGeneratorBase {

@@ -31,19 +31,19 @@ clean.delete 'bin/'
 jar {
     manifest {
         attributes(
-	    "Main-Class": "ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.Main"
+	    "Main-Class": "ch.ethz.ruediste.roofline.sharedEntityGenerator.Main"
 	)
     }
 }
 
 // task for building the multi language classes 
-task generateMultiLanguageClasses(type: JavaExec){
+task generateSharedEntities(type: JavaExec){
 	dependsOn classes
 	outputs.upToDateSpec = new org.gradle.api.specs.AndSpec()
-	main 'ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.Main'
+	main 'ch.ethz.ruediste.roofline.sharedEntityGenerator.Main'
 	classpath configurations.runtime+sourceSets.main.output
-	inputs.dir '../multiLanguageClasses/definitions'
-	outputs.dir '../multiLanguageClasses/generatedC'
-	outputs.dir '../multiLanguageClasses/generatedJava'
-	workingDir '../multiLanguageClasses'
+	inputs.dir '../sharedEntities/definitions'
+	outputs.dir '../sharedEntities/generatedC'
+	outputs.dir '../sharedEntities/generatedJava'
+	workingDir '../sharedEntities'
 }

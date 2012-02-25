@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
+package ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM;
 
 import java.util.*;
 

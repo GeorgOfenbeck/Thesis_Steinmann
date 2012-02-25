@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM;
+package ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
@@ -22,7 +22,7 @@ public class MultiLanguageClass extends MultiLanguageClassBase {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.IMultiLanguageClass
+	 * ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.IMultiLanguageClass
 	 * #getcBaseType()
 	 */
 	@Override
@@ -34,7 +34,7 @@ public class MultiLanguageClass extends MultiLanguageClassBase {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.IMultiLanguageClass
+	 * ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.IMultiLanguageClass
 	 * #hascBaseType()
 	 */
 	@Override
@@ -46,7 +46,7 @@ public class MultiLanguageClass extends MultiLanguageClassBase {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.IMultiLanguageClass
+	 * ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.IMultiLanguageClass
 	 * #setcBaseType(java.lang.String)
 	 */
 	public void setcBaseType(String cBaseType) {
@@ -57,7 +57,7 @@ public class MultiLanguageClass extends MultiLanguageClassBase {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.IMultiLanguageClass
+	 * ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.IMultiLanguageClass
 	 * #getJavaBaseType()
 	 */
 	@Override
@@ -69,7 +69,7 @@ public class MultiLanguageClass extends MultiLanguageClassBase {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.IMultiLanguageClass
+	 * ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.IMultiLanguageClass
 	 * #hasJavaBaseType()
 	 */
 	@Override
@@ -81,7 +81,7 @@ public class MultiLanguageClass extends MultiLanguageClassBase {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.IMultiLanguageClass
+	 * ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.IMultiLanguageClass
 	 * #setJavaBaseType(java.lang.String)
 	 */
 	public void setJavaBaseType(String javaBaseType) {

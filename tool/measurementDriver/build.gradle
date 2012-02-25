@@ -14,7 +14,7 @@ eclipse.classpath.file {
     whenMerged 
     { classpath ->
         classpath.entries.each {
-        	if (it.path.equals("../multiLanguageClasses/generatedJava")){
+        	if (it.path.equals("../sharedEntities/generatedJava")){
         	  it.path="generatedJava";
         	}
        	}
@@ -80,7 +80,7 @@ jar {
 }
 
 // make sure multi language classes are generated before the measurement driver
-compileJava.dependsOn ':multiLanguageCodeGenerator:generateMultiLanguageClasses'
+compileJava.dependsOn ':sharedEntityGenerator:generateSharedEntities'
 
 // create a runnable jar file for the measuringDriver
 task runnableJar (dependsOn: jar, type: Zip) {

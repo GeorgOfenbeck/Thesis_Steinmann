@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.multiLanguageCodeGenerator;
+package ch.ethz.ruediste.roofline.sharedEntityGenerator;
 
 import java.io.File;
 import java.util.*;
@@ -6,7 +6,7 @@ import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.*;
 
-import ch.ethz.ruediste.roofline.multiLanguageCodeGenerator.DOM.*;
+import ch.ethz.ruediste.roofline.sharedEntityGenerator.DOM.*;
 
 /** generates c code from a shared class */
 public class CCodeGenerator extends CodeGeneratorBase {

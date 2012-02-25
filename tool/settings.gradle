@@ -1,5 +1,5 @@
-include 'multiLanguageCodeGenerator'
+include 'sharedEntityGenerator'
 include 'measurementDriver'
-include 'testSerialization'
+include 'unitTests'
 include 'frontend'
 
