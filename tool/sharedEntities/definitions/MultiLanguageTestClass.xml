@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="MultiLanguageTestClass" 
-	cBaseType="MultiLanguageObjectBase"
+	cBaseType="SharedEntityBase"
 	javaBaseType=""
 	comment="Multi Language Class used for unit tests">
   <field  name="longField" type="long" comment="test field with type 'long'"/>

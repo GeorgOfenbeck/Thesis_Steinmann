@@ -25,13 +25,13 @@ MultiLanguageSerializationService::MultiLanguageSerializationService() {
 MultiLanguageSerializationService::~MultiLanguageSerializationService() {
 	// TODO Auto-generated destructor stub
 }
-void MultiLanguageSerializationService::Serialize(MultiLanguageObjectBase *o,
+void MultiLanguageSerializationService::Serialize(SharedEntityBase *o,
 		std::ostream & output) {
 	SerializationContext ctx;
 	ctx.Serialize(o, output);
 }
 
-void SerializationContext::Serialize(MultiLanguageObjectBase *o,
+void SerializationContext::Serialize(SharedEntityBase *o,
 		std::ostream & output) {
 	foreach (Serializer *serializer, Serializer::getSerializers())
 			{
@@ -42,13 +42,13 @@ void SerializationContext::Serialize(MultiLanguageObjectBase *o,
 	throw Exception((std::string) "Unknown class: " + typeid(o).name());
 }
 
-MultiLanguageObjectBase *MultiLanguageSerializationService::DeSerialize(
+SharedEntityBase *MultiLanguageSerializationService::DeSerialize(
 		std::istream & input) {
 	DeSerializationContext ctx;
 	return ctx.DeSerialize(input);
 }
 
-MultiLanguageObjectBase *DeSerializationContext::DeSerialize(
+SharedEntityBase *DeSerializationContext::DeSerialize(
 		std::istream & input) {
 	string line;
 

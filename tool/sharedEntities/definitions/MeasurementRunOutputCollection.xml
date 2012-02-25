@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="MeasurementRunOutputCollection" 
-	cBaseType="MultiLanguageObjectBase"
+	cBaseType="SharedEntityBase"
 	javaBaseType=""
 	comment="Transfer object used to transfer MeasurementRunOutputs">
   <list  name="outputs" type="MeasurementRunOutput" comment="the transferred measurement run outputs"/>

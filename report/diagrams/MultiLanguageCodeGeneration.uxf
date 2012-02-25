@@ -33,7 +33,7 @@ MeasurementDriver</panel_attributes>
       <h>200</h>
     </coordinates>
     <panel_attributes>--
-MultiLanguageClasses
+SharedEntities
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -134,7 +134,7 @@ MultiLanguageClasses
       <h>200</h>
     </coordinates>
     <panel_attributes>--
-MultiLanguageCodeGenerator</panel_attributes>
+SharedEntityGenerator</panel_attributes>
     <additional_attributes/>
   </element>
   <element>

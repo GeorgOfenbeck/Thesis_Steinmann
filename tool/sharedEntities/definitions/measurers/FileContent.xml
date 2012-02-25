@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="FileContent" 
-	cBaseType="MultiLanguageObjectBase"
+	cBaseType="SharedEntityBase"
 	comment="content of an obeserved file">
 	
 	<field name="fileName" type="string" comment="name of the observed file"/>

@@ -8,7 +8,7 @@
 #ifndef SERIALIZER_H_
 #define SERIALIZER_H_
 
-#include "sharedEntities/MultiLanguageObjectBase.h"
+#include "baseClasses/SharedEntityBase.h"
 
 #include <string>
 #include <cstdio>
@@ -42,11 +42,11 @@ public:
 	}
 
 	virtual ~Serializer();
-	virtual bool canSerialize(MultiLanguageObjectBase *obj)=0;
-	virtual void serialize(MultiLanguageObjectBase *o, ostream &output, SerializationContext *ctx)=0;
+	virtual bool canSerialize(SharedEntityBase *obj)=0;
+	virtual void serialize(SharedEntityBase *o, ostream &output, SerializationContext *ctx)=0;
 
 	virtual bool canDeSerialize(string className)=0;
-	virtual MultiLanguageObjectBase *deSerialize(istream &input, DeSerializationContext *ctx)=0;
+	virtual SharedEntityBase *deSerialize(istream &input, DeSerializationContext *ctx)=0;
 
 };
 

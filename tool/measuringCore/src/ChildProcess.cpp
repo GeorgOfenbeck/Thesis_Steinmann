@@ -6,7 +6,7 @@
  */
 
 #include "Logger.h"
-#include "sharedEntities/MultiLanguageSerializationService.h"
+#include "baseClasses/MultiLanguageSerializationService.h"
 #include "sharedEntities/MultiLanguageTestClass.h"
 #include "sharedEntities/MeasurementCommand.h"
 #include "sharedEntities/MeasurementRunOutputCollection.h"

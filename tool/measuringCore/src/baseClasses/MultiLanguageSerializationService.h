@@ -9,16 +9,16 @@
 
 #include <istream>
 #include <ostream>
-#include "MultiLanguageObjectBase.h"
+#include "SharedEntityBase.h"
 
 class SerializationContext {
 public:
-	void Serialize(MultiLanguageObjectBase *o, std::ostream &output);
+	void Serialize(SharedEntityBase *o, std::ostream &output);
 };
 
 class DeSerializationContext {
 public:
-	MultiLanguageObjectBase * DeSerialize(std::istream &input);
+	SharedEntityBase * DeSerialize(std::istream &input);
 };
 
 class MultiLanguageSerializationService {
@@ -27,8 +27,8 @@ public:
 	MultiLanguageSerializationService();
 	virtual ~MultiLanguageSerializationService();
 
-	void Serialize(MultiLanguageObjectBase *o, std::ostream &output);
-	MultiLanguageObjectBase * DeSerialize(std::istream &input);
+	void Serialize(SharedEntityBase *o, std::ostream &output);
+	SharedEntityBase * DeSerialize(std::istream &input);
 
 
 };

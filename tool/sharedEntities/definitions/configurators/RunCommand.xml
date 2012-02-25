@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	name="RunCommand" 
-	cBaseType="MultiLanguageObjectBase"
+	cBaseType="SharedEntityBase"
 	comment="command to be executed">
 	
 	<field name="executable" type="string" comment="executable to start"/>

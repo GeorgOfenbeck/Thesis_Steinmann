@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
 	name="MeasurementCommand" 
-	cBaseType="MultiLanguageObjectBase"
+	cBaseType="SharedEntityBase"
 	javaBaseType=""
 	comment="Command for a measurement">
 	

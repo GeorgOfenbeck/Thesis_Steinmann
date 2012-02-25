@@ -3,17 +3,17 @@
 \#include <typeinfo>
 \#include "Exception.h"
 \#include <iostream>
-\#include "sharedEntities/MultiLanguageSerializationService.h"
+\#include "baseClasses/MultiLanguageSerializationService.h"
 
 #if(!$class.isAbstract())
 static class Serializer${class.name}: public Serializer{
-	bool canSerialize(MultiLanguageObjectBase *obj){
+	bool canSerialize(SharedEntityBase *obj){
 		return typeid(*obj)==typeid($class.name);
 	}
 	
 #macro(serializeNonList $field )
 	#if ($field.typeDescriptor.reference)
-		ctx->Serialize((MultiLanguageObjectBase*)value,output);
+		ctx->Serialize((SharedEntityBase*)value,output);
 	#else
 		#if ($field.type == "string")
 			// escape strings
@@ -24,7 +24,7 @@ static class Serializer${class.name}: public Serializer{
 	#end
 #end 
 
-	void serialize(MultiLanguageObjectBase *o, ostream &output, SerializationContext *ctx){
+	void serialize(SharedEntityBase *o, ostream &output, SerializationContext *ctx){
 		if (o==NULL){
 			output<<"<null>\n";
 			return;
@@ -84,7 +84,7 @@ static class Serializer${class.name}: public Serializer{
 	#end
 #end 
 	
-	MultiLanguageObjectBase *deSerialize(istream &input, DeSerializationContext *ctx){
+	SharedEntityBase *deSerialize(istream &input, DeSerializationContext *ctx){
 		string line;
 	
 		if (input.eof()){
@@ -157,7 +157,7 @@ void ${class.cName}::cloneFrom($class.cName *c){
 			for (unsigned long i=0; i<c->get${field.nameUpperCamel}().size(); i++) {
 				#if ($field.typeDescriptor.reference)
 					if (c->get${field.nameUpperCamel}()[i]!=NULL){
-						get${field.nameUpperCamel}().push_back(($field.getType()*)(((MultiLanguageObjectBase*)($field.getType()*)c->get${field.nameUpperCamel}()[i])->clone()));
+						get${field.nameUpperCamel}().push_back(($field.getType()*)(((SharedEntityBase*)($field.getType()*)c->get${field.nameUpperCamel}()[i])->clone()));
 						}
 					else
 						get${field.nameUpperCamel}().push_back(NULL);
@@ -168,7 +168,7 @@ void ${class.cName}::cloneFrom($class.cName *c){
 		#else
 			#if ($field.typeDescriptor.reference)
 				if (c->get${field.nameUpperCamel}()!=NULL){
-					set${field.nameUpperCamel}(($field.getType()*)(((MultiLanguageObjectBase*)($field.getType()*)c->get${field.nameUpperCamel}())->clone()));
+					set${field.nameUpperCamel}(($field.getType()*)(((SharedEntityBase*)($field.getType()*)c->get${field.nameUpperCamel}())->clone()));
 				}
 			#else
 				set${field.nameUpperCamel}(c->get${field.nameUpperCamel}());
