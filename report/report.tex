@@ -1,13 +1,19 @@
 \documentclass[a4paper,12pt]{article}
 \usepackage{color}
 \usepackage{listings}
+\usepackage{calc}
 
 \usepackage{makeidx}
 
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
 \usepackage{graphicx} 
-
-\newcommand{\umlDiagram}[1]{\begin{center}\includegraphics[scale=0.5]{diagrams/#1.pdf}\end{center}}
+\newlength{\imgwidth}
+\newcommand{\umlDiagram}[1]{%
+	\settowidth{\imgwidth}{\includegraphics{diagrams/#1.pdf}}%
+	\setlength{\imgwidth}{\minof{0.5\imgwidth}{\textwidth}}%
+	\par\vskip0.5cm\noindent\makebox[\textwidth][c]{%
+	\includegraphics[width=\imgwidth]{diagrams/#1.pdf}%
+}\vskip0.5cm}
 
 \newcommand{\umlFloat}[2]{
 \begin{figure}[tbh]
@@ -505,7 +511,7 @@ After the definitions are loaded, Velocity templates are used to generate all
 source code.
 
 A normal entity has a C and a Java base type. The C base type has to directly or
-indirectly inherit from MultiLanguageObjectBase, which is a polymorphic class.
+indirectly inherit from SharedEntityBase, which is a polymorphic class.
 This allows to use the RTTI (RunTime Type Information). Java base types have no
 such constraint (due to the implicit common base class Object). The base types
 are just included in the generated source code, but have no other effect on the
@@ -885,15 +891,14 @@ measurement driver if the macro definition changes. Every source file which
 needs a macro definition includes the corresponding file. These inclusions are
 tracked and allow to only recompile the affected source files.
 \item[Compiler flags] 
-Only the measurer, measurement scheme and kernel need to be compiled using the
-compiler flags specified by the measurement. The compiler flags used for the
-rest of the measuring core do not affect the measurement results. The compiler
+Each kernel specifies it's own optimization flags. The compiler flags used for
+the rest of the measuring core do not affect the measurement results. The compiler
 flags are stored in a separate file. Whenever it is changed, the parts affected
 are recompiled.
-\item[Combination of measurer, measurement scheme and kernel]
-The measurement scheme has template parameters for the kernel and the measurer.
-The measurement driver stores the template instantiation used for a specific
-measurement in a separate file, which is recompiled whenever it is changed.
+\item[Compiled Kernels]
+For each measurement, only the kernels actually used are compiled. The
+measurement driver writes the kernel names into a separate file. The child
+binary is recompiled when it changes.
 \end{description}
 
 The build process is controlled using the gnu make utility \cite{make}. Make
@@ -903,6 +908,10 @@ files and a recipe. Make checks the modification times of the target and the
 prerequisite files. If any prerequisite is newer than any target, the recipe is
 executed in order to update the traget files. The recipe is a sequence of shell
 commands.
+
+The following diagram shows how the source files are categorized and compiled:
+
+\umlDiagram{MeasuringCoreBuild}
 
 The makefile used for the measuring core first instructs make to use the find
 utility to get a list of all source files (with .cpp extension) in the

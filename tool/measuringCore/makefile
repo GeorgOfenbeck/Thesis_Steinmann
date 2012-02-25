@@ -38,30 +38,30 @@ sourcesToDeps=$(addprefix $(BUILD_DIR)/, $(addsuffix .d, $(basename $(1))))
 
 # search for the source files in the ./src directory. Filter out the ignored source files
 ALL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.cpp" \( -path "./src/*" -o -path "./generated/*" \) -print))
-SPIRAL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.c" \( -path "./src/spiralFFT/*" \) -print))
+
+ALL_KERNEL_SOURCES=$(filter ./src/sharedEntities/kernels/% ./generated/sharedEntities/kernels/%, $(ALL_SOURCES))
 
 # build the names of the source files for each named kernel
-$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./src/sharedEntities/kernels/$(KERNEL_NAME)/% ./generated/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./generated/sharedEntities/kernels/$(KERNEL_NAME)/%, $(ALL_SOURCES))))
+$(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./src/sharedEntities/kernels/$(KERNEL_NAME)/% ./generated/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./generated/sharedEntities/kernels/$(KERNEL_NAME)/%, $(ALL_KERNEL_SOURCES))))
 $(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_OBJECTS_$(KERNEL_NAME)=$(call sourcesToObjects, $(KERNEL_SOURCES_$(KERNEL_NAME)))))
 
 #combine the sources and objects of the individual kernels to a list
-KERNEL_SOURCES=$(foreach kernel,$(KERNEL_NAMES),$(KERNEL_SOURCES_$(kernel)))
-KERNEL_OBJECTS=$(foreach kernel,$(KERNEL_NAMES),$(KERNEL_OBJECTS_$(kernel)))
+CURRENT_KERNEL_SOURCES=$(foreach kernel,$(KERNEL_NAMES),$(KERNEL_SOURCES_$(kernel)))
+CURRENT_KERNEL_OBJECTS=$(foreach kernel,$(KERNEL_NAMES),$(KERNEL_OBJECTS_$(kernel)))
 
 # extract the sources of the parent process
 PARENT_SOURCES=$(filter ./src/parent/%.cpp, $(ALL_SOURCES))
 PARENT_OBJECTS=$(call sourcesToObjects, $(PARENT_SOURCES))
 
 # assign the remaining sources to the child
-CHILD_SOURCES=$(filter-out $(SPIRAL_SOURCES) $(PARENT_SOURCES) ./src/sharedEntities/kernels/% ./generated/sharedEntities/kernels/%, $(ALL_SOURCES))
+CHILD_SOURCES=$(filter-out $(PARENT_SOURCES) $(ALL_KERNEL_SOURCES), $(ALL_SOURCES))
 CHILD_OBJECTS=$(call sourcesToObjects, $(CHILD_SOURCES))
 
-SPIRAL_OBJECTS=$(call sourcesToObjects, $(SPIRAL_SOURCES))
 # search for .d files in the build directories
 PRESENT_DEP_FILES=$(patsubst ./build/%, build/./%, $(shell find -L -name "*.d" -path "./$(BUILD_DIR)/*"))
 
 # generate .d file names from the source file names
-GENERATED_DEP_FILES=$(call sourcesToDeps, $(ALL_SOURCES) $(SPIRAL_SOURCES))
+GENERATED_DEP_FILES=$(call sourcesToDeps, $(ALL_SOURCES))
 
 # keep only the .d files present which are required
 DEP_FILES=$(filter $(GENERATED_DEP_FILES), $(PRESENT_DEP_FILES))
@@ -79,8 +79,8 @@ print:
 	@echo $(CHILD_SOURCES)
 	
 # creates the executable from the .o files
-$(BUILD_DIR)/childProcess: $(CHILD_OBJECTS) $(KERNEL_OBJECTS) $(SPIRAL_OBJECTS) generated/kernelNames.mk
-	$(GCC) -pthread -rdynamic -o $@ $(CHILD_OBJECTS) $(KERNEL_OBJECTS)  $(SPIRAL_OBJECTS) $(LIBS)
+$(BUILD_DIR)/childProcess: $(CHILD_OBJECTS) $(CURRENT_KERNEL_OBJECTS) generated/kernelNames.mk generated/additionalFlags.mk
+	$(GCC) -pthread -rdynamic -o $@ $(CHILD_OBJECTS) $(CURRENT_KERNEL_OBJECTS) $(LIBS)
 
 $(BUILD_DIR)/measuringCore: $(PARENT_OBJECTS) $(BUILD_DIR)/./src/Notifications.o
 	$(GCC) -o $@ $(PARENT_OBJECTS) $(BUILD_DIR)/./src/Notifications.o -lstdc++
@@ -96,21 +96,17 @@ $(BUILD_DIR)/./src/sharedEntities/WorkloadClearL1I.o: src/sharedEntities/Workloa
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -ftemplate-depth=4096 -c -o $@ $<
 # add more rules here when needed	
-$(SPIRAL_OBJECTS):$(BUILD_DIR)/%.o: %.c
-	mkdir -p $(BUILD_DIR)/$(dir $<)
-	$(GCC) $(CFLAGS) -O3 -msse2 $(DEP_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(INCLUDE_DIRS) -c -o $@ $<
-
 $(BUILD_DIR)/./generated/sharedEntities/MultiLanguageSerializationService.o: generated/sharedEntities/MultiLanguageSerializationService.cpp
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 	
-# make the kernels depend on the kernel optimization flags
-$(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/kernelOptimization/kernelOptimization$(kernel).mk))
+# make the kernels depend on the kernel optimization flags and on the additional flags
+$(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/kernelOptimization/kernelOptimization$(kernel).mk) generated/additionalFlags.mk)
 
 
 # rule for the kernels
 define KERNEL_RULE_template
-$$(KERNEL_OBJECTS_$(1)): $(BUILD_DIR)/%.o: %.cpp
+$$(KERNEL_OBJECTS_$(1)): $(BUILD_DIR)/%.o: %.cpp generated/kernelOptimization/kernelOptimization$(1).mk
 	mkdir -p $(BUILD_DIR)/$$(dir $$<)
 	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS_$(1)) -Wa,-ahl=$$(patsubst %.o,%.s,$$@) $$(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $$@ $$<
 endef
