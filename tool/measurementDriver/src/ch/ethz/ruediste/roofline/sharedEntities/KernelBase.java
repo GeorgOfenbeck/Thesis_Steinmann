@@ -15,6 +15,10 @@ public class KernelBase extends KernelBaseData {
 		}
 	}
 
+	public KernelBase() {
+		setOptimization("-O3");
+	}
+
 	/**
 	 * returns the name of the kernel without the "Kernel" suffix
 	 */

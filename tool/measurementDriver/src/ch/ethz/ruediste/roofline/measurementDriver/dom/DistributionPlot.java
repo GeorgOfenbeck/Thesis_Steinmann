@@ -8,7 +8,7 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 public class DistributionPlot extends Plot2D {
 	public static class DistributionPlotSeries {
-		private final HashMap<Long, DescriptiveStatistics> statisticsMap = new HashMap<Long, DescriptiveStatistics>();
+		private final HashMap<Long, DescriptiveStatistics> statisticsMap = new LinkedHashMap<Long, DescriptiveStatistics>();
 		private final String name;
 
 		public DistributionPlotSeries(String name) {
@@ -37,7 +37,7 @@ public class DistributionPlot extends Plot2D {
 
 	}
 
-	private final HashMap<String, DistributionPlotSeries> allSeries = new HashMap<String, DistributionPlotSeries>();
+	private final HashMap<String, DistributionPlotSeries> allSeries = new LinkedHashMap<String, DistributionPlotSeries>();
 
 	public void addValue(String seriesName, long x, double y) {
 		getSeries(seriesName).addValue(x, y);

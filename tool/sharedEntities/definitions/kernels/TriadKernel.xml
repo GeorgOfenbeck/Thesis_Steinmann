@@ -2,9 +2,9 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="TriadKernel" 
 	baseType="KernelBase"
 	cSuffix="Data"
+	javaSuffix="Data"
 	comment="Kernel performing a=b+k*d on a memory buffer">
   <field  name="bufferSize" type="long" comment="The size of the buffer"/>
 </derivedClass>

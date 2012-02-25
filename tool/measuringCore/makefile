@@ -101,7 +101,7 @@ $(BUILD_DIR)/./generated/sharedEntities/MultiLanguageSerializationService.o: gen
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 	
 # make the kernels depend on the kernel optimization flags and on the additional flags
-$(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/kernelOptimization/kernelOptimization$(kernel).mk) generated/additionalFlags.mk)
+$(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/kernelOptimization/kernelOptimization$(kernel).mk generated/additionalFlags.mk))
 
 
 # rule for the kernels

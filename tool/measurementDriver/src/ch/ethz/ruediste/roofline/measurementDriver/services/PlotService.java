@@ -11,15 +11,19 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.DistributionPlot.DistributionPlotSeries;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.SeriesPlot.SeriesPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.BinaryPredicates;
 
 import com.google.inject.Inject;
 
 public class PlotService {
+	private final static Logger log = Logger.getLogger(PlotService.class);
+
 	@Inject
 	public CommandService commandService;
 
@@ -93,6 +97,9 @@ public class PlotService {
 	public void plot(DistributionPlot plot) throws ExecuteException,
 			IOException {
 
+		log.debug(String
+				.format("entering plot(DistributionPlot) for plot %s. output name is %s",
+						plot.getTitle(), plot.getOutputName()));
 		List<DistributionPlotSeries> allSeries = plot.getAllSeries();
 
 		// print data file
@@ -119,6 +126,7 @@ public class PlotService {
 			output.printf("set title '%s'\n", plot.getTitle());
 			output.printf("set terminal pdf color\n");
 			output.printf("set output '%s.pdf'\n", plot.getOutputName());
+			output.printf("set grid xtics ytics mxtics mytics\n");
 			output.printf("set log x\n");
 			output.printf("set log y\n");
 
@@ -132,6 +140,55 @@ public class PlotService {
 								.format("'%s.data' index %d title '%s' with candlesticks whiskerbars",
 										plot.getOutputName(), seriesNr,
 										series.getName()));
+			}
+
+			output.println("plot \\");
+			output.print(StringUtils.join(plotLines, ",\\\n"));
+			output.close();
+		}
+
+		// show output
+		commandService.runCommand(new File("."), "gnuplot",
+				new String[] { plot.getOutputName() + ".gnuplot" });
+	}
+
+	public void plot(SeriesPlot plot) throws ExecuteException, IOException {
+
+		List<SeriesPlotSeries> allSeries = plot.getAllSeries();
+
+		// print data file
+		final PrintStream outputFile = new PrintStream(plot.getOutputName()
+				+ ".data");
+
+		for (SeriesPlotSeries series : allSeries) {
+			for (Entry<Long, Double> entry : series.getStatisticsMap()
+					.entrySet()) {
+
+				outputFile.printf("%d %e\n", entry.getKey(), entry.getValue());
+			}
+			outputFile.printf("\n\n");
+		}
+		outputFile.close();
+
+		// write gnuplot files
+		{
+			PrintStream output = new PrintStream(plot.getOutputName()
+					+ ".gnuplot");
+			output.printf("set title '%s'\n", plot.getTitle());
+			output.printf("set terminal pdf color\n");
+			output.printf("set output '%s.pdf'\n", plot.getOutputName());
+			output.printf("set grid xtics ytics mxtics mytics\n");
+			output.printf("set log x\n");
+			output.printf("set log y\n");
+
+			List<String> plotLines = new ArrayList<String>();
+
+			for (int seriesNr = 0; seriesNr < allSeries.size(); seriesNr++) {
+				SeriesPlotSeries series = allSeries.get(seriesNr);
+
+				plotLines.add(String.format(
+						"'%s.data' index %d title '%s' with linespoints",
+						plot.getOutputName(), seriesNr, series.getName()));
 			}
 
 			output.println("plot \\");
