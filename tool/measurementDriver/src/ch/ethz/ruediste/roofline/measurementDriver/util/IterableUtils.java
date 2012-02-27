@@ -218,6 +218,15 @@ public class IterableUtils {
 		return result;
 	}
 
+	public static <T, R> Iterable<R> selectAll(Iterable<T> iterable,
+			IUnaryFunction<T, Iterable<R>> func) {
+		ArrayList<R> result = new ArrayList<R>();
+		for (T item : iterable) {
+			addAll(result, func.apply(item));
+		}
+		return result;
+	}
+
 	public static <T> T min(Iterable<T> iterable,
 			IBinaryPredicate<T, T> comparator) {
 		return getRange(iterable, comparator).getMinimum();
@@ -264,6 +273,12 @@ public class IterableUtils {
 	public static <T> List<T> toList(Iterable<T> iterable) {
 		ArrayList<T> result = new ArrayList<T>();
 		addAll(result, iterable);
+		return result;
+	}
+
+	public static <T> List<T> toList(T... items) {
+		ArrayList<T> result = new ArrayList<T>();
+		addAll(result, items);
 		return result;
 	}
 

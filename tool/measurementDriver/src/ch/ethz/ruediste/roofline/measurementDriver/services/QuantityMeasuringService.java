@@ -2,8 +2,9 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 
-import java.util.ArrayList;
+import java.util.*;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.entities.MeasurementResult;
@@ -303,5 +304,137 @@ public class QuantityMeasuringService {
 		}
 
 		throw new Error("should not happen");
+	}
+
+	public class QuantityMap extends
+			HashMap<QuantityCalculator<?>, List<Quantity<?>>> {
+		private static final long serialVersionUID = 2631443018184961723L;
+
+		@SuppressWarnings("unchecked")
+		public <T extends Quantity<T>> List<T> get(QuantityCalculator<T> calc) {
+			ArrayList<T> result = new ArrayList<T>();
+			for (Quantity<?> q : super.get(calc)) {
+				result.add((T) q);
+			}
+
+			return Collections.unmodifiableList(result);
+		}
+	}
+
+	public interface IMeasurementBuilder {
+		Measurement build(Map<String, MeasurerSet> sets);
+	}
+
+	public class ArgBuilderGetQuantities {
+		private ArrayList<Pair<String, QuantityCalculator<?>[]>> args = new ArrayList<Pair<String, QuantityCalculator<?>[]>>();
+		IMeasurementBuilder measurementBuilder;
+		private final int numberOfMeasurements;
+
+		public ArgBuilderGetQuantities(IMeasurementBuilder measurementBuilder,
+				int numberOfMeasurements) {
+			super();
+			this.measurementBuilder = measurementBuilder;
+			this.numberOfMeasurements = numberOfMeasurements;
+		}
+
+		public ArgBuilderGetQuantities with(String name,
+				QuantityCalculator<?>... calculators) {
+			args.add(Pair.of(name, calculators));
+			return this;
+		}
+
+		public QuantityMap get() {
+			return getQuantities(measurementBuilder, numberOfMeasurements, args);
+		}
+	}
+
+	public ArgBuilderGetQuantities getQuantities(
+			IMeasurementBuilder measurementBuilder, int numberOfMeasurements) {
+		return new ArgBuilderGetQuantities(measurementBuilder,
+				numberOfMeasurements);
+	}
+
+	public QuantityMap getQuantities(IMeasurementBuilder measurementBuilder,
+			int numberOfMeasurements,
+			List<Pair<String, QuantityCalculator<?>[]>> calculators) {
+
+		// extract the measurer sets for the calculators of each group
+		ArrayList<Pair<String, List<MeasurerSet>>> measurerSets = new ArrayList<Pair<String, List<MeasurerSet>>>();
+		for (Pair<String, QuantityCalculator<?>[]> entry : calculators) {
+			List<MeasurerBase> measurers = new ArrayList<MeasurerBase>();
+			for (QuantityCalculator<?> calc : entry.getRight()) {
+				measurers.addAll(calc.getRequiredMeasurers());
+			}
+
+			measurerSets.add(Pair.of(entry.getLeft(),
+					measurementService.buildSets(measurers)));
+		}
+
+		ArrayList<Map<String, MeasurerSet>> setsForMeasurements = new ArrayList<Map<String, MeasurerSet>>();
+		// group the measurer sets of the groups to groups of measurer sets which should 
+		// be measured in one measurement
+		{
+			boolean anyAdded;
+			int idx = 0;
+			do {
+				anyAdded = false;
+				Map<String, MeasurerSet> map = new HashMap<String, MeasurerSet>();
+				for (Pair<String, List<MeasurerSet>> pair : measurerSets) {
+					if (pair.getValue().size() > idx) {
+						anyAdded = true;
+						map.put(pair.getKey(), pair.getValue().get(idx));
+					}
+				}
+				if (anyAdded)
+					setsForMeasurements.add(map);
+				idx++;
+			}
+			while (anyAdded);
+		}
+
+		ArrayList<MeasurementResult> results = new ArrayList<MeasurementResult>();
+
+		// iterate over the required measurements and perform the measurements
+		for (Map<String, MeasurerSet> setsForMeasurement : setsForMeasurements) {
+			// get the measurement
+			Measurement measurement = measurementBuilder
+					.build(setsForMeasurement);
+
+			// run the measurement
+			MeasurementResult result = measurementService.measure(measurement,
+					numberOfMeasurements);
+
+			// add the result to the results list
+			results.add(result);
+		}
+
+		// combine the results of each run from the different measurements
+		ArrayList<List<MeasurerOutputBase>> combinedResults = new ArrayList<List<MeasurerOutputBase>>();
+		{
+			for (int idx = 0; idx < numberOfMeasurements; idx++) {
+				ArrayList<MeasurerOutputBase> tmp = new ArrayList<MeasurerOutputBase>();
+				for (MeasurementResult result : results) {
+					addAll(tmp, result.getOutputs().get(idx)
+							.getMeasurerOutputs());
+				}
+				combinedResults.add(tmp);
+			}
+		}
+
+		QuantityMap resultMap = new QuantityMap();
+
+		// calculate the quantities for each quantity calculator
+		for (Pair<String, QuantityCalculator<?>[]> pair : calculators) {
+			for (QuantityCalculator<?> calculator : pair.getRight()) {
+				ArrayList<Quantity<?>> quantities = new ArrayList<Quantity<?>>();
+				for (List<MeasurerOutputBase> measurerOutputs : combinedResults) {
+					quantities.add(calculator.getResult(where(measurerOutputs,
+							calculator.isFromRequiredMeasurer())));
+				}
+				resultMap.put(calculator, quantities);
+			}
+		}
+
+		return resultMap;
 	}
 }
