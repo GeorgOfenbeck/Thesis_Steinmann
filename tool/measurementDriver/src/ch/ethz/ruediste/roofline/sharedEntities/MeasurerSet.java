@@ -25,7 +25,7 @@ public class MeasurerSet extends MeasurerSetData {
 	/**
 	 * return all measurers within the set.
 	 */
-	public Collection<? extends MeasurerBase> getMeasurers() {
+	public Collection<MeasurerBase> getMeasurers() {
 		ArrayList<MeasurerBase> result = new ArrayList<MeasurerBase>();
 
 		// add the main measurer

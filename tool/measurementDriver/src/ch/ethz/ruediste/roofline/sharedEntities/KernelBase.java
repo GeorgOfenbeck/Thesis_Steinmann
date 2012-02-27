@@ -5,7 +5,8 @@ import static ch.ethz.ruediste.roofline.entities.Axes.optimizationAxis;
 import org.apache.commons.lang.NotImplementedException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
 
 public class KernelBase extends KernelBaseData {
 
@@ -38,6 +39,14 @@ public class KernelBase extends KernelBaseData {
 	}
 
 	public TransferredBytes getExpectedTransferredBytes() {
+		throw new NotImplementedException();
+	}
+
+	public Operation getSuggestedOperation() {
+		throw new NotImplementedException();
+	}
+
+	public OperationCount getExpectedOperationCount() {
 		throw new NotImplementedException();
 	}
 }

@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.entities.Axes.*;
+import static ch.ethz.ruediste.roofline.entities.Axes.kernelAxis;
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.single;
 
 import java.io.IOException;
@@ -19,12 +19,11 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Time;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
-import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 
 import com.google.inject.Inject;
 
-public class ValidateTimeMeasurementController extends ValidationMeasurementControllerBase implements
-		IMeasurementController {
+public class ValidateTimeMeasurementController extends
+		ValidationMeasurementControllerBase implements IMeasurementController {
 
 	public String getName() {
 		return "valTime";
@@ -53,10 +52,6 @@ public class ValidateTimeMeasurementController extends ValidationMeasurementCont
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "Values");
 		plotValues.setTitle("Time Values");
-
-		SeriesPlot plotMinValues = new SeriesPlot();
-		plotMinValues.setOutputName(outputName + "MinValues");
-		plotMinValues.setTitle("Time Min Values");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -89,11 +84,20 @@ public class ValidateTimeMeasurementController extends ValidationMeasurementCont
 				Time actual = calc.getResult(Collections
 						.singletonList(runOutput.getMeasurerOutput(measurer)));
 
-				plotValues.addValue(kernelNames.get(kernel),
-						coordinate.get(bufferSizeAxis), actual.getValue());
+				plotValues.addValue(kernelNames.get(kernel), (long) kernel
+						.getExpectedTransferredBytes().getValue(), actual
+						.getValue());
 
 			}
 		}
+
+		DistributionPlot plotError = new DistributionPlot();
+		plotError.setOutputName(outputName + "Error");
+		plotError.setTitle("Time Error");
+
+		SeriesPlot plotMinValues = new SeriesPlot();
+		plotMinValues.setOutputName(outputName + "MinValues");
+		plotMinValues.setTitle("Time Min Values");
 
 		for (DistributionPlotSeries series : plotValues.getAllSeries()) {
 			for (Entry<Long, DescriptiveStatistics> entry : series
@@ -102,11 +106,18 @@ public class ValidateTimeMeasurementController extends ValidationMeasurementCont
 				plotMinValues.setValue(series.getName(), entry.getKey(), entry
 						.getValue().getMin());
 
+				double median = entry.getValue().getPercentile(50);
+
+				for (double value : entry.getValue().getValues()) {
+					plotError.addValue(series.getName(), entry.getKey(), value
+							/ median);
+				}
 			}
 		}
 
 		plotService.plot(plotValues);
 		plotService.plot(plotMinValues);
+		plotService.plot(plotError);
 	}
 
 }

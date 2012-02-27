@@ -3,6 +3,8 @@ package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 import static ch.ethz.ruediste.roofline.entities.Axes.*;
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
 import ch.ethz.ruediste.roofline.sharedEntities.InstructionSet;
 
 public class ArithmeticKernel extends ArithmeticKernelData {
@@ -136,5 +138,28 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 	public String toString() {
 		return String.format("Arithmetic Kernel:%s:%d:unroll %d dlp %d",
 				getOperation(), getIterations(), getUnroll(), getDlp());
+	}
+
+	@Override
+	public Operation getSuggestedOperation() {
+		switch (getInstructionSet()) {
+		case SSE:
+		case SSEScalar:
+			return Operation.DoublePrecisionFlop;
+		case x87:
+			return Operation.CompInstr;
+		}
+		throw new Error("should not happen");
+	}
+
+	@Override
+	public OperationCount getExpectedOperationCount() {
+		double result = getIterations() * getUnroll() * getDlp();
+		if (getOperation() == ArithmeticOperation.ArithmeticOperation_MULADD)
+			result *= 2;
+		if (getInstructionSet() == InstructionSet.SSE) {
+			result *= 2;
+		}
+		return new OperationCount(result);
 	}
 }
