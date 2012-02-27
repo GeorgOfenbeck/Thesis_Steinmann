@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.Map.Entry;
 
+import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.entities.MeasurementResult;
@@ -43,6 +44,64 @@ public class ValidateTransferredBytesMeasurementController extends
 	PlotService plotService;
 
 	public void measure(String outputName) throws IOException {
+		measureMem(outputName);
+		measureArith(outputName);
+	}
+
+	public void measureArith(String outputName) throws ExecuteException,
+			IOException {
+		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
+		ParameterSpace space = new ParameterSpace();
+
+		setupArithmeticKernels(space, kernelNames);
+
+		// initialize plot
+		DistributionPlot plotValues = new DistributionPlot();
+		plotValues.setOutputName(outputName + "ArithValues");
+		plotValues.setTitle("Memory Values");
+		// iterate over space
+		for (Coordinate coordinate : space) {
+			// initialize the kernel
+			KernelBase kernel = coordinate.get(kernelAxis);
+			kernel.initialize(coordinate);
+
+			// get the calculator for the transferred bytes
+			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+			MeasurerBase measurer = single(calc.getRequiredMeasurers());
+
+			// setup the measurement
+			Measurement measurement = new Measurement();
+			Workload workload = new Workload();
+			measurement.addWorkload(workload);
+			workload.setKernel(kernel);
+			workload.setMeasurerSet(new MeasurerSet(measurer));
+
+			// run the measurement
+			MeasurementResult result = measurementService.measure(measurement,
+					10);
+
+			// print results to console and fill plot
+			for (MeasurementRunOutput runOutput : result.getOutputs()) {
+				TransferredBytes actual = calc.getResult(Collections
+						.singletonList(runOutput.getMeasurerOutput(measurer)));
+
+				plotValues.addValue(kernelNames.get(kernel), (long) kernel
+						.getExpectedOperationCount().getValue(), actual
+						.getValue());
+
+			}
+		}
+		plotService.plot(plotValues);
+	}
+
+	/**
+	 * @param outputName
+	 * @throws ExecuteException
+	 * @throws IOException
+	 */
+	public void measureMem(String outputName) throws ExecuteException,
+			IOException {
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 		ParameterSpace space = new ParameterSpace();
 
