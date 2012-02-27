@@ -30,11 +30,11 @@ int main(int argc, char* argv[]) {
 	ret = child.main(argc, argv);
 	try {
 		ret = child.main(argc, argv);
-	} catch (Exception e) {
+	} catch (Exception &e) {
 		fprintf(stderr, "Exception occurred: %s\n", e.get_message().c_str());
 		e.print(2);
 		exit(1);
-	} catch (string s) {
+	} catch (string &s) {
 		fprintf(stderr, "Exception occurred: %s\n", s.c_str());
 		exit(1);
 	} catch (const char* str) {

@@ -52,11 +52,11 @@ void *Workload::threadStart(void *arg) {
 	Workload *workload = (Workload*) arg;
 	try {
 		workload->startInThread();
-	} catch (Exception e) {
+	} catch (Exception &e) {
 		fprintf(stderr, "Exception occurred: %s\n", e.get_message().c_str());
 		e.print(2);
 		exit(1);
-	} catch (string s) {
+	} catch (string &s) {
 		fprintf(stderr, "Exception occurred: %s\n", s.c_str());
 		exit(1);
 	} catch (const char* str){

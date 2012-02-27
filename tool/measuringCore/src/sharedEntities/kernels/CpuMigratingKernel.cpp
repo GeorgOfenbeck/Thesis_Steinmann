@@ -11,7 +11,7 @@
 
 std::vector<std::pair<void*,long > > CpuMigratingKernel::getBuffers()
 {
-	std::vector<std::pair<void*,long > >();
+	return std::vector<std::pair<void*,long > >();
 }
 
 void CpuMigratingKernel::run(){

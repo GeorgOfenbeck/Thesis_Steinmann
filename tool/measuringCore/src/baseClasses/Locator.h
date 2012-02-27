@@ -16,6 +16,7 @@ class KernelBase;
 
 struct IEventListener{
 	virtual void handleEvent(EventBase *event)=0;
+	virtual ~IEventListener();
 };
 
 class Locator {

@@ -374,9 +374,9 @@ int main(int argc, char *argv[]) {
 		return doIt(argc, argv);
 	} catch (char const *msg) {
 		printf("Exception: %s\n", msg);
-	} catch (string s) {
+	} catch (string &s) {
 		cout << "Exception: " << s << "\n";
-	} catch (Exception exception) {
+	} catch (Exception &exception) {
 		cout << "Exception: " << exception.get_message() << "\n";
 		exception.print(0);
 	} catch (...) {

@@ -60,6 +60,12 @@ KernelBase *Locator::getKernel(int id)
 	return NULL;
 }
 
+IEventListener::~IEventListener()
+{
+}
+
+
+
 
 
 
