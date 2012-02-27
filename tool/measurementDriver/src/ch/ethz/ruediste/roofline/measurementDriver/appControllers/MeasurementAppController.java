@@ -45,10 +45,13 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	public MeasuringCoreLocationService measuringCoreLocationService;
 
 	@Inject
-	public MeasurementService measurementService;
+	public MeasuringCoreService measuringCoreService;
 
 	@Inject
 	public MeasurementValidationService measurementValidationService;
+
+	@Inject
+	public MeasurementService measurementService;
 
 	@Inject
 	public MeasurementHashRepository measurementHashRepository;
@@ -65,8 +68,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	 * IMeasurementFacilility
 	 * #measure(ch.ethz.ruediste.roofline.dom.MeasurementDescription, int)
 	 */
-	public MeasurementResult measure(Measurement measurement,
-			int numberOfMeasurements) {
+	public MeasurementResult measure(Measurement measurement, int numberOfRuns) {
 
 		// add validation measurers
 		measurementValidationService.addValidationMeasurers(measurement);
@@ -109,13 +111,12 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			}
 
 			// do we need more results?
-			if (numberOfMeasurements > outputs.size()) {
+			if (numberOfRuns > outputs.size()) {
 				log.trace("more results required");
 				// create measurement command
 				MeasurementCommand command = new MeasurementCommand();
 				command.setMeasurement(measurement);
-				command.setRunCount(numberOfMeasurements
-						- outputs.size());
+				command.setRunCount(numberOfRuns - outputs.size());
 
 				// perform measurement
 				MeasurementResult newResult = performMeasurement(command,
@@ -140,7 +141,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			throw new Error("error occured during measurement", e);
 		}
 
-		if (outputs.size() < numberOfMeasurements) {
+		if (outputs.size() < numberOfRuns) {
 			throw new Error("unable to retrieve enough results");
 		}
 
@@ -151,7 +152,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		// add exactly the number of measurements required to the output
 		// it might be that there were more results in the repository than
 		// needed
-		for (int i = 0; i < numberOfMeasurements; i++) {
+		for (int i = 0; i < numberOfRuns; i++) {
 			result.getOutputs().add(outputs.get(i));
 		}
 
@@ -168,7 +169,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	 * core and hashes the executable. The core hash is stored in
 	 * measurementHashToCoreHash upon return.
 	 */
-	public CoreHash getCoreHash(Measurement measurement,
+	private CoreHash getCoreHash(Measurement measurement,
 			MeasurementHash measurementHash) throws Exception, IOException {
 
 		// get the core hash if it has already been computed
@@ -193,30 +194,20 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		return coreHash;
 	}
 
-	public MeasurementResult performMeasurement(MeasurementCommand command)
-			throws Exception {
-		return performMeasurement(command,
-				hashService.getMeasurementHash(command.getMeasurement()));
-	}
-
-	public MeasurementResult performMeasurement(MeasurementCommand command,
+	private MeasurementResult performMeasurement(MeasurementCommand command,
 			MeasurementHash measurementHash) throws Exception {
 
 		// make sure the core is built
 		buildMeasuringCore(command.getMeasurement(), measurementHash);
 
 		// perform the measurement
-		MeasurementResult result = measurementService.runMeasuringCore(command);
+		MeasurementResult result = measuringCoreService
+				.runMeasuringCore(command);
 
 		return result;
 	}
 
-	public void buildMeasuringCore(Measurement measurement) throws Exception {
-		buildMeasuringCore(measurement,
-				hashService.getMeasurementHash(measurement));
-	}
-
-	public void buildMeasuringCore(Measurement measurement,
+	private void buildMeasuringCore(Measurement measurement,
 			MeasurementHash measurementHash) throws Exception {
 
 		// is the right measurement compiled already?
@@ -233,7 +224,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		}
 
 		// prepare the core
-		boolean coreChanged = measurementService
+		boolean coreChanged = measuringCoreService
 				.prepareMeasuringCoreBuilding(measurement);
 
 		if (
@@ -242,7 +233,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		// or did the core change?
 				|| coreChanged) {
 			// build the core
-			measurementService.compilePreparedMeasuringCore(measurement);
+			measuringCoreService.compilePreparedMeasuringCore(measurement);
 		}
 		else {
 			// nothing changed, so the measurement has the same core

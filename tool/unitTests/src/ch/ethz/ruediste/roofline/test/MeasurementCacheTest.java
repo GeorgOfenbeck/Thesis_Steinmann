@@ -129,7 +129,7 @@ public class MeasurementCacheTest extends TestBase {
 
 		final MeasurementAppController controller = new MeasurementAppController();
 		controller.measurementResultRepository = measurementResultRepository;
-		controller.measurementService = measurementService;
+		controller.measuringCoreService = measurementService;
 		controller.configuration = configuration;
 		controller.hashService = hashService;
 
