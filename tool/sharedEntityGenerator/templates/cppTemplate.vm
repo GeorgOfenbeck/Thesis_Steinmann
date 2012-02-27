@@ -8,6 +8,8 @@
 #if(!$class.isAbstract())
 static class Serializer${class.name}: public Serializer{
 	bool canSerialize(SharedEntityBase *obj){
+		if (obj==NULL)
+			return true;
 		return typeid(*obj)==typeid($class.name);
 	}
 	
