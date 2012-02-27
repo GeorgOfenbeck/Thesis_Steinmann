@@ -138,7 +138,7 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 }
 
 // define and register a system initializer.
-static class Initializer: public SystemInitializer{
+static class PerfEventMeasurerInitializer: public SystemInitializer{
 	void start(){
 		LENTER
 		int ret;
