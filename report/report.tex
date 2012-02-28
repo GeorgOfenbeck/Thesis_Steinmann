@@ -32,12 +32,20 @@
 }
 \newcommand{\umlRef}[1]{\autoref{#1}}
 
+\newcommand{\class}[1]{\textbf{#1}}
+
 \lstset{
   showstringspaces=false,
   breaklines=true,
   tabsize=4,
   numbers=left, stepnumber=2, numberstyle=\tiny, numbersep=10pt
 }
+
+\lstdefinestyle{pseudoCode}
+{stringstyle=\textit}
+
+\sloppy
+
 \title{Applying the Roofline Model}
 \author{Ruedi Steinmann}
 \date{\today}
@@ -660,13 +668,77 @@ stateless services as described in \cite{evans2004domain}.
 Describing all these concepts lies beyond the scope of this report. It is
 assumed that the reader has a basic understanding of the mentioned concepts.
 
-\subsubsection{The MeasuringCoreService and the MeasurementAppController}
-The MeasuringCoreService and the MeasurementAppController provide the low level
-control over the measuring core. The service contains the logic to prepare,
-build and run the core, while the controller keeps track of the state of the
-core.
+\subsubsection{The MeasurementAppController}
+The measurement application controller is the entry point for performing
+measurement. It is the sole client to the MeasuringCoreService, which provides
+the low level control over the measuring core, and keeps track of the
+measurement the core is compiled for. 
 
-\umlDiagram{measurementDriver/MACMeasuringCoreService}
+In addition, it uses the MeasurementHashRepository to keep track of
+measurements which have equal measuring cores.
+
+The main method of the controller is measure(). Functionality in pseudo Code:
+
+\begin{lstlisting}[language=Java,style=pseudoCode]
+MeasurementResult measure(measurement, numberOfRuns)
+"prepare measurement"
+runOutputs=[]
+if (useCachedResult || "measurement has been seen")
+	loaded="load stored results"
+	if (loaded!=null)
+		if (!shouldCheckCoreHash
+			|| currentCoreHash==loaded.coreHash)
+			runOutputs=loaded
+			
+if ("more results needed")
+	newResult=performMeasurement()
+	"merge and store loaded and new run outputs"
+	
+"build and return MeasurementResult with the desired number of run
+outputs"
+\end{lstlisting}
+
+The method first tries to load a measurement result from the result cache. If
+not enough run outputs are loaded (or none at all), the measurement is performed
+to get the remaining measurement run outputs.
+
+Finally, a measurement result with exactly the requested number of runs is
+constructed and returned.
+
+It is possible to disable loading stored results by setting the useCachedResults
+configuration key to false. The measurement is performed and existing results
+are overwritten.
+
+The hash code of the core is stored along with the measurement result. This
+allows to check if the currently compiled core is equal to the core which was
+used during the measurement. By default, if the core changed since the results
+were generated, the results are not used and new results are generated using the
+current measuring core. By setting shouldCheckCoreHash to false, this check can
+be skipped.
+
+Preparing and building the measuring core are expensive operations in term of
+runtime. Therefore, the measurement application controller keeps track of as
+much information about the measurements and the cores needed to perform them as
+possible. The \class{MeasurementHashRepository} is used for this purpose. It
+provides the following internal Model: 
+\umlDiagram{measurementDriver/MeasurementHashRepositoryModel}
+
+The model is exposed through the following methods
+\begin{itemize}
+  \item areCoresEqual(measurementA, measurementB): bool
+  \item setHaveEqualCores(measurementA, measurementB)
+  \item setCoreHash(measurement,coreHash)
+  \item getCoreHash(measurement): CoreHash
+\end{itemize}
+
+Note that the \class{Core} class is private and does not leave the repository.
+
+Using the methods
+This is the call graph of the methods within the class:
+
+\umlDiagram{measurementDriver/MACCallGraph}
+
+Only the measure() method is public, the others are private. 
 
 The measuring core service should only be used through application controller.
 Since it makes sense that other services can start measusurements, the MeasurementService
@@ -675,13 +747,6 @@ is implemented by the application controller and thus forwards all calls to
 measure() to the app controller.
 
 \umlDiagram{measurementDriver/measureCallLift}
-
-Now, let's look at the measurement application controller.  This is the call
-graph of the methods within the class:
-
-\umlDiagram{measurementDriver/MACCallGraph}
-
-Only the measure() method is public, the others are private. 
 
 
 \subsubsection{Commands}

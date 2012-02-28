@@ -94,19 +94,19 @@ public class MeasurementAppController implements IMeasurementFacilility {
 							.hasMeasurementBeenSeen(measurementHash)) {
 				log.trace("looking in result repository");
 				// load stored results
-				MeasurementResult cachedResult = measurementResultRepository
+				MeasurementResult loadedResult = measurementResultRepository
 						.getMeasurementResult(measurementHash);
 				if (
 				// were there results?
-				cachedResult != null
+				loadedResult != null
 				// and were they created for the current measuring core?
 						&& (!configuration.get(checkCoreKey) || getCoreHash(
 								measurement, measurementHash).equals(
-								cachedResult.getCoreHash()))) {
+								loadedResult.getCoreHash()))) {
 
 					log.trace("found results");
 					// use the stored results
-					runOutputs.addAll(cachedResult.getRunOutputs());
+					runOutputs.addAll(loadedResult.getRunOutputs());
 				}
 			}
 
@@ -228,7 +228,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				.prepareMeasuringCoreBuilding(measurement);
 
 		if (
-		// did we compile before? (if we would have, we would know the currently compiled hash)
+		// did we compile before? (currentlyCompiledMeasurement non null after first compilation)
 		currentlyCompiledMeasurementHash == null
 		// or did the core change?
 				|| coreChanged) {

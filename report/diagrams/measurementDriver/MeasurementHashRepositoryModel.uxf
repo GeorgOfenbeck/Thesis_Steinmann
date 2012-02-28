@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="11.3">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>100</x>
+      <y>100</y>
+      <w>120</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Measurement
+--</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Class</type>
+    <coordinates>
+      <x>300</x>
+      <y>100</y>
+      <w>120</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>Core
+--
+coreHash</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <type>com.umlet.element.Relation</type>
+    <coordinates>
+      <x>190</x>
+      <y>100</y>
+      <w>130</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-&gt;
+m2=*
+m1=1</panel_attributes>
+    <additional_attributes>110;30;30;30</additional_attributes>
+  </element>
+</diagram>

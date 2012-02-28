@@ -77,7 +77,7 @@ public class MeasurementHashRepository {
 	/**
 	 * merges coreB into coreA
 	 */
-	public void mergeSecondCoreIntoFirstCore(Core coreA, Core coreB)
+	private void mergeSecondCoreIntoFirstCore(Core coreA, Core coreB)
 			throws Error {
 		// update the core hash of coreA 
 		if (coreB.coreHash != null) {
