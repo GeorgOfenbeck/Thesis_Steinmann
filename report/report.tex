@@ -660,6 +660,30 @@ stateless services as described in \cite{evans2004domain}.
 Describing all these concepts lies beyond the scope of this report. It is
 assumed that the reader has a basic understanding of the mentioned concepts.
 
+\subsubsection{The MeasuringCoreService and the MeasurementAppController}
+The MeasuringCoreService and the MeasurementAppController provide the low level
+control over the measuring core. The service contains the logic to prepare,
+build and run the core, while the controller keeps track of the state of the
+core.
+
+\umlDiagram{measurementDriver/MACMeasuringCoreService}
+
+The measuring core service should only be used through application controller.
+Since it makes sense that other services can start measusurements, the MeasurementService
+provides a measure() method. It knows an instance of IMeasurementFacility, which
+is implemented by the application controller and thus forwards all calls to
+measure() to the app controller.
+
+\umlDiagram{measurementDriver/measureCallLift}
+
+Now, let's look at the measurement application controller.  This is the call
+graph of the methods within the class:
+
+\umlDiagram{measurementDriver/MACCallGraph}
+
+Only the measure() method is public, the others are private. 
+
+
 \subsubsection{Commands}
 A command is represented by a class deriving from ICommandController and should
 be placed in the commands package. A command has a name and a description, which
@@ -915,25 +939,29 @@ The following diagram shows how the source files are categorized and compiled:
 
 The makefile used for the measuring core first instructs make to use the find
 utility to get a list of all source files (with .cpp extension) in the
-measuringCore/src and measuringCore/generated directories.
+measuringCore/src and measuringCore/generated directories (ALL\_SOURCES).
 
-The list of all source files is split into the kernel sources and the normal
-sources. The kernel sources are the source files which are to be compiled using
-the optimization flags specific to the current measurement. The optimization
-flags for the normal source files do not depend on the measurement, and thus do
-not need to be recompiled when the optimization flags for the measurement
-change.
+Using the filter functions of make, the kernel sources are set to the subset of
+ALL\_SOURCES which is located in src/kernels or generated/kernels. These are all sources related to kernels.
+(ALL\_KERNEL\_SOURCES).
 
-Since every measurement requires exactly one kernel, not all kernels need to be
-built for every measurement. This is reflected in the makefile removing all
-files from the kernel sources but the MeasurementSchemeRegistration, the source
-file for the current kernel and all source files in a subdirectory named after
-the current kernel.
+The sources of the parent process are the subset of ALL\_SOURCES which is
+located in src/parent(PARENT\_SOURCES).
 
-From the normal sources and the kernel sources, the file names of the object
-files in the build directory are generated. The measuring core executable
-depends on these object files. Pattern rules are used to trigger the compile the
-source files into the object files.
+The source files of ALL\_SOURCES not contained in ALL\_KERNEL\_SOURCES or
+PARENT\_SOURCES are stored in CHILD\_SOURCES.
+
+The names of all present kernels are stored by the measurement driver in
+generated/kernelNames.mk. For each of the kernels named there, the source file
+named after the kernel and all source files in the subdirectory named after the
+kernel collected in a variable (KERNEL\_SOURCES\_\$(kernel)). They are compiled
+with the optimization flags of the compiler, wich are stored under
+generated/kernelOptimization.
+
+The sources of all current sources are collected and form, together with the
+CHILD\_SOURCES, the sources of the child process.
+
+The parent process is compiled from the PARENT\_SOURCES.
 
 There is a rule without recipe with the kernel objects as target and the file
 containing the measurement specific optimization flags as prerequisite. This
@@ -959,7 +987,7 @@ This is preferably archieved by declaring a global static variable named dummy
 in a .cpp file. Example:
 \begin{verbatim}
 // define and register a system initializer.
-static class Initializer: public SystemInitializer{
+static class FooInitializer: public SystemInitializer{
   void start(){
     // code to be executed on startup
   }
@@ -969,6 +997,11 @@ static class Initializer: public SystemInitializer{
   }
 } dummy;
 \end{verbatim}
+
+It is important to give every initializer subclass an individual name. Use the
+name of the file the initializer is declared in as prefix. If two initializer
+classes have the same name, they don't work correctly (instances of the wrong
+classes are created)
 
 Whenever a SystemInitializer is instantiated, the instance is registered in a
 static global list. On system startup and shutdown, the start() respective

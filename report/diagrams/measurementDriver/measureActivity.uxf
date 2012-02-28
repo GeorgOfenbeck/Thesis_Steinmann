@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="11.3">
+  <zoom_level>9</zoom_level>
+  <element>
+    <type>com.umlet.element.ActivityDiagramText</type>
+    <coordinates>
+      <x>36</x>
+      <y>0</y>
+      <w>568</w>
+      <h>843</h>
+    </coordinates>
+    <panel_attributes>title:measure
+Start
+prepare measurement
+results=[]
+If
+	[else]
+
+	[useCachedResult \|| measurement has been seen]
+	loaded=load stored results
+	If
+		[else]
+
+		[!shouldCheckCoreHash \|| (currentCoreHash==loaded.coreHash)]
+		results+=loaded
+	Endif
+EndIf
+
+If 
+	[else]
+
+	[more results Needed]
+	newResult=performMeasurement()\newResult.outputs+=results\results=newResult.outputs\store newResults
+EndIf
+
+return number of runs needed</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

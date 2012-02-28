@@ -32,7 +32,8 @@ out/report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES)
 	$(LATEX) $(FLAGS) ../report.tex
 	
 out/%.pdf: %.uxf
-	java -jar $(UMLET_JAR) -action=convert -format=pdf -filename=$< -output=$@
+	mkdir mkdir -p $(dir $@)
+	java -jar $(UMLET_JAR) -action=convert -format=pdf -filename='$<' -output='$@'
 	pdfcrop $@ $@
 
 	
