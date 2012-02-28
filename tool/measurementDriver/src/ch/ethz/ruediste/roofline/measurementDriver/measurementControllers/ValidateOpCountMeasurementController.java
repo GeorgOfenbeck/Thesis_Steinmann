@@ -50,11 +50,15 @@ public class ValidateOpCountMeasurementController extends
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "Values");
-		plotValues.setTitle("OpCount Values");
+		plotValues.setTitle("OpCount Values").setLog().setxLabel("expOpCount")
+				.setxUnit("flop").setyLabel("actualOpCount/expOpCount")
+				.setyUnit("1");
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "Error");
-		plotError.setTitle("OpCount Error");
+		plotError.setTitle("OpCount Error").setLog().setxLabel("expOpCount")
+				.setxUnit("operations")
+				.setyLabel("err(actualOpCount/expOpCount)").setyUnit("\\%");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -96,24 +100,23 @@ public class ValidateOpCountMeasurementController extends
 						//coordinate.get(bufferSizeAxis),
 						ratio);
 
-				if (ratio < 1) {
-					ratio = 1 / ratio;
-				}
 				plotError.addValue(kernelNames.get(kernel),
-						(long) expected.getValue(),
-						//coordinate.get(bufferSizeAxis), 
-						100 * (ratio - 1));
+						(long) expected.getValue(), toError(ratio));
 
 			}
 		}
 
 		SeriesPlot plotMinValues = new SeriesPlot();
 		plotMinValues.setOutputName(outputName + "MinValues");
-		plotMinValues.setTitle("OpCount Min Values");
+		plotMinValues.setTitle("OpCount Min Values").setLog()
+				.setxLabel("expOpCount").setxUnit("operations")
+				.setyLabel("min(actualOpCount)/expOpCount").setyUnit("1");
 
 		SeriesPlot plotMinError = new SeriesPlot();
 		plotMinError.setOutputName(outputName + "MinError");
-		plotMinError.setTitle("OpCount Min Error");
+		plotMinError.setTitle("OpCount Min Error").setLog()
+				.setxLabel("expOpCount").setxUnit("operations")
+				.setyLabel("err(min(actualOpCount)/expOpCount)").setyUnit("%");
 
 		for (DistributionPlotSeries series : plotValues.getAllSeries()) {
 			for (Entry<Long, DescriptiveStatistics> entry : series

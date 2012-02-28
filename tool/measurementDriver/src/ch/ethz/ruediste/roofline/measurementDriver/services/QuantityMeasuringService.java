@@ -14,6 +14,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 
@@ -62,27 +63,42 @@ public class QuantityMeasuringService {
 
 	public OperationalIntensity measureOperationalIntensity(KernelBase kernel,
 			MemoryTransferBorder border, Operation operation) {
-		return new OperationalIntensity(
-				measureTransferredBytes(kernel, border), measureOperationCount(
-						kernel, operation));
+		QuantityCalculator<TransferredBytes> tbCalculator = getTransferredBytesCalculator(border);
+		QuantityCalculator<OperationCount> opCountCalculator = getOperationCountCalculator(operation);
+
+		QuantityMap result = measureQuantities(kernel, opCountCalculator,
+				tbCalculator);
+
+		return new OperationalIntensity(result.min(tbCalculator),
+				result.min(opCountCalculator));
 	}
 
 	public Performance measurePerformance(KernelBase kernel,
 			Operation operation, ClockType clockType) {
-		return new Performance(measureOperationCount(kernel, operation),
-				measureExecutionTime(kernel, clockType));
+		QuantityCalculator<OperationCount> opCalc = getOperationCountCalculator(operation);
+		QuantityCalculator<Time> timeCalc = getExecutionTimeCalculator(clockType);
+		QuantityMap result = measureQuantities(kernel, timeCalc, opCalc);
+		return new Performance(result.min(opCalc), result.min(timeCalc));
 	}
 
 	public Throughput measureThroughput(KernelBase kernel,
 			MemoryTransferBorder border, ClockType clockType) {
-		return new Throughput(measureTransferredBytes(kernel, border),
-				measureExecutionTime(kernel, clockType));
+
+		QuantityCalculator<TransferredBytes> tbCalc = getTransferredBytesCalculator(border);
+		QuantityCalculator<Time> timeCalc = getExecutionTimeCalculator(clockType);
+
+		QuantityMap result = measureQuantities(kernel, tbCalc, timeCalc);
+
+		return new Throughput(result.min(tbCalc), result.min(timeCalc));
 	}
 
 	public OperationCount measureOperationCount(KernelBase kernel,
 			Operation operation) {
 
-		return measure(kernel, getOperationCountCalculator(operation));
+		QuantityCalculator<OperationCount> calculator = getOperationCountCalculator(operation);
+		QuantityMap result = measureQuantities(kernel, calculator);
+
+		return result.min(calculator);
 
 	}
 
@@ -171,7 +187,10 @@ public class QuantityMeasuringService {
 
 	public TransferredBytes measureTransferredBytes(KernelBase kernel,
 			MemoryTransferBorder border) {
-		return measure(kernel, getTransferredBytesCalculator(border));
+		QuantityCalculator<TransferredBytes> calculator = getTransferredBytesCalculator(border);
+		QuantityMap result = measureQuantities(kernel, calculator);
+
+		return result.min(calculator);
 	}
 
 	public QuantityCalculator<TransferredBytes> getTransferredBytesCalculator(
@@ -194,7 +213,10 @@ public class QuantityMeasuringService {
 	}
 
 	public Time measureExecutionTime(KernelBase kernel, ClockType clockType) {
-		return measure(kernel, getExecutionTimeCalculator(clockType));
+		QuantityCalculator<Time> calculator = getExecutionTimeCalculator(clockType);
+		QuantityMap result = measureQuantities(kernel, calculator);
+
+		return result.min(calculator);
 	}
 
 	public QuantityCalculator<Time> getExecutionTimeCalculator(
@@ -225,42 +247,29 @@ public class QuantityMeasuringService {
 		}
 	}
 
-	private <T extends Quantity<T>, TCalc extends QuantityCalculator<T>> T measure(
-			KernelBase kernel, TCalc calculator) {
-
+	/**
+	 * @param kernel
+	 * @param calculator
+	 * @return
+	 */
+	public QuantityMap measureQuantities(final KernelBase kernel,
+			QuantityCalculator<?>... calculators) {
 		int numMeasurements = configuration.get(numberOfMeasurementsKey);
 
-		// get results for each required measurer set
-		ArrayList<MeasurementResult> measurementResults = new ArrayList<MeasurementResult>();
-		for (MeasurerBase measurer : calculator.getRequiredMeasurers()) {
-			Measurement measurement = new Measurement();
-			Workload workload = new Workload();
-			workload.setKernel(kernel);
-			workload.setMeasurerSet(new MeasurerSet(measurer));
-			measurement.addWorkload(workload);
+		IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-			MeasurementResult result = measurementService.measure(measurement,
-					numMeasurements);
-			measurementResults.add(result);
-
-		}
-
-		ArrayList<T> results = new ArrayList<T>();
-		// calculate the resulting quantity for all corrresponding results
-		for (int runNr = 0; runNr < numMeasurements; runNr++) {
-			ArrayList<MeasurerOutputBase> outputs = new ArrayList<MeasurerOutputBase>();
-			for (int setNr = 0; setNr < calculator.getRequiredMeasurers()
-					.size(); setNr++) {
-				MeasurerBase measurer = calculator.getRequiredMeasurers().get(
-						setNr);
-				MeasurementResult result = measurementResults.get(setNr);
-				outputs.add(result.getOutputs().get(runNr)
-						.getMeasurerOutput(measurer));
+			public Measurement build(Map<String, MeasurerSet> sets) {
+				Measurement measurement = new Measurement();
+				Workload workload = new Workload();
+				workload.setKernel(kernel);
+				workload.setMeasurerSet(sets.get("main"));
+				measurement.addWorkload(workload);
+				return measurement;
 			}
-			results.add(calculator.getResult(outputs));
-		}
-
-		return min(results, Quantity.<T> lessThan());
+		};
+		QuantityMap result = getQuantities(builder, numMeasurements).with(
+				"main", calculators).get();
+		return result;
 	}
 
 	public QuantityCalculator<ContextSwitches> getContextSwitchesCalculator() {
@@ -319,6 +328,11 @@ public class QuantityMeasuringService {
 
 			return Collections.unmodifiableList(result);
 		}
+
+		public <T extends Quantity<T>> T min(QuantityCalculator<T> calc) {
+			return IterableUtils.min(get(calc), Quantity.<T> lessThan());
+		}
+
 	}
 
 	public interface IMeasurementBuilder {
@@ -414,7 +428,7 @@ public class QuantityMeasuringService {
 			for (int idx = 0; idx < numberOfMeasurements; idx++) {
 				ArrayList<MeasurerOutputBase> tmp = new ArrayList<MeasurerOutputBase>();
 				for (MeasurementResult result : results) {
-					addAll(tmp, result.getOutputs().get(idx)
+					addAll(tmp, result.getRunOutputs().get(idx)
 							.getMeasurerOutputs());
 				}
 				combinedResults.add(tmp);

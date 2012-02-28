@@ -6,7 +6,7 @@ import java.util.*;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-public class DistributionPlot extends Plot2D {
+public class DistributionPlot extends Plot2D<DistributionPlot> {
 	public static class DistributionPlotSeries {
 		private final HashMap<Long, DescriptiveStatistics> statisticsMap = new LinkedHashMap<Long, DescriptiveStatistics>();
 		private final String name;

@@ -57,8 +57,9 @@ public class ValidateTimeMeasurementController extends
 
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
-		plotValues.setOutputName(outputName + "ArithValues");
-		plotValues.setTitle("Time Values");
+		plotValues.setOutputName(outputName + "ArithValues")
+				.setTitle("Time Values").setLog().setxLabel("expOperations")
+				.setxUnit("operation").setyLabel("time").setyUnit("cycles");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -87,7 +88,7 @@ public class ValidateTimeMeasurementController extends
 			// print results to console and fill plot
 			/*System.out.printf("%s %s: expected: %s\n", kernelNames.get(kernel),
 					coordinate, expected);*/
-			for (MeasurementRunOutput runOutput : result.getOutputs()) {
+			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
 				Time actual = calc.getResult(Collections
 						.singletonList(runOutput.getMeasurerOutput(measurer)));
 
@@ -99,12 +100,15 @@ public class ValidateTimeMeasurementController extends
 		}
 
 		DistributionPlot plotError = new DistributionPlot();
-		plotError.setOutputName(outputName + "ArithError");
-		plotError.setTitle("Time Error");
+		plotError.setOutputName(outputName + "ArithError")
+				.setTitle("Time Error").setLog().setxLabel("expOpCount")
+				.setxUnit("opreations").setyLabel("err(cycles/median(cycles))")
+				.setyUnit("%");
 
 		SeriesPlot plotMinValues = new SeriesPlot();
-		plotMinValues.setOutputName(outputName + "ArithMinValues");
-		plotMinValues.setTitle("Time Min Values");
+		plotMinValues.setOutputName(outputName + "ArithMinValues")
+				.setTitle("Time Min Values").setLog().setxLabel("expOpCount")
+				.setxUnit("1").setyLabel("min(cycles)").setyUnit("1");
 
 		for (DistributionPlotSeries series : plotValues.getAllSeries()) {
 			for (Entry<Long, DescriptiveStatistics> entry : series
@@ -116,8 +120,8 @@ public class ValidateTimeMeasurementController extends
 				double median = entry.getValue().getPercentile(50);
 
 				for (double value : entry.getValue().getValues()) {
-					plotError.addValue(series.getName(), entry.getKey(), value
-							/ median);
+					plotError.addValue(series.getName(), entry.getKey(),
+							toError(value / median));
 				}
 			}
 		}
@@ -136,8 +140,9 @@ public class ValidateTimeMeasurementController extends
 
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
-		plotValues.setOutputName(outputName + "MemValues");
-		plotValues.setTitle("Time Values");
+		plotValues.setOutputName(outputName + "MemValues")
+				.setTitle("Time Values").setLog().setxLabel("expMemTransfer")
+				.setxUnit("bytes").setyLabel("time").setyUnit("cycles");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -166,7 +171,7 @@ public class ValidateTimeMeasurementController extends
 			// print results to console and fill plot
 			/*System.out.printf("%s %s: expected: %s\n", kernelNames.get(kernel),
 					coordinate, expected);*/
-			for (MeasurementRunOutput runOutput : result.getOutputs()) {
+			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
 				Time actual = calc.getResult(Collections
 						.singletonList(runOutput.getMeasurerOutput(measurer)));
 
@@ -179,11 +184,15 @@ public class ValidateTimeMeasurementController extends
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "MemError");
-		plotError.setTitle("Time Error");
+		plotError.setTitle("Time Error").setLog().setxLabel("expMemTransfer")
+				.setxUnit("bytes").setyLabel("err(time/median(time))")
+				.setyUnit("\\%");
 
 		SeriesPlot plotMinValues = new SeriesPlot();
 		plotMinValues.setOutputName(outputName + "MemMinValues");
-		plotMinValues.setTitle("Time Min Values");
+		plotMinValues.setTitle("Time Min Values").setLog()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("min(time)").setyUnit("cycles");
 
 		for (DistributionPlotSeries series : plotValues.getAllSeries()) {
 			for (Entry<Long, DescriptiveStatistics> entry : series
@@ -195,8 +204,8 @@ public class ValidateTimeMeasurementController extends
 				double median = entry.getValue().getPercentile(50);
 
 				for (double value : entry.getValue().getValues()) {
-					plotError.addValue(series.getName(), entry.getKey(), value
-							/ median);
+					plotError.addValue(series.getName(), entry.getKey(),
+							toError(value / median));
 				}
 			}
 		}
@@ -205,5 +214,4 @@ public class ValidateTimeMeasurementController extends
 		plotService.plot(plotMinValues);
 		plotService.plot(plotError);
 	}
-
 }

@@ -2,7 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom;
 
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
-public class HistogramPlot extends Plot implements IUnaryAction<Double> {
+public class HistogramPlot extends Plot<HistogramPlot> implements
+		IUnaryAction<Double> {
 	private final Histogram histogram;
 
 	public HistogramPlot() {

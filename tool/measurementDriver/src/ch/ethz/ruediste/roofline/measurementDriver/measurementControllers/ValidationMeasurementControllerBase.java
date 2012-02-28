@@ -95,4 +95,9 @@ public class ValidationMeasurementControllerBase {
 		}
 	}
 
+	double toError(double ratio) {
+		if (ratio < 1)
+			ratio = 1 / ratio;
+		return 100 * (ratio - 1);
+	}
 }

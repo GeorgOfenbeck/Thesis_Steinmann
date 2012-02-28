@@ -175,6 +175,8 @@ public class OptimizationService {
 		int longestSide = optimizationSpace.getAxisLength(optimizationSpace
 				.getLongestAxis());
 
+		int maxSteps = 2; //longestSide;
+
 		int startPoints = Math.min(5, points.size());
 
 		for (int i = 0; i < startPoints; i++) {
@@ -185,7 +187,7 @@ public class OptimizationService {
 			Quantity<?> currentValue = quantityMeasuringService.measure(kernel,
 					measurementPoint);
 
-			for (int step = 0; step < longestSide; step++) {
+			for (int step = 0; step < maxSteps; step++) {
 				Coordinate bestNeighbor = null;
 				Quantity<?> bestNeighborValue = null;
 				// find best neighbor

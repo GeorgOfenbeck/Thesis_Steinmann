@@ -1,5 +1,8 @@
 package ch.ethz.ruediste.roofline.entities;
 
+/**
+ * Base class for hashes
+ */
 public class HashBase {
 	protected String value;
 

@@ -94,6 +94,60 @@ public class PlotService {
 				new String[] { plot.getOutputName() + ".gnuplot" });
 	}
 
+	private void preparePlot(PrintStream output, Plot plot) {
+		// set the output
+		output.printf("set terminal pdf color size 28cm,18cm \n");
+		output.printf("set output '%s.pdf'\n", plot.getOutputName());
+
+		// set the title
+		output.printf("set title '%s' font 'Gill Sans, 16'\n", plot.getTitle());
+
+		// disable border
+		output.println("unset border");
+
+		// set the point size
+		output.println("set pointsize 0.5");
+
+		// add gray background
+		output.println("set object 1 rectangle from graph 0,0 to graph 1,1 behind fillcolor rgb\"#E0E0E0\" lw 0");
+
+		// add white grid
+		output.println("set grid xtics ytics mxtics mytics lt -1 lw 6 linecolor rgb\"#FFFFFF\",lt -1 lw 2 linecolor rgb\"#FFFFFF\"");
+
+	}
+
+	private void preparePlot(PrintStream output, Plot2D plot) {
+		preparePlot(output, (Plot) plot);
+
+		// place the legend
+		output.println("set key outside right top");
+
+		// set logarithmic axes
+		if (plot.isLogX())
+			output.println("set log x");
+
+		if (plot.isLogY())
+			output.println("set log y");
+
+		// set the scaling
+		Double xMin = (Double) plot.getXRange().getMinimum();
+		Double xMax = (Double) plot.getXRange().getMaximum();
+		Double yMin = (Double) plot.getYRange().getMinimum();
+		Double yMax = (Double) plot.getYRange().getMaximum();
+
+		output.printf("set xrange [%s:%s]\n",
+				xMin == Double.NEGATIVE_INFINITY ? "" : xMin,
+				xMax == Double.POSITIVE_INFINITY ? "" : xMax);
+		output.printf("set yrange [%s:%s]\n",
+				yMin == Double.NEGATIVE_INFINITY ? "" : yMin,
+				yMax == Double.POSITIVE_INFINITY ? "" : yMax);
+
+		output.printf("set xlabel '%s [%s]' font 'Gill Sans'\n",
+				plot.getxLabel(), plot.getxUnit());
+		output.printf("set ylabel '%s [%s]' font 'Gill Sans'\n",
+				plot.getyLabel(), plot.getyUnit());
+	}
+
 	public void plot(DistributionPlot plot) throws ExecuteException,
 			IOException {
 
@@ -123,12 +177,7 @@ public class PlotService {
 		{
 			PrintStream output = new PrintStream(plot.getOutputName()
 					+ ".gnuplot");
-			output.printf("set title '%s'\n", plot.getTitle());
-			output.printf("set terminal pdf color\n");
-			output.printf("set output '%s.pdf'\n", plot.getOutputName());
-			output.printf("set grid xtics ytics mxtics mytics\n");
-			output.printf("set log x\n");
-			output.printf("set log y\n");
+			preparePlot(output, plot);
 
 			List<String> plotLines = new ArrayList<String>();
 
@@ -174,12 +223,7 @@ public class PlotService {
 		{
 			PrintStream output = new PrintStream(plot.getOutputName()
 					+ ".gnuplot");
-			output.printf("set title '%s'\n", plot.getTitle());
-			output.printf("set terminal pdf color\n");
-			output.printf("set output '%s.pdf'\n", plot.getOutputName());
-			output.printf("set grid xtics ytics mxtics mytics\n");
-			output.printf("set log x\n");
-			output.printf("set log y\n");
+			preparePlot(output, plot);
 
 			List<String> plotLines = new ArrayList<String>();
 
@@ -223,53 +267,18 @@ public class PlotService {
 		{
 			PrintStream output = new PrintStream(plot.getOutputName()
 					+ ".gnuplot");
-			output.printf("set title '%s' font 'Gill Sans, 16'\n",
-					plot.getTitle());
-			output.printf("set terminal pdf color size 28cm,18cm\n");
-			output.printf("set output '%s.pdf'\n", plot.getOutputName());
-
-			// disable border
-			output.println("unset border");
-
-			// set the point size
-			output.println("set pointsize 0.5");
-
-			// add gray background
-			output.println("set object 1 rectangle from graph 0,0 to graph 1,1 behind fillcolor rgb\"#E0E0E0\" lw 0");
-
-			// add white grid
-			output.println("set grid xtics ytics mxtics mytics lt -1 lw 6 linecolor rgb\"#FFFFFF\",lt -1 lw 2 linecolor rgb\"#FFFFFF\"");
+			preparePlot(output, plot);
 
 			// add the ticks
 			output.printf(
 					"set xtics scale 0 (%s)\n",
-					getTicks(plot.getXRange().getMinimum(), plot.getXRange()
+					getLogTicks(plot.getXRange().getMinimum(), plot.getXRange()
 							.getMaximum()));
 
 			output.printf(
 					"set ytics scale 0 (%s)\n",
-					getTicks(plot.getYRange().getMinimum(), plot.getYRange()
+					getLogTicks(plot.getYRange().getMinimum(), plot.getYRange()
 							.getMaximum()));
-
-			// blace the legend
-			output.println("set key outside right top");
-
-			// set logarithmic axes
-			output.println("set log x");
-			output.println("set log y");
-
-			// set the scaling
-			output.printf("set xrange [%g:%g]\n",
-					plot.getXRange().getMinimum(), plot.getXRange()
-							.getMaximum());
-			output.printf("set yrange [%g:%g]\n",
-					plot.getYRange().getMinimum(), plot.getYRange()
-							.getMaximum());
-
-			output.printf("set xlabel '%s [%s]' font 'Gill Sans'\n",
-					plot.getxLabel(), plot.getxUnit());
-			output.printf("set ylabel '%s [%s]' font 'Gill Sans'\n",
-					plot.getyLabel(), plot.getyUnit());
 
 			// build the plot lines
 			List<String> plotLines = new ArrayList<String>();
@@ -345,13 +354,13 @@ public class PlotService {
 
 	/**
 	 * @param output
-	 * @param firstPoint
+	 * @param point
 	 */
-	public void printLabel(PrintStream output, RooflinePoint firstPoint) {
+	public void printLabel(PrintStream output, RooflinePoint point) {
 		output.printf(
 				"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02\n",
-				firstPoint.getLabel(), firstPoint.getOperationalIntensity()
-						.getValue(), firstPoint.getPerformance().getValue());
+				point.getLabel(), point.getOperationalIntensity().getValue(),
+				point.getPerformance().getValue());
 	}
 
 	private int getPointType(int index) {
@@ -371,7 +380,7 @@ public class PlotService {
 	 * @param max
 	 * @return
 	 */
-	public String getTicks(Double min, Double max) {
+	public String getLogTicks(Double min, Double max) {
 		ArrayList<String> ticks = new ArrayList<String>();
 
 		// start with the magnitude of the minimum

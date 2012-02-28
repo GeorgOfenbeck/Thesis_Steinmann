@@ -7,10 +7,16 @@ import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
+/**
+ * Keeps track of the measurement hashes and the core hashes
+ */
 public class MeasurementHashRepository {
 	private static Logger log = Logger
 			.getLogger(MeasurementHashRepository.class);
 
+	/**
+	 * representation of a core
+	 */
 	private class Core {
 		public CoreHash coreHash;
 	}
@@ -20,6 +26,10 @@ public class MeasurementHashRepository {
 
 	private HashMap<CoreHash, Core> coreHashToCore = new HashMap<CoreHash, Core>();
 
+	/**
+	 * tells this MeasurementHashRepository that the cores of the two
+	 * measurements are equal.
+	 */
 	public void setHaveEqualCores(MeasurementHash a, MeasurementHash b) {
 		log.debug(String.format("%s and %s have equal cores", a, b));
 		Core coreA = measurementToCore.get(a);
@@ -37,55 +47,59 @@ public class MeasurementHashRepository {
 			coreToMeasurement.put(core, b);
 			measurementToCore.put(a, core);
 			measurementToCore.put(b, core);
+			return;
 		}
-		else
-			if (coreA == null && coreB != null) {
-				// associate measurement A to core B
-				coreToMeasurement.put(coreB, a);
-				measurementToCore.put(a, coreB);
-			}
-			else
-				if (coreA != null && coreB == null) {
-					// assosiate measurement B to core A
-					coreToMeasurement.put(coreA, b);
-					measurementToCore.put(b, coreA);
-				}
-				else
-					if (coreToMeasurement.size(coreA) > coreToMeasurement
-							.size(coreB)) {
-						if (coreB.coreHash != null) {
-							if (coreA.coreHash != null
-									&& !coreA.coreHash.equals(coreB.coreHash)) {
-								throw new Error(
-										"measurements set to equal, but core hashes differ");
-							}
-							coreA.coreHash = coreB.coreHash;
-						}
-						// coreB has less associated measurements, merge into coreA
-						for (Object m : coreToMeasurement.getCollection(coreB)) {
-							coreToMeasurement.put(coreA, m);
-							measurementToCore.put((MeasurementHash) m, coreA);
-						}
-						coreToMeasurement.remove(coreB);
-					}
-					else {
-						if (coreA.coreHash != null) {
-							if (coreB.coreHash != null
-									&& !coreA.coreHash.equals(coreB.coreHash)) {
-								throw new Error(
-										"measurements set to equal, but core hashes differ");
-							}
-							coreB.coreHash = coreA.coreHash;
-						}
-						// coreA has less associated measurements, merge into coreB
-						for (Object m : coreToMeasurement.getCollection(coreA)) {
-							coreToMeasurement.put(coreB, m);
-							measurementToCore.put((MeasurementHash) m, coreB);
-						}
-						coreToMeasurement.remove(coreA);
-					}
+
+		if (coreA == null && coreB != null) {
+			// associate measurement A to core B
+			coreToMeasurement.put(coreB, a);
+			measurementToCore.put(a, coreB);
+			return;
+		}
+
+		if (coreA != null && coreB == null) {
+			// assosiate measurement B to core A
+			coreToMeasurement.put(coreA, b);
+			measurementToCore.put(b, coreA);
+			return;
+		}
+
+		// both measurements have a core already. The two cores need to be merged
+		// merge the smaller core into the larger one
+		if (coreToMeasurement.size(coreA) > coreToMeasurement.size(coreB)) {
+			mergeSecondCoreIntoFirstCore(coreA, coreB);
+		}
+		else {
+			mergeSecondCoreIntoFirstCore(coreB, coreA);
+		}
 	}
 
+	/**
+	 * merges coreB into coreA
+	 */
+	public void mergeSecondCoreIntoFirstCore(Core coreA, Core coreB)
+			throws Error {
+		// update the core hash of coreA 
+		if (coreB.coreHash != null) {
+			if (coreA.coreHash != null
+					&& !coreA.coreHash.equals(coreB.coreHash)) {
+				throw new Error(
+						"measurements set to equal, but core hashes differ");
+			}
+			coreA.coreHash = coreB.coreHash;
+		}
+
+		// coreB has less associated measurements, merge into coreA
+		for (Object measurement : coreToMeasurement.getCollection(coreB)) {
+			coreToMeasurement.put(coreA, measurement);
+			measurementToCore.put((MeasurementHash) measurement, coreA);
+		}
+		coreToMeasurement.remove(coreB);
+	}
+
+	/**
+	 * return if the cores of two measurements are equal
+	 */
 	public boolean areCoresEqual(MeasurementHash a, MeasurementHash b) {
 		Core coreA = measurementToCore.get(a);
 		Core coreB = measurementToCore.get(b);
@@ -100,6 +114,11 @@ public class MeasurementHashRepository {
 		return measurementToCore.containsKey(hash);
 	}
 
+	/**
+	 * returns the core hash for the given measurement. If the measurement has
+	 * not been seen yet, null is returned. If the core hash is not known, null
+	 * is returned.
+	 */
 	public CoreHash getCoreHash(MeasurementHash measurementHash) {
 		Core core = measurementToCore.get(measurementHash);
 		if (core == null) {
@@ -108,31 +127,41 @@ public class MeasurementHashRepository {
 		return core.coreHash;
 	}
 
+	/**
+	 * sets the core hash of a measurement, optionally merging cores
+	 */
 	public void setCoreHash(MeasurementHash measurementHash, CoreHash coreHash) {
-		Core measurementCore = measurementToCore.get(measurementHash);
+		// get the core for the provided measurement
+		Core coreForMeasurement = measurementToCore.get(measurementHash);
 
 		// is the measurement unknown?
-		if (measurementCore == null) {
+		if (coreForMeasurement == null) {
 			// create new core and associate measurement
-			measurementCore = new Core();
-			coreToMeasurement.put(measurementCore, measurementHash);
-			measurementToCore.put(measurementHash, measurementCore);
+			coreForMeasurement = new Core();
+			coreToMeasurement.put(coreForMeasurement, measurementHash);
+			measurementToCore.put(measurementHash, coreForMeasurement);
 		}
 
+		// get the core for the specified hash
 		Core coreForHash = coreHashToCore.get(coreHash);
 
+		// is there NO core with the hash?
 		if (coreForHash == null) {
-			// just register the measurement core for the coreHash
-			measurementCore.coreHash = coreHash;
-			coreHashToCore.put(coreHash, measurementCore);
+			// just set the core hash of the coreForMeasurement
+			coreForMeasurement.coreHash = coreHash;
+			coreHashToCore.put(coreHash, coreForMeasurement);
 		}
 		else {
-			// merge the core of the measurement with the core of the hash
-			for (Object m : coreToMeasurement.getCollection(measurementCore)) {
-				coreToMeasurement.put(coreForHash, m);
-				measurementToCore.put((MeasurementHash) m, coreForHash);
+			// there is already a core for the provided coreHash
+
+			// merge the core of the measurement with the core of the coreHash
+			for (Object measurement : coreToMeasurement
+					.getCollection(coreForMeasurement)) {
+				coreToMeasurement.put(coreForHash, measurement);
+				measurementToCore.put((MeasurementHash) measurement,
+						coreForHash);
 			}
-			coreToMeasurement.remove(measurementCore);
+			coreToMeasurement.remove(coreForMeasurement);
 		}
 	}
 }

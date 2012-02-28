@@ -64,7 +64,7 @@ public class MeasurementCacheTest extends TestBase {
 		{
 			MeasurementRunOutput output = new MeasurementRunOutput();
 			output.getMeasurerSetOutputs().add(new MeasurerSetOutput());
-			result2.getOutputs().add(output);
+			result2.getRunOutputs().add(output);
 		}
 
 		// store first result
@@ -82,7 +82,7 @@ public class MeasurementCacheTest extends TestBase {
 				measurementResultRepository
 						.getMeasurementResult(
 								hashService.getMeasurementHash(measurement1))
-						.getOutputs().size());
+						.getRunOutputs().size());
 
 		// store second result
 		measurementResultRepository.store(result2,
@@ -97,7 +97,7 @@ public class MeasurementCacheTest extends TestBase {
 				measurementResultRepository
 						.getMeasurementResult(
 								hashService.getMeasurementHash(measurement1))
-						.getOutputs().size());
+						.getRunOutputs().size());
 		assertNotNull(measurementResultRepository
 				.getMeasurementResult(hashService
 						.getMeasurementHash(measurement2)));
@@ -141,7 +141,7 @@ public class MeasurementCacheTest extends TestBase {
 		for (int i = 0; i < 10; i++) {
 			MeasurementRunOutput output = new MeasurementRunOutput();
 			output.getMeasurerSetOutputs().add(new MeasurerSetOutput());
-			result.getOutputs().add(output);
+			result.getRunOutputs().add(output);
 		}
 		result.setMeasurement(measurement);
 

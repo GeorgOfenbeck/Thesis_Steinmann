@@ -77,7 +77,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		measurementService.prepareMeasurement(measurement);
 
 		// collect outputs in this collection
-		ArrayList<MeasurementRunOutput> outputs = new ArrayList<MeasurementRunOutput>();
+		ArrayList<MeasurementRunOutput> runOutputs = new ArrayList<MeasurementRunOutput>();
 
 		try {
 			MeasurementHash measurementHash = hashService
@@ -106,28 +106,28 @@ public class MeasurementAppController implements IMeasurementFacilility {
 
 					log.trace("found results");
 					// use the stored results
-					outputs.addAll(cachedResult.getOutputs());
+					runOutputs.addAll(cachedResult.getRunOutputs());
 				}
 			}
 
 			// do we need more results?
-			if (numberOfRuns > outputs.size()) {
+			if (numberOfRuns > runOutputs.size()) {
 				log.trace("more results required");
 				// create measurement command
 				MeasurementCommand command = new MeasurementCommand();
 				command.setMeasurement(measurement);
-				command.setRunCount(numberOfRuns - outputs.size());
+				command.setRunCount(numberOfRuns - runOutputs.size());
 
 				// perform measurement
 				MeasurementResult newResult = performMeasurement(command,
 						measurementHash);
 
 				// combine outputs
-				newResult.getOutputs().addAll(outputs);
+				newResult.getRunOutputs().addAll(runOutputs);
 
 				// overwrite outputs with combined results
-				outputs.clear();
-				outputs.addAll(newResult.getOutputs());
+				runOutputs.clear();
+				runOutputs.addAll(newResult.getRunOutputs());
 
 				// set the core hash of the results
 				newResult
@@ -141,7 +141,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			throw new Error("error occured during measurement", e);
 		}
 
-		if (outputs.size() < numberOfRuns) {
+		if (runOutputs.size() < numberOfRuns) {
 			throw new Error("unable to retrieve enough results");
 		}
 
@@ -153,7 +153,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		// it might be that there were more results in the repository than
 		// needed
 		for (int i = 0; i < numberOfRuns; i++) {
-			result.getOutputs().add(outputs.get(i));
+			result.getRunOutputs().add(runOutputs.get(i));
 		}
 
 		result.setResultUids();
@@ -228,7 +228,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 				.prepareMeasuringCoreBuilding(measurement);
 
 		if (
-		// did we compile before (if we would have, we would know the hash)?
+		// did we compile before? (if we would have, we would know the currently compiled hash)
 		currentlyCompiledMeasurementHash == null
 		// or did the core change?
 				|| coreChanged) {

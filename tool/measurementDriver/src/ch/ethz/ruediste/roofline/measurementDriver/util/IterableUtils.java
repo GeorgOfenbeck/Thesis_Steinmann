@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.util;
 import java.util.*;
 
 import org.apache.commons.lang3.Range;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class IterableUtils {
 
@@ -292,5 +293,22 @@ public class IterableUtils {
 		for (T item : iterable) {
 			coll.add(item);
 		}
+	}
+
+	public static <L, R> Iterable<Pair<L, R>> zip(Iterable<L> left,
+			Iterable<R> right) {
+		ArrayList<Pair<L, R>> result = new ArrayList<Pair<L, R>>();
+		Iterator<L> leftI = left.iterator();
+		Iterator<R> rightI = right.iterator();
+
+		while (leftI.hasNext() && rightI.hasNext()) {
+			result.add(Pair.of(leftI.next(), rightI.next()));
+		}
+
+		if (leftI.hasNext() || rightI.hasNext()) {
+			throw new Error("Iterables were of unequal length");
+		}
+
+		return result;
 	}
 }

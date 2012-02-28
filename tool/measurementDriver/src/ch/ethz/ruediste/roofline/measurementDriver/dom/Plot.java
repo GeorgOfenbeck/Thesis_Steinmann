@@ -4,7 +4,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom;
  * base class for all plots. A plot object contains all data needed to print a
  * plot
  */
-public abstract class Plot {
+public abstract class Plot<T extends Plot<?>> {
 
 	private String outputName;
 	private String title;
@@ -17,24 +17,33 @@ public abstract class Plot {
 		return outputName;
 	}
 
-	public void setOutputName(String outputName) {
+	public T setOutputName(String outputName) {
 		this.outputName = outputName;
+		return This();
 	}
 
-	public void setOutputName(String format, Object... args) {
+	public T setOutputName(String format, Object... args) {
 		this.outputName = String.format(format, args);
+		return This();
 	}
 
 	public String getTitle() {
 		return title;
 	}
 
-	public void setTitle(String title) {
+	public T setTitle(String title) {
 		this.title = title;
+		return This();
 	}
 
-	public void setTitle(String format, Object... args) {
+	public T setTitle(String format, Object... args) {
 		this.title = String.format(format, args);
+		return This();
+	}
+
+	@SuppressWarnings("unchecked")
+	protected T This() {
+		return (T) this;
 	}
 
 }

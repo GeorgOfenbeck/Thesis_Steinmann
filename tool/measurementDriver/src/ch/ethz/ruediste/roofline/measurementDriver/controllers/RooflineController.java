@@ -11,6 +11,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -63,23 +64,47 @@ public class RooflineController {
 
 	public void addRooflinePoint(String seriesName, String label,
 			KernelBase kernel, Operation operation, MemoryTransferBorder border) {
-		RooflinePoint point = new RooflinePoint(label,
-				quantityMeasuringService.measureOperationalIntensity(kernel,
-						border, operation),
-				quantityMeasuringService.measurePerformance(kernel, operation,
-						clockType));
+
+		// get required calculators
+		QuantityCalculator<TransferredBytes> tbCalculator = quantityMeasuringService
+				.getTransferredBytesCalculator(border);
+		QuantityCalculator<OperationCount> opCountCalculator = quantityMeasuringService
+				.getOperationCountCalculator(operation);
+		QuantityCalculator<Time> timeCalc = quantityMeasuringService
+				.getExecutionTimeCalculator(clockType);
+
+		// measure 
+		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,
+				timeCalc, opCountCalculator, tbCalculator);
+
+		// build derived quantities
+		OperationalIntensity operationalIntensity = new OperationalIntensity(
+				result.min(tbCalculator), result.min(opCountCalculator));
+
+		Performance performance = new Performance(
+				result.min(opCountCalculator), result.min(timeCalc));
+
+		// create point
+		RooflinePoint point = new RooflinePoint(label, operationalIntensity,
+				performance);
+
+		// log output
 		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
 				label, point));
+
+		// add point
 		plot.addPoint(seriesName, point);
 	}
 
 	public void addRooflinePoint(String seriesName, String label,
 			KernelBase kernel, OperationCount operationCount,
 			MemoryTransferBorder border) {
+
 		TransferredBytes transferredBytes = quantityMeasuringService
 				.measureTransferredBytes(kernel, border);
 		Time time = quantityMeasuringService.measureExecutionTime(kernel,
 				clockType);
+
 		RooflinePoint point = new RooflinePoint(label,
 				new OperationalIntensity(transferredBytes, operationCount),
 				new Performance(operationCount, time));

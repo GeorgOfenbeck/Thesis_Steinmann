@@ -60,8 +60,7 @@ public class Main {
 	public static void main(String args[]) throws ExecuteException, IOException {
 		// if autocomplete is desired, just call the currently compiled
 		// measurement driver
-		if (args.length == 4 && "-autocomplete".equals(args[0]))
-		{
+		if (args.length == 4 && "-autocomplete".equals(args[0])) {
 			// setup the configuration, without arguments
 			setupConfiguration(new String[] {});
 
@@ -177,7 +176,8 @@ public class Main {
 			InputStream configStream = ClassLoader
 					.getSystemResourceAsStream("defaultConfiguration.config");
 			defaultConfiguration.load(configStream);
-		} catch (ConfigurationException e) {
+		}
+		catch (ConfigurationException e) {
 			throw new Error(e);
 		}
 
@@ -204,7 +204,8 @@ public class Main {
 				try {
 					// load the user configuration file
 					userConfiguration.load(userConfigFile);
-				} catch (ConfigurationException e) {
+				}
+				catch (ConfigurationException e) {
 					throw new Error(e);
 				}
 
@@ -245,7 +246,8 @@ public class Main {
 		// perform command
 		try {
 			executor.execute(cmdLine);
-		} catch (ExecuteException e) {
+		}
+		catch (ExecuteException e) {
 			System.err.println(e.getMessage());
 			System.exit(e.getExitValue());
 		}
@@ -289,7 +291,7 @@ public class Main {
 
 		if (configuration.getBoolean(cleanKey)) {
 			cmdLine.addArgument(":measurementDriver:clean");
-			cmdLine.addArgument(":multiLanguageCodeGenerator:clean");
+			cmdLine.addArgument(":sharedEntityGenerator:clean");
 		}
 		cmdLine.addArgument(":measurementDriver:classes");
 

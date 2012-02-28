@@ -4,7 +4,7 @@ import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.toL
 
 import java.util.*;
 
-public class SeriesPlot extends Plot2D {
+public class SeriesPlot extends Plot2D<SeriesPlot> {
 	public static class SeriesPlotSeries {
 		private final HashMap<Long, Double> valueMap = new LinkedHashMap<Long, Double>();
 		private final String name;

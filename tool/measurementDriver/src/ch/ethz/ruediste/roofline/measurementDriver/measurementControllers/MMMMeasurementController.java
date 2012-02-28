@@ -190,10 +190,10 @@ public class MMMMeasurementController implements IMeasurementController {
 				.measurePerformance(kernel, operation, ClockType.CoreCycles);
 				System.out.printf("Performance %s: %s\n", coordinate, performance);*/
 
-				OperationCount operationCount = quantityMeasuringService
+				/*OperationCount operationCount = quantityMeasuringService
 						.measureOperationCount(kernel, operation);
 				System.out.printf("Operations %s: %s\n", coordinate,
-						operationCount);
+						operationCount);*/
 
 				/*TransferredBytes bytes = quantityMeasuringService
 						.measureTransferredBytes(kernel,

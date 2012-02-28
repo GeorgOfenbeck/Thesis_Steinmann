@@ -1,13 +1,11 @@
 package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
-import java.io.File;
-
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
-import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.MeasurementHash;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -51,18 +49,13 @@ public class MeasurementResultRepository {
 					measurementHash.getValue(),
 					configuration.get(cacheLocationKey));
 		}
+		catch (Throwable t) {
+			log.warn("Error while loading measurement result from cache", t);
+			return null;
+		}
 		finally {
 			runtimeMonitor.loadMeasurementResultsCategory.leave();
 		}
-	}
-
-	/**
-	 * get the cache file for the hash of a measurement (as generated with
-	 * HashService.getMeasurementHash())
-	 */
-	public File getCacheFile(MeasurementHash hash) {
-		return cacheService.getCacheFile(hash.getValue(),
-				configuration.get(cacheLocationKey));
 	}
 
 	/** store a measurement result in the cache */

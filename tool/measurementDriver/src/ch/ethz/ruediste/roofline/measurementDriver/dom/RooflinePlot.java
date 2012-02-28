@@ -8,7 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
-public class RooflinePlot extends Plot2D {
+public class RooflinePlot extends Plot2D<RooflinePlot> {
 
 	private final ArrayList<Pair<String, Throughput>> peakBandwidths = new ArrayList<Pair<String, Throughput>>();
 	private final ArrayList<Pair<String, Performance>> peakPerformances = new ArrayList<Pair<String, Performance>>();
@@ -16,6 +16,12 @@ public class RooflinePlot extends Plot2D {
 	private RooflineSeries currentSeries;
 
 	private boolean autoscale;
+
+	public RooflinePlot() {
+		setLogX(true);
+		setLogY(true);
+
+	}
 
 	public void addPeakThroughput(String name, Throughput peak) {
 		peakBandwidths.add(Pair.of(name, peak));
@@ -89,10 +95,12 @@ public class RooflinePlot extends Plot2D {
 		return autoscale;
 	}
 
-	public void setAutoscale(boolean autoscale) {
+	public RooflinePlot setAutoscale(boolean autoscale) {
 		this.autoscale = autoscale;
+		return this;
 	}
 
+	@Override
 	public Range<Double> getXRange() {
 		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
 				.getRange(getOperationalIntensities());
@@ -107,6 +115,7 @@ public class RooflinePlot extends Plot2D {
 		}
 	}
 
+	@Override
 	public Range<Double> getYRange() {
 		Range<Performance> performanceRange = IterableUtils
 				.getRange(getPerformances());

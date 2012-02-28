@@ -17,7 +17,7 @@ import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
 import com.google.inject.Inject;
 
-public class MMMOptimizationMeasurementDriver implements IMeasurementController {
+public class MMMOptimizationMeasurementController implements IMeasurementController {
 
 	public String getName() {
 		return "mmmOpt";

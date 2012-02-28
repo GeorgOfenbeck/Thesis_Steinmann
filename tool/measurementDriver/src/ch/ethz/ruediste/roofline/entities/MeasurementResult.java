@@ -8,11 +8,11 @@ import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 
 public class MeasurementResult {
 	private Measurement measurement;
-	private final List<MeasurementRunOutput> outputs = new ArrayList<MeasurementRunOutput>();
+	private final List<MeasurementRunOutput> runOutputs = new ArrayList<MeasurementRunOutput>();
 	private CoreHash coreHash;
 
-	public List<MeasurementRunOutput> getOutputs() {
-		return outputs;
+	public List<MeasurementRunOutput> getRunOutputs() {
+		return runOutputs;
 	}
 
 	public Measurement getMeasurement() {
@@ -24,7 +24,7 @@ public class MeasurementResult {
 	}
 
 	public void add(MeasurementRunOutputCollection outputCollection) {
-		getOutputs().addAll(outputCollection.getOutputs());
+		getRunOutputs().addAll(outputCollection.getOutputs());
 	}
 
 	public CoreHash getCoreHash() {
@@ -38,7 +38,7 @@ public class MeasurementResult {
 	public <TOutput> Iterable<TOutput> getMeasurerOutputs(
 			IMeasurer<TOutput> measurer) {
 		List<TOutput> result = new ArrayList<TOutput>();
-		for (MeasurementRunOutput output : getOutputs()) {
+		for (MeasurementRunOutput output : getRunOutputs()) {
 			result.add(output.getMeasurerOutput(measurer));
 		}
 		return result;
@@ -46,7 +46,7 @@ public class MeasurementResult {
 
 	public Iterable<MeasurerOutputBase> getMeasurerOutputsUntyped(MeasurerBase measurer) {
 		List<MeasurerOutputBase> result = new ArrayList<MeasurerOutputBase>();
-		for (MeasurementRunOutput output : getOutputs()) {
+		for (MeasurementRunOutput output : getRunOutputs()) {
 			result.add(output.getMeasurerOutput(measurer));
 		}
 		return result;
@@ -54,7 +54,7 @@ public class MeasurementResult {
 
 	public Iterable<MeasurerSetOutput> getMeasurerSetOutputsUntyped(
 			final MeasurerSet measurerSet) {
-		return IterableUtils.select(getOutputs(),
+		return IterableUtils.select(getRunOutputs(),
 				new IUnaryFunction<MeasurementRunOutput, MeasurerSetOutput>() {
 					public MeasurerSetOutput apply(MeasurementRunOutput arg) {
 						return arg.getMeasurerSetOutput(measurerSet);
@@ -65,7 +65,7 @@ public class MeasurementResult {
 	public void setResultUids() {
 		Measurement measurement = getMeasurement();
 
-		for (MeasurementRunOutput runOutput : getOutputs()) {
+		for (MeasurementRunOutput runOutput : getRunOutputs()) {
 			for (MeasurerSetOutput setOutput : runOutput
 					.getMeasurerSetOutputs()) {
 				// set the UID of the set output
