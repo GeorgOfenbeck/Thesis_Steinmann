@@ -24,6 +24,14 @@ import com.google.inject.Inject;
 public class PlotService {
 	private final static Logger log = Logger.getLogger(PlotService.class);
 
+	private static final int plotWidth = 28;
+	private static final int plotHeight = 18;
+
+	private static double bMargin = 0.07;
+	private static double tMargin = 0.93;
+	private static double lMargin = 0.05;
+	private static double rMargin = 0.85;
+
 	@Inject
 	public CommandService commandService;
 
@@ -96,7 +104,8 @@ public class PlotService {
 
 	private void preparePlot(PrintStream output, Plot plot) {
 		// set the output
-		output.printf("set terminal pdf color size 28cm,18cm \n");
+		output.printf("set terminal pdf color size %dcm,%dcm \n", plotWidth,
+				plotHeight);
 		output.printf("set output '%s.pdf'\n", plot.getOutputName());
 
 		// set the title
@@ -268,6 +277,7 @@ public class PlotService {
 			PrintStream output = new PrintStream(plot.getOutputName()
 					+ ".gnuplot");
 			preparePlot(output, plot);
+			setMargins(output);
 
 			// add the ticks
 			output.printf(
@@ -280,7 +290,7 @@ public class PlotService {
 					getLogTicks(plot.getYRange().getMinimum(), plot.getYRange()
 							.getMaximum()));
 
-			// build the plot lines
+			// build the peak performance lines
 			List<String> plotLines = new ArrayList<String>();
 			boolean first = true;
 			for (Pair<String, Performance> peak : order(
@@ -297,14 +307,19 @@ public class PlotService {
 				}
 
 				// generate the string
-				plotLines
-						.add(String
-								.format("%e title '%s (%.2g flop/cycle)' with lines lc %s lw 6",
-										peak.getRight().getValue(), peak
-												.getLeft(), peak.getRight()
-												.getValue(), lineColor));
+				plotLines.add(String.format("%e notitle with lines lc %s lw 6",
+						peak.getRight().getValue(), lineColor));
 			}
 
+			// print the lines for the peak performances
+			for (Pair<String, Performance> peak : plot.getPeakPerformances()) {
+				output.printf(
+						"set label '%s (%.2g flop/cycle)' at graph 1,first %e right offset 0,graph 0.015\n",
+						peak.getLeft(), peak.getRight().getValue(), peak
+								.getRight().getValue());
+			}
+
+			// build the peak bandwidth lines
 			first = true;
 			for (Pair<String, Throughput> peak : order(plot.getPeakBandwiths(),
 					BinaryPredicates
@@ -318,14 +333,51 @@ public class PlotService {
 					lineColor = "rgb\"black\"";
 				}
 
-				plotLines
-						.add(String
-								.format("%e*x title '%s (%.2g byte/cycle)' with lines lc %s lw 6",
-										peak.getRight().getValue(), peak
-												.getLeft(), peak.getRight()
-												.getValue(), lineColor));
+				plotLines.add(String.format(
+						"%e*x notitle with lines lc %s lw 6", peak.getRight()
+								.getValue(), lineColor));
 			}
 
+			// calculate the angle of the memory border lines
+			double angle;
+			{
+				double aspectRatio = (double) plotHeight / (double) plotWidth;
+				aspectRatio *= (tMargin - bMargin) / (rMargin - lMargin);
+
+				double opIntensityRatio = plot.getXRange().getMaximum()
+						/ plot.getXRange().getMinimum();
+				double performanceRatio = plot.getYRange().getMaximum()
+						/ plot.getYRange().getMinimum();
+
+				angle = Math.toDegrees(Math.atan(aspectRatio
+						* log(opIntensityRatio) / log(performanceRatio)));
+			}
+			// print the labels for the throughput borders
+			for (Pair<String, Throughput> peak : plot.getPeakBandwiths()) {
+				double performance = plot.getYRange().getMaximum() * 0.85;
+				double bandwidth = peak.getRight().getValue();
+				double opIntens = plot.getXRange().getMaximum();
+
+				double borderOpIntens = performance / bandwidth;
+				double borderPerformance = opIntens * bandwidth;
+
+				if (borderOpIntens < opIntens) {
+					// we hit the top of the graph
+					output.printf(
+							"set label '%s (%.2g byte/cycle)' at first %e , first %e right offset 0,graph 0.02 rotate by %e\n",
+							peak.getLeft(), bandwidth, borderOpIntens,
+							performance, angle);
+				}
+				else {
+					// we hit the right of the graph
+					output.printf(
+							"set label '%s (%.2g byte/cycle)' at graph 1, first %e right offset 0,graph -0.015 rotate by %e\n",
+							peak.getLeft(), bandwidth, borderPerformance, angle);
+				}
+
+			}
+
+			// build the points for the series
 			List<RooflineSeries> allSeries = toList(plot.getAllSeries());
 			for (int i = 0; i < allSeries.size(); i++) {
 				RooflineSeries series = allSeries.get(i);
@@ -350,6 +402,13 @@ public class PlotService {
 		// show output
 		commandService.runCommand(new File("."), "gnuplot",
 				new String[] { plot.getOutputName() + ".gnuplot" });
+	}
+
+	private void setMargins(PrintStream output) {
+		output.printf("set bmargin at screen %e\n", bMargin);
+		output.printf("set tmargin at screen %e\n", tMargin);
+		output.printf("set lmargin at screen %e\n", lMargin);
+		output.printf("set rmargin at screen %e\n", rMargin);
 	}
 
 	/**

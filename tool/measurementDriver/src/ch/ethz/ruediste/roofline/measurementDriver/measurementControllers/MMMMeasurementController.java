@@ -10,7 +10,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementContr
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
@@ -91,10 +90,10 @@ public class MMMMeasurementController implements IMeasurementController {
 				.measurePerformance(kernel, operation, ClockType.CoreCycles);
 				System.out.printf("Performance %s: %s\n", coordinate, performance);*/
 
-				OperationCount operationCount = quantityMeasuringService
+				/*OperationCount operationCount = quantityMeasuringService
 						.measureOperationCount(kernel, operation);
 				System.out.printf("Operations Blocked %d: %s\n", i,
-						operationCount);
+						operationCount);*/
 
 				/*TransferredBytes bytes = quantityMeasuringService
 						.measureTransferredBytes(kernel,
