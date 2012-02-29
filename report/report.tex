@@ -33,6 +33,7 @@
 \newcommand{\umlRef}[1]{\autoref{#1}}
 
 \newcommand{\class}[1]{\textbf{#1}}
+\newcommand{\method}[1]{\textsf{#1}}
 
 \lstset{
   showstringspaces=false,
@@ -42,7 +43,8 @@
 }
 
 \lstdefinestyle{pseudoCode}
-{stringstyle=\textit}
+{%%stringstyle=\textit
+}
 
 \sloppy
 
@@ -670,15 +672,16 @@ assumed that the reader has a basic understanding of the mentioned concepts.
 
 \subsubsection{The MeasurementAppController}
 The measurement application controller is the entry point for performing
-measurement. It is the sole client to the MeasuringCoreService, which provides
-the low level control over the measuring core, and keeps track of the
+measurement. It is the sole client to the \class{MeasuringCoreService}, which
+provides the low level control over the measuring core, and keeps track of the
 measurement the core is compiled for. 
 
-In addition, it uses the MeasurementHashRepository to keep track of
+In addition, it uses the \class{MeasurementHashRepository} to keep track of
 measurements which have equal measuring cores.
 
 The main method of the controller is measure(). Functionality in pseudo Code:
 
+\begin{minipage}{\textwidth-18pt}
 \begin{lstlisting}[language=Java,style=pseudoCode]
 MeasurementResult measure(measurement, numberOfRuns)
 "prepare measurement"
@@ -694,9 +697,9 @@ if ("more results needed")
 	newResult=performMeasurement()
 	"merge and store loaded and new run outputs"
 	
-"build and return MeasurementResult with the desired number of run
-outputs"
+"build and return MeasurementResult with the desired number of run outputs"
 \end{lstlisting}
+\end{minipage}
 
 The method first tries to load a measurement result from the result cache. If
 not enough run outputs are loaded (or none at all), the measurement is performed
@@ -720,8 +723,10 @@ Preparing and building the measuring core are expensive operations in term of
 runtime. Therefore, the measurement application controller keeps track of as
 much information about the measurements and the cores needed to perform them as
 possible. The \class{MeasurementHashRepository} is used for this purpose. It
-provides the following internal Model: 
+has the following internal Model: 
 \umlDiagram{measurementDriver/MeasurementHashRepositoryModel}
+
+The \class{Core} class is private and does not leave the repository.
 
 The model is exposed through the following methods
 \begin{itemize}
@@ -731,20 +736,35 @@ The model is exposed through the following methods
   \item getCoreHash(measurement): CoreHash
 \end{itemize}
 
-Note that the \class{Core} class is private and does not leave the repository.
+Before building, the controller asks the repository if the core for the new
+measurement is the same as the currently built one. (using
+\method{areCoresEqual()}) If the cores are the same, no building is required.
 
-Using the methods
-This is the call graph of the methods within the class:
+During the build preparation the controller and the \class{MeasuringCoreService}
+monitor changes to the core. If no changes were necessary, the repository is
+notified using \method{setHaveEqualCores()}. The cores of the two measurements
+are merged.
+
+When a core hash is required (for example to check if the current core is the
+same as the one used to generate a stored result), the controller first asks the
+repository for it using \method{getCoreHash()}. If the hash is not known, the
+core is built for the measurement, the hash is calculated from the core and
+stored in the repository using \method{setCoreHash()}. This could again lead
+to a merging of two cores, if a core with the same hash is present already.
+
+Building the measuring core can become necessary when the core hash of a
+measurement has to be known, or when a measurement is to be performed. This is
+reflected in the call graph of the methods within the application controller:
 
 \umlDiagram{measurementDriver/MACCallGraph}
 
-Only the measure() method is public, the others are private. 
-
-The measuring core service should only be used through application controller.
-Since it makes sense that other services can start measusurements, the MeasurementService
-provides a measure() method. It knows an instance of IMeasurementFacility, which
-is implemented by the application controller and thus forwards all calls to
-measure() to the app controller.
+Since it makes sense that services can start measusurements, the
+\class{MeasurementService} provides a \method{measure()} method. The service knows an
+instance of IMeasurementFacility which provides \method{measure()}, and
+forwards all calls to its own \method{measure()} method to the measurement
+facility. The facility is is implemented by the \class{MeasurementAppController}
+controller. Therefore the service ultimately forwards all calls to
+\method{measure()} to the application controller.
 
 \umlDiagram{measurementDriver/measureCallLift}
 

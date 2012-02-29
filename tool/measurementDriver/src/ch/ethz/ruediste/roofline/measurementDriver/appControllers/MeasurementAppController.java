@@ -180,7 +180,8 @@ public class MeasurementAppController implements IMeasurementFacilility {
 			// build the core
 			buildMeasuringCore(measurement, measurementHash);
 
-			// get the core hash if it is known now
+			// during the build process, two cores could be merged. This could 
+			// cause the core hash to be known by now
 			coreHash = measurementHashRepository.getCoreHash(measurementHash);
 		}
 
