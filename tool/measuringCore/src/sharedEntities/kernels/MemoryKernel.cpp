@@ -8,16 +8,35 @@
 #include "MemoryKernel.h"
 #include <cstdlib>
 #include <cstring>
+#include <cstdio>
 #include "macros/RMT_MEMORY_DLP.h"
 #include "macros/RMT_MEMORY_UNROLL.h"
 #include "macros/RMT_MEMORY_OPERATION.h"
 #include "macros/RMT_MEMORY_PREFETCH_DIST.h"
 #include "macros/RMT_MEMORY_PREFETCH_TYPE.h"
+#include "ctime"
+#include <stdint.h>
+
+enum MemoryOperation {
+		MemoryOperation_READ, MemoryOperation_WRITE,MemoryOperation_RandomRead,
+	};
 
 #define UNROLL RMT_MEMORY_UNROLL
 #define DLP RMT_MEMORY_DLP
 
+static uint32_t randState=0;
+static float fastRand(){
+	randState=randState*1103515245+12345;
+	float f=1;
+	void *p=&f;
+	(*(long*) p)|=randState>>10;
+	f=f-1;
+	return f;
+}
 void MemoryKernel::initialize() {
+
+	srand48(0);
+
 	size_t size = getBufferSize();
 	// allocate buffer pointers
 	if (posix_memalign((void**) (&buffer), CacheLineSize,
@@ -27,7 +46,7 @@ void MemoryKernel::initialize() {
 
 	for (int p = 0; p < DLP; p++) {
 		for (size_t i = 0; i < size * UNROLL; i++) {
-			buffer[p * size * UNROLL + i] = 0;
+			buffer[p * size * UNROLL + i] = fastRand();
 		}
 	}
 }
@@ -47,7 +66,7 @@ void MemoryKernel::run() {
 		throw "Buffer size is not a multiple of 4*sizeof(float)";
 	}
 #endif
-	if (RMT_MEMORY_OPERATION == MemoryOperation_READ) {
+#ifdef RMT_MEMORY_OPERATION__MemoryOperation_READ
 #ifdef __SSE__
 		__m128 ch[DLP];
 
@@ -100,8 +119,9 @@ void MemoryKernel::run() {
 		for (int p = 0; p < DLP; p++)
 			result ^= ch[p];
 #endif
-	}
-	if (RMT_MEMORY_OPERATION == MemoryOperation_WRITE) {
+#endif
+
+#ifdef RMT_MEMORY_OPERATION__MemoryOperation_WRITE
 #ifdef __SSE__
 		for (long i = 0; i < bufferSize; i += 4) {
 			for (int j = 0; j < UNROLL; j++) {
@@ -118,7 +138,31 @@ void MemoryKernel::run() {
 					buffer[p * bufferSize * UNROLL + i * UNROLL + j] = 0;
 		}
 #endif
-	}
+#endif
+
+#ifdef RMT_MEMORY_OPERATION__MemoryOperation_RandomRead
+			float tempRes=0;
+			long idx=0;
+			long modulo=bufferSize*DLP*UNROLL;
+			for (int i=0; i<bufferSize; i++){
+				// read the random value at the current index
+				float tmp=buffer[idx];
+				tempRes+=tmp;
+
+				// shift the index to the left to get enough random bits
+				idx=(idx<<10);
+
+				// xor with random value
+				void *p=&tmp;
+				idx=idx^(*(long *) p);
+
+				// constrain index to the buffer
+				idx=idx%modulo;
+
+				//printf ("%li\n",idx);
+			}
+			result=tempRes;
+#endif
 }
 
 void MemoryKernel::dispose() {

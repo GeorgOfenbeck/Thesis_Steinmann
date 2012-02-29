@@ -46,26 +46,29 @@ public class MemoryMeasurementController implements IMeasurementController {
 		ParameterSpace space = new ParameterSpace();
 		space.add(iterationsAxis, 1L);
 
-		space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
+		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
 		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
+		space.add(memoryOperationAxis,
+				MemoryOperation.MemoryOperation_RandomRead);
 
 		space.add(optimizationAxis, "-O3 -msse2");
+		/*
+				for (int i = 1; i <= 1; i++) {
+					space.add(dlpAxis, i);
+				}
+				for (int i = 1; i <= 4; i++) {
+					space.add(unrollAxis, i);
+				}
 
-		for (int i = 1; i <= 1; i++) {
-			space.add(dlpAxis, i);
-		}
-		for (int i = 1; i <= 4; i++) {
-			space.add(unrollAxis, i);
-		}
+				space.add(prefetchDistanceAxis, 0L);
+				for (long i = 64; i <= 2048; i *= 2) {
+					space.add(prefetchDistanceAxis, i);
+				}
 
-		space.add(prefetchDistanceAxis, 0L);
-		for (long i = 64; i <= 2048; i *= 2) {
-			space.add(prefetchDistanceAxis, i);
-		}
-
-		for (PrefetchType type : PrefetchType.values()) {
-			space.add(prefetchTypeAxis, type);
-		}
+				for (PrefetchType type : PrefetchType.values()) {
+					space.add(prefetchTypeAxis, type);
+				}*/
+		space.add(unrollAxis, 1);
 
 		space.add(bufferSizeAxis, 1024L * 1024L);
 
@@ -75,14 +78,14 @@ public class MemoryMeasurementController implements IMeasurementController {
 
 				))) {
 			MemoryKernel kernel = new MemoryKernel();
-			kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
-			kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));
+
+			//kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
+			//kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));
 
 			kernel.initialize(coordinate);
 
 			Throughput throughput = quantityMeasuringService.measureThroughput(
 					kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
-			//System.out.printf("throughput %s: %s\n", coordinate, throughput);
 
 			TransferredBytes transferredBytes = quantityMeasuringService
 					.measureTransferredBytes(kernel,

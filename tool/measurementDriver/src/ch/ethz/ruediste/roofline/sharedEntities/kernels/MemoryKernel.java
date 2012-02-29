@@ -82,7 +82,7 @@ public class MemoryKernel extends MemoryKernelData {
 	}
 
 	public enum MemoryOperation {
-		MemoryOperation_READ, MemoryOperation_WRITE,
+		MemoryOperation_READ, MemoryOperation_WRITE, MemoryOperation_RandomRead,
 	}
 
 	public MemoryOperation getOperation() {

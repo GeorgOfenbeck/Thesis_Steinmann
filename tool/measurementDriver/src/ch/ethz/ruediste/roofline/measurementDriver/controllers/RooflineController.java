@@ -34,7 +34,7 @@ public class RooflineController {
 	private ClockType clockType = ClockType.CoreCycles;
 
 	public enum Algorithm {
-		Add, Mul, ArithBalanced, Load, Store, MemBalanced,
+		Add, Mul, ArithBalanced, Load, Store, MemBalanced, RandomLoad,
 	}
 
 	public RooflineController() {
@@ -152,6 +152,9 @@ public class RooflineController {
 		addPeakPerformance("MUL", Algorithm.Mul, InstructionSet.SSE);
 
 		addPeakThroughput("MemLoad", Algorithm.Load,
+				MemoryTransferBorder.LlcRam);
+
+		addPeakThroughput("MemRandom", Algorithm.RandomLoad,
 				MemoryTransferBorder.LlcRam);
 	}
 }

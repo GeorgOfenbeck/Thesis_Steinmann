@@ -14,9 +14,6 @@
 #endif
 
 class MemoryKernel: public MemoryKernelData {
-	enum MemoryOperation {
-		MemoryOperation_READ, MemoryOperation_WRITE,
-	};
 protected:
 	float *buffer;
 	std::vector<std::pair<void*,long> > getBuffers();
