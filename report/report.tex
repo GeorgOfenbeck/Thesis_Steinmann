@@ -672,7 +672,7 @@ assumed that the reader has a basic understanding of the mentioned concepts.
 
 \subsubsection{The MeasurementAppController}
 The measurement application controller is the entry point for performing
-measurement. It is the sole client to the \class{MeasuringCoreService}, which
+measurements. It is the sole client to the \class{MeasuringCoreService}, which
 provides the low level control over the measuring core, and keeps track of the
 measurement the core is compiled for. 
 
@@ -772,7 +772,7 @@ controller. Therefore the service ultimately forwards all calls to
 \subsubsection{Commands}
 A command is represented by a class deriving from ICommandController and should
 be placed in the commands package. A command has a name and a description, which
-should be the return value of the getName() respectivley getDescription()
+should be the return value of the getName() respectively getDescription()
 methods of the command. The measurement driver expects a command name as first
 argument. The name is matched against the names of all available commands. If a
 command matches, the execute() method of a new instance of the corresponding
@@ -782,7 +782,7 @@ class is called with the remaining command line arguments as parameter.
 Generally, a convention over configuration approach was chosen for the
 configuration of the dependency injection. The conventions as well as optional
 exceptions are defined in the MainModule. 
-The convetions are:
+The conventions are:
 \begin{description}
 \item[Services] all classes in the services package are bound to themselves as
 singletons
@@ -861,7 +861,7 @@ referenced objects. If no definition is given for a macro, the default
 definition found in the macro key is used. If contradicting definitions are
 found, an error is raised.
 
-\umlDiagram{MacroDefinitions}
+\umlDiagram{measurementDriver/MacroDefinitions}
 
 \subsubsection{Measurement Controllers}
 The operation of the measurement driver is controlled by the measurement
@@ -917,9 +917,8 @@ Rules are used for pattern selection. These rules are reused throughout the
 driver.
 
 \subsection{Measuring Core}
-\umlFloat{CentralClasses}{Central classes of the measuring core}
 The central classes of the Measuring Core are the measurement scheme, the kernel
-and the measurer. (\umlRef{CentralClasses}) The MeasurementScheme has template
+and the measurer. The MeasurementScheme has template
 arguments for the kernel and the measurer type. The scheme contains nested
 instances of the kernel and the measurer. This avoids polymorphic calls and
 allows the compiler to fully optimize the measure function of the measurer,
@@ -1288,9 +1287,7 @@ core 0 1 2 3
 \listoffigures
 
 \bibliographystyle{abbrv}
-\bibliography{report.bib}
-
-\printindex{referencedFiles}{Referenced Files}
+\bibliography{report}
 
 
 \end{document}

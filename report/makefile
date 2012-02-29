@@ -27,7 +27,7 @@ report.pdf: out/report.pdf
 
 out/report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES)
 	$(LATEX) $(FLAGS) ../report.tex
-	cd out && bibtex report 
+	bibtex out/report.aux 
 	$(LATEX) $(FLAGS) ../report.tex
 	$(LATEX) $(FLAGS) ../report.tex
 	
