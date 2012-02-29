@@ -56,7 +56,7 @@ public class MMMMeasurementController implements IMeasurementController {
 	public void addBlockedSeries(RooflineController rooflineController) {
 		{
 			configuration.push();
-			for (long i = 64; i <= 704; i += 64) {
+			for (long i = 100; i <= 1200; i += 100) {
 				if (i < 400) {
 					configuration.set(
 							QuantityMeasuringService.numberOfMeasurementsKey,
@@ -73,7 +73,7 @@ public class MMMMeasurementController implements IMeasurementController {
 				kernel.setMu(2);
 				kernel.setNu(2);
 				kernel.setKu(2);
-				kernel.setNb(16);
+				kernel.setNb(50);
 				kernel.setNoCheck(true);
 				kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blocked);
 				kernel.setOptimization("-O3");
