@@ -352,6 +352,7 @@ public class PlotService {
 				angle = Math.toDegrees(Math.atan(aspectRatio
 						* log(opIntensityRatio) / log(performanceRatio)));
 			}
+
 			// print the labels for the throughput borders
 			for (Pair<String, Throughput> peak : plot.getPeakBandwiths()) {
 				double performance = plot.getYRange().getMaximum() * 0.85;
@@ -396,6 +397,7 @@ public class PlotService {
 
 			output.println("plot \\");
 			output.print(StringUtils.join(plotLines, ",\\\n"));
+
 			output.close();
 		}
 
@@ -417,7 +419,7 @@ public class PlotService {
 	 */
 	public void printLabel(PrintStream output, RooflinePoint point) {
 		output.printf(
-				"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02\n",
+				"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02 front\n",
 				point.getLabel(), point.getOperationalIntensity().getValue(),
 				point.getPerformance().getValue());
 	}
