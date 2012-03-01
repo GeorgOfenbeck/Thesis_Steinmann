@@ -5,6 +5,7 @@ import java.util.List;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.AxisConverter;
+import ch.ethz.ruediste.roofline.measurementDriver.services.IMeasurementFacilility;
 import ch.ethz.ruediste.roofline.measurementDriver.util.ClassFinder;
 
 import com.google.inject.*;

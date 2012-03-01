@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver;
+package ch.ethz.ruediste.roofline.measurementDriver.configuration;
 
 public abstract class ConfigurationKeyBase {
 

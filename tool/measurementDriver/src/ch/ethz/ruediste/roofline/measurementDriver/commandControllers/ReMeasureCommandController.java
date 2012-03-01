@@ -4,6 +4,7 @@ import java.util.List;
 
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
+import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 
 import com.google.inject.Inject;
 

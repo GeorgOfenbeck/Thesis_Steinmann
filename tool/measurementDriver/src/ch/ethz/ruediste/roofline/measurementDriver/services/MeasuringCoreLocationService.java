@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.services;
 import java.io.File;
 
 import ch.ethz.ruediste.roofline.measurementDriver.*;
+import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 
 import com.google.inject.Inject;
 

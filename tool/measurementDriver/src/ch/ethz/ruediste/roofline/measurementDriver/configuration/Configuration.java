@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver;
+package ch.ethz.ruediste.roofline.measurementDriver.configuration;
 
 import java.util.*;
 import java.util.Map.Entry;

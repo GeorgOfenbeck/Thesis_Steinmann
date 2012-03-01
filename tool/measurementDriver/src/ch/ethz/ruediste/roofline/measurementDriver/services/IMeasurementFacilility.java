@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.appControllers;
+package ch.ethz.ruediste.roofline.measurementDriver.services;
 
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
