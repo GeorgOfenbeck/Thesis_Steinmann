@@ -1,7 +1,5 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace;
 
-import ch.ethz.ruediste.roofline.entities.Axes;
-
 import com.thoughtworks.xstream.converters.*;
 import com.thoughtworks.xstream.io.*;
 
@@ -20,7 +18,7 @@ public class AxisConverter implements Converter {
 	public Object unmarshal(HierarchicalStreamReader reader,
 			UnmarshallingContext context) {
 		String uid = reader.getAttribute("uid");
-		Axis<?> axis = Axes.getAxis(uid);
+		Axis<?> axis = AxisReflectionHelper.getAxis(uid);
 		if (axis == null) {
 			throw new Error("could not find axis with uid " + uid);
 		}

@@ -1,12 +1,7 @@
 package ch.ethz.ruediste.roofline.entities;
 
-import java.util.*;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
-import ch.ethz.ruediste.roofline.measurementDriver.util.ClassFinder;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.MemoryOperation;
@@ -64,22 +59,4 @@ public class Axes {
 			"5452e251-7851-437a-a87e-1a9b41c18302", "clockType",
 			ClockType.uSecs);
 
-	private static HashMap<UUID, Axis<?>> axes;
-
-	@SuppressWarnings("rawtypes")
-	private static HashMap<UUID, Axis<?>> getAxes() {
-		if (axes == null) {
-			axes = new HashMap<UUID, Axis<?>>();
-			List<Pair<Class<?>, Axis>> all = ClassFinder.getStaticFieldValues(
-					Axis.class, "ch.ethz.ruediste.roofline");
-			for (Pair<Class<?>, Axis> pair : all) {
-				axes.put(pair.getRight().getUid(), pair.getRight());
-			}
-		}
-		return axes;
-	}
-
-	public static Axis<?> getAxis(String uid) {
-		return getAxes().get(UUID.fromString(uid));
-	}
 }
