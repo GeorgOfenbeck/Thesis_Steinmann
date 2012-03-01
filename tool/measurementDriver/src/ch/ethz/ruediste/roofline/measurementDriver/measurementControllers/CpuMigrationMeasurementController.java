@@ -7,7 +7,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementApp
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.CpuMigratingKernel;
-import ch.ethz.ruediste.roofline.sharedEntities.measurers.PerfEventMeasurer;
 
 import com.google.inject.Inject;
 
@@ -40,11 +39,11 @@ public class CpuMigrationMeasurementController implements
 		MeasurementResult result = measurementAppController.measure(
 				measurement, 1);
 
-		PerfEventMeasurer validationMeasurer = measurement.getValidationData()
+		/*PerfEventMeasurer validationMeasurer = measurement.getValidationData()
 				.getPerfEventMeasurer();
 
 		System.out.println("Number of CPU Migrations: "
-				+ validationMeasurer.getBigIntegers("cpuMigrations", result));
+				+ validationMeasurer.getBigIntegers("cpuMigrations", result));*/
 	}
 
 }

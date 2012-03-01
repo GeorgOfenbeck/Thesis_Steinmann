@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
@@ -16,18 +15,6 @@ public class PerfEventMeasurer extends PerfEventMeasurerData implements
 		IMeasurer<PerfEventMeasurerOutput> {
 
 	private static Logger log = Logger.getLogger(PerfEventMeasurer.class);
-
-	public static ConfigurationKey<Boolean> validateEventWasRunningKey = ConfigurationKey
-			.Create(Boolean.class,
-					"validation.perfEventRunning",
-					"if true, check that the performance event was running during the measurement run",
-					true);
-
-	public static ConfigurationKey<Boolean> validateEventNotMultiplexedKey = ConfigurationKey
-			.Create(Boolean.class,
-					"validation.eventNotMultiplexed",
-					"if true, check that the performance event was not multiplexed",
-					true);
 
 	public PerfEventMeasurer() {
 	}
@@ -114,42 +101,6 @@ public class PerfEventMeasurer extends PerfEventMeasurerData implements
 		return result;
 	}
 
-	public void validate(PerfEventMeasurerOutput output,
-			MeasurementResult measurementResult) {
-
-		for (PerfEventCount eventCount : output.getEventCounts()) {
-			validate(eventCount, measurementResult);
-		}
-
-	}
-
-	public void validate(PerfEventCount eventCount,
-			MeasurementResult measurementResult) throws Error {
-
-		// get the validation configuration
-		ValidationData validationData = measurementResult.getMeasurement()
-				.getValidationData();
-		if (validationData == null) {
-			return;
-		}
-		Configuration validationConfiguration = validationData
-				.getConfiguration();
-
-		// chech that the event was running
-		if (validationConfiguration.get(validateEventWasRunningKey)
-				&& eventCount.getTimeRunning().equals(BigInteger.ZERO)) {
-			log.warn(String.format("event %s=%s was never enabled", eventCount
-					.getDefinition().getName(), eventCount.getDefinition()
-					.getDefinition()));
-		}
-
-		// chech that the event was not multiplexed
-		if (validationConfiguration.get(validateEventNotMultiplexedKey)
-				&& eventCount.isMultiplexed()) {
-			log.warn("event was multiplexed");
-		}
-	}
-
 	public BigInteger getMinBigInteger(String name, MeasurementResult result) {
 
 		PerfEventCount eventCount = getMinOutput(name, result).getEventCount(
@@ -189,7 +140,6 @@ public class PerfEventMeasurer extends PerfEventMeasurerData implements
 								return result;
 							}
 						});
-		validate(min, measurementResult);
 		return min;
 	}
 

@@ -9,12 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryPredicate;
 
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
-
 public class Measurement extends MeasurementData {
-
-	@XStreamOmitField
-	private ValidationData validationData;
 
 	public Measurement() {
 	}
@@ -75,14 +70,6 @@ public class Measurement extends MeasurementData {
 		// since all definitions are equal, it does not matter which one is
 		// returned
 		return firstDefinition;
-	}
-
-	public ValidationData getValidationData() {
-		return validationData;
-	}
-
-	public void setValidationData(ValidationData validationData) {
-		this.validationData = validationData;
 	}
 
 	public void addWorkload(Workload workload) {

@@ -47,9 +47,6 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	public MeasuringCoreService measuringCoreService;
 
 	@Inject
-	public MeasurementValidationService measurementValidationService;
-
-	@Inject
 	public MeasurementService measurementService;
 
 	@Inject
@@ -68,9 +65,6 @@ public class MeasurementAppController implements IMeasurementFacilility {
 	 * #measure(ch.ethz.ruediste.roofline.dom.MeasurementDescription, int)
 	 */
 	public MeasurementResult measure(Measurement measurement, int numberOfRuns) {
-
-		// add validation measurers
-		measurementValidationService.addValidationMeasurers(measurement);
 
 		// prepare the measurement for running
 		measurementService.prepareMeasurement(measurement);
@@ -156,9 +150,6 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		}
 
 		result.setResultUids();
-
-		// validate
-		measurementValidationService.validate(result);
 
 		return result;
 	}
