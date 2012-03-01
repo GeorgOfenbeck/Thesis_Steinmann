@@ -1,12 +1,11 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import static ch.ethz.ruediste.roofline.entities.Axes.clockTypeAxis;
-import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
+import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.tail;
 
 import java.io.IOException;
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
@@ -15,6 +14,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.IMeasurementBuilder;
+import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
@@ -121,23 +122,24 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 	 * @param systemLoad
 	 * @return
 	 */
-	public Time measureTime(long iterations, ClockType clockType,
-			SystemLoad systemLoad) {
+	public Time measureTime(final long iterations, ClockType clockType,
+			final SystemLoad systemLoad) {
 		QuantityCalculator<Time> timeCalc = quantityMeasuringService
 				.getExecutionTimeCalculator(clockType);
 
-		Workload mainWorkload = new Workload();
+		IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-		Measurement measurement = createMeasurement(systemLoad, iterations,
-				timeCalc, mainWorkload);
+			public Measurement build(Map<String, MeasurerSet> sets) {
+				return createMeasurement(systemLoad, iterations,
+						sets.get("main"));
+			}
+		};
 
-		// perform measurement
-		MeasurementResult result = measurementService.measure(measurement, 1);
+		QuantityMap quantityMap = quantityMeasuringService
+				.getQuantities(builder, 10).with("main", timeCalc).get();
 
-		Time executionTime = timeCalc.getResult(result
-				.getMeasurerOutputsUntyped(single(timeCalc
-						.getRequiredMeasurers())));
-		return executionTime;
+		return quantityMap.min(timeCalc);
+
 	}
 
 	private long getReferenceIterations() {
@@ -145,25 +147,24 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		QuantityCalculator<Interrupts> interruptsCalc = quantityMeasuringService
 				.getInterruptsCalculator();
 
-		Workload mainWorkload = new Workload();
 		long lastIterations = 0;
 
 		for (long iterations = 1000;; iterations *= 1.2) {
-			Measurement measurement = createMeasurement(SystemLoad.Idle,
-					iterations, interruptsCalc, mainWorkload);
+			final long iterationsFinal = iterations;
+			IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-			// perform measurement
-			MeasurementResult result = measurementService.measure(measurement,
-					10);
+				public Measurement build(Map<String, MeasurerSet> sets) {
+					return createMeasurement(SystemLoad.Idle, iterationsFinal,
+							sets.get("main"));
+				}
+			};
 
-			Iterable<MeasurerOutputBase> outputs = result
-					.getMeasurerOutputsUntyped(single(interruptsCalc
-							.getRequiredMeasurers()));
+			QuantityMap quantityMap = quantityMeasuringService
+					.getQuantities(builder, 10).with("main", interruptsCalc)
+					.get();
+
 			// take minimum
-			Interrupts interrupts = min(
-					// turn outputs into quantities
-					select(outputs, Quantity.resultToQuantity(interruptsCalc)),
-					Quantity.<Interrupts> lessThan());
+			Interrupts interrupts = quantityMap.min(interruptsCalc);
 
 			// check if there were any context switches
 			if (interrupts.getValue() > 0.1) {
@@ -182,8 +183,8 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 	 * @return
 	 */
 	public Measurement createMeasurement(SystemLoad systemLoad,
-			long iterations, QuantityCalculator<?> quantityCalc,
-			Workload mainWorkload) {
+			long iterations, MeasurerSet measurerSet) {
+		Workload mainWorkload = new Workload();
 		Measurement measurement = new Measurement();
 		ArrayList<Workload> systemLoadWorkloads = createWorkloads(systemLoad);
 
@@ -204,8 +205,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 
 		mainWorkload.setKernel(arithmeticKernel);
 
-		mainWorkload.setMeasurerSet(new MeasurerSet(single(quantityCalc
-				.getRequiredMeasurers())));
+		mainWorkload.setMeasurerSet(measurerSet);
 
 		// setup stop rules for system load workloads
 		for (Workload loadWorkload : systemLoadWorkloads) {

@@ -4,7 +4,7 @@
   <element>
     <type>com.umlet.element.Package</type>
     <coordinates>
-      <x>198</x>
+      <x>243</x>
       <y>0</y>
       <w>270</w>
       <h>189</h>
@@ -15,7 +15,7 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>216</x>
+      <x>261</x>
       <y>36</y>
       <w>90</w>
       <h>36</h>
@@ -27,7 +27,7 @@
   <element>
     <type>com.umlet.element.Package</type>
     <coordinates>
-      <x>909</x>
+      <x>954</x>
       <y>126</y>
       <w>324</w>
       <h>225</h>
@@ -38,7 +38,7 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>216</x>
+      <x>261</x>
       <y>108</y>
       <w>90</w>
       <h>36</h>
@@ -50,7 +50,7 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>927</x>
+      <x>972</x>
       <y>198</y>
       <w>144</w>
       <h>36</h>
@@ -62,7 +62,7 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>1107</x>
+      <x>1152</x>
       <y>171</y>
       <w>99</w>
       <h>36</h>
@@ -74,7 +74,7 @@
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>279</x>
+      <x>324</x>
       <y>99</y>
       <w>665</w>
       <h>134</h>
@@ -85,7 +85,7 @@
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>234</x>
+      <x>279</x>
       <y>45</y>
       <w>44</w>
       <h>80</h>
@@ -96,7 +96,7 @@
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>360</x>
+      <x>405</x>
       <y>36</y>
       <w>90</w>
       <h>36</h>
@@ -109,7 +109,7 @@ ICommand
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>279</x>
+      <x>324</x>
       <y>27</y>
       <w>98</w>
       <h>44</h>
@@ -120,7 +120,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>1089</x>
+      <x>1134</x>
       <y>243</y>
       <w>126</w>
       <h>36</h>
@@ -132,7 +132,7 @@ ICommand
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>1134</x>
+      <x>1179</x>
       <y>180</y>
       <w>44</w>
       <h>80</h>
@@ -143,7 +143,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>918</x>
+      <x>963</x>
       <y>279</y>
       <w>144</w>
       <h>36</h>
@@ -155,7 +155,7 @@ ICommand
   <element>
     <type>com.umlet.element.Package</type>
     <coordinates>
-      <x>576</x>
+      <x>621</x>
       <y>486</y>
       <w>450</w>
       <h>297</h>
@@ -166,7 +166,7 @@ ICommand
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>1044</x>
+      <x>1089</x>
       <y>162</y>
       <w>80</w>
       <h>71</h>
@@ -177,7 +177,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>594</x>
+      <x>639</x>
       <y>540</y>
       <w>144</w>
       <h>36</h>
@@ -189,7 +189,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>594</x>
+      <x>639</x>
       <y>594</y>
       <w>144</w>
       <h>36</h>
@@ -201,7 +201,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>594</x>
+      <x>639</x>
       <y>639</y>
       <w>144</w>
       <h>36</h>
@@ -213,7 +213,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>792</x>
+      <x>837</x>
       <y>729</y>
       <w>198</w>
       <h>36</h>
@@ -225,7 +225,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>783</x>
+      <x>828</x>
       <y>630</y>
       <w>216</w>
       <h>54</h>
@@ -237,7 +237,7 @@ ICommand
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>855</x>
+      <x>900</x>
       <y>657</y>
       <w>44</w>
       <h>89</h>
@@ -248,7 +248,7 @@ ICommand
   <element>
     <type>com.umlet.element.Package</type>
     <coordinates>
-      <x>0</x>
+      <x>45</x>
       <y>207</y>
       <w>396</w>
       <h>243</h>
@@ -261,7 +261,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>18</x>
+      <x>63</x>
       <y>252</y>
       <w>144</w>
       <h>36</h>
@@ -273,7 +273,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>207</x>
+      <x>252</x>
       <y>252</y>
       <w>144</w>
       <h>36</h>
@@ -285,7 +285,7 @@ ICommand
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>135</x>
+      <x>180</x>
       <y>243</y>
       <w>89</w>
       <h>44</h>
@@ -296,7 +296,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>810</x>
+      <x>855</x>
       <y>549</y>
       <w>144</w>
       <h>36</h>
@@ -308,7 +308,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>18</x>
+      <x>63</x>
       <y>315</y>
       <w>144</w>
       <h>36</h>
@@ -320,7 +320,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>198</x>
+      <x>243</x>
       <y>315</y>
       <w>90</w>
       <h>36</h>
@@ -333,7 +333,7 @@ ICommand
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>135</x>
+      <x>180</x>
       <y>306</y>
       <w>80</w>
       <h>44</h>
@@ -344,7 +344,7 @@ ICommand
   <element>
     <type>com.umlet.element.Relation</type>
     <coordinates>
-      <x>864</x>
+      <x>909</x>
       <y>558</y>
       <w>44</w>
       <h>89</h>
@@ -355,7 +355,7 @@ ICommand
   <element>
     <type>com.umlet.element.Class</type>
     <coordinates>
-      <x>18</x>
+      <x>63</x>
       <y>360</y>
       <w>180</w>
       <h>54</h>
