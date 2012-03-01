@@ -13,7 +13,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
@@ -49,7 +48,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		//space.add(arithmeticOperationAxis,
 		//		ArithmeticOperation.ArithmeticOperation_ADD);
 		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MUL);
-		space.add(arithmeticOperationAxis,
+		space.add(ArithmeticKernel.arithmeticOperationAxis,
 				ArithmeticOperation.ArithmeticOperation_MULADD);
 
 		HashMap<InstructionSet, String> optimizationMap = new HashMap<InstructionSet, String>();
@@ -76,7 +75,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(space
-				.getAllAxesWithLeastSignificantAxes(arithmeticOperationAxis,
+				.getAllAxesWithLeastSignificantAxes(ArithmeticKernel.arithmeticOperationAxis,
 						dlpAxis, unrollAxis, iterationsAxis
 
 				))) {

@@ -1,15 +1,19 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
-import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
+import ch.ethz.ruediste.roofline.sharedEntities.MacroKey;
 
 /** Kernel just loading a memory block into memory */
 public class MemoryKernel extends MemoryKernelData {
 
 	private static final MacroKey dlpMacro = MacroKey.Create("RMT_MEMORY_DLP",
 			"DataLevelParallelism: buffers to work on concurrently", "2");
+	public static final Axis<MemoryOperation> memoryOperationAxis = new Axis<MemoryOperation>(
+	"5542d80a-2f0c-42d2-8e6e-acaf01c4baf8", "operation",
+	MemoryOperation.MemoryOperation_READ);
 
 	public int getDlp() {
 		return Integer.parseInt(getMacroDefinition(dlpMacro));
@@ -68,8 +72,8 @@ public class MemoryKernel extends MemoryKernelData {
 		if (coordinate.contains(bufferSizeAxis))
 			setBufferSize(coordinate.get(bufferSizeAxis));
 
-		if (coordinate.contains(memoryOperationAxis))
-			setOperation(coordinate.get(memoryOperationAxis));
+		if (coordinate.contains(MemoryKernel.memoryOperationAxis))
+			setOperation(coordinate.get(MemoryKernel.memoryOperationAxis));
 
 		if (coordinate.contains(iterationsAxis))
 			setIterations(coordinate.get(iterationsAxis));

@@ -1,7 +1,7 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
-import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
@@ -24,6 +24,10 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 	public enum ArithmeticOperation {
 		ArithmeticOperation_ADD, ArithmeticOperation_MUL, ArithmeticOperation_MULADD
 	}
+
+	public static final Axis<ArithmeticOperation> arithmeticOperationAxis = new Axis<ArithmeticOperation>(
+	"5a393897-bb5a-49ed-898d-1eb62a965ba6", "operation",
+	ArithmeticOperation.ArithmeticOperation_ADD);
 
 	public ArithmeticKernel() {
 		setIterations(10000);
@@ -108,8 +112,8 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 			setIterations(coordinate.get(iterationsAxis));
 		}
 
-		if (coordinate.contains(arithmeticOperationAxis)) {
-			setOperation(coordinate.get(arithmeticOperationAxis));
+		if (coordinate.contains(ArithmeticKernel.arithmeticOperationAxis)) {
+			setOperation(coordinate.get(ArithmeticKernel.arithmeticOperationAxis));
 		}
 
 		if (coordinate.contains(unrollAxis)) {

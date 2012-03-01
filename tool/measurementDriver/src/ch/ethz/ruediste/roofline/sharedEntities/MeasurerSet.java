@@ -2,7 +2,6 @@ package ch.ethz.ruediste.roofline.sharedEntities;
 
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;

@@ -8,7 +8,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineControlle
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
@@ -34,15 +33,15 @@ public class RooflineService {
 		// set the operation for arithmetic kernels
 		switch (algorithm) {
 		case Add:
-			kernelParameters.set(arithmeticOperationAxis,
+			kernelParameters.set(ArithmeticKernel.arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_ADD);
 		break;
 		case ArithBalanced:
-			kernelParameters.set(arithmeticOperationAxis,
+			kernelParameters.set(ArithmeticKernel.arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MULADD);
 		break;
 		case Mul:
-			kernelParameters.set(arithmeticOperationAxis,
+			kernelParameters.set(ArithmeticKernel.arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MUL);
 		break;
 		case Load:

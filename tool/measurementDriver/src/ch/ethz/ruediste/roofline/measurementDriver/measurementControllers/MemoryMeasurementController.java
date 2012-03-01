@@ -10,8 +10,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.sharedEntities.ClockType;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.MemoryOperation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.PrefetchType;
@@ -48,7 +48,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 
 		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
 		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_WRITE);
-		space.add(memoryOperationAxis,
+		space.add(MemoryKernel.memoryOperationAxis,
 				MemoryOperation.MemoryOperation_RandomRead);
 
 		space.add(optimizationAxis, "-O3 -msse2");
@@ -74,7 +74,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 
 		for (Coordinate coordinate : space.getAllPoints(space
 				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
-						memoryOperationAxis, iterationsAxis
+						MemoryKernel.memoryOperationAxis, iterationsAxis
 
 				))) {
 			MemoryKernel kernel = new MemoryKernel();
@@ -92,7 +92,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 							MemoryTransferBorder.LlcRam);
 
 			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
-					coordinate.toString(memoryOperationAxis, bufferSizeAxis,
+					coordinate.toString(MemoryKernel.memoryOperationAxis, bufferSizeAxis,
 							dlpAxis, unrollAxis, prefetchDistanceAxis,
 							prefetchTypeAxis), throughput, transferredBytes);
 		}

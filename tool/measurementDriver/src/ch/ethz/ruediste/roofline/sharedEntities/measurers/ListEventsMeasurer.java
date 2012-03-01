@@ -1,6 +1,5 @@
 package ch.ethz.ruediste.roofline.sharedEntities.measurers;
 
-import ch.ethz.ruediste.roofline.entities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class ListEventsMeasurer extends ListEventsMeasurerData implements

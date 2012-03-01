@@ -1,8 +1,7 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
-import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.sharedEntities.Axes;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class MMMKernel extends MMMKernelData {
 	private static final MacroKey algorithmMacro = MacroKey.Create(

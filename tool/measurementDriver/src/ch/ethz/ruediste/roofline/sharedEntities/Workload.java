@@ -4,7 +4,6 @@ import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 
-import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 public class Workload extends WorkloadData {

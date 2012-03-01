@@ -2,7 +2,6 @@ package ch.ethz.ruediste.roofline.sharedEntities;
 
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 
 /**
  * Base class containing macro definitions. They are collected from the objects

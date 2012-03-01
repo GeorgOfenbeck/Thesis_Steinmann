@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver;
+package ch.ethz.ruediste.roofline.sharedEntities;
 
 public class MacroKey implements Comparable<MacroKey> {
 	private final String defaultValue;

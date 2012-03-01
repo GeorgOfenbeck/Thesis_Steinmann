@@ -46,10 +46,6 @@ public class QuantityMeasuringService {
 	public static final Axis<MemoryTransferBorder> memoryTransferBorderAxis = new Axis<MemoryTransferBorder>(
 			"ac9c15ce-5a16-43c1-a21e-33fe59047dae", "memoryTransferBorder");
 
-	public enum ClockType {
-		CoreCycles, ReferenceCycles, uSecs
-	}
-
 	public static final Axis<ClockType> clockTypeAxis = new Axis<ClockType>(
 			"fdfe94b9-4690-4c94-8d71-c10e8ede4748", "clockType");
 
