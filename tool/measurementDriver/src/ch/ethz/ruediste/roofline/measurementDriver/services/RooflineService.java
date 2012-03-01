@@ -66,19 +66,19 @@ public class RooflineService {
 			kernelParameters.set(optimizationAxis, "-O3 -msse2");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.DoublePrecisionFlop);
+					Operation.DoublePrecisionFlop);
 		break;
 		case SSEScalar:
 			kernelParameters.set(optimizationAxis, "-O3 -mfpmath=sse -msse2");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.DoublePrecisionFlop);
+					Operation.DoublePrecisionFlop);
 		break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
 			measurementCoordinateBuilder.set(
 					QuantityMeasuringService.operationAxis,
-					QuantityMeasuringService.Operation.CompInstr);
+					Operation.CompInstr);
 		break;
 
 		}

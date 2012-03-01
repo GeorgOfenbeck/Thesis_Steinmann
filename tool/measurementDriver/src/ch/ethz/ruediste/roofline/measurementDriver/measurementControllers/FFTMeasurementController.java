@@ -14,8 +14,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterS
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
-import ch.ethz.ruediste.roofline.sharedEntities.KernelBase;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 
 import com.google.inject.Inject;
@@ -82,7 +81,7 @@ public class FFTMeasurementController implements IMeasurementController {
 		algorithmName.put(FFTmklKernel.class, "FFT-MKL");
 		algorithmName.put(FFTSpiralKernel.class, "FFT-Spiral");
 
-		HashMap<Class<?>, Operation> algorithmOperation = new HashMap<Class<?>, QuantityMeasuringService.Operation>();
+		HashMap<Class<?>, Operation> algorithmOperation = new HashMap<Class<?>, Operation>();
 		algorithmOperation.put(FFTnrKernel.class, Operation.CompInstr);
 		algorithmOperation.put(FFTmklKernel.class,
 				Operation.DoublePrecisionFlop);

@@ -6,7 +6,6 @@ import org.apache.commons.lang.NotImplementedException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
 
 public class KernelBase extends KernelBaseData {
 

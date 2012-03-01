@@ -4,8 +4,7 @@ import static ch.ethz.ruediste.roofline.entities.Axes.*;
 import ch.ethz.ruediste.roofline.measurementDriver.MacroKey;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.Operation;
-import ch.ethz.ruediste.roofline.sharedEntities.InstructionSet;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class ArithmeticKernel extends ArithmeticKernelData {
 

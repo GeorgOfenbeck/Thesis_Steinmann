@@ -37,10 +37,6 @@ public class QuantityMeasuringService {
 	@Inject
 	Configuration configuration;
 
-	public enum Operation {
-		SinglePrecisionFlop, DoublePrecisionFlop, CompInstr, SSEFlop,
-	}
-
 	public static final Axis<Operation> operationAxis = new Axis<Operation>(
 			"0cbbc641-c59d-4027-bd5b-e0144da82227", "operation");
 
