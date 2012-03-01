@@ -5,3 +5,6 @@ build/
 .settings/
 .classpath
 .project
+jdepend.dot
+jdepend.xml
+jdepend-report.svg
