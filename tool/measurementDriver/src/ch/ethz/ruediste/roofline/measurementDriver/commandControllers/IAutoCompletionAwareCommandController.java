@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver;
+package ch.ethz.ruediste.roofline.measurementDriver.commandControllers;
 
 import java.util.List;
 

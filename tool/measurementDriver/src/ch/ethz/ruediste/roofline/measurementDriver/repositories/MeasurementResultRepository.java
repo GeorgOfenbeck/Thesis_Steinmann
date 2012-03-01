@@ -2,9 +2,9 @@ package ch.ethz.ruediste.roofline.measurementDriver.repositories;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.util.RuntimeMonitor;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -17,9 +17,6 @@ public class MeasurementResultRepository {
 			.Create(String.class, "cache.location",
 					"directory containing the cached results of measurements",
 					"~/.roofline/cache");
-
-	@Inject
-	public MeasurementService measurementService;
 
 	@Inject
 	public XStream xStream;
