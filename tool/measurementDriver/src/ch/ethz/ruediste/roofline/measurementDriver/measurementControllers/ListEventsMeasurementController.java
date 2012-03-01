@@ -5,7 +5,7 @@ import java.io.*;
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 
 import com.google.inject.Inject;
@@ -26,11 +26,11 @@ public class ListEventsMeasurementController implements IMeasurementController {
 	MeasurementAppController measurementAppController;
 
 	@Inject
-	SystemInfoRepository pmuRepository;
+	SystemInfoService systemInfoService;
 
 	public void measure(String outputName) throws IOException {
 
-		for (PmuDescription pmu : pmuRepository.getPresentPmus()) {
+		for (PmuDescription pmu : systemInfoService.getPresentPmus()) {
 
 			System.out.printf(
 					"present PMU: %s counters: %d fixed counters: %d\n",

@@ -2,10 +2,10 @@ package ch.ethz.ruediste.roofline.measurementDriver;
 
 import java.util.List;
 
-import ch.ethz.ruediste.roofline.measurementDriver.appControllers.*;
+import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.AxisConverter;
-import ch.ethz.ruediste.roofline.measurementDriver.services.IMeasurementFacilility;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.IMeasurementFacilility;
 import ch.ethz.ruediste.roofline.measurementDriver.util.ClassFinder;
 
 import com.google.inject.*;
@@ -28,7 +28,9 @@ public class MainModule extends AbstractModule {
 
 		// setup services
 		bindAllAsSingletons(Object.class,
-				"ch.ethz.ruediste.roofline.measurementDriver.services");
+				"ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services");
+		bindAllAsSingletons(Object.class,
+				"ch.ethz.ruediste.roofline.measurementDriver.dom.services");
 
 		// setup app controllers
 		bindAllAsSingletons(Object.class,
@@ -36,7 +38,9 @@ public class MainModule extends AbstractModule {
 
 		// setup repositories
 		bindAllAsSingletons(Object.class,
-				"ch.ethz.ruediste.roofline.measurementDriver.repositories");
+				"ch.ethz.ruediste.roofline.measurementDriver.infrastructure.repositories");
+		bindAllAsSingletons(Object.class,
+				"ch.ethz.ruediste.roofline.measurementDriver.dom.repositories");
 
 		// setup measurements and commands
 		bindNamed(IMeasurementController.class,

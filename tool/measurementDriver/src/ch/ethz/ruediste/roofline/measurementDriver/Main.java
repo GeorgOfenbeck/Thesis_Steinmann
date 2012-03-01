@@ -11,7 +11,7 @@ import org.apache.log4j.*;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
 import ch.ethz.ruediste.roofline.measurementDriver.commandControllers.IAutoCompletionAwareCommandController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.ReflectionRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.repositories.ReflectionRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 import com.google.inject.*;

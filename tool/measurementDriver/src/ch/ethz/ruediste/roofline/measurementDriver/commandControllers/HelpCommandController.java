@@ -7,7 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.*;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.ReflectionRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.repositories.ReflectionRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.util.Instantiator;
 
 import com.google.inject.Inject;

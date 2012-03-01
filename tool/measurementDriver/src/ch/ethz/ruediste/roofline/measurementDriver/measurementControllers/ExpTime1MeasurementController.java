@@ -7,14 +7,13 @@ import java.io.IOException;
 import java.util.*;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.QuantityCalculator;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
-import ch.ethz.ruediste.roofline.measurementDriver.repositories.SystemInfoRepository;
-import ch.ethz.ruediste.roofline.measurementDriver.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.IMeasurementBuilder;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.QuantityMap;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
@@ -40,7 +39,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 	QuantityMeasuringService quantityMeasuringService;
 
 	@Inject
-	SystemInfoRepository systemInfoRepository;
+	SystemInfoService systemInfoService;
 
 	private enum SystemLoad {
 		Idle, DiskOther, DiskAll, AddOther, AddAll,
@@ -226,7 +225,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 	}
 
 	public ArrayList<Workload> createWorkloads(SystemLoad workload) {
-		List<Integer> cpus = systemInfoRepository.getOnlineCPUs();
+		List<Integer> cpus = systemInfoService.getOnlineCPUs();
 		switch (workload) {
 		case AddAll:
 			return createAddWorkloads(cpus);
