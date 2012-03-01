@@ -13,6 +13,7 @@ import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.ReflectionRepository;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.serializationService.SharedEntitySerializationService;
 
 import com.google.inject.Inject;
 import com.thoughtworks.xstream.XStream;
@@ -22,7 +23,7 @@ public class MeasuringCoreService {
 			.getLogger(MeasuringCoreService.class);
 
 	@Inject
-	public MultiLanguageSerializationService serializationService;
+	public SharedEntitySerializationService serializationService;
 
 	@Inject
 	public CommandService commandService;

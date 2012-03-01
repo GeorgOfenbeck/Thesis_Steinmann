@@ -57,7 +57,7 @@ public class JavaCodeGenerator extends CodeGeneratorBase {
 		context.put("classes", multiLanguageClasses);
 
 		String outputFileName = basePath
-				+ "MultiLanguageSerializationService.java";
+				+ "serializationService/SharedEntitySerializationService.java";
 		applyTemplate(getTemplate("javaSerializationServiceTemplate.vm"),
 				context, outputFileName);
 

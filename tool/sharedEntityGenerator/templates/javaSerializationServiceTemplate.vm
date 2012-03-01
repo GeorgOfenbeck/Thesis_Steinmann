@@ -1,13 +1,13 @@
 ## see the documentation for more information
 
-package $javaBasePackage;
+package ${javaBasePackage}.serializationService;
 
 import java.io.*;
 import java.util.Scanner;
 import java.math.BigInteger;
 
 /** Serializes and deserializes multi language objects */
-public class MultiLanguageSerializationService{
+public class SharedEntitySerializationService{
 
 	public void Serialize(Object o, OutputStream output){
 		// we use a print stream for serialization
