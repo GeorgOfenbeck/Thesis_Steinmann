@@ -1,6 +1,5 @@
 package ch.ethz.ruediste.roofline.sharedEntities;
 
-import ch.ethz.ruediste.roofline.entities.HashBase;
 
 /**
  * Hash of a measuring core

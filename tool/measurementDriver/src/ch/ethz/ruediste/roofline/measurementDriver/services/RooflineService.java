@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.services;
 
-import static ch.ethz.ruediste.roofline.entities.Axes.*;
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import org.apache.log4j.Logger;
 

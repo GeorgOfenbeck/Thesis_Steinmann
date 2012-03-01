@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import ch.ethz.ruediste.roofline.entities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class PerfEventMeasurer extends PerfEventMeasurerData implements
 		IMeasurer<PerfEventMeasurerOutput> {

@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.entities;
+package ch.ethz.ruediste.roofline.sharedEntities;
 
 import java.util.ArrayList;
 

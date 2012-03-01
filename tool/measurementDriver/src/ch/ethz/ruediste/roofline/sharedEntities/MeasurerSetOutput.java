@@ -2,7 +2,6 @@ package ch.ethz.ruediste.roofline.sharedEntities;
 
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.entities.IMeasurer;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;

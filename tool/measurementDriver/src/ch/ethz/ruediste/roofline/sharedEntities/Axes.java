@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.entities;
+package ch.ethz.ruediste.roofline.sharedEntities;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;

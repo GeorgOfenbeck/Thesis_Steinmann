@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.sharedEntities;
 
-import static ch.ethz.ruediste.roofline.entities.Axes.optimizationAxis;
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.optimizationAxis;
 
 import org.apache.commons.lang.NotImplementedException;
 

@@ -1,7 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.entities.Axes.clockTypeAxis;
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.tail;
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.clockTypeAxis;
 
 import java.io.IOException;
 import java.util.*;

@@ -1,7 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.appControllers;
 
-import ch.ethz.ruediste.roofline.entities.MeasurementResult;
-import ch.ethz.ruediste.roofline.sharedEntities.Measurement;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public interface IMeasurementFacilility {
 

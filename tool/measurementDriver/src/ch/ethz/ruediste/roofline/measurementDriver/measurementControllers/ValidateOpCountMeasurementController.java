@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.entities.Axes.kernelAxis;
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.kernelAxis;
 
 import java.io.IOException;
 import java.util.*;

@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
-import static ch.ethz.ruediste.roofline.entities.Axes.matrixSizeAxis;
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.matrixSizeAxis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 public class DgemvKernel extends DgemvKernelData {

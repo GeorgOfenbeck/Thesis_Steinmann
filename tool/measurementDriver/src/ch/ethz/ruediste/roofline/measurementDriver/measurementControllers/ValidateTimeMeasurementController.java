@@ -1,7 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.entities.Axes.kernelAxis;
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.single;
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.kernelAxis;
 
 import java.io.IOException;
 import java.util.*;
@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.DistributionPlot.DistributionPlotSeries;

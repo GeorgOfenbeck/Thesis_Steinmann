@@ -1,11 +1,10 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.entities.Axes.*;
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import java.io.IOException;
 import java.util.HashMap;
 
-import ch.ethz.ruediste.roofline.entities.Axes;
 import ch.ethz.ruediste.roofline.measurementDriver.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;

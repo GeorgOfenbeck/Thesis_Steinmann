@@ -9,7 +9,6 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.entities.MeasurementResult;
 import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.repositories.ReflectionRepository;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
