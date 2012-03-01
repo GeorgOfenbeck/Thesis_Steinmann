@@ -78,6 +78,9 @@ clean:
 print: 
 	@echo $(CHILD_SOURCES)
 	
+generated/sharedEntities:
+	ln -s ../../sharedEntities/generatedC generated/sharedEntities
+	
 # creates the executable from the .o files
 $(BUILD_DIR)/childProcess: $(CHILD_OBJECTS) $(CURRENT_KERNEL_OBJECTS) generated/kernelNames.mk generated/additionalFlags.mk
 	$(GCC) -pthread -rdynamic -o $@ $(CHILD_OBJECTS) $(CURRENT_KERNEL_OBJECTS) $(LIBS)
@@ -92,11 +95,11 @@ include $(DEP_FILES)
 # special rules for certain files ....
 
 # compile without optimization, to ease generation of code for flushing L1 caches
-$(BUILD_DIR)/./src/sharedEntities/WorkloadClearL1I.o: src/sharedEntities/WorkloadClearL1I.cpp
+$(BUILD_DIR)/./src/sharedEntities/WorkloadClearL1I.o: src/sharedEntities/WorkloadClearL1I.cpp generated/sharedEntities
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -ftemplate-depth=4096 -c -o $@ $<
 # add more rules here when needed	
-$(BUILD_DIR)/./generated/sharedEntities/MultiLanguageSerializationService.o: generated/sharedEntities/MultiLanguageSerializationService.cpp
+$(BUILD_DIR)/./generated/sharedEntities/MultiLanguageSerializationService.o: generated/sharedEntities/MultiLanguageSerializationService.cpp generated/sharedEntities
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) -O0 $(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $@ $<
 	
@@ -106,7 +109,7 @@ $(foreach kernel,$(KERNEL_NAMES),$(eval $(KERNEL_OBJECTS_$(kernel)): generated/k
 
 # rule for the kernels
 define KERNEL_RULE_template
-$$(KERNEL_OBJECTS_$(1)): $(BUILD_DIR)/%.o: %.cpp generated/kernelOptimization/kernelOptimization$(1).mk
+$$(KERNEL_OBJECTS_$(1)): $(BUILD_DIR)/%.o: %.cpp generated/kernelOptimization/kernelOptimization$(1).mk generated/sharedEntities
 	mkdir -p $(BUILD_DIR)/$$(dir $$<)
 	$(GCC) $(CFLAGS) $(KERNEL_OPTIMIZATION_FLAGS_$(1)) -Wa,-ahl=$$(patsubst %.o,%.s,$$@) $$(DEP_FLAGS) $(INCLUDE_DIRS) -c -o $$@ $$<
 endef
@@ -114,7 +117,7 @@ $(foreach kernel,$(KERNEL_NAMES),$(eval $(call KERNEL_RULE_template,$(kernel))))
 
 
 # the default rule
-$(BUILD_DIR)/%.o: %.cpp
+$(BUILD_DIR)/%.o: %.cpp generated/sharedEntities
 	mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(GCC) $(CFLAGS) $(OPTIMIZATION_FLAGS) $(DEP_FLAGS) -Wa,-ahl=$(patsubst %.o,%.s,$@) $(INCLUDE_DIRS) -c -o $@ $<
 	
