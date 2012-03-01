@@ -3,11 +3,9 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
-import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
@@ -29,30 +27,22 @@ public class RooflineMeasurementController implements IMeasurementController {
 	RooflineController rooflineController;
 
 	public void measure(String outputName) throws IOException {
-		/*rooflineController.addPeakPerformance("ADD x87", Algorithm.Add,
+		/*rooflineController.addPeakPerformance("ADD x87", PeakAlgorithm.Add,
 				InstructionSet.x87);
 
-		rooflineController.addPeakPerformance("ADD SSE", Algorithm.Add,
+		rooflineController.addPeakPerformance("ADD SSE", PeakAlgorithm.Add,
 				InstructionSet.SSE);
-		rooflineController.addPeakPerformance("MUL x87", Algorithm.Mul,
+		rooflineController.addPeakPerformance("MUL x87", PeakAlgorithm.Mul,
 				InstructionSet.x87);
-		rooflineController.addPeakPerformance("MUL SSE", Algorithm.Mul,
+		rooflineController.addPeakPerformance("MUL SSE", PeakAlgorithm.Mul,
 				InstructionSet.SSE);
 		rooflineController.addPeakPerformance("ABal x87",
-				Algorithm.ArithBalanced, InstructionSet.x87);
+				PeakAlgorithm.ArithBalanced, InstructionSet.x87);
 		rooflineController.addPeakPerformance("ABal SSE",
-				Algorithm.ArithBalanced, InstructionSet.SSE);
+				PeakAlgorithm.ArithBalanced, InstructionSet.SSE);
 		 */
 
-		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
-				InstructionSet.SSE);
-		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
-				InstructionSet.SSE);
-		rooflineController.addPeakPerformance("ABal", Algorithm.ArithBalanced,
-				InstructionSet.SSEScalar);
-
-		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
-				MemoryTransferBorder.LlcRam);
+		rooflineController.addDefaultPeaks();
 
 		{
 			TriadKernel kernel = new TriadKernel();

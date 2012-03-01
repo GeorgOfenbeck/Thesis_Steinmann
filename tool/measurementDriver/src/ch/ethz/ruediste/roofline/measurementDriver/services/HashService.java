@@ -19,7 +19,7 @@ public class HashService {
 	public static final ConfigurationKey<String> messageDigestKey = ConfigurationKey
 			.Create(String.class,
 					"cache.messageDigest",
-					"Algorithm used to build the hash keys in the measurement cache",
+					"PeakAlgorithm used to build the hash keys in the measurement cache",
 					"MD5");
 
 	@Inject

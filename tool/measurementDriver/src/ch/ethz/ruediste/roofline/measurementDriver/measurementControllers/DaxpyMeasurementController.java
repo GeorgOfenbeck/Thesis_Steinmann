@@ -3,11 +3,10 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.Operation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.DaxpyKernel;
 
 import com.google.inject.Inject;
@@ -30,12 +29,7 @@ public class DaxpyMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Vector-Vector Multiplication");
-		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
-				InstructionSet.SSE);
-		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
-				InstructionSet.SSE);
-		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
-				MemoryTransferBorder.LlcRam);
+		rooflineController.addDefaultPeaks();
 
 		addPoints(rooflineController, true);
 		addPoints(rooflineController, false);

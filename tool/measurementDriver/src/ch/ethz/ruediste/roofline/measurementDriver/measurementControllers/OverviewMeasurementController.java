@@ -3,10 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
-import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.sharedEntities.InstructionSet;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
@@ -40,12 +37,7 @@ public class OverviewMeasurementController implements IMeasurementController {
 	@SuppressWarnings("unchecked")
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Overview");
-		rooflineController.addPeakPerformance("ADD", Algorithm.Add,
-				InstructionSet.SSE);
-		rooflineController.addPeakPerformance("MUL", Algorithm.Mul,
-				InstructionSet.SSE);
-		rooflineController.addPeakThroughput("MemLoad", Algorithm.Load,
-				MemoryTransferBorder.LlcRam);
+		rooflineController.addDefaultPeaks();
 
 		daxpyMeasurementController.addPoints(rooflineController, true);
 		dgemvMeasurementController.addRooflinePoints(rooflineController, true);

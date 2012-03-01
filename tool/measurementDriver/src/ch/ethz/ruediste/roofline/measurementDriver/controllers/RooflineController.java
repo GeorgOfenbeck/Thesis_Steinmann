@@ -10,6 +10,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.QuantityMap;
+import ch.ethz.ruediste.roofline.measurementDriver.services.RooflineService.PeakAlgorithm;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -31,10 +32,6 @@ public class RooflineController {
 
 	private ClockType clockType = ClockType.CoreCycles;
 
-	public enum Algorithm {
-		Add, Mul, ArithBalanced, Load, Store, MemBalanced, RandomLoad,
-	}
-
 	public RooflineController() {
 		plot.setOutputName("roofline");
 		plot.setTitle("A Roofline Plot");
@@ -44,7 +41,7 @@ public class RooflineController {
 		plot.setyUnit("flop/cycle");
 	}
 
-	public void addPeakPerformance(String name, Algorithm algorithm,
+	public void addPeakPerformance(String name, PeakAlgorithm algorithm,
 			InstructionSet instructionSet) {
 		Performance performance = rooflineService.measurePeakPerformance(
 				algorithm, instructionSet, getClockType());
@@ -52,7 +49,7 @@ public class RooflineController {
 		plot.addPeakPerformance(name, performance);
 	}
 
-	public void addPeakThroughput(String name, Algorithm algorithm,
+	public void addPeakThroughput(String name, PeakAlgorithm algorithm,
 			MemoryTransferBorder border) {
 		Throughput throughput = rooflineService.measurePeakThroughput(
 				algorithm, border, getClockType());
@@ -146,13 +143,13 @@ public class RooflineController {
 	}
 
 	public void addDefaultPeaks() {
-		addPeakPerformance("ADD", Algorithm.Add, InstructionSet.SSE);
-		addPeakPerformance("MUL", Algorithm.Mul, InstructionSet.SSE);
+		addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
+		addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
 
-		addPeakThroughput("MemLoad", Algorithm.Load,
+		addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 				MemoryTransferBorder.LlcRam);
 
-		addPeakThroughput("MemRandom", Algorithm.RandomLoad,
+		addPeakThroughput("MemRandom", PeakAlgorithm.RandomLoad,
 				MemoryTransferBorder.LlcRam);
 	}
 }

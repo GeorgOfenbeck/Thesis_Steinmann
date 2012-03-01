@@ -4,7 +4,6 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController.Algorithm;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
@@ -16,6 +15,10 @@ import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.Arithme
 import com.google.inject.Inject;
 
 public class RooflineService {
+	public enum PeakAlgorithm {
+		Add, Mul, ArithBalanced, Load, Store, MemBalanced, RandomLoad,
+	}
+
 	private static Logger log = Logger.getLogger(RooflineService.class);
 
 	@Inject
@@ -24,7 +27,7 @@ public class RooflineService {
 	@Inject
 	public OptimizationService optimizationService;
 
-	public Performance measurePeakPerformance(Algorithm algorithm,
+	public Performance measurePeakPerformance(PeakAlgorithm algorithm,
 			InstructionSet instructionSet, ClockType clockType) throws Error {
 		CoordinateBuilder kernelParameters = new CoordinateBuilder();
 
@@ -44,10 +47,8 @@ public class RooflineService {
 			kernelParameters.set(ArithmeticKernel.arithmeticOperationAxis,
 					ArithmeticOperation.ArithmeticOperation_MUL);
 		break;
-		case Load:
-		case MemBalanced:
-		case Store:
-			throw new Error("Algorithm not supported for peak performance");
+		default:
+			throw new Error("PeakAlgorithm not supported for peak performance");
 		}
 
 		// create the measurement coordinate
@@ -75,9 +76,9 @@ public class RooflineService {
 		break;
 		case x87:
 			kernelParameters.set(optimizationAxis, "-O3");
-			measurementCoordinateBuilder.set(
-					QuantityMeasuringService.operationAxis,
-					Operation.CompInstr);
+			measurementCoordinateBuilder
+					.set(QuantityMeasuringService.operationAxis,
+							Operation.CompInstr);
 		break;
 
 		}
@@ -92,7 +93,7 @@ public class RooflineService {
 		}
 
 		// optimize instruction mix, too
-		if (algorithm == Algorithm.ArithBalanced) {
+		if (algorithm == PeakAlgorithm.ArithBalanced) {
 			for (int i = 1; i <= 3; i++) {
 				optimzationSpace.add(arithBalancedAdditionsAxis, i);
 				optimzationSpace.add(arithBalancedMultiplicationsAxis, i);
@@ -126,7 +127,7 @@ public class RooflineService {
 		return performance;
 	}
 
-	public Throughput measurePeakThroughput(Algorithm algorithm,
+	public Throughput measurePeakThroughput(PeakAlgorithm algorithm,
 			MemoryTransferBorder border, ClockType clockType) {
 		KernelBase kernel = null;
 		CoordinateBuilder kernelParameters = new CoordinateBuilder();
@@ -149,7 +150,7 @@ public class RooflineService {
 		case Mul:
 		case MemBalanced:
 		case Store:
-			throw new Error("Algorithm not supported for peak throughput");
+			throw new Error("PeakAlgorithm not supported for peak throughput");
 		}
 
 		// initialize the kernel
