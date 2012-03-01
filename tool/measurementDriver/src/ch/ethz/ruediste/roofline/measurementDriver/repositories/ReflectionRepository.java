@@ -5,6 +5,7 @@ import java.util.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.*;
+import ch.ethz.ruediste.roofline.measurementDriver.util.ClassFinder;
 
 /**
  * A repository providing reflection information of the measurement driver.

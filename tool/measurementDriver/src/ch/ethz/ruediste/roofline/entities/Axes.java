@@ -4,9 +4,9 @@ import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import ch.ethz.ruediste.roofline.measurementDriver.ClassFinder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
 import ch.ethz.ruediste.roofline.measurementDriver.services.QuantityMeasuringService.ClockType;
+import ch.ethz.ruediste.roofline.measurementDriver.util.ClassFinder;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.MemoryOperation;
