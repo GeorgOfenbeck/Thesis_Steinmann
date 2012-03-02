@@ -8,4 +8,4 @@ java -classpath jdepend-2.9.1.jar:. jdepend.xmlui.JDepend -file jdepend.xml -com
 
 xsltproc jdepend2dot.xsl jdepend.xml > jdepend.dot
 
-dot -Tsvg jdepend.dot -o jdepend-report.svg
+dot -Tpdf jdepend.dot -o jdepend-report.pdf
