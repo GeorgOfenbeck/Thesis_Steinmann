@@ -5,7 +5,6 @@ import java.security.*;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;

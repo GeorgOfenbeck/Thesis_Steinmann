@@ -5,11 +5,10 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.repositories.MeasurementResultRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.repositories.*;
+import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.repositories.MeasurementHashRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
@@ -78,6 +77,7 @@ public class MeasurementAppController implements IMeasurementFacilility {
 		try {
 			MeasurementHash measurementHash = hashService
 					.getMeasurementHash(measurement);
+
 			log.debug("measuring " + measurementHash);
 
 			log.debug("useCachedResults="

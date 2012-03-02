@@ -1,4 +1,4 @@
-package ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services;
+package ch.ethz.ruediste.roofline.measurementDriver.dom.services;
 
 import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.addAll;
 
@@ -9,8 +9,8 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.measurementDriver.*;
 import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.repositories.ReflectionRepository;
+import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.serializationService.SharedEntitySerializationService;
