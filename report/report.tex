@@ -670,7 +670,76 @@ stateless services as described in \cite{evans2004domain}.
 Describing all these concepts lies beyond the scope of this report. It is
 assumed that the reader has a basic understanding of the mentioned concepts.
 
-\subsubsection{Tour of the Measurement Driver}
+The following diagram shows an overview of the driver:
+
+\umlDiagram{measurementDriver/MeasurementDriverOverview}
+
+In the following paragraphs, we will have a quick look at the look at the
+different parts. 
+
+The entry point of the driver is the \class{Main} class. First, the dependency
+injection framework is initialized. This is accomplished using the
+\class{MainModule}. It's \method{configure()} method uses the
+\class{ClassFinder} to find all compiled classes and configures how they are
+instantiated, mainly based on naming conventions.
+
+Then the command line arguments are parsed. If command line auto completion is
+desired (indicated by the '-autocomplete' flag), the auto completion process
+starts. 
+
+Otherwise the configuration is initialized, using the flags specified at the
+command line and the configuration files (default configuration stored in the
+jar and user configuration from the home directory of the user).
+
+The last step in the initialization sequence is to set up log4j, the logging
+framework. 
+
+Then the class for the command given on the command line is instantiated and
+the \method{execute()} method on the resulting \class{ICommand} is called.
+
+When a 'measure' command is given, a \class{MeasurementCommandController} is
+instantiated. The command controller looks a the next command line argument,
+instantiates the corresponding measurement controller and calls the
+\method{measure()} method.
+
+The measurement controller will typically create multiple \class{Measurement}s
+with different parameters. The \class{ParameterSpace} facilitates iterating
+over all possible parameter combinations. Each parameter is associated to an
+\class{Axis}. For each axis, one or multiple values can be given. The
+\method{getAllPoints()} returns a \class{Coordinate} for each possible value
+combination. Itearating over the points in the space, the measurement controller
+can construct a measurement for each point. 
+
+The results of the constructed measurements can be either printed to the
+console, or stored in one of various \class{Plot}s. When all data is gathered,
+the plot can be rendered and written to an output file using the
+\class{PlotService}.
+
+Although it is possible to directly create the \class{Measurer}s required to
+measure something, most of the time the intent is to measure a certain
+\class{Quantity} (\class{OperationCount}, \class{TransferredBytes},
+\class{Performance} etc). The \class{QuantityMeasuringService} can be used to
+obtain a \class{QuantityCalculator} for a quantity. The calculator can be
+queried for the list of measurers which are required to calculate the quantity.
+When the results of all required measurers are known, they can be passed to the
+calculator, which will return the desired quantity. In addition, the quantity
+measuring service provides convenience methods for working with the quantity
+calculators.
+
+Once the \class{Measurement} is constructed, the \method{measure()} method of
+the  \class{MeasurementAppController} is used to perform the measurement. First
+it is checked if a cached result is available for the measurement (using the
+\class{CacheService}). If not, the \class{MeasuringCoreService} is used to build
+the core for the measurement and to start the core.
+
+The \class{Kernel}s can define macros. During build preparation, all macro
+definitions present in the measurement are collected and written to generated
+header files within the core.
+
+During the execution of the measurement driver, the run time used for the
+various tasks is collected using the \class{RuntimeMonitor}. At the end of the
+execution, the times spent for the tasks is printed to the console.
+
 
 \subsubsection{The MeasurementAppController}
 The measurement application controller is the entry point for performing
@@ -760,9 +829,9 @@ reflected in the call graph of the methods within the application controller:
 
 \umlDiagram{measurementDriver/MACCallGraph}
 
-Since it makes sense that services can start measusurements, the
+Since it makes sense that services can start measurements, the
 \class{MeasurementService} provides a \method{measure()} method. The service knows an
-instance of IMeasurementFacility which provides \method{measure()}, and
+instance of \class{IMeasurementFacility} which provides \method{measure()}, and
 forwards all calls to its own \method{measure()} method to the measurement
 facility. The facility is is implemented by the \class{MeasurementAppController}
 controller. Therefore the service ultimately forwards all calls to
@@ -788,7 +857,7 @@ The conventions are:
 \begin{description}
 \item[Services] all classes in the services package are bound to themselves as
 singletons
-\item[Application Controllers] all classes in the appControllers package are
+\item[Application Controllers] all classes in the 'appControllers' package are
 bound to themselves as singletons
 \item[Measurement Series] all classes deriving form IMeasurementSeries in the
 measurement series package are bound to the IMeasurementSeries interface
@@ -875,7 +944,7 @@ measure() method.
 The measurement controllers mix the definition of the measurement parameters and
 the processing of the output. Thus, if the output processing logic needs to be
 modified, the measurements have to be performed again. This causes a delay,
-which is avoided by cachin the measurement results. 
+which is avoided by caching the measurement results. 
 
 All parameters of a measurement are contained within the measurement description
 and the referenced objects. Therefore, if the measurement description is
@@ -884,7 +953,7 @@ the previous measurement can be reused.
 
 The cache mechanism works using a hash function on the XML representation of the
 measurement description. After a measurement has been performed, a file named
-after the hash value of the measurement desciption of the measurement is created
+after the hash value of the measurement description of the measurement is created
 and the measurement results are stored therein. Before a measurement is
 performed, the hash value is computed. If a corresponding file is found, the
 previous measurement results are reused.
@@ -980,7 +1049,7 @@ possibly send process to it again. If it exits, it will go the the exit state.
 Each measurement can be performed with different compiler optimization flags and
 macro definitions. Therefore, the measuring core has to be rebuilt for each
 measurement, which makes rebuilding the measuring core a frequent operation. It
-should therefore be as fast as possible. This is archieved by carefully tracking
+should therefore be as fast as possible. This is achieved by carefully tracking
 all build dependencies and by using ccache. 
 
 CCache is a compiler cache. Whenever the compiler is run, ccache hashes all
@@ -1016,7 +1085,7 @@ automatically determines which parts of a program have to be recompiled, based
 on rules stored in a makefile. Each rule consists of target files, prerequisite
 files and a recipe. Make checks the modification times of the target and the
 prerequisite files. If any prerequisite is newer than any target, the recipe is
-executed in order to update the traget files. The recipe is a sequence of shell
+executed in order to update the target files. The recipe is a sequence of shell
 commands.
 
 The following diagram shows how the source files are categorized and compiled:
@@ -1069,7 +1138,7 @@ We chose a modular approach to initialize the measuring core. Whenever a system
 part needs to run code when the program starts or shuts down, it can instantiate
 a class derived from SystemInitializer.
 
-This is preferably archieved by declaring a global static variable named dummy
+This is preferably achieved by declaring a global static variable named dummy
 in a .cpp file. Example:
 \begin{verbatim}
 // define and register a system initializer.
