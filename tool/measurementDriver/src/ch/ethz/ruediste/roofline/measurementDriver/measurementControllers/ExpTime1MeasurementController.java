@@ -134,7 +134,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		};
 
 		QuantityMap quantityMap = quantityMeasuringService
-				.getQuantities(builder, 10).with("main", timeCalc).get();
+				.measureQuantities(builder, 10).with("main", timeCalc).get();
 
 		return quantityMap.min(timeCalc);
 
@@ -158,7 +158,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 			};
 
 			QuantityMap quantityMap = quantityMeasuringService
-					.getQuantities(builder, 10).with("main", interruptsCalc)
+					.measureQuantities(builder, 10).with("main", interruptsCalc)
 					.get();
 
 			// take minimum

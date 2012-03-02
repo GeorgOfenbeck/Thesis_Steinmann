@@ -1,20 +1,15 @@
 package ch.ethz.ruediste.roofline.measurementDriver.util;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.INamed;
 
-import com.google.inject.Binding;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Singleton;
+import com.google.inject.*;
 
 /**
- * The instantiator allows to instantiate classes with dependency injection
- * 
+ * The instantiator allows interact with the dependency injection framework. You
+ * can instantiate classes and iterate over the classes explicitely bound.
  */
 @Singleton
 public class Instantiator {
@@ -53,6 +48,9 @@ public class Instantiator {
 		return result;
 	}
 
+	/**
+	 * set the injector. To be used only from within the startup code
+	 */
 	public void setInjector(Injector injector) {
 		this.injector = injector;
 	}

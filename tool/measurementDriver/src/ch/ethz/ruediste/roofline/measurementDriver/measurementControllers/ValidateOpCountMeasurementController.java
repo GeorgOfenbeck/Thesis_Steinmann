@@ -88,7 +88,7 @@ public class ValidateOpCountMeasurementController extends
 			};
 
 			QuantityMap quantities = quantityMeasuringService
-					.getQuantities(builder, 10).with("operations", calc).get();
+					.measureQuantities(builder, 10).with("operations", calc).get();
 
 			OperationCount expected = kernel.getExpectedOperationCount();
 

@@ -95,7 +95,7 @@ public class ValidateTransferredBytesMeasurementController extends
 				}
 			};
 			QuantityMap result = quantityMeasuringService
-					.getQuantities(builder, 10)
+					.measureQuantities(builder, 10)
 					.with("main", transferredBytesCalc, executionTimeCalc)
 					.get();
 

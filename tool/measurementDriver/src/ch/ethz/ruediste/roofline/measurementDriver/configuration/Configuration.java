@@ -38,6 +38,11 @@ public class Configuration {
 		return result;
 	}
 
+	/**
+	 * Set the default configuration. If a key is not found within this
+	 * configuration and a default configuration is present, the default
+	 * configuration is searched for the key (recursively)
+	 */
 	public void setDefaultConfiguration(Configuration configuration) {
 		this.defaultConfiguration = configuration;
 	}

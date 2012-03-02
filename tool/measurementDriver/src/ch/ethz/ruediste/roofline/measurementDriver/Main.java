@@ -110,7 +110,6 @@ public class Main {
 		// load user configuration
 		{
 			// retrieve the user configuration file
-
 			String userConfigFileString = configuration.get(userConfigFileKey);
 
 			// replace a starting tilde with the user home directory
@@ -122,7 +121,7 @@ public class Main {
 			// check if the user configuration file exists
 			File userConfigFile = new File(userConfigFileString);
 			if (userConfigFile.exists() && userConfigFile.isFile()) {
-
+				// parse the user configuration
 				InputStream inStream = new FileInputStream(userConfigFile);
 				fillConfiguration(userConfiguration, inStream);
 			}
@@ -193,23 +192,21 @@ public class Main {
 	}
 
 	/**
-	 * @param defauConfiguration
-	 * @param inStream
-	 * @throws IOException
+	 * parse the configuration file accessible through the inStream, and put all
+	 * flags into the provided configuration.
 	 */
-	public void fillConfiguration(Configuration defauConfiguration,
+	public void fillConfiguration(Configuration configuration,
 			InputStream inStream) throws IOException {
 		// load the stream
-		Properties defaultProperties = new Properties();
-		defaultProperties.load(inStream);
+		Properties properties = new Properties();
+		properties.load(inStream);
 
 		// put properties into the configuration
-		for (String key : defaultProperties.stringPropertyNames()) {
+		for (String key : properties.stringPropertyNames()) {
 			ConfigurationKeyBase configKey = reflectionRepository
 					.getConfigurationKeyMap().get(key);
 
-			defauConfiguration.parseAndSet(configKey,
-					defaultProperties.getProperty(key));
+			configuration.parseAndSet(configKey, properties.getProperty(key));
 		}
 	}
 

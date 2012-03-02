@@ -260,7 +260,7 @@ public class QuantityMeasuringService {
 				return measurement;
 			}
 		};
-		QuantityMap result = getQuantities(builder, numMeasurements).with(
+		QuantityMap result = measureQuantities(builder, numMeasurements).with(
 				"main", calculators).get();
 		return result;
 	}
@@ -351,17 +351,17 @@ public class QuantityMeasuringService {
 		}
 
 		public QuantityMap get() {
-			return getQuantities(measurementBuilder, numberOfMeasurements, args);
+			return mesaureQuantities(measurementBuilder, numberOfMeasurements, args);
 		}
 	}
 
-	public ArgBuilderGetQuantities getQuantities(
+	public ArgBuilderGetQuantities measureQuantities(
 			IMeasurementBuilder measurementBuilder, int numberOfMeasurements) {
 		return new ArgBuilderGetQuantities(measurementBuilder,
 				numberOfMeasurements);
 	}
 
-	public QuantityMap getQuantities(IMeasurementBuilder measurementBuilder,
+	public QuantityMap mesaureQuantities(IMeasurementBuilder measurementBuilder,
 			int numberOfMeasurements,
 			List<Pair<String, QuantityCalculator<?>[]>> calculators) {
 
