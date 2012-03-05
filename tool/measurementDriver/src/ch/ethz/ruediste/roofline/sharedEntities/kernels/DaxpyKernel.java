@@ -1,7 +1,7 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.matrixSizeAxis;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 
 public class DaxpyKernel extends DaxpyKernelData {
 	private boolean useMkl;

@@ -1,7 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.entities;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.sharedEntities.KernelBase;
 
 public class OptimizationParameters {

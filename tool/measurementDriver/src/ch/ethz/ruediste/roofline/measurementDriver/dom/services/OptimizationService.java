@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.OptimizationParameters.Comparison;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.repositories.OptimizationRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.util.IBinaryPredicate;

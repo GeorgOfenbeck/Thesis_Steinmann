@@ -4,7 +4,7 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.optimizationAxis;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 
 public class KernelBase extends KernelBaseData {

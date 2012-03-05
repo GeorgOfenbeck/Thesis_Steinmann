@@ -2,7 +2,6 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace;
 
 import java.util.*;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 
 public class CoordinateBuilder {
 	private Map<Axis<?>, Object> map = new HashMap<Axis<?>, Object>();

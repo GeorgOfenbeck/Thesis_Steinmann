@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class MMMKernel extends MMMKernelData {
