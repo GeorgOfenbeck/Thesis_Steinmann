@@ -1,6 +1,5 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.single;
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.kernelAxis;
 
 import java.io.IOException;
@@ -11,7 +10,7 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
+import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
@@ -19,8 +18,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.ParameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.*;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -45,9 +45,19 @@ public class ValidateTransferredBytesMeasurementController extends
 	@Inject
 	PlotService plotService;
 
+	@Inject
+	Configuration configuration;
+
 	public void measure(String outputName) throws IOException {
 		measureMem(outputName);
 		measureArith(outputName);
+
+		configuration.push();
+		configuration.set(QuantityMeasuringService.useAltTBKey, true);
+		measureMem(outputName + "ALT");
+		measureArith(outputName + "ALT");
+
+		configuration.pop();
 	}
 
 	public void measureArith(String outputName) throws ExecuteException,
@@ -166,18 +176,10 @@ public class ValidateTransferredBytesMeasurementController extends
 			// get the calculator for the transferred bytes
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
-			MeasurerBase measurer = single(calc.getRequiredMeasurers());
-
-			// setup the measurement
-			Measurement measurement = new Measurement();
-			Workload workload = new Workload();
-			measurement.addWorkload(workload);
-			workload.setKernel(kernel);
-			workload.setMeasurerSet(new MeasurerSet(measurer));
 
 			// run the measurement
-			MeasurementResult result = measurementService.measure(measurement,
-					10);
+			QuantityMap result = quantityMeasuringService.measureQuantities(
+					kernel, calc);
 
 			// get the expected number of bytes transferred
 			TransferredBytes expected = kernel.getExpectedTransferredBytes();
@@ -185,9 +187,7 @@ public class ValidateTransferredBytesMeasurementController extends
 			// print results to console and fill plot
 			/*System.out.printf("%s %s: expected: %s\n", kernelNames.get(kernel),
 					coordinate, expected);*/
-			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
-				TransferredBytes actual = calc.getResult(Collections
-						.singletonList(runOutput.getMeasurerOutputUntyped(measurer)));
+			for (TransferredBytes actual : result.get(calc)) {
 				double ratio = actual.getValue() / expected.getValue();
 				//System.out.printf("%s -> %g\n", actual, ratio);
 

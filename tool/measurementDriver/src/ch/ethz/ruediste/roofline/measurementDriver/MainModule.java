@@ -79,7 +79,7 @@ public class MainModule extends AbstractModule {
 			}
 			catch (Exception e) {
 				// rethrow the exception
-				throw new Error(e);
+				throw new Error("Error binding " + clazz.getSimpleName(), e);
 			}
 
 		}

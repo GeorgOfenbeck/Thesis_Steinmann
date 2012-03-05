@@ -25,6 +25,10 @@ public class QuantityMeasuringService {
 					"number of measurements the QuantityMeasuringService should perform to get reliable results",
 					10);
 
+	public static ConfigurationKey<Boolean> useAltTBKey = ConfigurationKey
+			.Create(Boolean.class, "altTB", "use alternative TB measurer",
+					false);
+
 	private static Logger log = Logger
 			.getLogger(QuantityMeasuringService.class);
 
@@ -195,10 +199,22 @@ public class QuantityMeasuringService {
 		case L2L3:
 			throw new Error("Not Supported");
 		case LlcRam:
-			return new MultiplyingQuantityCalculator<TransferredBytes>(
-					createPerfEventQuantityCalculator(TransferredBytes.class,
-							"core::BUS_TRANS_MEM:BOTH_CORES",
-							"coreduo::BUS_TRANS_MEM"), 64);
+			if (configuration.get(useAltTBKey)) {
+				return new MultiplyingQuantityCalculator<TransferredBytes>(
+						new AddingQuantityCalculator<TransferredBytes>(
+								createPerfEventQuantityCalculator(
+										TransferredBytes.class,
+										"coreduo::L2_LINES_IN:SELF"),
+								createPerfEventQuantityCalculator(
+										TransferredBytes.class,
+										"coreduo::L2_M_LINES_OUT:SELF")), 64);
+			}
+			else {
+				return new MultiplyingQuantityCalculator<TransferredBytes>(
+						createPerfEventQuantityCalculator(
+								TransferredBytes.class, "core::BUS_TRANS_MEM",
+								"coreduo::BUS_TRANS_MEM"), 64);
+			}
 
 		default:
 			throw new Error("should not happen");
@@ -351,7 +367,8 @@ public class QuantityMeasuringService {
 		}
 
 		public QuantityMap get() {
-			return mesaureQuantities(measurementBuilder, numberOfMeasurements, args);
+			return mesaureQuantities(measurementBuilder, numberOfMeasurements,
+					args);
 		}
 	}
 
@@ -361,8 +378,8 @@ public class QuantityMeasuringService {
 				numberOfMeasurements);
 	}
 
-	public QuantityMap mesaureQuantities(IMeasurementBuilder measurementBuilder,
-			int numberOfMeasurements,
+	public QuantityMap mesaureQuantities(
+			IMeasurementBuilder measurementBuilder, int numberOfMeasurements,
 			List<Pair<String, QuantityCalculator<?>[]>> calculators) {
 
 		// extract the measurer sets for the calculators of each group

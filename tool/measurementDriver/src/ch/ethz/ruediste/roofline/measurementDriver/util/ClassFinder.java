@@ -130,7 +130,7 @@ public class ClassFinder {
 	}
 
 	private static boolean isClassToBeReturned(Class<?> clazz) {
-		return clazz.getEnclosingClass() == null;
+		return clazz.getEnclosingClass() == null && !clazz.isInterface();
 	}
 
 	/**
