@@ -8,9 +8,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementContr
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
@@ -128,8 +127,8 @@ public class MMMMeasurementController implements IMeasurementController {
 				space.add(algorithmAxis, algorithm);
 			}
 
-			for (Coordinate coordinate : space.getAllPoints(space
-					.getAllAxesWithMostSignificantAxes(algorithmAxis))) {
+			for (Coordinate coordinate : space
+					.getAllPoints(algorithmAxis, null)) {
 				if (coordinate.get(matrixSizeAxis) < 400) {
 					configuration.set(
 							QuantityMeasuringService.numberOfMeasurementsKey,

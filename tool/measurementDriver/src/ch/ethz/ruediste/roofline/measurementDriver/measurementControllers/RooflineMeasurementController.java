@@ -67,8 +67,8 @@ public class RooflineMeasurementController implements IMeasurementController {
 			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Openblas);
 			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
 
-			for (Coordinate coordinate : space.getAllPoints(space
-					.getAllAxesWithLeastSignificantAxes(algorithmAxis))) {
+			for (Coordinate coordinate : space
+					.getAllPoints(null, algorithmAxis)) {
 				MMMKernel kernel = new MMMKernel();
 				kernel.setMu(2);
 				kernel.setNu(2);

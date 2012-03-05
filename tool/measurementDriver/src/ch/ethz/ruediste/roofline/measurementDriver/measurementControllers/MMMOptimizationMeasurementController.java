@@ -16,7 +16,8 @@ import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
 import com.google.inject.Inject;
 
-public class MMMOptimizationMeasurementController implements IMeasurementController {
+public class MMMOptimizationMeasurementController implements
+		IMeasurementController {
 
 	public String getName() {
 		return "mmmOpt";
@@ -83,8 +84,7 @@ public class MMMOptimizationMeasurementController implements IMeasurementControl
 			kernelNames.put(kernel, "Mkl");
 		}
 
-		for (Coordinate coordinate : space.getAllPoints(space
-				.getAllAxesWithLeastSignificantAxes(matrixSizeAxis))) {
+		for (Coordinate coordinate : space.getAllPoints(null, matrixSizeAxis)) {
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 

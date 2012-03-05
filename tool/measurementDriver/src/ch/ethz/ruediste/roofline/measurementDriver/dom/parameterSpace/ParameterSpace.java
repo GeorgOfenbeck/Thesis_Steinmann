@@ -54,6 +54,13 @@ public class ParameterSpace implements Iterable<Coordinate> {
 		return getProjection(axes.toArray(new Axis<?>[0]));
 	}
 
+	/**
+	 * return a projection on the subspace identified by axes
+	 * 
+	 * @param axes
+	 *            Axes to project on
+	 * @return
+	 */
 	public ParameterSpace getProjection(Axis<?>... axes) {
 		ParameterSpace result = new ParameterSpace();
 
@@ -74,77 +81,72 @@ public class ParameterSpace implements Iterable<Coordinate> {
 
 	}
 
-	/*
+	/**
 	 * return all axes of the parameter space
 	 */
 	public List<Axis<?>> getAllAxes() {
 		return new ArrayList<Axis<?>>(axisValueSets.keySet());
 	}
 
-	public List<Axis<?>> getAllAxesWithMostSignificantAxes(Axis<?>... msAxes) {
-		return getAllAxesWithMostSignificantAxes(getAllAxes(), msAxes);
-	}
+	/**
+	 * return axes specified by axes, with null as the wildchar character (zero
+	 * or more axes)
+	 * 
+	 */
+	public List<Axis<?>> getAxes(Axis<?>... axes) {
+		int start = 0;
+		int end = axes.length;
 
-	public List<Axis<?>> getAllAxesWithMostSignificantAxes(
-			List<Axis<?>> allAxes, Axis<?>... msAxes) {
-		// build the result list with the first axes
-		List<Axis<?>> result = new ArrayList<Axis<?>>();
-		for (Axis<?> axis : msAxes) {
-			if (!axisValueSets.containsKey(axis)) {
-				throw new Error(String.format(
-						"axis %s not part of the parameter space %s", axis,
-						this));
-			}
-			result.add(axis);
+		ArrayList<Axis<?>> result = new ArrayList<Axis<?>>();
+		ArrayList<Axis<?>> endAxes = new ArrayList<Axis<?>>();
+
+		// add all starting axes up to the star
+		while (start < end && axes[start] != null) {
+			result.add(axes[start]);
+			start++;
 		}
 
-		// get all axes and remove the axes which are already named by msAxes
-		List<Axis<?>> axes = new ArrayList<Axis<?>>(allAxes);
-		axes.removeAll(new HashSet<Axis<?>>(result));
-
-		// append the missing axes to the result
-		for (Axis<?> axis : axes) {
-			result.add(axis);
+		// add all ending axes up to the star
+		while (start < end && axes[end - 1] != null) {
+			endAxes.add(axes[end - 1]);
+			end--;
 		}
+		Collections.reverse(endAxes);
+
+		// add the remaining axes to the result
+		HashSet<Axis<?>> remainingAxes = new HashSet<Axis<?>>();
+		remainingAxes.addAll(getAllAxes());
+		remainingAxes.removeAll(result);
+		remainingAxes.removeAll(endAxes);
+		result.addAll(remainingAxes);
+
+		// add the end axes to the result
+		result.addAll(endAxes);
 
 		return result;
 	}
 
-	public List<Axis<?>> getAllAxesWithLeastSignificantAxes(Axis<?>... lsAxes) {
-		return getAllAxesWithLeastSignificantAxes(getAllAxes(), lsAxes);
-	}
-
-	public List<Axis<?>> getAllAxesWithLeastSignificantAxes(
-			List<Axis<?>> allAxes, Axis<?>... lsAxes) {
-		// build the list of the least significant axes
-		List<Axis<?>> lsAxesList = new ArrayList<Axis<?>>();
-		for (Axis<?> axis : lsAxes) {
-			if (!axisValueSets.containsKey(axis)) {
-				throw new Error(String.format(
-						"axis %s not part of the parameter space %s", axis,
-						this));
-			}
-			lsAxesList.add(axis);
-		}
-
-		// get all axes and remove the axes which are already named by lsAxes
-		List<Axis<?>> result = new ArrayList<Axis<?>>(allAxes);
-		result.removeAll(new HashSet<Axis<?>>(lsAxesList));
-
-		// append the least significant axes to the result
-		for (Axis<?> axis : lsAxes) {
-			result.add(axis);
-		}
-
-		return result;
-	}
-
+	/**
+	 * get all points in the parameter space
+	 */
 	public List<Coordinate> getAllPoints() {
 		return getAllPoints(getAllAxes());
 	}
 
+	/**
+	 * return all points, using the specified order of the axes. null is the
+	 * wildchar axis (zero or more)
+	 */
+	public List<Coordinate> getAllPoints(Axis<?>... axes) {
+		return getAllPoints(getAxes(axes));
+	}
+
+	/**
+	 * return all points, only from the axes mentioned. null is not allowed in
+	 * the ordered axes
+	 */
 	@SuppressWarnings("unchecked")
-	public List<Coordinate> getAllPoints(List<Axis<?>> orderedAxes) {
+	private List<Coordinate> getAllPoints(List<Axis<?>> orderedAxes) {
 
 		if (axisValueSets.isEmpty()) {
 			return Collections.emptyList();
@@ -206,6 +208,9 @@ public class ParameterSpace implements Iterable<Coordinate> {
 		return StringUtils.join(axisValueSets.keySet(), ",");
 	}
 
+	/**
+	 * return the axis which has the most associated values
+	 */
 	public Axis<?> getLongestAxis() {
 		Axis<?> result = null;
 		for (Axis<?> axis : getAllAxes()) {
@@ -221,10 +226,16 @@ public class ParameterSpace implements Iterable<Coordinate> {
 		return (List<T>) axisValueSets.get(axis);
 	}
 
+	/**
+	 * get the number of values associated with an axis
+	 */
 	public int getAxisLength(Axis<?> axis) {
 		return getValues(axis).size();
 	}
 
+	/**
+	 * return all points surrounding a given coordinate
+	 */
 	@SuppressWarnings("unchecked")
 	public List<Coordinate> getNeighbors(Coordinate middle) {
 		List<Coordinate> result = new ArrayList<Coordinate>();

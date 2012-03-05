@@ -10,7 +10,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.ClockType;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.MemoryOperation;
@@ -72,11 +71,8 @@ public class MemoryMeasurementController implements IMeasurementController {
 
 		space.add(bufferSizeAxis, 1024L * 1024L);
 
-		for (Coordinate coordinate : space.getAllPoints(space
-				.getAllAxesWithLeastSignificantAxes(optimizationAxis,
-						MemoryKernel.memoryOperationAxis, iterationsAxis
-
-				))) {
+		for (Coordinate coordinate : space.getAllPoints(null, optimizationAxis,
+				MemoryKernel.memoryOperationAxis, iterationsAxis)) {
 			MemoryKernel kernel = new MemoryKernel();
 
 			//kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
@@ -92,9 +88,10 @@ public class MemoryMeasurementController implements IMeasurementController {
 							MemoryTransferBorder.LlcRam);
 
 			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
-					coordinate.toString(MemoryKernel.memoryOperationAxis, bufferSizeAxis,
-							dlpAxis, unrollAxis, prefetchDistanceAxis,
-							prefetchTypeAxis), throughput, transferredBytes);
+					coordinate.toString(MemoryKernel.memoryOperationAxis,
+							bufferSizeAxis, dlpAxis, unrollAxis,
+							prefetchDistanceAxis, prefetchTypeAxis),
+					throughput, transferredBytes);
 		}
 	}
 }

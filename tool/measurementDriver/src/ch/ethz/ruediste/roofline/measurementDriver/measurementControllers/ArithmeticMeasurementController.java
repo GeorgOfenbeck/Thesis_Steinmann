@@ -12,7 +12,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementContr
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
@@ -74,11 +73,11 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		space.add(arithBalancedMultiplicationsAxis, 1);
 
 		log.debug("starting space exploration");
-		for (Coordinate coordinate : space.getAllPoints(space
-				.getAllAxesWithLeastSignificantAxes(ArithmeticKernel.arithmeticOperationAxis,
-						dlpAxis, unrollAxis, iterationsAxis
+		for (Coordinate coordinate : space.getAllPoints(null,
+				ArithmeticKernel.arithmeticOperationAxis, dlpAxis, unrollAxis,
+				iterationsAxis
 
-				))) {
+		)) {
 			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);
