@@ -91,7 +91,7 @@ public class ValidateTimeMeasurementController extends
 					coordinate, expected);*/
 			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
 				Time actual = calc.getResult(Collections
-						.singletonList(runOutput.getMeasurerOutput(measurer)));
+						.singletonList(runOutput.getMeasurerOutputUntyped(measurer)));
 
 				plotValues.addValue(kernelNames.get(kernel), (long) kernel
 						.getExpectedOperationCount().getValue(), actual
@@ -174,7 +174,7 @@ public class ValidateTimeMeasurementController extends
 					coordinate, expected);*/
 			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
 				Time actual = calc.getResult(Collections
-						.singletonList(runOutput.getMeasurerOutput(measurer)));
+						.singletonList(runOutput.getMeasurerOutputUntyped(measurer)));
 
 				plotValues.addValue(kernelNames.get(kernel), (long) kernel
 						.getExpectedTransferredBytes().getValue(), actual

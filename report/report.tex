@@ -974,19 +974,26 @@ and the measurement results are stored therein. Before a measurement is
 performed, the hash value is computed. If a corresponding file is found, the
 previous measurement results are reused.
 
-\subsubsection{Identifiying Measurers and Measurer Sets}
-When processing the results of one or multiple measurements, on often has to
-identify which result was generated from which measurer. The straight forward
-approach would be to give each measurer an unique id, and to store the id of the
-measurer with the measurer output. Measurers are newly created with each
-invocation of the measurement driver, possibly leading to new ids. But for
-caching, the id of the measurers does not matter.
+\subsubsection{Retrieving Outputs}
+To process the results of a measurement, one frequently is interested in the
+output of a specific measurer. 
+
+The straight forward approach would be to give each measurer an unique id, and
+to store the id of the measurer with the measurer output. Measurers are newly
+created with each invocation of the measurement driver, possibly leading to new
+ids. But for caching, the ids of the measurers does not matter.
 
 To overcome these problems, two ids are generated for each measurer. One
 identifier uniquely identifying each instantiated measurer. And an id which is
 unique within one measurement. When loading a result from cache, the unique
 identifiers of the loaded result are set to the identifiers of the measurement
 at hand.
+
+To retrieve the output of a measurer, the \class{MeasurementResult} and
+the \class{MeasurementRunOutput} provide several methods which take a measurer
+as argument and return it's output.
+
+\umlDiagram{measurementDriver/RetrievingOutputs}
 
 \subsubsection{Parameter Space}
 

@@ -187,7 +187,7 @@ public class ValidateTransferredBytesMeasurementController extends
 					coordinate, expected);*/
 			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
 				TransferredBytes actual = calc.getResult(Collections
-						.singletonList(runOutput.getMeasurerOutput(measurer)));
+						.singletonList(runOutput.getMeasurerOutputUntyped(measurer)));
 				double ratio = actual.getValue() / expected.getValue();
 				//System.out.printf("%s -> %g\n", actual, ratio);
 
