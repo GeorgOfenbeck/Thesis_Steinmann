@@ -5,21 +5,24 @@ import java.util.Map.Entry;
 
 import com.google.inject.Singleton;
 
+/**
+ * Maps configuration keys to values. Can be nested using parent configurations
+ */
 @Singleton
 public class Configuration {
 	final private Object unset = new Object();
 	final private Stack<HashMap<ConfigurationKeyBase, Object>> oldValuesStack = new Stack<HashMap<ConfigurationKeyBase, Object>>();
 	final private HashMap<ConfigurationKeyBase, Object> data = new HashMap<ConfigurationKeyBase, Object>();
 
-	private Configuration defaultConfiguration;
+	private Configuration parentConfiguration;
 
 	public Object getUntyped(ConfigurationKeyBase key) {
 		if (data.containsKey(key)) {
 			return data.get(key);
 		}
 
-		if (defaultConfiguration != null) {
-			return defaultConfiguration.getUntyped(key);
+		if (parentConfiguration != null) {
+			return parentConfiguration.getUntyped(key);
 		}
 
 		return key.getDefaultValue();
@@ -39,16 +42,16 @@ public class Configuration {
 	}
 
 	/**
-	 * Set the default configuration. If a key is not found within this
-	 * configuration and a default configuration is present, the default
+	 * Set the parent configuration. If a key is not found within this
+	 * configuration and a parent configuration is present, the parent
 	 * configuration is searched for the key (recursively)
 	 */
-	public void setDefaultConfiguration(Configuration configuration) {
-		this.defaultConfiguration = configuration;
+	public void setParentConfiguration(Configuration configuration) {
+		this.parentConfiguration = configuration;
 	}
 
-	public Configuration getDefaultConfiguration() {
-		return defaultConfiguration;
+	public Configuration getParentConfiguration() {
+		return parentConfiguration;
 	}
 
 	public void parseAndSet(ConfigurationKeyBase key, String value) {

@@ -89,8 +89,8 @@ public class Main {
 		Configuration userConfiguration = new Configuration();
 
 		// wire configurations
-		configuration.setDefaultConfiguration(userConfiguration);
-		userConfiguration.setDefaultConfiguration(defaultConfiguration);
+		configuration.setParentConfiguration(userConfiguration);
+		userConfiguration.setParentConfiguration(defaultConfiguration);
 
 		// load default configuration
 		{
