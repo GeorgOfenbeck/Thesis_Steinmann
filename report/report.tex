@@ -855,8 +855,10 @@ configuration of the dependency injection. The conventions as well as optional
 exceptions are defined in the MainModule. 
 The conventions are:
 \begin{description}
-\item[Services] all classes in the services package are bound to themselves as
+\item[Services] all classes in the services packages are bound to themselves as
 singletons
+\item[Repositories] all classes in the repositories packages are bound to
+themselves as singletons
 \item[Application Controllers] all classes in the 'appControllers' package are
 bound to themselves as singletons
 \item[Measurement Series] all classes deriving form IMeasurementSeries in the
@@ -864,6 +866,9 @@ measurement series package are bound to the IMeasurementSeries interface
 annotated with their name
 \item[Commands] all classes deriving from ICommand in the commands package are
 bound to the ICommand interface annotated with their name
+\item[Measurement Controllers] all classes deriving from IMeasurementController
+in the measurement controller package are bound to the IMeasurementController
+interface annotated with their name
 \end{description}
 
 \subsubsection{Configuration}
@@ -876,8 +881,9 @@ configuration files
 \item supports user specific configuration
 \end{itemize}
 
-The central class of our solution is the configuration key. A configuration key
-contains a string key which identifies the configuration flag it represents. In
+\umlDiagram{measurementDriver/Configuration}
+The central class of our solution is the \class{ConfigurationKey}. A
+configuration key contains a string key which identifies the configuration flag it represents. In
 addition, it contains a description and the default value of the flag. It has a
 template parameter which defines the data type of the flag. This removes the
 necessity to use type casts when reading configuration flags. Configuration keys
@@ -885,8 +891,18 @@ should be stored in public static variables. The help command scans all classes
 of the measurement driver for such configuration keys and prints the key string
 and the description. After the configuration is loaded, it is checked if a
 configuration key is defined for each configuration flag specified. If a
-configuration key is missing (or more likely, a configuration flag has been
-misspelled in the configuration) an error is generated.
+configuration key for a flag is missing (or more likely, a configuration flag
+has been misspelled in the configuration) an error is generated.
+
+The values associated with configuration keys are stored in
+\class{Configuration}s. Configurations can be chained together using the parent
+links. If no value is found in a configuration or all of its ancestors, the
+default value stored in the configuration key is used. 
+
+The state of a configuration kan be saved on a stack using \method{push()} and
+restored using \method{pop()}. All modifications to a configuration after a push
+are undone by the pop. This can be used to temporarily change the
+configuration.
 
 The following paragraphs describe the sources of configuration flag definitions
 in order of decreasing precedence. 

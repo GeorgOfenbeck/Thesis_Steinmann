@@ -33,14 +33,6 @@ public class Configuration {
 		return (T) getUntyped((ConfigurationKeyBase) key);
 	}
 
-	public <T> Iterable<T> get(ConfigurationKey<T>... keys) {
-		ArrayList<T> result = new ArrayList<T>();
-		for (ConfigurationKey<T> key : keys) {
-			result.add(get(key));
-		}
-		return result;
-	}
-
 	/**
 	 * Set the parent configuration. If a key is not found within this
 	 * configuration and a parent configuration is present, the parent
@@ -59,16 +51,21 @@ public class Configuration {
 	}
 
 	public void setUntyped(ConfigurationKeyBase key, Object value) {
+		// check the data type of the provided value
 		if (value != null
 				&& !key.getValueType().isAssignableFrom(value.getClass())) {
 			throw new Error("wrong data type");
 		}
 
+		// is there an old value map?
 		if (!oldValuesStack.isEmpty()
+		// haven't we put an old value in the stack before?
 				&& !oldValuesStack.peek().containsKey(key)) {
+			// we have to keep the current value in the old value stack
 			if (data.containsKey(key))
 				oldValuesStack.peek().put(key, data.get(key));
 			else
+				// remember that there was no value
 				oldValuesStack.peek().put(key, unset);
 		}
 
