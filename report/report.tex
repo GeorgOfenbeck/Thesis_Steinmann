@@ -741,6 +741,127 @@ various tasks is collected using the \class{RuntimeMonitor}. At the end of the
 execution, the times spent for the tasks is printed to the console.
 
 
+\subsubsection{Dependency Injection Configuration}
+Generally, a convention over configuration approach was chosen for the
+configuration of the dependency injection. The conventions as well as optional
+exceptions are defined in the MainModule. 
+The conventions are:
+\begin{description}
+\item[Services] all classes in the services packages are bound to themselves as
+singletons
+\item[Repositories] all classes in the repositories packages are bound to
+themselves as singletons
+\item[Application Controllers] all classes in the 'appControllers' package are
+bound to themselves as singletons
+\item[Measurement Series] all classes deriving form IMeasurementSeries in the
+measurement series package are bound to the IMeasurementSeries interface
+annotated with their name
+\item[Commands] all classes deriving from ICommand in the commands package are
+bound to the ICommand interface annotated with their name
+\item[Measurement Controllers] all classes deriving from IMeasurementController
+in the measurement controller package are bound to the IMeasurementController
+interface annotated with their name
+\end{description}
+
+\subsubsection{Configuration}
+The design goal was to create a configuration system which
+\begin{itemize}
+\item allows to set configuration flags from the command line and from
+configuration files
+\item can manage some form of comment for the flags
+\item makes the available flags transparent
+\item supports user specific configuration
+\end{itemize}
+
+\umlDiagram{measurementDriver/Configuration}
+The central class of our solution is the \class{ConfigurationKey}. A
+configuration key contains a string key which identifies the configuration flag it represents. In
+addition, it contains a description and the default value of the flag. It has a
+template parameter which defines the data type of the flag. This removes the
+necessity to use type casts when reading configuration flags. Configuration keys
+should be stored in public static variables. The help command scans all classes
+of the measurement driver for such configuration keys and prints the key string
+and the description. After the configuration is loaded, it is checked if a
+configuration key is defined for each configuration flag specified. If a
+configuration key for a flag is missing (or more likely, a configuration flag
+has been misspelled in the configuration) an error is generated.
+
+The values associated with configuration keys are stored in
+\class{Configuration}s. Configurations can be chained together using the parent
+links. If no value is found in a configuration or all of its ancestors, the
+default value stored in the configuration key is used. 
+
+The state of a configuration kan be saved on a stack using \method{push()} and
+restored using \method{pop()}. All modifications to a configuration after a push
+are undone by the pop. This can be used to temporarily change the
+configuration.
+
+The following paragraphs describe the sources of configuration flag definitions
+in order of decreasing precedence. 
+
+The command line is scanned for arguments starting with a dash. Such arguments
+are expected to be in the form of "-$<$flag key$>$=$<$value$>$" and specifies
+that the configuration with the specified flag key should have the specified
+value. Configuration flag definitions on the command line have highest
+precedence.
+
+Next come two configuration files. They both have the same format: each line
+consists of the flag key, followed by an equal sign and the flag value. 
+
+The first file is the user configuration file. By default it is located under
+\textasciitilde/.roofline/config, but this can be changed using the
+"userConfigFile" configuration flag, in particular by overwriting the flag on
+the command line.
+
+The second file is the default configuration. It is located in the source code
+of the measurement driver, and can be loaded from the classpath. It contains
+some placeholders, which are expanded during the build process.
+
+Finally, the flag definitions with lowest precedence are the default values
+given in the configuration keys.
+
+\subsubsection{Auto Completion}
+
+\subsubsection{Commands}
+A command is represented by a class deriving from ICommandController and should
+be placed in the commands package. A command has a name and a description, which
+should be the return value of the getName() respectively getDescription()
+methods of the command. The measurement driver expects a command name as first
+argument. The name is matched against the names of all available commands. If a
+command matches, the execute() method of a new instance of the corresponding
+class is called with the remaining command line arguments as parameter.
+
+\subsubsection{Measurement Controllers}
+The operation of the measurement driver is controlled by the measurement
+controllers. They define which measurements to perform and how to process the
+output. The measure command instantiates a measurement controller and calls the
+measure() method.
+
+\subsubsection{Parameter Space}
+
+\subsubsection{Retrieving Outputs}
+To process the results of a measurement, one frequently is interested in the
+output of a specific measurer. 
+
+The straight forward approach would be to give each measurer an unique id, and
+to store the id of the measurer with the measurer output. Measurers are newly
+created with each invocation of the measurement driver, possibly leading to new
+ids. But for caching, the ids of the measurers does not matter.
+
+To overcome these problems, two ids are generated for each measurer. One
+identifier uniquely identifying each instantiated measurer. And an id which is
+unique within one measurement. When loading a result from cache, the unique
+identifiers of the loaded result are set to the identifiers of the measurement
+at hand.
+
+To retrieve the output of a measurer, the \class{MeasurementResult} and
+the \class{MeasurementRunOutput} provide several methods which take a measurer
+as argument and return it's output.
+
+\umlDiagram{measurementDriver/RetrievingOutputs}
+
+\subsubsection{Plotting}
+
 \subsubsection{The MeasurementAppController}
 The measurement application controller is the entry point for performing
 measurements. It is the sole client to the \class{MeasuringCoreService}, which
@@ -840,93 +961,14 @@ controller. Therefore the service ultimately forwards all calls to
 \umlDiagram{measurementDriver/measureCallLift}
 
 
-\subsubsection{Commands}
-A command is represented by a class deriving from ICommandController and should
-be placed in the commands package. A command has a name and a description, which
-should be the return value of the getName() respectively getDescription()
-methods of the command. The measurement driver expects a command name as first
-argument. The name is matched against the names of all available commands. If a
-command matches, the execute() method of a new instance of the corresponding
-class is called with the remaining command line arguments as parameter.
-
-\subsubsection{Dependency Injection Configuration}
-Generally, a convention over configuration approach was chosen for the
-configuration of the dependency injection. The conventions as well as optional
-exceptions are defined in the MainModule. 
-The conventions are:
-\begin{description}
-\item[Services] all classes in the services packages are bound to themselves as
-singletons
-\item[Repositories] all classes in the repositories packages are bound to
-themselves as singletons
-\item[Application Controllers] all classes in the 'appControllers' package are
-bound to themselves as singletons
-\item[Measurement Series] all classes deriving form IMeasurementSeries in the
-measurement series package are bound to the IMeasurementSeries interface
-annotated with their name
-\item[Commands] all classes deriving from ICommand in the commands package are
-bound to the ICommand interface annotated with their name
-\item[Measurement Controllers] all classes deriving from IMeasurementController
-in the measurement controller package are bound to the IMeasurementController
-interface annotated with their name
-\end{description}
-
-\subsubsection{Configuration}
-The design goal was to create a configuration system which
-\begin{itemize}
-\item allows to set configuration flags from the command line and from
-configuration files
-\item can manage some form of comment for the flags
-\item makes the available flags transparent
-\item supports user specific configuration
-\end{itemize}
-
-\umlDiagram{measurementDriver/Configuration}
-The central class of our solution is the \class{ConfigurationKey}. A
-configuration key contains a string key which identifies the configuration flag it represents. In
-addition, it contains a description and the default value of the flag. It has a
-template parameter which defines the data type of the flag. This removes the
-necessity to use type casts when reading configuration flags. Configuration keys
-should be stored in public static variables. The help command scans all classes
-of the measurement driver for such configuration keys and prints the key string
-and the description. After the configuration is loaded, it is checked if a
-configuration key is defined for each configuration flag specified. If a
-configuration key for a flag is missing (or more likely, a configuration flag
-has been misspelled in the configuration) an error is generated.
-
-The values associated with configuration keys are stored in
-\class{Configuration}s. Configurations can be chained together using the parent
-links. If no value is found in a configuration or all of its ancestors, the
-default value stored in the configuration key is used. 
-
-The state of a configuration kan be saved on a stack using \method{push()} and
-restored using \method{pop()}. All modifications to a configuration after a push
-are undone by the pop. This can be used to temporarily change the
-configuration.
-
-The following paragraphs describe the sources of configuration flag definitions
-in order of decreasing precedence. 
-
-The command line is scanned for arguments starting with a dash. Such arguments
-are expected to be in the form of "-$<$flag key$>$=$<$value$>$" and specifies
-that the configuration with the specified flag key should have the specified
-value. Configuration flag definitions on the command line have highest
-precedence.
-
-Next come two configuration files. They both have the same format: each line
-consists of the flag key, followed by an equal sign and the flag value. 
-
-The first file is the user configuration file. By default it is located under
-\textasciitilde/.roofline/config, but this can be changed using the
-"userConfigFile" configuration flag, in particular by overwriting the flag on
-the command line.
-
-The second file is the default configuration. It is located in the source code
-of the measurement driver, and can be loaded from the classpath. It contains
-some placeholders, which are expanded during the build process.
-
-Finally, the flag definitions with lowest precedence are the default values
-given in the configuration keys.
+\subsubsection{Architecture Specific Behavior}
+The measurement driver supports multiple system architectures. Whenever
+architecture dependent code is required, it must be factored out into
+strategies. Since we expect the strategies to be tightly coupled with the
+calling code, the strategies for all architectures are defined right where they
+are needed. The other option would be to try to define some general strategies.
+Rules are used for pattern selection. These rules are reused throughout the
+driver.
 
 \subsubsection{Preprocessor Macros}
 Preprocessor macros are used to allow flexible compile time parameterization of
@@ -950,12 +992,6 @@ found, an error is raised.
 
 \umlDiagram{measurementDriver/MacroDefinitions}
 
-\subsubsection{Measurement Controllers}
-The operation of the measurement driver is controlled by the measurement
-controllers. They define which measurements to perform and how to process the
-output. The measure command instantiates a measurement controller and calls the
-measure() method.
-
 \subsubsection{Measurement Result Caching}
 The measurement controllers mix the definition of the measurement parameters and
 the processing of the output. Thus, if the output processing logic needs to be
@@ -973,42 +1009,6 @@ after the hash value of the measurement description of the measurement is create
 and the measurement results are stored therein. Before a measurement is
 performed, the hash value is computed. If a corresponding file is found, the
 previous measurement results are reused.
-
-\subsubsection{Retrieving Outputs}
-To process the results of a measurement, one frequently is interested in the
-output of a specific measurer. 
-
-The straight forward approach would be to give each measurer an unique id, and
-to store the id of the measurer with the measurer output. Measurers are newly
-created with each invocation of the measurement driver, possibly leading to new
-ids. But for caching, the ids of the measurers does not matter.
-
-To overcome these problems, two ids are generated for each measurer. One
-identifier uniquely identifying each instantiated measurer. And an id which is
-unique within one measurement. When loading a result from cache, the unique
-identifiers of the loaded result are set to the identifiers of the measurement
-at hand.
-
-To retrieve the output of a measurer, the \class{MeasurementResult} and
-the \class{MeasurementRunOutput} provide several methods which take a measurer
-as argument and return it's output.
-
-\umlDiagram{measurementDriver/RetrievingOutputs}
-
-\subsubsection{Parameter Space}
-
-\subsubsection{Auto Completion}
-
-\subsubsection{Plotting}
-
-\subsubsection{Architecture Specific Behavior}
-The measurement driver supports multiple system architectures. Whenever
-architecture dependent code is required, it must be factored out into
-strategies. Since we expect the strategies to be tightly coupled with the
-calling code, the strategies for all architectures are defined right where they
-are needed. The other option would be to try to define some general strategies.
-Rules are used for pattern selection. These rules are reused throughout the
-driver.
 
 \subsection{Measuring Core}
 The central classes of the Measuring Core are the measurement scheme, the kernel
