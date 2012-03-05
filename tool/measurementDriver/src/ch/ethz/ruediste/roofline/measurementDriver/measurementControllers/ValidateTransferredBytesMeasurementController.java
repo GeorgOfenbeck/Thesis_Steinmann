@@ -21,6 +21,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.RunQuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -151,7 +152,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		plotError.setTitle("Memory Error").setLog().setxLabel("expMemTransfer")
 				.setxUnit("bytes")
 				.setyLabel("err(actualMemTransfer/expMemTransfer)")
-				.setyUnit("\\%");
+				.setyUnit("%");
 
 		SeriesPlot plotMinValues = new SeriesPlot();
 		plotMinValues.setOutputName(outputName + "MinValues");
@@ -165,7 +166,13 @@ public class ValidateTransferredBytesMeasurementController extends
 		plotMinError.setTitle("Memory Min Error").setLog()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("err(min(actualMemTransfer)/expMemTransfer)")
-				.setyUnit("\\%");
+				.setyUnit("%");
+
+		DistributionPlot plotInterrupts = new DistributionPlot();
+		plotInterrupts.setOutputName(outputName + "Interrupts");
+		plotInterrupts.setTitle("Memory Interrupts").setLogX(true)
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("# interrupts").setyUnit("1");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -177,9 +184,13 @@ public class ValidateTransferredBytesMeasurementController extends
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
 
+			// get the calculator for the interrupts
+			QuantityCalculator<Interrupts> interrupts = quantityMeasuringService
+					.getInterruptsCalculator();
+
 			// run the measurement
 			QuantityMap result = quantityMeasuringService.measureQuantities(
-					kernel, calc);
+					kernel, calc, interrupts);
 
 			// get the expected number of bytes transferred
 			TransferredBytes expected = kernel.getExpectedTransferredBytes();
@@ -187,7 +198,9 @@ public class ValidateTransferredBytesMeasurementController extends
 			// print results to console and fill plot
 			/*System.out.printf("%s %s: expected: %s\n", kernelNames.get(kernel),
 					coordinate, expected);*/
-			for (TransferredBytes actual : result.get(calc)) {
+			for (RunQuantityMap runMap : result.getRunMaps()) {
+				TransferredBytes actual = runMap.get(calc);
+
 				double ratio = actual.getValue() / expected.getValue();
 				//System.out.printf("%s -> %g\n", actual, ratio);
 
@@ -199,6 +212,9 @@ public class ValidateTransferredBytesMeasurementController extends
 				plotError.addValue(kernelNames.get(kernel),
 						(long) expected.getValue(), toError(ratio));
 
+				plotInterrupts.addValue(kernelNames.get(kernel),
+						(long) expected.getValue(), runMap.get(interrupts)
+								.getValue());
 			}
 		}
 
@@ -220,6 +236,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		plotService.plot(plotValues);
 		plotService.plot(plotMinError);
 		plotService.plot(plotMinValues);
+		plotService.plot(plotInterrupts);
 	}
 
 }

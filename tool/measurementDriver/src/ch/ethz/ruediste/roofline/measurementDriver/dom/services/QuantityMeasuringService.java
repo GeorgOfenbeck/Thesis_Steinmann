@@ -324,6 +324,17 @@ public class QuantityMeasuringService {
 		throw new Error("should not happen");
 	}
 
+	public class RunQuantityMap extends
+			HashMap<QuantityCalculator<?>, Quantity<?>> {
+		private static final long serialVersionUID = 1L;
+
+		@SuppressWarnings("unchecked")
+		public <T extends Quantity<T>> T get(QuantityCalculator<T> calc) {
+			T result;
+			return (T) super.get(calc);
+		}
+	}
+
 	public class QuantityMap extends
 			HashMap<QuantityCalculator<?>, List<Quantity<?>>> {
 		private static final long serialVersionUID = 2631443018184961723L;
@@ -340,6 +351,36 @@ public class QuantityMeasuringService {
 
 		public <T extends Quantity<T>> T min(QuantityCalculator<T> calc) {
 			return IterableUtils.min(get(calc), Quantity.<T> lessThan());
+		}
+
+		/**
+		 * return a RunQuantityMap for each run
+		 */
+		public List<RunQuantityMap> getRunMaps() {
+			ArrayList<RunQuantityMap> result = new ArrayList<QuantityMeasuringService.RunQuantityMap>();
+
+			boolean found = true;
+			int idx = 0;
+
+			while (found) {
+				found = false;
+				RunQuantityMap map = new RunQuantityMap();
+				// iterate over all entries
+				for (java.util.Map.Entry<QuantityCalculator<?>, List<Quantity<?>>> entry : entrySet()) {
+					// is there a value for the current index?
+					if (idx < entry.getValue().size()) {
+						found = true;
+						map.put(entry.getKey(), entry.getValue().get(idx));
+					}
+				}
+
+				if (found)
+					result.add(map);
+
+				idx++;
+			}
+
+			return result;
 		}
 
 	}
