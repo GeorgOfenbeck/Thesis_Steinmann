@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
  */
 public class ParameterSpace implements Iterable<Coordinate> {
 
-	private final Map<Axis<?>, List<Object>> axisValueSets = new TreeMap<Axis<?>, List<Object>>();
+	private final Map<Axis<?>, List<Object>> axisValueSets = new LinkedHashMap<Axis<?>, List<Object>>();
 
 	/**
 	 * Add a value to an axis
