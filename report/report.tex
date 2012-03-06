@@ -1000,13 +1000,15 @@ controller. Therefore the service ultimately forwards all calls to
 
 
 \subsubsection{Architecture Specific Behavior}
-The measurement driver supports multiple system architectures. Whenever
-architecture dependent code is required, it must be factored out into
-strategies. Since we expect the strategies to be tightly coupled with the
-calling code, the strategies for all architectures are defined right where they
-are needed. The other option would be to try to define some general strategies.
-Rules are used for pattern selection. These rules are reused throughout the
-driver.
+The measurement driver supports multiple system architectures. Currently, the
+system architecture is identified by the available PMUs. When a performance
+event is to be read, a list with the event for each architecture is passed to
+the \method{getAvailableEvent()} method of the \class{SystemInfoService}. The
+method returns the available event. In other cases, the presence of a PMU is
+checked directly.
+
+For further development, it might become beneficial to use the specification
+pattern. 
 
 \subsubsection{Preprocessor Macros}
 Preprocessor macros are used to allow flexible compile time parameterization of

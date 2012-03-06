@@ -75,11 +75,10 @@ public class SystemInfoService {
 	 * @return
 	 */
 	public PmuDescription getPresentPMU(final String pmuName) {
-		return IterableUtils.singleOrDefault(getAllPmus(),
+		return IterableUtils.singleOrDefault(getPresentPmus(),
 				new IUnaryPredicate<PmuDescription>() {
 					public Boolean apply(PmuDescription pmu) {
-						return pmu.getIsPresent()
-								&& pmu.getPmuName().equals(pmuName);
+						return pmu.getPmuName().equals(pmuName);
 					}
 				});
 	}
