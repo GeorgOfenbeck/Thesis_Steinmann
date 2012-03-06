@@ -838,15 +838,53 @@ output. The measure command instantiates a measurement controller and calls the
 measure() method.
 
 \subsubsection{Parameter Space}
+When implementing measurement controllers, one often has to iterate over all
+possible combinations of some parameters. The \class{ParameterSpace} was
+designed to support this. 
+
+Every parameter is identified by an \class{Axis}. For
+each axis, one or multiple values are specified. After the desired values are
+specified, all possible parameter combinations can be generated, represented by
+\class{Coordinate} objects. The points are generated implicitely when iterating
+over the space.
+
+Example:
+\begin{lstlisting}[language=Java]
+space.add(systemLoadAxis, SystemLoad.Idle);
+space.add(systemLoadAxis, SystemLoad.DiskOther);
+space.add(systemLoadAxis, SystemLoad.DiskAll);
+space.add(systemLoadAxis, SystemLoad.AddOther);
+space.add(systemLoadAxis, SystemLoad.AddAll);
+
+space.add(clockTypeAxis, ClockType.CoreCycles);
+space.add(clockTypeAxis, ClockType.ReferenceCycles);
+space.add(clockTypeAxis, ClockType.uSecs);
+
+for (Coordinate coordinate : space) {
+
+	ClockType clockType 
+		= coordinate.get(clockTypeAxis);
+	SystemLoad systemLoad 
+		= coordinate.get(systemLoadAxis);
+	...
+}			
+\end{lstlisting}
+
+To faciliate the initialization of measurements, the classes of the measurement
+description have an \method{intialize()} method which takes a coordinate as
+parameter. Depending on the kernel or measurer at hand, some fields are
+set to the value of an axis given by the coordinate.
+
+The most common axes are defined in the \class{Axes} class.
 
 \subsubsection{Retrieving Outputs}
-To process the results of a measurement, one frequently is interested in the
-output of a specific measurer. 
+To process the results of a measurement, it is frequently necessary to
+retrieve the output of a specific measurer. 
 
 The straight forward approach would be to give each measurer an unique id, and
 to store the id of the measurer with the measurer output. Measurers are newly
 created with each invocation of the measurement driver, possibly leading to new
-ids. But for caching, the ids of the measurers does not matter.
+ids. But for caching, the ids of the measurers do not matter.
 
 To overcome these problems, two ids are generated for each measurer. One
 identifier uniquely identifying each instantiated measurer. And an id which is
