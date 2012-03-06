@@ -5,14 +5,13 @@ import java.io.IOException;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.RooflineService.PeakAlgorithm;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -30,7 +29,7 @@ public class RooflineController {
 	@Inject
 	PlotService plotService;
 
-	private RooflinePlot plot = new RooflinePlot();
+	private final RooflinePlot plot = new RooflinePlot();
 
 	private ClockType clockType = ClockType.CoreCycles;
 
@@ -147,11 +146,19 @@ public class RooflineController {
 	public void addDefaultPeaks() {
 		addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
 		addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
+		/*addPeakPerformance("MUL", PeakAlgorithm.ArithBalanced,
+				InstructionSet.SSE);*/
+		plot.addPeakPerformance("Balanced", new Performance(4));
 
 		addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 				MemoryTransferBorder.LlcRam);
 
 		addPeakThroughput("MemRandom", PeakAlgorithm.RandomLoad,
 				MemoryTransferBorder.LlcRam);
+	}
+
+	public void setOutputName(String outputName) {
+		plot.setOutputName(outputName);
+
 	}
 }

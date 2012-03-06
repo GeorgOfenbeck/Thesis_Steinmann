@@ -36,6 +36,7 @@ public class Measurement extends MeasurementData {
 	 * not defined in this measurement description, return the default
 	 * definition. If contradicting definitions are found, raise an error
 	 */
+	@Override
 	public String getMacroDefinition(MacroKey key) {
 		List<String> availableDefinitions = new ArrayList<String>();
 
@@ -81,7 +82,7 @@ public class Measurement extends MeasurementData {
 	}
 
 	public Iterable<KernelBase> getKernels() {
-		ArrayList<KernelBase> result = new ArrayList<KernelBase>();
+		HashSet<KernelBase> result = new HashSet<KernelBase>();
 		for (Workload workload : getWorkloads()) {
 			if (workload.getKernel() != null) {
 				result.add(workload.getKernel());

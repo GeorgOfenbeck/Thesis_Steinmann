@@ -37,6 +37,7 @@ public class MMMMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Matrix-Matrix-Multiplication");
+		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
 		addSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_TripleLoop,
@@ -62,8 +63,8 @@ public class MMMMeasurementController implements IMeasurementController {
 				}
 				else {
 					configuration
-							.set(QuantityMeasuringService.numberOfMeasurementsKey,
-									1);
+					.set(QuantityMeasuringService.numberOfMeasurementsKey,
+							1);
 				}
 
 				MMMKernel kernel = new MMMKernel();
@@ -136,8 +137,8 @@ public class MMMMeasurementController implements IMeasurementController {
 				}
 				else {
 					configuration
-							.set(QuantityMeasuringService.numberOfMeasurementsKey,
-									1);
+					.set(QuantityMeasuringService.numberOfMeasurementsKey,
+							1);
 				}
 				// skip large sizes for tripple loop
 				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TripleLoop
@@ -154,13 +155,13 @@ public class MMMMeasurementController implements IMeasurementController {
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					seriesName = "MMM-Mkl";
-				break;
+					break;
 				case MMMAlgorithm_Blas_Openblas:
 					seriesName = "MMM-OpenBlas";
-				break;
+					break;
 				case MMMAlgorithm_TripleLoop:
 					seriesName = "MMM-TripleLoop";
-				break;
+					break;
 				default:
 					throw new Error("Should not happen");
 
@@ -174,10 +175,10 @@ public class MMMMeasurementController implements IMeasurementController {
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					operation = Operation.DoublePrecisionFlop;
-				break;
+					break;
 				case MMMAlgorithm_Blas_Openblas:
 					operation = Operation.CompInstr;
-				break;
+					break;
 				}
 
 				rooflineController.addRooflinePoint(seriesName, label, kernel,

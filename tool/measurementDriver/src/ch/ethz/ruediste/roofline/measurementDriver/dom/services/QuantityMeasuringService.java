@@ -203,10 +203,12 @@ public class QuantityMeasuringService {
 						new AddingQuantityCalculator<TransferredBytes>(
 								createPerfEventQuantityCalculator(
 										TransferredBytes.class,
-										"coreduo::L2_LINES_IN:SELF"),
-								createPerfEventQuantityCalculator(
-										TransferredBytes.class,
-										"coreduo::L2_M_LINES_OUT:SELF")), 64);
+										"coreduo::L2_LINES_IN:SELF",
+										"core::L2_LINES_IN:SELF"),
+										createPerfEventQuantityCalculator(
+												TransferredBytes.class,
+												"coreduo::L2_M_LINES_OUT:SELF",
+												"core::L2_M_LINES_OUT:SELF")), 64);
 			}
 			else {
 				return new MultiplyingQuantityCalculator<TransferredBytes>(
@@ -287,7 +289,7 @@ public class QuantityMeasuringService {
 
 	public QuantityCalculator<Interrupts> getInterruptsCalculator() {
 		return createPerfEventQuantityCalculator(Interrupts.class,
-				"coreduo::HW_INT_RX");
+				"coreduo::HW_INT_RX", "core::HW_INT_RCV");
 	}
 
 	public Quantity<?> measure(KernelBase kernel, Coordinate measurementPoint) {
@@ -324,7 +326,7 @@ public class QuantityMeasuringService {
 	}
 
 	public class RunQuantityMap extends
-			HashMap<QuantityCalculator<?>, Quantity<?>> {
+	HashMap<QuantityCalculator<?>, Quantity<?>> {
 		private static final long serialVersionUID = 1L;
 
 		@SuppressWarnings("unchecked")
@@ -335,7 +337,7 @@ public class QuantityMeasuringService {
 	}
 
 	public class QuantityMap extends
-			HashMap<QuantityCalculator<?>, List<Quantity<?>>> {
+	HashMap<QuantityCalculator<?>, List<Quantity<?>>> {
 		private static final long serialVersionUID = 2631443018184961723L;
 
 		@SuppressWarnings("unchecked")
@@ -373,8 +375,9 @@ public class QuantityMeasuringService {
 					}
 				}
 
-				if (found)
+				if (found) {
 					result.add(map);
+				}
 
 				idx++;
 			}
@@ -389,7 +392,7 @@ public class QuantityMeasuringService {
 	}
 
 	public class ArgBuilderGetQuantities {
-		private ArrayList<Pair<String, QuantityCalculator<?>[]>> args = new ArrayList<Pair<String, QuantityCalculator<?>[]>>();
+		private final ArrayList<Pair<String, QuantityCalculator<?>[]>> args = new ArrayList<Pair<String, QuantityCalculator<?>[]>>();
 		IMeasurementBuilder measurementBuilder;
 		private final int numberOfMeasurements;
 
@@ -449,8 +452,9 @@ public class QuantityMeasuringService {
 						map.put(pair.getKey(), pair.getValue().get(idx));
 					}
 				}
-				if (anyAdded)
+				if (anyAdded) {
 					setsForMeasurements.add(map);
+				}
 				idx++;
 			}
 			while (anyAdded);

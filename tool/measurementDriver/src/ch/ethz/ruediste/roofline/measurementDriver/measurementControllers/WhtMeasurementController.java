@@ -4,9 +4,8 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.Operation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.WhtKernel;
 
@@ -30,6 +29,9 @@ public class WhtMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		rooflineController.addDefaultPeaks();
+		rooflineController.setTitle("WHT");
+		rooflineController.setOutputName(outputName);
+
 		for (int size = 5; size < 20; size++) {
 			WhtKernel kernel = new WhtKernel();
 			kernel.setBufferSizeExp(size);

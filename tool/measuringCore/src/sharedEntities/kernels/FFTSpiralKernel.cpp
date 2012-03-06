@@ -6,7 +6,7 @@
  */
 
 #include "FFTSpiralKernel.h"
-#include "spiralFFT/spiral_fft.h"
+#include "FFTSpiral/spiral_fft.h"
 #include <cmath>
 
 std::vector<std::pair<void*, long> > FFTSpiralKernel::getBuffers() {

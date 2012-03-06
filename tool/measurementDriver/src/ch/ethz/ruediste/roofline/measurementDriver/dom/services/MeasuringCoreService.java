@@ -183,6 +183,7 @@ public class MeasuringCoreService {
 
 		// collect kernel names
 		HashSet<String> kernelNames = new HashSet<String>();
+
 		for (KernelBase kernel : measurement.getKernels()) {
 			kernelNames.add(kernel.getName());
 		}
@@ -196,6 +197,17 @@ public class MeasuringCoreService {
 		return updatingStream.isWriting();
 
 	}
+
+	/*HashSet<KernelBase> getKernelIncludingBase(KernelBase kernel) {
+		HashSet<KernelBase> result = new HashSet<KernelBase>();
+		Class<?> current = kernel.getClass();
+
+		while (KernelBase.class.isAssignableFrom(current)) {
+			current = current.getSuperclass();
+		}
+
+		return result;
+	}*/
 
 	private boolean writePresentKernels(Measurement measurement,
 			File measuringCoreDir) throws FileNotFoundException {

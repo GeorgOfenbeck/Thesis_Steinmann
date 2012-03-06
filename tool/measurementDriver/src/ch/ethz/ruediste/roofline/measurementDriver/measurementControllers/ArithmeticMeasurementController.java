@@ -41,10 +41,10 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		log.trace("entering arithmetic measurement controller");
 
 		ParameterSpace space = new ParameterSpace();
-		space.add(iterationsAxis, 10000L);
-		// space.add(iterationsAxis, 100000L);
+		// space.add(iterationsAxis, 10000L);
+		space.add(iterationsAxis, 100000L);
 
-		//space.add(arithmeticOperationAxis,
+		//space.add(ArithmeticKernel.arithmeticOperationAxis,
 		//		ArithmeticOperation.ArithmeticOperation_ADD);
 		// space.add(operationAxis, ArithmeticOperation.ArithmeticOperation_MUL);
 		space.add(ArithmeticKernel.arithmeticOperationAxis,
@@ -53,9 +53,9 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		HashMap<InstructionSet, String> optimizationMap = new HashMap<InstructionSet, String>();
 		HashMap<InstructionSet, Operation> operationMap = new HashMap<InstructionSet, Operation>();
 
-		space.add(instructionSetAxis, InstructionSet.SSEScalar);
+		//space.add(instructionSetAxis, InstructionSet.SSEScalar);
 		optimizationMap
-				.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
+		.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
 		operationMap.put(InstructionSet.SSEScalar,
 				Operation.DoublePrecisionFlop);
 
@@ -63,13 +63,13 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		optimizationMap.put(InstructionSet.SSE, "-O3 -msse2");
 		operationMap.put(InstructionSet.SSE, Operation.DoublePrecisionFlop);
 
-		space.add(instructionSetAxis, InstructionSet.x87);
+		//space.add(instructionSetAxis, InstructionSet.x87);
 		optimizationMap.put(InstructionSet.x87, "-O3");
 		operationMap.put(InstructionSet.x87, Operation.CompInstr);
 
-		space.add(unrollAxis, 4);
-		space.add(dlpAxis, 3);
-		space.add(arithBalancedAdditionsAxis, 3);
+		space.add(unrollAxis, 7);
+		space.add(dlpAxis, 5);
+		space.add(arithBalancedAdditionsAxis, 1);
 		space.add(arithBalancedMultiplicationsAxis, 1);
 
 		log.debug("starting space exploration");
@@ -77,7 +77,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 				ArithmeticKernel.arithmeticOperationAxis, dlpAxis, unrollAxis,
 				iterationsAxis
 
-		)) {
+				)) {
 			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);

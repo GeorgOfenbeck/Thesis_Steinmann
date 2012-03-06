@@ -26,7 +26,7 @@ import ch.ethz.ruediste.roofline.sharedEntities.*;
 import com.google.inject.Inject;
 
 public class ValidateTransferredBytesMeasurementController extends
-		ValidationMeasurementControllerBase implements IMeasurementController {
+ValidationMeasurementControllerBase implements IMeasurementController {
 
 	public String getName() {
 		return "valTB";
@@ -61,7 +61,7 @@ public class ValidateTransferredBytesMeasurementController extends
 	}
 
 	public void measureArith(String outputName) throws ExecuteException,
-			IOException {
+	IOException {
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 		ParameterSpace space = new ParameterSpace();
 
@@ -70,15 +70,15 @@ public class ValidateTransferredBytesMeasurementController extends
 		// initialize plot
 		DistributionPlot plotTbValues = new DistributionPlot();
 		plotTbValues.setOutputName(outputName + "ArithTBValues")
-				.setTitle("Memory Transfer Values").setLog()
-				.setxLabel("expOperationCount").setxUnit("flop")
-				.setyLabel("actualMemTransfer").setyUnit("bytes");
+		.setTitle("Memory Transfer Values").setLog()
+		.setxLabel("expOperationCount").setxUnit("flop")
+		.setyLabel("actualMemTransfer").setyUnit("bytes");
 
 		DistributionPlot plotTimeValues = new DistributionPlot();
 		plotTimeValues.setOutputName(outputName + "ArithTimeValues")
-				.setTitle("Memory Execution Time Values").setLog()
-				.setxLabel("expOperationCount").setxUnit("flop")
-				.setyLabel("actualMemTransfer").setyUnit("bytes");
+		.setTitle("Memory Execution Time Values").setLog()
+		.setxLabel("expOperationCount").setxUnit("flop")
+		.setyLabel("executionTime").setyUnit("cycles");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -133,7 +133,7 @@ public class ValidateTransferredBytesMeasurementController extends
 	 * @throws IOException
 	 */
 	public void measureMem(String outputName) throws ExecuteException,
-			IOException {
+	IOException {
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 		ParameterSpace space = new ParameterSpace();
 
@@ -143,35 +143,35 @@ public class ValidateTransferredBytesMeasurementController extends
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "Values");
 		plotValues.setTitle("Memory Values").setLog()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("actualMemTransfer/expMemTransfer").setyUnit("1");
+		.setxLabel("expMemTransfer").setxUnit("bytes")
+		.setyLabel("actualMemTransfer/expMemTransfer").setyUnit("1");
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "Error");
 		plotError.setTitle("Memory Error").setLog().setxLabel("expMemTransfer")
-				.setxUnit("bytes")
-				.setyLabel("err(actualMemTransfer/expMemTransfer)")
-				.setyUnit("%");
+		.setxUnit("bytes")
+		.setyLabel("err(actualMemTransfer/expMemTransfer)")
+		.setyUnit("%");
 
 		SeriesPlot plotMinValues = new SeriesPlot();
 		plotMinValues.setOutputName(outputName + "MinValues");
 		plotMinValues.setTitle("Memory Min Values").setLog()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("min(actualMemTransfer)/expMemTransfer")
-				.setyUnit("1");
+		.setxLabel("expMemTransfer").setxUnit("bytes")
+		.setyLabel("min(actualMemTransfer)/expMemTransfer")
+		.setyUnit("1");
 
 		SeriesPlot plotMinError = new SeriesPlot();
 		plotMinError.setOutputName(outputName + "MinError");
 		plotMinError.setTitle("Memory Min Error").setLog()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("err(min(actualMemTransfer)/expMemTransfer)")
-				.setyUnit("%");
+		.setxLabel("expMemTransfer").setxUnit("bytes")
+		.setyLabel("err(min(actualMemTransfer)/expMemTransfer)")
+		.setyUnit("%");
 
 		DistributionPlot plotInterrupts = new DistributionPlot();
 		plotInterrupts.setOutputName(outputName + "Interrupts");
 		plotInterrupts.setTitle("Memory Interrupts").setLogX(true)
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("# interrupts").setyUnit("1");
+		.setxLabel("expMemTransfer").setxUnit("bytes")
+		.setyLabel("# interrupts").setyUnit("1");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -213,7 +213,7 @@ public class ValidateTransferredBytesMeasurementController extends
 
 				plotInterrupts.addValue(kernelNames.get(kernel),
 						(long) expected.getValue(), runMap.get(interrupts)
-								.getValue());
+						.getValue());
 			}
 		}
 

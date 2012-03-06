@@ -37,6 +37,7 @@ public class OverviewMeasurementController implements IMeasurementController {
 	@SuppressWarnings("unchecked")
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Overview");
+		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
 		daxpyMeasurementController.addPoints(rooflineController, true);

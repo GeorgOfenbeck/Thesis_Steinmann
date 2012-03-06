@@ -230,6 +230,8 @@ void ArithmeticKernel::run() {
 				double mulR[DLP * MULTIPLICATIONS];
 				double addR[DLP * ADDITIONS];
 				double t = 1.1;
+
+				// initialization
 				for (int i = 0; i < DLP; i++) {
 					for (int p = 0; p < MULTIPLICATIONS; p++) {
 						mulR[i * MULTIPLICATIONS + p] = t;
@@ -241,6 +243,7 @@ void ArithmeticKernel::run() {
 					}
 				}
 
+				// loop
 				for (long i = 0; i < iterations; i++) {
 					for (int p = 0; p < UNROLL; p++) {
 						for (int j = 0; j < DLP; j++) {

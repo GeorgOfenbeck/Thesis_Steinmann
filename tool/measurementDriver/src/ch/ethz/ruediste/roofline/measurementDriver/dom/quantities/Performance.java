@@ -9,7 +9,7 @@ public class Performance extends Quantity<Performance> {
 		super(operations.getValue() / time.getValue());
 	}
 
-	private Performance(double value) {
+	public Performance(double value) {
 		super(value);
 	}
 

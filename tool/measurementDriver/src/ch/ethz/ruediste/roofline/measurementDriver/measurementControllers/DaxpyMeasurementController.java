@@ -4,9 +4,7 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.Operation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.DaxpyKernel;
 
@@ -23,13 +21,11 @@ public class DaxpyMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	QuantityMeasuringService quantityMeasuringService;
-
-	@Inject
 	RooflineController rooflineController;
 
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Vector-Vector Multiplication");
+		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
 		addPoints(rooflineController, true);

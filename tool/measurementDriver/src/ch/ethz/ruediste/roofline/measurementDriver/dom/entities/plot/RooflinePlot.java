@@ -5,7 +5,6 @@ import java.util.*;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
@@ -75,10 +74,10 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 		return IterableUtils.select(getAllPoints(),
 				new IUnaryFunction<RooflinePoint, OperationalIntensity>() {
 
-					public OperationalIntensity apply(RooflinePoint arg) {
-						return arg.getOperationalIntensity();
-					}
-				});
+			public OperationalIntensity apply(RooflinePoint arg) {
+				return arg.getOperationalIntensity();
+			}
+		});
 	}
 
 	public Iterable<Performance> getPerformances() {
@@ -112,7 +111,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 					.getValue() * 2);
 		}
 		else {
-			return Range.between(0.03, 50.);
+			return Range.between(0.03, 100.);
 		}
 	}
 
@@ -127,7 +126,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 					performanceRange.getMaximum().getValue() * 2);
 		}
 		else {
-			return Range.between(0.03, 4.5);
+			return Range.between(0.03, 20.);
 
 		}
 	}

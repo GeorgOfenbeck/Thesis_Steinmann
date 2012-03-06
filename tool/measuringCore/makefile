@@ -39,7 +39,7 @@ sourcesToDeps=$(addprefix $(BUILD_DIR)/, $(addsuffix .d, $(basename $(1))))
 # search for the source files in the ./src directory. Filter out the ignored source files
 ALL_SOURCES=$(filter-out $(SOURCE_IGNORE_PATTERNS),$(shell find -L -name "*.cpp" \( -path "./src/*" -o -path "./generated/*" \) -print))
 
-ALL_KERNEL_SOURCES=$(filter ./src/sharedEntities/kernels/% ./generated/sharedEntities/kernels/%, $(ALL_SOURCES))
+ALL_KERNEL_SOURCES=$(filter-out %KernelBase.cpp, $(filter ./src/sharedEntities/kernels/% ./generated/sharedEntities/kernels/%, $(ALL_SOURCES)))
 
 # build the names of the source files for each named kernel
 $(foreach KERNEL_NAME,$(KERNEL_NAMES),$(eval KERNEL_SOURCES_$(KERNEL_NAME)=$(filter ./src/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./src/sharedEntities/kernels/$(KERNEL_NAME)/% ./generated/sharedEntities/kernels/$(KERNEL_NAME)Kernel.cpp ./generated/sharedEntities/kernels/$(KERNEL_NAME)/%, $(ALL_KERNEL_SOURCES))))
@@ -76,7 +76,7 @@ clean:
 	rm -rf $(BUILD_DIR)/
 	
 print: 
-	@echo $(CHILD_SOURCES)
+	@echo $(KERNEL_SOURCES_FFTSpiral)
 	
 generated/sharedEntities:
 	ln -s ../../sharedEntities/generatedC generated/sharedEntities
