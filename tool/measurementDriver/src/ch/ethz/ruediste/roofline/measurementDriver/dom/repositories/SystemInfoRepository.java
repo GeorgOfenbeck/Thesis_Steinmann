@@ -5,11 +5,12 @@ import java.util.*;
 
 import org.apache.log4j.Logger;
 
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.sharedEntities.measurers.PmuDescription;
 
 /**
- * Repository giving access to the descriptions of the Performance Measuring
- * Units (PMUs) available on the system
+ * Repository for caching information about the system. Should only be used by
+ * {@link SystemInfoService}
  */
 public class SystemInfoRepository {
 	private static Logger log = Logger.getLogger(SystemInfoRepository.class);

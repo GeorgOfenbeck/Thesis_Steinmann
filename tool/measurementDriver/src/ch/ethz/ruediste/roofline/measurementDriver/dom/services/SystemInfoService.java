@@ -16,6 +16,9 @@ import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 
 import com.google.inject.Inject;
 
+/**
+ * Service providing information about the system
+ */
 public class SystemInfoService {
 	private static Logger log = Logger.getLogger(SystemInfoService.class);
 
@@ -28,15 +31,24 @@ public class SystemInfoService {
 	@Inject
 	public Configuration configuration;
 
+	/**
+	 * Take a list of event and return the one available on the system
+	 */
 	public String getAvailableEvent(String... events) {
 		return IterableUtils.single(events, new IUnaryPredicate<String>() {
 			public Boolean apply(String event) {
+				// split the event name
 				String[] eventParts = event.split("::");
+
+				// check if the PMU specified in the event is present
 				return getPresentPMU(eventParts[0]) != null;
 			}
 		});
 	}
 
+	/**
+	 * return a list of all PMUs (even PMUs not present on the system)
+	 */
 	public List<PmuDescription> getAllPmus() {
 		if (systemInfoRepository.getAllPmus() == null) {
 			systemInfoRepository.setAllPmus(readPMUs(false));
@@ -44,6 +56,9 @@ public class SystemInfoService {
 		return systemInfoRepository.getAllPmus();
 	}
 
+	/**
+	 * Get a PMU description by name
+	 */
 	public PmuDescription getPMU(final String pmuName) {
 		return singleOrDefault(getAllPmus(),
 				new IUnaryPredicate<PmuDescription>() {
@@ -53,6 +68,12 @@ public class SystemInfoService {
 				});
 	}
 
+	/**
+	 * get the description of a present PMU by name
+	 * 
+	 * @param pmuName
+	 * @return
+	 */
 	public PmuDescription getPresentPMU(final String pmuName) {
 		return IterableUtils.singleOrDefault(getAllPmus(),
 				new IUnaryPredicate<PmuDescription>() {
@@ -63,11 +84,15 @@ public class SystemInfoService {
 				});
 	}
 
+	/**
+	 * read the PMU descriptions using the measuring core
+	 */
 	private List<PmuDescription> readPMUs(Boolean onlyPresent) {
-		// list all available performance counters
+		// setup measurer
 		ListEventsMeasurer measurer = new ListEventsMeasurer();
 		measurer.setOnlyPresent(onlyPresent);
 
+		// setup measurement
 		Measurement measurement = new Measurement();
 		Workload workload = new Workload();
 		measurement.addWorkload(workload);
@@ -86,12 +111,16 @@ public class SystemInfoService {
 		// restore configuration
 		configuration.pop();
 
+		// get the output of the measurer
 		ListEventsMeasurerOutput output = single(result
 				.getMeasurerOutputs(measurer));
 
 		return output.getPmus();
 	}
 
+	/**
+	 * return the list of present PMUs
+	 */
 	public Iterable<PmuDescription> getPresentPmus() {
 		// have the present pmus been accessed already?
 		if (systemInfoRepository.getPresentPmus() == null) {
@@ -116,6 +145,9 @@ public class SystemInfoService {
 		return systemInfoRepository.getPresentPmus();
 	}
 
+	/**
+	 * get the list of online CPUs
+	 */
 	public List<Integer> getOnlineCPUs() {
 		if (systemInfoRepository.getOnlineCPUs() == null) {
 			systemInfoRepository.setOnlineCPUs(readOnlineCPUs());
@@ -123,11 +155,15 @@ public class SystemInfoService {
 		return systemInfoRepository.getOnlineCPUs();
 	}
 
+	/**
+	 * Use the measuring core to read the online CPUs
+	 */
 	private List<Integer> readOnlineCPUs() {
-		// list all possible cpus
+		// setup measurer
 		FileMeasurer measurer = new FileMeasurer();
 		measurer.addFile("/sys/devices/system/cpu/online");
 
+		// setup measurement
 		Measurement measurement = new Measurement();
 		Workload workload = new Workload();
 		measurement.addWorkload(workload);
@@ -147,12 +183,19 @@ public class SystemInfoService {
 		// restore configuration
 		configuration.pop();
 
+		// retrieve output
 		FileMeasurerOutput output = single(result.getMeasurerOutputs(measurer));
-		return parseCpuList(single(output.getFileContentList())
-				.getStopContent().trim());
+		String fileContent = single(output.getFileContentList())
+				.getStopContent().trim();
+
+		return parseCpuList(fileContent);
 
 	}
 
+	/**
+	 * Parse a list of CPU numbers. The entries are separated by commas, with
+	 * optional ranges. Example: 1,3,4-7,10 results in 1,3,4,5,6,7,10
+	 */
 	private List<Integer> parseCpuList(String list) {
 		List<Integer> result = new ArrayList<Integer>();
 		log.debug("parsing CPU list " + list);
