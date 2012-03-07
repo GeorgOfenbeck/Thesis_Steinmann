@@ -155,10 +155,14 @@ Specially for short running kernels, the initial state of the cache can have a
 big impact on the memory traffic and execution time. [?] The impact can be
 controlled by making sure the caches are either warm or cold.
 
-To get a cold cache, a memory block with a larger size than the last level cache
-should be accessed directly before executing the kernel. This causes all cache
-lines containing data of the working set to be evicted. In a similar manner,
-enough code should be executed to clear the L1 code cache.
+Getting cold caches can be quite tricky. See
+\cite{Whaley:2008:AAC:1462062.1462065} section '3.
+CACHE FLUSHING METHODS WHEN TIMING ONE INVOCATION' for details.
+
+For our tool, we chose a combined approach. We access a large memory buffer,
+execute more than 32KB code to flush the L1 code cache. In addition, the kernels
+report the buffers they allocated and the clflush instruction is executed on
+them.
 
 To get a warm cache, the kernel is usually executed once before starting the
 measurement. This causes the working set to be loaded in the caches, if it fits,
@@ -197,26 +201,27 @@ through the sys file system. The tool offers the possibility to set the
 governor. In addition, it is possible to read the current frequency. If the
 frequency changes during a measurement, this is recored as well.
 
+\section{Single Threaded Validation and Reproducibility}
+To validate the results of single threaded measurements, and to evaluate the
+reproducibility, we designed three groups of measurements. Each group is focused
+on one specific quantity, namely time, transferred bytes and operation count. We
+measured on an idle system only. All measurements are executed with cold caches.
+
+\subsection{Time}
+\subsection{Transferred Bytes}
+\subsection{Operation Count}
+
 \section{Measurement Tool Architecture}
-Performing measurements requires a kernel, a measurer and a measurement scheme.
-The kernel contains the code to be measured and can be either custom code or a
-wrapper around existing code. The measurer is responsible for the actual
-measuring and produces an output. The measurement scheme finally controls the
-kernel and the measurer. The three parts together form the Measuring Core.
-
-We decided that the Measuring Core should be implemented in the C++ language. To
-simplify development and maintenance, we tried to keep the amount of C++ code as
-small as possible. The rest is written in Java.
-
-To allow all possible optimizations, it must be possible to pass compile time
-arguments to the Measuring Core and recompile for each measurement.
-
-\subsection{Component Collaboration}
 The tool consists of two main components: The Measuring Core, which performs the
 actual measurements, and the Measurement Driver, which controls the core.
 
-A measurement is controlled by a measurement specific routine (one per
-measurement), which iterates through all parameter points to be examined,
+High performance code is generally written in C or C++. Therefore the core is
+written in that language. To simplify development and maintenance, we tried to
+keep the amount of C++ code as small as possible. Therefore the measurement
+driver is written in Java.
+
+A measurement is controlled by a measurement specific
+routine (one per measurement), which iterates through all parameter points to be examined,
 compiles and starts the Measuring Core and processes the results. This should
 result in straight forward code for controlling the measurements and, since the
 control code is written in Java, a minimal amount of new concepts has to be
@@ -237,6 +242,7 @@ files of a measurement are placed in the current working directory.
 
 \umlDiagram{ToolComponents}
 
+\subsection{Component Collaboration}
 Data transfer between the measuring core and the measurement driver is achieved
 using serialized objects stored in files. Classes of these objects are
 used both from C++ and Java and therefore shared entities. They
@@ -1051,12 +1057,8 @@ performed, the hash value is computed. If a corresponding file is found, the
 previous measurement results are reused.
 
 \subsection{Measuring Core}
-The central classes of the Measuring Core are the measurement scheme, the kernel
-and the measurer. The MeasurementScheme has template
-arguments for the kernel and the measurer type. The scheme contains nested
-instances of the kernel and the measurer. This avoids polymorphic calls and
-allows the compiler to fully optimize the measure function of the measurer,
-including inlining methods of the kernel and the measurer.
+The measuring core is based on the object graph constructed by the driver. The
+classes are extended with code and data.
 
 \subsubsection{Core Architecture}
 To fully utilize multi core systems, applications have to be implemented with
