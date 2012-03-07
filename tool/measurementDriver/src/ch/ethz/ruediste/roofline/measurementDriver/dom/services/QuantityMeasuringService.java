@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.CpuType;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
@@ -156,7 +157,7 @@ public class QuantityMeasuringService {
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
 					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE");
 
-			if (systemInfoService.getPresentPMU("coreduo") != null) {
+			if (systemInfoService.getCpuType() == CpuType.Yonah) {
 				// the PACKED_DOUBLE counter is buggy on the core duo and includes
 				// the SCALAR_DOUBLE events as well. Compensate
 
@@ -205,10 +206,10 @@ public class QuantityMeasuringService {
 										TransferredBytes.class,
 										"coreduo::L2_LINES_IN:SELF",
 										"core::L2_LINES_IN:SELF"),
-										createPerfEventQuantityCalculator(
-												TransferredBytes.class,
-												"coreduo::L2_M_LINES_OUT:SELF",
-												"core::L2_M_LINES_OUT:SELF")), 64);
+								createPerfEventQuantityCalculator(
+										TransferredBytes.class,
+										"coreduo::L2_M_LINES_OUT:SELF",
+										"core::L2_M_LINES_OUT:SELF")), 64);
 			}
 			else {
 				return new MultiplyingQuantityCalculator<TransferredBytes>(
@@ -326,7 +327,7 @@ public class QuantityMeasuringService {
 	}
 
 	public class RunQuantityMap extends
-	HashMap<QuantityCalculator<?>, Quantity<?>> {
+			HashMap<QuantityCalculator<?>, Quantity<?>> {
 		private static final long serialVersionUID = 1L;
 
 		@SuppressWarnings("unchecked")
@@ -337,7 +338,7 @@ public class QuantityMeasuringService {
 	}
 
 	public class QuantityMap extends
-	HashMap<QuantityCalculator<?>, List<Quantity<?>>> {
+			HashMap<QuantityCalculator<?>, List<Quantity<?>>> {
 		private static final long serialVersionUID = 2631443018184961723L;
 
 		@SuppressWarnings("unchecked")
