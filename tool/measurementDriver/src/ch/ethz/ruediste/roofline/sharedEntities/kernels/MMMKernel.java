@@ -9,7 +9,7 @@ public class MMMKernel extends MMMKernelData {
 			"MMMAlgorithm_TripleLoop");
 
 	public enum MMMAlgorithm {
-		MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blas_Openblas, MMMAlgorithm_Blas_Mkl
+		MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blocked_Restrict, MMMAlgorithm_Blas_Openblas, MMMAlgorithm_Blas_Mkl
 	}
 
 	@Override

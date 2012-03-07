@@ -40,11 +40,13 @@ public class MMMMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
-		addSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_TripleLoop,
+		/*addSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_TripleLoop,
 				MMMAlgorithm.MMMAlgorithm_Blas_Openblas,
-				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
+				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);*/
 
-		addBlockedSeries(rooflineController);
+		addBlockedSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_Blocked);
+		addBlockedSeries(rooflineController,
+				MMMAlgorithm.MMMAlgorithm_Blocked_Restrict);
 
 		rooflineController.plot();
 	}
@@ -52,7 +54,8 @@ public class MMMMeasurementController implements IMeasurementController {
 	/**
 	 * @param rooflineController
 	 */
-	public void addBlockedSeries(RooflineController rooflineController) {
+	public void addBlockedSeries(RooflineController rooflineController,
+			MMMAlgorithm algorithm) {
 		{
 			configuration.push();
 			for (long i = 100; i <= 1200; i += 100) {
@@ -63,8 +66,8 @@ public class MMMMeasurementController implements IMeasurementController {
 				}
 				else {
 					configuration
-					.set(QuantityMeasuringService.numberOfMeasurementsKey,
-							1);
+							.set(QuantityMeasuringService.numberOfMeasurementsKey,
+									1);
 				}
 
 				MMMKernel kernel = new MMMKernel();
@@ -74,7 +77,7 @@ public class MMMMeasurementController implements IMeasurementController {
 				kernel.setKu(2);
 				kernel.setNb(50);
 				kernel.setNoCheck(true);
-				kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blocked);
+				kernel.setAlgorithm(algorithm);
 				kernel.setOptimization("-O3");
 
 				String label = Long.toString(i);
@@ -82,8 +85,11 @@ public class MMMMeasurementController implements IMeasurementController {
 
 				Operation operation = Operation.CompInstr;
 
-				rooflineController.addRooflinePoint("MMM-Blocked", label,
-						kernel, operation, MemoryTransferBorder.LlcRam);
+				rooflineController
+						.addRooflinePoint(
+								algorithm == MMMAlgorithm.MMMAlgorithm_Blocked_Restrict ? "MMM-Blocked-Restrict"
+										: "MMM-Blocked", label, kernel,
+								operation, MemoryTransferBorder.LlcRam);
 
 				/*Performance performance = quantityMeasuringService
 				.measurePerformance(kernel, operation, ClockType.CoreCycles);
@@ -137,8 +143,8 @@ public class MMMMeasurementController implements IMeasurementController {
 				}
 				else {
 					configuration
-					.set(QuantityMeasuringService.numberOfMeasurementsKey,
-							1);
+							.set(QuantityMeasuringService.numberOfMeasurementsKey,
+									1);
 				}
 				// skip large sizes for tripple loop
 				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TripleLoop
@@ -155,13 +161,13 @@ public class MMMMeasurementController implements IMeasurementController {
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					seriesName = "MMM-Mkl";
-					break;
+				break;
 				case MMMAlgorithm_Blas_Openblas:
 					seriesName = "MMM-OpenBlas";
-					break;
+				break;
 				case MMMAlgorithm_TripleLoop:
 					seriesName = "MMM-TripleLoop";
-					break;
+				break;
 				default:
 					throw new Error("Should not happen");
 
@@ -175,10 +181,10 @@ public class MMMMeasurementController implements IMeasurementController {
 				switch (coordinate.get(algorithmAxis)) {
 				case MMMAlgorithm_Blas_Mkl:
 					operation = Operation.DoublePrecisionFlop;
-					break;
+				break;
 				case MMMAlgorithm_Blas_Openblas:
 					operation = Operation.CompInstr;
-					break;
+				break;
 				}
 
 				rooflineController.addRooflinePoint(seriesName, label, kernel,

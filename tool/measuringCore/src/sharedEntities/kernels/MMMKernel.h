@@ -23,6 +23,7 @@
 enum MMMAlgorithm {
 	MMMAlgorithm_TripleLoop,
 	MMMAlgorithm_Blocked,
+	MMMAlgorithm_Blocked_Restrict,
 	MMMAlgorithm_Blas_Openblas,
 	MMMAlgorithm_Blas_Mkl,
 };
@@ -38,7 +39,13 @@ class MMMKernel: public MMMKernelData {
 					c[i * size + j] += a[i * size + k] * b[k * size + j];
 	}
 
-	void blocked(double *a, double *b, double *c) {
+#ifdef RMT_MMM_Algorithm__MMMAlgorithm_Blocked
+	void blocked(double* a, double* b, double* c) {
+#endif
+#ifdef RMT_MMM_Algorithm__MMMAlgorithm_Blocked_Restrict
+	void blocked(double* __restrict__ a, double* __restrict__ b, double* __restrict__ c) {
+#endif
+#if RMT_MMM_Algorithm__MMMAlgorithm_Blocked || RMT_MMM_Algorithm__MMMAlgorithm_Blocked_Restrict
 		long size = getMatrixSize();
 		for (long i = 0; i < size; i += Nb)
 			for (long j = 0; j < size; j += Nb)
@@ -56,6 +63,7 @@ class MMMKernel: public MMMKernelData {
 													+ kdd]
 													* b[kdd * size + jdd];
 	}
+#endif
 
 	void blas(double *a, double *b, double *c);
 protected:
@@ -65,13 +73,14 @@ public:
 
 	void initialize();
 	void run() {
-		if (RMT_MMM_Algorithm == MMMAlgorithm_TripleLoop) {
+#ifdef  RMT_MMM_Algorithm__MMMAlgorithm_TripleLoop
 			tripleLoop(a, b, c);
-		}
+#endif
 
-		if (RMT_MMM_Algorithm == MMMAlgorithm_Blocked) {
+#if RMT_MMM_Algorithm__MMMAlgorithm_Blocked || RMT_MMM_Algorithm__MMMAlgorithm_Blocked_Restrict
 			blocked(a, b, c);
-		}
+#endif
+
 		if (RMT_MMM_Algorithm == MMMAlgorithm_Blas_Mkl) {
 			blas(a, b, c);
 		}
