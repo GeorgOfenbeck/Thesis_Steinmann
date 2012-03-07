@@ -70,6 +70,8 @@ public class Main {
 	 * The main method as instance method, which can use dependency injection
 	 */
 	private void mainInst(String args[]) throws IOException {
+		Instantiator.instance = instantiator;
+
 		/*
 		 * System.err.println(args.length); for (String arg : args) {
 		 * System.err.println(arg); }

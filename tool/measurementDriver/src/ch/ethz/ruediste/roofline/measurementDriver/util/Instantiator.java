@@ -13,6 +13,12 @@ import com.google.inject.*;
  */
 @Singleton
 public class Instantiator {
+	/**
+	 * this field is provided to allow access to the dependency injection
+	 * framework from everywhere
+	 */
+	public static Instantiator instance;
+
 	private Injector injector;
 
 	/**
