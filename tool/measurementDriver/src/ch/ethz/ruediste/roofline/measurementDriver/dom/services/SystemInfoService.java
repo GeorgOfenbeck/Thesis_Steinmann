@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.CpuType;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.repositories.SystemInfoRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
@@ -219,5 +220,17 @@ public class SystemInfoService {
 		}
 
 		return result;
+	}
+
+	public boolean isPMUPresent(String pmuName) {
+		return getPMU(pmuName) != null;
+	}
+
+	public CpuType getCpuType() {
+		if (isPMUPresent("core"))
+			return CpuType.Core;
+		if (isPMUPresent("coreduo"))
+			return CpuType.Yonah;
+		throw new Error("CPU not supported");
 	}
 }
