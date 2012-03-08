@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.SeriesPlot.SeriesPlotSeries;
@@ -151,10 +150,10 @@ public class PlotService {
 
 		output.printf("set xrange [%s:%s]\n",
 				xMin == Double.NEGATIVE_INFINITY ? "" : xMin,
-						xMax == Double.POSITIVE_INFINITY ? "" : xMax);
+				xMax == Double.POSITIVE_INFINITY ? "" : xMax);
 		output.printf("set yrange [%s:%s]\n",
 				yMin == Double.NEGATIVE_INFINITY ? "" : yMin,
-						yMax == Double.POSITIVE_INFINITY ? "" : yMax);
+				yMax == Double.POSITIVE_INFINITY ? "" : yMax);
 
 		output.printf("set xlabel '%s [%s]' font 'Gill Sans, 6'\n",
 				plot.getxLabel(), plot.getxUnit());
@@ -163,7 +162,7 @@ public class PlotService {
 	}
 
 	public void plot(DistributionPlot plot) throws ExecuteException,
-	IOException {
+			IOException {
 
 		log.debug(String
 				.format("entering plot(DistributionPlot) for plot %s. output name is %s",
@@ -202,17 +201,17 @@ public class PlotService {
 				DistributionPlotSeries series = allSeries.get(seriesNr);
 
 				plotLines
-				.add(String
-						.format("'%s.data' index %d using 1:2:3:4:5 notitle  with candlesticks whiskerbars lw 4 lc rgb\"%s\"",
-								plot.getOutputName(), seriesNr,
-								getLineColor(seriesNr)));
+						.add(String
+								.format("'%s.data' index %d using 1:2:3:4:5 notitle  with candlesticks whiskerbars lw 4 lc rgb\"%s\"",
+										plot.getOutputName(), seriesNr,
+										getLineColor(seriesNr)));
 				plotLines
-				.add(String
-						.format("'%s.data' index %d using 1:6 title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
-								plot.getOutputName(), seriesNr,
-								series.getName(),
-								getPointType(seriesNr),
-								getLineColor(seriesNr)));
+						.add(String
+								.format("'%s.data' index %d using 1:6 title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
+										plot.getOutputName(), seriesNr,
+										series.getName(),
+										getPointType(seriesNr),
+										getLineColor(seriesNr)));
 			}
 
 			output.println("plot \\");
@@ -254,12 +253,13 @@ public class PlotService {
 			for (int seriesNr = 0; seriesNr < allSeries.size(); seriesNr++) {
 				SeriesPlotSeries series = allSeries.get(seriesNr);
 
-				plotLines.add(String.format(
-						"'%s.data' index %d title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
-						plot.getOutputName(), seriesNr,
-						series.getName(),
-						getPointType(seriesNr),
-						getLineColor(seriesNr)));
+				plotLines
+						.add(String
+								.format("'%s.data' index %d title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
+										plot.getOutputName(), seriesNr,
+										series.getName(),
+										getPointType(seriesNr),
+										getLineColor(seriesNr)));
 			}
 
 			output.println("plot \\");
@@ -314,8 +314,8 @@ public class PlotService {
 			for (Pair<String, Performance> peak : order(
 					plot.getPeakPerformances(),
 					BinaryPredicates
-					.<String, Performance> pairRightComparator(Quantity
-							.<Performance> moreThan()))) {
+							.<String, Performance> pairRightComparator(Quantity
+									.<Performance> moreThan()))) {
 				// set the default color
 				String lineColor = "rgb\"#B0B0B0\"";
 				if (first) {
@@ -334,15 +334,15 @@ public class PlotService {
 				output.printf(
 						"set label '%s (%.2g F/C)' at graph 1,first %e right offset 0,graph 0.015\n",
 						peak.getLeft(), peak.getRight().getValue(), peak
-						.getRight().getValue());
+								.getRight().getValue());
 			}
 
 			// build the peak bandwidth lines
 			first = true;
 			for (Pair<String, Throughput> peak : order(plot.getPeakBandwiths(),
 					BinaryPredicates
-					.<String, Throughput> pairRightComparator(Quantity
-							.<Throughput> moreThan()))) {
+							.<String, Throughput> pairRightComparator(Quantity
+									.<Throughput> moreThan()))) {
 				// set the default color
 				String lineColor = "rgb\"#B0B0B0\"";
 				if (first) {
@@ -353,7 +353,7 @@ public class PlotService {
 
 				plotLines.add(String.format(
 						"%e*x notitle with lines lc %s lw 6", peak.getRight()
-						.getValue(), lineColor));
+								.getValue(), lineColor));
 			}
 
 			// calculate the angle of the memory border lines
@@ -402,11 +402,11 @@ public class PlotService {
 				RooflineSeries series = allSeries.get(i);
 
 				plotLines
-				.add(String
-						.format("'%s.data' index %d title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
-								plot.getOutputName(), i,
-								series.getName(), getPointType(i),
-								getLineColor(i)));
+						.add(String
+								.format("'%s.data' index %d title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
+										plot.getOutputName(), i,
+										series.getName(), getPointType(i),
+										getLineColor(i)));
 
 				// add label for the first and the last point
 				printLabel(output, first(series.getPoints()));
