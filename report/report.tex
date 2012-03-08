@@ -16,21 +16,41 @@
 	\includegraphics[width=\imgwidth]{out/diagrams/#1.pdf}%
 }\vskip0.5cm}
 
-\newcommand{\graph}[1]{%
-	\settowidth{\imgwidth}{\includegraphics{graphs/#1.pdf}}%
-	\setlength{\imgleftoverhang}{0.1\textwidth}%
-	\setlength{\imgwidth}{1.1765\textwidth}%
-	\par\vskip0.5cm\noindent\hskip-\imgleftoverhang%
-	\hskip-0.1in\includegraphics[width=\imgwidth]{graphs/#1.pdf}%
-	\vskip0.5cm}
-
 \newcommand{\umlFloat}[2]{
-\begin{figure}[tbh]
+\begin{figure}[htbp]
 \umlDiagram{#1}
 \caption{#2}
 \label{#1}
 \end{figure}
 }
+
+\newcommand{\graphNoVskip}[1]{%
+	\settowidth{\imgwidth}{\includegraphics{graphs/#1.pdf}}%
+	\setlength{\imgleftoverhang}{0.1\textwidth}%
+	\setlength{\imgwidth}{1.1765\textwidth}%
+	\hfuzz50pt%
+	\noindent\hskip-\imgleftoverhang%
+	\hskip-0.1in\includegraphics[width=\imgwidth]{graphs/#1.pdf}%
+	\hfuzz0.1pt}
+	
+\newcommand{\graph}[1]{%
+	\par\vskip0.5cm%
+	\graphNoVskip{#1}
+	\vskip0.5cm}
+
+\newcommand{\graphFloat}[2]{
+\begin{figure}[tbh]
+\hfuzz50pt
+\graphNoVskip{#1}
+\vskip-0.5cm
+\caption{#2}
+\label{#1}
+\hfuzz0.1pt
+\end{figure}
+}
+
+\renewcommand{\floatpagefraction}{0.5}
+\renewcommand{\dblfloatpagefraction}{0.5}
 
 \newcommand{\umlFloatCap}[3]{
 \begin{figure}[tbh]
@@ -219,16 +239,25 @@ measured on an idle system only. All measurements are executed with cold caches.
 In each group, we measured with the following kernels:
 \begin{description}
 \item[ADD] Repeat adding a constant to an accumulator. Everything is performed
-in registers.
-\item[Read]  
-\item[Write]
-\item[Triad]
+in registers. We use multiple accumulators and unroll the loop. 
+\item[Read] Read a buffer from memory
+\item[Write] Overwrite a buffer in memory
+\item[Triad] Perform $a_i=b_i+k*c_i$. This involves reading $a$, $b$ and $c$ and
+writing $a$ back.
 \end{description}
+
+
 \subsection{Time}
 
-\graph{yonah/valTimeArithValues}
-\graph{yonah/dgemv}
+\graphFloat{yonah/valTimeArithValues}{Execution Time of the ADD kernel}
+\graphFloat{yonah/valTimeArithError}{Error of the Execution Time of the ADD
+kernel}
+\graphFloat{yonah/valTimeMemValues}{Execution Time of the memory kernels}
+\graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the memory
+kernels}
 
+\graphFloat{yonah/dgemv}{bar}
+\clearpage
 \subsection{Transferred Bytes}
 \subsection{Operation Count}
 

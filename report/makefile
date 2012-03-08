@@ -25,7 +25,7 @@ out:
 	mkdir out/diagrams
 
 report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES) $(GRAPHS)
-	rot measure -checkCore report
+	cd graphs && rot measure -checkCore report
 	(($(LATEX) $(FLAGS) report.tex \
 	&& bibtex report.aux \
 	&& $(LATEX) $(FLAGS) report.tex \

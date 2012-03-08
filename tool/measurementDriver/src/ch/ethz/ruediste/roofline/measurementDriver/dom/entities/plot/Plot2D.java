@@ -102,7 +102,8 @@ public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
 		return keyPosition;
 	}
 
-	public void setKeyPosition(KeyPosition keyPosition) {
+	public T setKeyPosition(KeyPosition keyPosition) {
 		this.keyPosition = keyPosition;
+		return This();
 	}
 }

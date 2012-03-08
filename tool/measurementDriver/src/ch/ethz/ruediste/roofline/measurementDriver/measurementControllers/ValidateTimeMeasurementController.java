@@ -101,8 +101,8 @@ public class ValidateTimeMeasurementController extends
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "ArithError")
 				.setTitle("Time Error").setLogX().setxLabel("expOpCount")
-				.setxUnit("opreations").setyLabel("err(cycles/median(cycles))")
-				.setyUnit("%");
+				.setKeyPosition(KeyPosition.TopRight).setxUnit("operations")
+				.setyLabel("err(cycles/min(cycles))").setyUnit("%");
 
 		SeriesPlot plotMinValues = new SeriesPlot();
 		plotMinValues.setOutputName(outputName + "ArithMinValues")
@@ -116,11 +116,11 @@ public class ValidateTimeMeasurementController extends
 				plotMinValues.setValue(series.getName(), entry.getKey(), entry
 						.getValue().getMin());
 
-				double median = entry.getValue().getPercentile(50);
+				double min = entry.getValue().getMin();
 
 				for (double value : entry.getValue().getValues()) {
 					plotError.addValue(series.getName(), entry.getKey(),
-							toError(value / median));
+							toError(value / min));
 				}
 			}
 		}
@@ -185,7 +185,7 @@ public class ValidateTimeMeasurementController extends
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "MemError");
 		plotError.setTitle("Time Error").setLogX().setxLabel("expMemTransfer")
-				.setxUnit("bytes").setyLabel("err(time/median(time))")
+				.setxUnit("bytes").setyLabel("err(time/min(time))")
 				.setyUnit("\\%");
 
 		SeriesPlot plotMinValues = new SeriesPlot();
@@ -198,14 +198,13 @@ public class ValidateTimeMeasurementController extends
 			for (Entry<Long, DescriptiveStatistics> entry : series
 					.getStatisticsMap().entrySet()) {
 
-				plotMinValues.setValue(series.getName(), entry.getKey(), entry
-						.getValue().getMin());
+				double min = entry.getValue().getMin();
 
-				double median = entry.getValue().getPercentile(50);
+				plotMinValues.setValue(series.getName(), entry.getKey(), min);
 
 				for (double value : entry.getValue().getValues()) {
 					plotError.addValue(series.getName(), entry.getKey(),
-							toError(value / median));
+							toError(value / min));
 				}
 			}
 		}

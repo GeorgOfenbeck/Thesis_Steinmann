@@ -25,8 +25,8 @@ import com.google.inject.Inject;
 public class PlotService {
 	private final static Logger log = Logger.getLogger(PlotService.class);
 
-	private static final int plotWidth = 14;
-	private static final int plotHeight = (int) (plotWidth / 28. * 18.);
+	private static final double plotWidth = 14;
+	private static final double plotHeight = plotWidth * 17. / 28.;
 
 	private static double bMargin = 0.1;
 	private static double tMargin = 0.93;
@@ -106,7 +106,7 @@ public class PlotService {
 	private void preparePlot(PrintStream output, Plot<?> plot) {
 		// set the output
 		output.printf(
-				"set terminal pdf color size %dcm,%dcm font 'Gill Sans, 4'\n",
+				"set terminal pdf color size %ecm,%ecm font 'Gill Sans, 4'\n",
 				plotWidth, plotHeight);
 		output.printf("set output '%s.pdf'\n", plot.getOutputName());
 
