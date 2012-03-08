@@ -38,7 +38,7 @@ public class DaxpyMeasurementController implements IMeasurementController {
 	 * @param useMkl
 	 */
 	public void addPoints(RooflineController rooflineController, boolean useMkl) {
-		for (long vectorSize = 400; vectorSize < 5000; vectorSize += 100) {
+		for (long vectorSize = 500; vectorSize <= 20000; vectorSize += 500) {
 			DaxpyKernel kernel = new DaxpyKernel();
 			kernel.setOptimization("-O3");
 			kernel.setVectorSize(vectorSize);

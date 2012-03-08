@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
@@ -27,6 +28,9 @@ public class DgemvMeasurementController implements IMeasurementController {
 	@Inject
 	RooflineController rooflineController;
 
+	@Inject
+	Configuration configuration;
+
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Matrix-Vector Multiplication");
 		rooflineController.setOutputName(outputName);
@@ -43,7 +47,16 @@ public class DgemvMeasurementController implements IMeasurementController {
 	 */
 	public void addRooflinePoints(RooflineController rooflineController,
 			boolean useMkl) {
-		for (long matrixSize = 100; matrixSize < 2000; matrixSize += 100) {
+		configuration.push();
+		for (long matrixSize = 500; matrixSize <= 10000; matrixSize += 500) {
+			if (matrixSize > 2000) {
+				configuration.set(
+						QuantityMeasuringService.numberOfMeasurementsKey, 1);
+			}
+			else {
+				configuration.set(
+						QuantityMeasuringService.numberOfMeasurementsKey, 10);
+			}
 			DgemvKernel kernel = new DgemvKernel();
 			kernel.setOptimization("-O3");
 			kernel.setMatrixSize(matrixSize);
@@ -52,9 +65,9 @@ public class DgemvMeasurementController implements IMeasurementController {
 			rooflineController.addRooflinePoint(useMkl ? "MVM-Mkl"
 					: "MVM-OpenBlas", Long.toString(matrixSize), kernel,
 					useMkl ? Operation.DoublePrecisionFlop
-							: Operation.DoublePrecisionFlop,
-							MemoryTransferBorder.LlcRam);
+							: Operation.CompInstr, MemoryTransferBorder.LlcRam);
 		}
+		configuration.pop();
 	}
 
 }
