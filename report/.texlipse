@@ -1,12 +1,12 @@
 #TeXlipse project settings
-#Wed Feb 29 09:00:58 CET 2012
+#Thu Mar 08 08:52:32 CET 2012
 markTmpDer=true
 builderNum=2
 outputDir=
 makeIndSty=
 bibrefDir=
 outputFormat=pdf
-tempDir=out
+tempDir=
 mainTexFile=report.tex
 outputFile=report.pdf
 langSpell=en

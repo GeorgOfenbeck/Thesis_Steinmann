@@ -5,7 +5,9 @@ sourcesToImages=$(addprefix out/, $(addsuffix .pdf, $(basename $(1))))
 DIAGRAM_SOURCES=$(shell find -L -name "*.uxf" \( -path "./diagrams/*" \) -print)
 DIAGRAM_IMAGES=$(call sourcesToImages, $(DIAGRAM_SOURCES))
 
-LATEX=cd out && pdflatex
+GRAPHS=$(shell find -L -name "*.pdf" \( -path "./graphs/*" \) -print)
+
+LATEX=pdflatex
 FLAGS=-interaction=nonstopmode
 
 .PHONY: report clean quick
@@ -15,21 +17,18 @@ clean:
 	rm -rf out
 
 quick: 
-	$(LATEX) $(FLAGS) ../report.tex
+	$(LATEX) $(FLAGS) report.tex
 	cp out/report.pdf report.pdf
 
 out:
 	mkdir out
 	mkdir out/diagrams
 
-report.pdf: out/report.pdf
-	cp out/report.pdf report.pdf
-
-out/report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES)
-	$(LATEX) $(FLAGS) ../report.tex
-	bibtex out/report.aux 
-	$(LATEX) $(FLAGS) ../report.tex
-	$(LATEX) $(FLAGS) ../report.tex
+report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES) $(GRAPHS)
+	(($(LATEX) $(FLAGS) report.tex \
+	&& bibtex report.aux \
+	&& $(LATEX) $(FLAGS) report.tex \
+	&& $(LATEX) $(FLAGS) report.tex) || rm report.pdf)
 	
 out/%.pdf: %.uxf
 	mkdir mkdir -p $(dir $@)

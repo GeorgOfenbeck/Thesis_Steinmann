@@ -9,10 +9,17 @@
 \usepackage{graphicx} 
 \newlength{\imgwidth}
 \newcommand{\umlDiagram}[1]{%
-	\settowidth{\imgwidth}{\includegraphics{diagrams/#1.pdf}}%
+	\settowidth{\imgwidth}{\includegraphics{out/diagrams/#1.pdf}}%
 	\setlength{\imgwidth}{\minof{0.5\imgwidth}{\textwidth}}%
 	\par\vskip0.5cm\noindent\makebox[\textwidth][c]{%
-	\includegraphics[width=\imgwidth]{diagrams/#1.pdf}%
+	\includegraphics[width=\imgwidth]{out/diagrams/#1.pdf}%
+}\vskip0.5cm}
+
+\newcommand{\graph}[1]{%
+	\settowidth{\imgwidth}{\includegraphics{graphs/#1.pdf}}%
+	\setlength{\imgwidth}{\minof{\imgwidth}{\textwidth}}%
+	\par\vskip0.5cm\noindent\makebox[\textwidth][c]{%
+	\includegraphics[width=\imgwidth]{graphs/#1.pdf}%
 }\vskip0.5cm}
 
 \newcommand{\umlFloat}[2]{
@@ -207,7 +214,19 @@ reproducibility, we designed three groups of measurements. Each group is focused
 on one specific quantity, namely time, transferred bytes and operation count. We
 measured on an idle system only. All measurements are executed with cold caches.
 
+In each group, we measured with the following kernels:
+\begin{description}
+\item[ADD] Repeat adding a constant to an accumulator. Everything is performed
+in registers.
+\item[Read]  
+\item[Write]
+\item[Triad]
+\end{description}
 \subsection{Time}
+
+\graph{yonah/valTimeArithValues}
+\graph{dgemv}
+
 \subsection{Transferred Bytes}
 \subsection{Operation Count}
 
