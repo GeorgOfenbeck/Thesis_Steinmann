@@ -6,6 +6,7 @@ import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
 public class RooflinePlot extends Plot2D<RooflinePlot> {
@@ -74,10 +75,10 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 		return IterableUtils.select(getAllPoints(),
 				new IUnaryFunction<RooflinePoint, OperationalIntensity>() {
 
-			public OperationalIntensity apply(RooflinePoint arg) {
-				return arg.getOperationalIntensity();
-			}
-		});
+					public OperationalIntensity apply(RooflinePoint arg) {
+						return arg.getOperationalIntensity();
+					}
+				});
 	}
 
 	public Iterable<Performance> getPerformances() {
@@ -111,7 +112,14 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 					.getValue() * 2);
 		}
 		else {
-			return Range.between(0.03, 100.);
+			switch (Instantiator.instance.getInstance(SystemInfoService.class)
+					.getCpuType()) {
+			case Core:
+				return Range.between(0.03, 100.);
+			case Yonah:
+				return Range.between(0.03, 50.);
+			}
+			throw new Error("Cpu Type not supported");
 		}
 	}
 
@@ -126,8 +134,14 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 					performanceRange.getMaximum().getValue() * 2);
 		}
 		else {
-			return Range.between(0.03, 20.);
-
+			switch (Instantiator.instance.getInstance(SystemInfoService.class)
+					.getCpuType()) {
+			case Core:
+				return Range.between(0.03, 20.);
+			case Yonah:
+				return Range.between(0.03, 4.5);
+			}
+			throw new Error("Cpu Type not supported");
 		}
 	}
 
