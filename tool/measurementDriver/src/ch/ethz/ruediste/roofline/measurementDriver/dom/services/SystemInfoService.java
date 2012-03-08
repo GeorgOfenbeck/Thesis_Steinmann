@@ -223,14 +223,17 @@ public class SystemInfoService {
 	}
 
 	public boolean isPMUPresent(String pmuName) {
-		return getPMU(pmuName) != null;
+		return getPresentPMU(pmuName) != null;
 	}
 
 	public CpuType getCpuType() {
+
 		if (isPMUPresent("core"))
 			return CpuType.Core;
+
 		if (isPMUPresent("coreduo"))
 			return CpuType.Yonah;
+
 		throw new Error("CPU not supported");
 	}
 }

@@ -29,6 +29,9 @@ public class RooflineController {
 	@Inject
 	PlotService plotService;
 
+	@Inject
+	SystemInfoService systemInfoService;
+
 	private final RooflinePlot plot = new RooflinePlot();
 
 	private ClockType clockType = ClockType.CoreCycles;
@@ -144,16 +147,23 @@ public class RooflineController {
 	}
 
 	public void addDefaultPeaks() {
-		addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
-		addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
-		/*addPeakPerformance("MUL", PeakAlgorithm.ArithBalanced,
-				InstructionSet.SSE);*/
-		plot.addPeakPerformance("Balanced", new Performance(4));
+
+		switch (systemInfoService.getCpuType()) {
+		case Core:
+			plot.addPeakPerformance("Balanced SSE", new Performance(4));
+			plot.addPeakPerformance("Balanced Scalar", new Performance(2));
+		break;
+		case Yonah:
+			plot.addPeakPerformance("Balanced", new Performance(1.5));
+			addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
+			addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
+		break;
+		}
 
 		addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 				MemoryTransferBorder.LlcRam);
 
-		addPeakThroughput("MemRandom", PeakAlgorithm.RandomLoad,
+		addPeakThroughput("MemRand", PeakAlgorithm.RandomLoad,
 				MemoryTransferBorder.LlcRam);
 	}
 

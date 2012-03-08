@@ -81,7 +81,7 @@ void MemoryKernel::run() {
 			for (int p=0; p<DLP; p++)
 				_mm_prefetch(&buffer[p*bufferSize*UNROLL+i+RMT_MEMORY_PREFETCH_DIST],RMT_MEMORY_PREFETCH_TYPE);
 #endif
-			for (int j = 0; j < UNROLL; j+=2) {
+			for (int j = 0; j < UNROLL; j++) {
 				for (int p = 0; p < DLP; p++) {
 					//printf("%li\n",i + j * 4);
 					__m128 tmp;
