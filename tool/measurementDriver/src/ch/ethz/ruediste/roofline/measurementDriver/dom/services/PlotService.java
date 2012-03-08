@@ -30,8 +30,8 @@ public class PlotService {
 
 	private static double bMargin = 0.1;
 	private static double tMargin = 0.93;
-	private static double lMargin = 0.07;
-	private static double rMargin = 1;
+	private static double lMargin = 0.1;
+	private static double rMargin = 0.95;
 
 	@Inject
 	public CommandService commandService;
@@ -103,7 +103,7 @@ public class PlotService {
 				new String[] { plot.getOutputName() + ".gnuplot" });
 	}
 
-	private void preparePlot(PrintStream output, Plot plot) {
+	private void preparePlot(PrintStream output, Plot<?> plot) {
 		// set the output
 		output.printf(
 				"set terminal pdf color size %dcm,%dcm font 'Gill Sans, 4'\n",
@@ -125,13 +125,32 @@ public class PlotService {
 		// add white grid
 		output.println("set grid xtics ytics mxtics mytics lt -1 lw 6 linecolor rgb\"#FFFFFF\",lt -1 lw 2 linecolor rgb\"#FFFFFF\"");
 
+		// set the margins
+		output.printf("set bmargin at screen %e\n", bMargin);
+		output.printf("set tmargin at screen %e\n", tMargin);
+		output.printf("set lmargin at screen %e\n", lMargin);
+		output.printf("set rmargin at screen %e\n", rMargin);
 	}
 
-	private void preparePlot(PrintStream output, Plot2D plot) {
-		preparePlot(output, (Plot) plot);
+	private void preparePlot(PrintStream output, Plot2D<?> plot) {
+		preparePlot(output, (Plot<?>) plot);
 
 		// place the legend
-		output.println("set key right top");
+		switch (plot.getKeyPosition()) {
+		case BottomLeft:
+			output.println("set key left bottom");
+		break;
+		case BottomRight:
+			output.println("set key right bottom");
+		break;
+		case TopLeft:
+			output.println("set key left top");
+		break;
+		case TopRight:
+			output.println("set key right top");
+		break;
+
+		}
 
 		// set logarithmic axes
 		if (plot.isLogX()) {
@@ -295,7 +314,6 @@ public class PlotService {
 			PrintStream output = new PrintStream(plot.getOutputName()
 					+ ".gnuplot");
 			preparePlot(output, plot);
-			setMargins(output);
 
 			// add the ticks
 			output.printf(
@@ -332,7 +350,7 @@ public class PlotService {
 			// print the lines for the peak performances
 			for (Pair<String, Performance> peak : plot.getPeakPerformances()) {
 				output.printf(
-						"set label '%s (%.2g F/C)' at graph 1,first %e right offset 0,graph 0.015\n",
+						"set label '%s (%.2g F/C)' at graph 1,first %e right offset -1,graph 0.015\n",
 						peak.getLeft(), peak.getRight().getValue(), peak
 								.getRight().getValue());
 			}
@@ -422,13 +440,6 @@ public class PlotService {
 		// show output
 		commandService.runCommand(new File("."), "gnuplot",
 				new String[] { plot.getOutputName() + ".gnuplot" });
-	}
-
-	private void setMargins(PrintStream output) {
-		output.printf("set bmargin at screen %e\n", bMargin);
-		output.printf("set tmargin at screen %e\n", tMargin);
-		output.printf("set lmargin at screen %e\n", lMargin);
-		output.printf("set rmargin at screen %e\n", rMargin);
 	}
 
 	/**

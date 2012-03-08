@@ -8,6 +8,7 @@
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
 \usepackage{graphicx} 
 \newlength{\imgwidth}
+\newlength{\imgleftoverhang}
 \newcommand{\umlDiagram}[1]{%
 	\settowidth{\imgwidth}{\includegraphics{out/diagrams/#1.pdf}}%
 	\setlength{\imgwidth}{\minof{0.5\imgwidth}{\textwidth}}%
@@ -17,10 +18,11 @@
 
 \newcommand{\graph}[1]{%
 	\settowidth{\imgwidth}{\includegraphics{graphs/#1.pdf}}%
-	\setlength{\imgwidth}{\minof{\imgwidth}{\textwidth}}%
-	\par\vskip0.5cm\noindent\makebox[\textwidth][c]{%
-	\includegraphics[width=\imgwidth]{graphs/#1.pdf}%
-}\vskip0.5cm}
+	\setlength{\imgleftoverhang}{0.1\textwidth}%
+	\setlength{\imgwidth}{1.1765\textwidth}%
+	\par\vskip0.5cm\noindent\hskip-\imgleftoverhang%
+	\hskip-0.1in\includegraphics[width=\imgwidth]{graphs/#1.pdf}%
+	\vskip0.5cm}
 
 \newcommand{\umlFloat}[2]{
 \begin{figure}[tbh]
@@ -225,7 +227,7 @@ in registers.
 \subsection{Time}
 
 \graph{yonah/valTimeArithValues}
-\graph{dgemv}
+\graph{yonah/dgemv}
 
 \subsection{Transferred Bytes}
 \subsection{Operation Count}

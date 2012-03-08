@@ -11,14 +11,12 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Time;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -90,7 +88,8 @@ public class ValidateTimeMeasurementController extends
 					coordinate, expected);*/
 			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
 				Time actual = calc.getResult(Collections
-						.singletonList(runOutput.getMeasurerOutputUntyped(measurer)));
+						.singletonList(runOutput
+								.getMeasurerOutputUntyped(measurer)));
 
 				plotValues.addValue(kernelNames.get(kernel), (long) kernel
 						.getExpectedOperationCount().getValue(), actual
@@ -101,7 +100,7 @@ public class ValidateTimeMeasurementController extends
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "ArithError")
-				.setTitle("Time Error").setLog().setxLabel("expOpCount")
+				.setTitle("Time Error").setLogX().setxLabel("expOpCount")
 				.setxUnit("opreations").setyLabel("err(cycles/median(cycles))")
 				.setyUnit("%");
 
@@ -173,7 +172,8 @@ public class ValidateTimeMeasurementController extends
 					coordinate, expected);*/
 			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
 				Time actual = calc.getResult(Collections
-						.singletonList(runOutput.getMeasurerOutputUntyped(measurer)));
+						.singletonList(runOutput
+								.getMeasurerOutputUntyped(measurer)));
 
 				plotValues.addValue(kernelNames.get(kernel), (long) kernel
 						.getExpectedTransferredBytes().getValue(), actual
@@ -184,7 +184,7 @@ public class ValidateTimeMeasurementController extends
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "MemError");
-		plotError.setTitle("Time Error").setLog().setxLabel("expMemTransfer")
+		plotError.setTitle("Time Error").setLogX().setxLabel("expMemTransfer")
 				.setxUnit("bytes").setyLabel("err(time/median(time))")
 				.setyUnit("\\%");
 

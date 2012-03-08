@@ -10,6 +10,7 @@ public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
 	private String xUnit;
 	private String yLabel;
 	private String yUnit;
+	private KeyPosition keyPosition = KeyPosition.TopLeft;
 
 	private boolean logX;
 	private boolean logY;
@@ -69,6 +70,10 @@ public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
 		return This();
 	}
 
+	public T setLogX() {
+		return setLogX(true);
+	}
+
 	public boolean isLogY() {
 		return logY;
 	}
@@ -76,6 +81,10 @@ public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
 	public T setLogY(boolean logY) {
 		this.logY = logY;
 		return This();
+	}
+
+	public T setLogY() {
+		return setLogY(true);
 	}
 
 	/**
@@ -87,5 +96,13 @@ public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
 		setLogX(true);
 		setLogY(true);
 		return This();
+	}
+
+	public KeyPosition getKeyPosition() {
+		return keyPosition;
+	}
+
+	public void setKeyPosition(KeyPosition keyPosition) {
+		this.keyPosition = keyPosition;
 	}
 }
