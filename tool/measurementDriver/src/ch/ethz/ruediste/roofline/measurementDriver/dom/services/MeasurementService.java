@@ -148,7 +148,7 @@ public class MeasurementService {
 
 		// build the first set
 		MeasurerSet set = new MeasurerSet();
-		set.getMeasurers().addAll(nonPerfEventMeasurers);
+		set.getAdditionalMeasurers().addAll(nonPerfEventMeasurers);
 
 		// add the perf event measurers to the measurer sets
 		int perfEventMeasurerCount = 0;
