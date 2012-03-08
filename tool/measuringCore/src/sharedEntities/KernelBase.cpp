@@ -19,7 +19,7 @@ KernelBase::~KernelBase() {
 	// TODO Auto-generated destructor stub
 }
 
-void KernelBase::clearCaches()
+void KernelBase::flushBuffers()
 {
 	LENTER
 	typedef pair<void *,long> TBufferPair;

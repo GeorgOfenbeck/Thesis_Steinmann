@@ -6,8 +6,7 @@
 ##
 package $class.javaPackage;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.math.BigInteger;
 
 /** $class.comment */
@@ -38,4 +37,28 @@ public #if ($class.isGeneratedJavaClassAbstract()) abstract #end class ${class.j
 		return $field.name;
 	}
 #end
+
+#if ($class.hasJavaBaseType())
+@Override
+#end
+public void addAll(Set<Object> result)
+{
+	#if ($class.hasJavaBaseType())
+		super.addAll(result);
+	#else
+		result.add(this);
+	#end
+	#foreach($field in $class.fields)
+		#if ($field.typeDescriptor.reference)
+			#if ($field.class.simpleName == "MultiLanguageField")
+				if (get${field.nameUpperCamel}()!=null)
+					get${field.nameUpperCamel}().addAll(result);
+			#else
+				for ($field.typeDescriptor.javaBoxedName obj: get${field.nameUpperCamel}())
+					obj.addAll(result);
+			#end
+		#end
+	#end
+}
+
 }

@@ -2,7 +2,6 @@ package ch.ethz.ruediste.roofline.sharedEntities;
 
 import java.util.*;
 
-
 /**
  * Base class containing macro definitions. They are collected from the objects
  * making up the measurement description.
@@ -42,5 +41,9 @@ public class MacroDefinitionContainer extends AttachedPropertyContainer {
 	 */
 	protected void setMacroDefinition(MacroKey key, String definition) {
 		macroDefinitions.put(key, definition);
+	}
+
+	public void addAll(Set<Object> result) {
+		result.add(this);
 	}
 }

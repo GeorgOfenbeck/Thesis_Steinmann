@@ -14,61 +14,61 @@
 
 #include "utils.h"
 
+#include <set>
+
+using namespace std;
+
 Measurement *Locator::measurement;
 std::vector<IEventListener*> Locator::listeners;
 
-void Locator::dispatchEvent(EventBase *event)
-{
-	foreach(Rule *rule, measurement->getRules()){
-		rule->handle(event);
-	}
+void Locator::dispatchEvent(EventBase *event) {
+	foreach(Rule *rule, measurement->getRules())
+			{
+				rule->handle(event);
+			}
 
-	foreach (IEventListener *listener, listeners){
-		listener->handleEvent(event);
-	}
+	foreach (IEventListener *listener, listeners)
+			{
+				listener->handleEvent(event);
+			}
 }
 
-
-
-void Locator::setMeasurement(Measurement *measurement)
-{
-	Locator::measurement=measurement;
+void Locator::setMeasurement(Measurement *measurement) {
+	Locator::measurement = measurement;
 }
 
-Workload* Locator::getWorkload(int id)
-{
-	foreach(Workload *workload, measurement->getWorkloads()){
-		if (workload->getId()==id){
-			return workload;
-		}
-	}
+Workload* Locator::getWorkload(int id) {
+	set<SharedEntityBase*> all;
+	measurement->addAll(all);
+
+	foreach(SharedEntityBase *obj, all)
+			{
+				Workload *workload = dynamic_cast<Workload*>(obj);
+				if (workload != NULL && workload->getId() == id) {
+					return workload;
+				}
+			}
 	return NULL;
 }
 
-void Locator::addEventListener(IEventListener *listener)
-{
+void Locator::addEventListener(IEventListener *listener) {
 	listeners.push_back(listener);
 }
 
-KernelBase *Locator::getKernel(int id)
-{
-	foreach(Workload *workload, measurement->getWorkloads()){
-		if (workload->getKernel()->getId()==id){
-			return workload->getKernel();
-		}
-	}
+KernelBase *Locator::getKernel(int id) {
+	set<SharedEntityBase*> all;
+	measurement->addAll(all);
+
+	foreach(SharedEntityBase *obj, all)
+			{
+				KernelBase *kernel = dynamic_cast<KernelBase*>(obj);
+				if (kernel != NULL && kernel->getId() == id) {
+					return kernel;
+				}
+			}
 	return NULL;
 }
 
-IEventListener::~IEventListener()
-{
+IEventListener::~IEventListener() {
 }
-
-
-
-
-
-
-
-
 

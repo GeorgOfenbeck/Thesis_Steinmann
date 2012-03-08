@@ -11,6 +11,7 @@
 \#include <vector>
 \#include <string>
 \#include <stdint.h>
+\#include <set>
 
 #foreach ($reference in $references)
 class $reference;
@@ -59,5 +60,6 @@ public:
 	#end
 	
 	virtual void cloneFrom($class.cName *c);
+	virtual void addAll(std::set<SharedEntityBase*> &result);
 };
 #endif

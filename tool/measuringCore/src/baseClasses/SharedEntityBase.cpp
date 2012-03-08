@@ -11,3 +11,10 @@ SharedEntityBase::~SharedEntityBase() {
 	// TODO Auto-generated destructor stub
 }
 
+void SharedEntityBase::addAll(std::set<SharedEntityBase*> & result)
+{
+	result.insert(this);
+}
+
+
+

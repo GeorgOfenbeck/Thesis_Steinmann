@@ -1,5 +1,7 @@
 package ch.ethz.ruediste.roofline.sharedEntities.eventPredicates;
 
+import java.util.Set;
+
 import ch.ethz.ruediste.roofline.sharedEntities.Workload;
 
 public class WorkloadStopEventPredicate extends WorkloadStopEventPredicateData {
@@ -25,5 +27,13 @@ public class WorkloadStopEventPredicate extends WorkloadStopEventPredicateData {
 
 	public void setWorkload(Workload workload) {
 		this.workload = workload;
+	}
+
+	@Override
+	public void addAll(Set<Object> result) {
+		super.addAll(result);
+		if (getWorkload() != null) {
+			getWorkload().addAll(result);
+		}
 	}
 }

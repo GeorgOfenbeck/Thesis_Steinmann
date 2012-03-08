@@ -100,9 +100,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 	MeasurementRunOutputCollection outputCollection;
 
 	// perform measurements
-	for (int runNumber = 0;
-			runNumber < command->getRunCount();
-			runNumber++) {
+	for (int runNumber = 0; runNumber < command->getRunCount(); runNumber++) {
 
 		LTRACE("cloning measurement");
 		Measurement *measurementClone = (Measurement*) measurement->clone();
@@ -116,9 +114,10 @@ int ChildProcess::main(int argc, char* argv[]) {
 		}
 
 		// initialize rules
-		foreach (Rule *rule, measurementClone->getRules()){
-			rule->initialize();
-		}
+		foreach (Rule *rule, measurementClone->getRules())
+				{
+					rule->initialize();
+				}
 
 		// notify configurators
 		LTRACE("notifying configurators: beforeRun()");
@@ -162,20 +161,20 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 		LTRACE("collecting output");
 
-		// add the output
+		// add the outputs
 		MeasurementRunOutput *measurementRunOutput = new MeasurementRunOutput();
 
-		foreach(Workload *workload, measurementClone->getWorkloads())
+		set<SharedEntityBase*> all;
+		measurementClone->addAll(all);
+		foreach(SharedEntityBase *obj, all)
 				{
-					measurementRunOutput->getMeasurerSetOutputs().push_back(
-							workload->getOutput());
+					MeasurerSet *output =
+							dynamic_cast<MeasurerSet*>(obj);
+					if (output != NULL)
+						measurementRunOutput->getMeasurerSetOutputs().push_back(
+								output->getOutput());
 				}
 
-		// add the output of the overall measurer set
-		if (measurementClone->getOverallMeasurerSet() != NULL) {
-			measurementRunOutput->getMeasurerSetOutputs().push_back(
-					measurementClone->getOverallMeasurerSet()->getOutput());
-		}
 		outputCollection.getOutputs().push_back(measurementRunOutput);
 	}
 

@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.sharedEntities;
 
-import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.single;
+import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 
 import java.util.*;
 
@@ -82,16 +82,7 @@ public class Measurement extends MeasurementData {
 	}
 
 	public Iterable<KernelBase> getKernels() {
-		HashSet<KernelBase> result = new HashSet<KernelBase>();
-		for (Workload workload : getWorkloads()) {
-			if (workload.getKernel() != null) {
-				result.add(workload.getKernel());
-			}
-		}
-		for (ActionBase action : getActions()) {
-			result.addAll(action.getKernels());
-		}
-		return result;
+		return getAll(KernelBase.class);
 	}
 
 	public void setIds() {
@@ -118,47 +109,15 @@ public class Measurement extends MeasurementData {
 	}
 
 	public Iterable<MeasurerSet> getMeasurerSets() {
-		ArrayList<MeasurerSet> result = new ArrayList<MeasurerSet>();
-		for (Workload workload : getWorkloads()) {
-			if (workload.getMeasurerSet() != null) {
-				result.add(workload.getMeasurerSet());
-			}
-		}
-		for (ActionBase action : getActions()) {
-			result.addAll(action.getMeasurerSets());
-		}
-
-		if (getOverallMeasurerSet() != null) {
-			result.add(getOverallMeasurerSet());
-		}
-		return result;
+		return getAll(MeasurerSet.class);
 	}
 
 	public Iterable<MeasurerBase> getMeasurers() {
-		ArrayList<MeasurerBase> result = new ArrayList<MeasurerBase>();
-		for (Workload workload : getWorkloads()) {
-			if (workload.getMeasurerSet() != null) {
-				result.addAll(workload.getMeasurerSet().getMeasurers());
-			}
-		}
-		for (ActionBase action : getActions()) {
-			result.addAll(action.getMeasurers());
-		}
-		if (getOverallMeasurerSet() != null) {
-			result.addAll(getOverallMeasurerSet().getMeasurers());
-		}
-		return result;
+		return getAll(MeasurerBase.class);
 	}
 
 	public Iterable<ActionBase> getActions() {
-		ArrayList<ActionBase> result = new ArrayList<ActionBase>();
-
-		for (Rule rule : getRules()) {
-			if (rule.getAction() != null) {
-				result.add(rule.getAction());
-			}
-		}
-		return result;
+		return getAll(ActionBase.class);
 	}
 
 	public MeasurerBase getMeasurer(final int measurerId) {
@@ -177,4 +136,13 @@ public class Measurement extends MeasurementData {
 		});
 	}
 
+	public Set<Object> getAll() {
+		LinkedHashSet<Object> result = new LinkedHashSet<Object>();
+		addAll(result);
+		return result;
+	}
+
+	public <T> Iterable<T> getAll(Class<T> clazz) {
+		return ofType(clazz, getAll());
+	}
 }

@@ -1,7 +1,8 @@
 package ch.ethz.ruediste.roofline.sharedEntities.eventPredicates;
 
+import java.util.Set;
+
 import ch.ethz.ruediste.roofline.sharedEntities.Workload;
-import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadStartEventPredicateData;
 
 public class WorkloadStartEventPredicate extends
 		WorkloadStartEventPredicateData {
@@ -28,5 +29,13 @@ public class WorkloadStartEventPredicate extends
 	@Override
 	public int getWorkloadId() {
 		return workload.getId();
+	}
+
+	@Override
+	public void addAll(Set<Object> result) {
+		super.addAll(result);
+		if (getWorkload() != null) {
+			getWorkload().addAll(result);
+		}
 	}
 }

@@ -5,7 +5,7 @@
 	baseType="ActionBase"
 	cSuffix="Data"
 	javaSuffix="Data"
-	comment="Action stopping a kernel">
+	comment="Action flushing the buffers of a kernel">
 
 	<field name="kernelId" type="int" comment="id of the kernel to be stopped"/>
 </derivedClass>

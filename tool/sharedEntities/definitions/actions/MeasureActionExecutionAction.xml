@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	baseType="ActionBase"
+	cSuffix="Data"
+	javaSuffix="Data"
+	comment="Action flushing the buffers of a kernel">
+
+	<field name="action" type="ActionBase" comment="action to be executed"/>
+	<field name="measurerSet" type="MeasurerSet" comment="measurer to be run while the action is executing"/>
+</derivedClass>

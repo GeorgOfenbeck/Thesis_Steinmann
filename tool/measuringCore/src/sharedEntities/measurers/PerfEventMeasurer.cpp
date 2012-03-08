@@ -105,7 +105,7 @@ void PerfEventMeasurer::dispose(){
 
 }
 
-MeasurerOutputBase *PerfEventMeasurer::read(){
+MeasurerOutputBase *PerfEventMeasurer::doRead(){
 	uint64_t values[3];
 	int ret;
 
@@ -118,8 +118,10 @@ MeasurerOutputBase *PerfEventMeasurer::read(){
 		 * It is not necessary to stop an event to read its value
 		 */
 		ret = ::read(fds[i], values, sizeof(values));
-		if (ret != sizeof(values))
+		if (ret != sizeof(values)){
+			LERROR("cannot read results: %s", strerror(errno))
 			err(1, "cannot read results: %s", strerror(errno));
+		}
 
 		/*	 * values[0] = raw count
 			 * values[1] = TIME_ENABLED

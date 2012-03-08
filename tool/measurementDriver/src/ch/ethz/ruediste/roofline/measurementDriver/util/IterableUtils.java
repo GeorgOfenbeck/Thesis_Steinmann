@@ -311,4 +311,15 @@ public class IterableUtils {
 
 		return result;
 	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Iterable<T> ofType(Class<T> clazz, Iterable<?> iterable) {
+		ArrayList<T> result = new ArrayList<T>();
+		for (Object obj : iterable) {
+			if (obj != null && clazz.isInstance(obj)) {
+				result.add((T) obj);
+			}
+		}
+		return result;
+	}
 }

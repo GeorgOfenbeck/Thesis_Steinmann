@@ -32,7 +32,7 @@ static char dummy;
 void Workload::clearCaches() {
 	LENTER
 
-	getKernel()->clearCaches();
+	getKernel()->flushBuffers();
 
 	clearL1ICache();
 	// just access 10M of memory, which is the maximum cache size present in current processors
@@ -139,9 +139,6 @@ void Workload::startInThread() {
 		Locator::dispatchEvent(stopEvent);
 		free(stopEvent);
 	}
-
-	LTRACE("store output")
-	output = getMeasurerSet()->getOutput();
 
 	LTRACE("dispose kernel")
 	getKernel()->dispose();

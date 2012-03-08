@@ -17,7 +17,10 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.RunQuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadStopEventPredicate;
 
 import com.google.inject.Inject;
 
@@ -138,10 +141,17 @@ public class ValidateTransferredBytesMeasurementController extends
 
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
-		plotValues.setOutputName(outputName + "Values");
-		plotValues.setTitle("Transferred Bytes Values (n=100)").setLog()
+		plotValues.setOutputName(outputName + "Values")
+				.setTitle("Transferred Bytes Values (n=100)").setLog()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("actualMemTransfer/expMemTransfer").setyUnit("1")
+				.setKeyPosition(KeyPosition.TopRight);
+
+		DistributionPlot flushValues = new DistributionPlot();
+		flushValues.setOutputName(outputName + "FlushValues")
+				.setTitle("Transferred Bytes Flush Values (n=100)").setLog()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("actualMemTransfer").setyUnit("1")
 				.setKeyPosition(KeyPosition.TopRight);
 
 		DistributionPlot plotError = new DistributionPlot();
@@ -168,16 +178,37 @@ public class ValidateTransferredBytesMeasurementController extends
 		// iterate over space
 		for (Coordinate coordinate : space) {
 			// initialize the kernel
-			KernelBase kernel = coordinate.get(kernelAxis);
+			final KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 
 			// get the calculator for the transferred bytes
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
 
+			QuantityCalculator<TransferredBytes> flushCalc = quantityMeasuringService
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+
+			IMeasurementBuilder builder = new IMeasurementBuilder() {
+
+				public Measurement build(Map<String, MeasurerSet> sets) {
+					Measurement measurement = new Measurement();
+					Workload workload = new Workload();
+					measurement.addWorkload(workload);
+					workload.setKernel(kernel);
+					workload.setMeasurerSet(sets.get("main"));
+
+					measurement.addRule(new Rule(
+							new WorkloadStopEventPredicate(workload),
+							new MeasureActionExecutionAction(
+									new FlushKernelBuffersAction(kernel), sets
+											.get("flush"))));
+					return measurement;
+				}
+			};
 			// run the measurement
-			QuantityMap result = quantityMeasuringService.measureQuantities(
-					kernel, 100, calc);
+			QuantityMap result = quantityMeasuringService
+					.measureQuantities(builder, 11).with("main", calc)
+					.with("flush", flushCalc).get();
 
 			// get the expected number of bytes transferred
 			TransferredBytes expected = kernel.getExpectedTransferredBytes();
@@ -185,6 +216,15 @@ public class ValidateTransferredBytesMeasurementController extends
 			fillDistributionPlotsExpected(kernelNames.get(kernel),
 					expected.getValue(), plotValues, plotMinValues, result,
 					calc);
+
+			for (RunQuantityMap runMap : result.getRunMaps()) {
+				flushValues.addValue(kernelNames.get(kernel), (long) expected
+						.getValue(), runMap.get(flushCalc).getValue());
+				flushValues
+						.addValue(kernelNames.get(kernel) + "m",
+								(long) expected.getValue(), runMap.get(calc)
+										.getValue());
+			}
 
 		}
 
@@ -195,6 +235,6 @@ public class ValidateTransferredBytesMeasurementController extends
 		plotService.plot(plotValues);
 		plotService.plot(plotMinError);
 		plotService.plot(plotMinValues);
+		plotService.plot(flushValues);
 	}
-
 }

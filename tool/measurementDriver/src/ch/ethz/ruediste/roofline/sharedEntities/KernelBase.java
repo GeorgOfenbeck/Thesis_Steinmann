@@ -48,4 +48,5 @@ public class KernelBase extends KernelBaseData {
 	public OperationCount getExpectedOperationCount() {
 		throw new NotImplementedException();
 	}
+
 }

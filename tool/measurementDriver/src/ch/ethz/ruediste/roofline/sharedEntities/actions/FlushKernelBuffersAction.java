@@ -4,20 +4,20 @@ import java.util.Set;
 
 import ch.ethz.ruediste.roofline.sharedEntities.KernelBase;
 
-public class StopKernelAction extends StopKernelActionData {
+public class FlushKernelBuffersAction extends FlushKernelBuffersActionData {
 	private KernelBase kernel;
 
-	public StopKernelAction() {
-
+	public FlushKernelBuffersAction() {
 	}
 
-	public StopKernelAction(KernelBase kernel) {
-		this.kernel = kernel;
+	public FlushKernelBuffersAction(KernelBase kernel) {
+		this();
+		setKernel(kernel);
 	}
 
 	@Override
 	public int getKernelId() {
-		return kernel.getId();
+		return getKernel().getId();
 	}
 
 	public KernelBase getKernel() {

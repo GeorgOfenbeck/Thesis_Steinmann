@@ -27,7 +27,7 @@ public:
 	virtual void run()=0;
 	virtual void dispose()=0;
 
-	void clearCaches();
+	void flushBuffers();
 	void warmCaches();
 
 	void flushCacheLine(void *p){

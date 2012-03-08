@@ -21,6 +21,9 @@ class PerfEventMeasurer: public PerfEventMeasurerData {
 	int groupFd;
 	// contains all fds, including the groupFd
 	std::vector<int> fds;
+
+	MeasurerOutputBase *output;
+	MeasurerOutputBase *doRead();
 public:
 	virtual ~PerfEventMeasurer();
 
@@ -49,12 +52,13 @@ public:
 		int ret = ioctl(groupFd, PERF_EVENT_IOC_DISABLE, 0);
 		if (ret)
 			err(1, "ioctl(disable) failed");
+		output=doRead();
 	}
 
 	void initialize();
 
 	void dispose();
-	MeasurerOutputBase *read();
+	MeasurerOutputBase *read(){return output;}
 };
 
 #endif /* EXECUTIONTIMEMEASURER_H_ */

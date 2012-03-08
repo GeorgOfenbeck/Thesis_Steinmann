@@ -2,10 +2,10 @@
 <class
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="shared.xsd"
-	name="EventPredicateBase" 
 	cBaseType="SharedEntityBase"
 	javaBaseType=""
 	cSuffix="Data"
+	javaSuffix="Data"
 	isAbstract="true"
 	comment="Base class of all event predicates">
 	

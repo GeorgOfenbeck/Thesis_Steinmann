@@ -179,3 +179,25 @@ void ${class.cName}::cloneFrom($class.cName *c){
 	#end
 }
 
+## implementation of addAll
+void ${class.cName}::addAll(std::set<SharedEntityBase*> &result){
+	## call base method
+	#if ($class.hascBaseType()) 
+	$class.cBaseType::addAll(result); 
+	#else
+	result.insert(this);
+	#end
+	
+	#foreach($field in $class.fields)
+		#if ($field.typeDescriptor.reference)
+			#if ($field.class.simpleName=="MultiLanguageList")
+				for (unsigned long i=0; i<get${field.nameUpperCamel}().size(); i++) {
+					((SharedEntityBase*)get${field.nameUpperCamel}()[i])->addAll(result);
+				}
+			#else
+				if (get${field.nameUpperCamel}()!=NULL)
+					((SharedEntityBase*)get${field.nameUpperCamel}())->addAll(result);
+			#end
+		#end
+	#end
+}
