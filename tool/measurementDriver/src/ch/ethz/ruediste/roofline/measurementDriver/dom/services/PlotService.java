@@ -26,13 +26,13 @@ import com.google.inject.Inject;
 public class PlotService {
 	private final static Logger log = Logger.getLogger(PlotService.class);
 
-	private static final int plotWidth = 28;
-	private static final int plotHeight = 18;
+	private static final int plotWidth = 14;
+	private static final int plotHeight = (int) (plotWidth / 28. * 18.);
 
-	private static double bMargin = 0.07;
+	private static double bMargin = 0.1;
 	private static double tMargin = 0.93;
-	private static double lMargin = 0.05;
-	private static double rMargin = 0.85;
+	private static double lMargin = 0.07;
+	private static double rMargin = 1;
 
 	@Inject
 	public CommandService commandService;
@@ -106,12 +106,13 @@ public class PlotService {
 
 	private void preparePlot(PrintStream output, Plot plot) {
 		// set the output
-		output.printf("set terminal pdf color size %dcm,%dcm \n", plotWidth,
-				plotHeight);
+		output.printf(
+				"set terminal pdf color size %dcm,%dcm font 'Gill Sans, 4'\n",
+				plotWidth, plotHeight);
 		output.printf("set output '%s.pdf'\n", plot.getOutputName());
 
 		// set the title
-		output.printf("set title '%s' font 'Gill Sans, 16'\n", plot.getTitle());
+		output.printf("set title '%s' font 'Gill Sans, 8'\n", plot.getTitle());
 
 		// disable border
 		output.println("unset border");
@@ -131,7 +132,7 @@ public class PlotService {
 		preparePlot(output, (Plot) plot);
 
 		// place the legend
-		output.println("set key outside right top");
+		output.println("set key right top");
 
 		// set logarithmic axes
 		if (plot.isLogX()) {
@@ -155,9 +156,9 @@ public class PlotService {
 				yMin == Double.NEGATIVE_INFINITY ? "" : yMin,
 						yMax == Double.POSITIVE_INFINITY ? "" : yMax);
 
-		output.printf("set xlabel '%s [%s]' font 'Gill Sans'\n",
+		output.printf("set xlabel '%s [%s]' font 'Gill Sans, 6'\n",
 				plot.getxLabel(), plot.getxUnit());
-		output.printf("set ylabel '%s [%s]' font 'Gill Sans'\n",
+		output.printf("set ylabel '%s [%s]' font 'Gill Sans, 6'\n",
 				plot.getyLabel(), plot.getyUnit());
 	}
 
@@ -331,7 +332,7 @@ public class PlotService {
 			// print the lines for the peak performances
 			for (Pair<String, Performance> peak : plot.getPeakPerformances()) {
 				output.printf(
-						"set label '%s (%.2g flop/cycle)' at graph 1,first %e right offset 0,graph 0.015\n",
+						"set label '%s (%.2g F/C)' at graph 1,first %e right offset 0,graph 0.015\n",
 						peak.getLeft(), peak.getRight().getValue(), peak
 						.getRight().getValue());
 			}
@@ -382,7 +383,7 @@ public class PlotService {
 				if (borderOpIntens < opIntens) {
 					// we hit the top of the graph
 					output.printf(
-							"set label '%s (%.2g byte/cycle)' at first %e , first %e right offset 0,graph 0.02 rotate by %e\n",
+							"set label '%s (%.2g B/C)' at first %e , first %e right offset 0,graph 0.02 rotate by %e\n",
 							peak.getLeft(), bandwidth, borderOpIntens,
 							performance, angle);
 				}
