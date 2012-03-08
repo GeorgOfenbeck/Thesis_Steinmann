@@ -236,4 +236,13 @@ public class SystemInfoService {
 
 		throw new Error("CPU not supported");
 	}
+
+	public long getL2CacheSize() {
+		switch (getCpuType()) {
+		case Yonah:
+			// two megabyte cache size
+			return 1024L * 1024L * 2L;
+		}
+		throw new Error("CPU not supported");
+	}
 }

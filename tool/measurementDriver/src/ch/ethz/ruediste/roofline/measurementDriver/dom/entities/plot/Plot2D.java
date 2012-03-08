@@ -6,6 +6,11 @@ import org.apache.commons.lang3.Range;
  * A 2D plot, specifies the axis names and units
  */
 public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
+	private Range<Double> yRange = Range.between(Double.NEGATIVE_INFINITY,
+			Double.POSITIVE_INFINITY);
+	private Range<Double> xRange = Range.between(Double.NEGATIVE_INFINITY,
+			Double.POSITIVE_INFINITY);
+
 	private String xLabel;
 	private String xUnit;
 	private String yLabel;
@@ -52,13 +57,11 @@ public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
 	}
 
 	public Range<Double> getYRange() {
-		return Range
-				.between(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+		return yRange;
 	}
 
 	public Range<Double> getXRange() {
-		return Range
-				.between(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+		return xRange;
 	}
 
 	public boolean isLogX() {
@@ -106,4 +109,23 @@ public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
 		this.keyPosition = keyPosition;
 		return This();
 	}
+
+	public T setYRange(Range<Double> yRange) {
+		this.yRange = yRange;
+		return This();
+	}
+
+	public T setYRange(double min, double max) {
+		return setYRange(Range.between(min, max));
+	}
+
+	public T setXRange(Range<Double> xRange) {
+		this.xRange = xRange;
+		return This();
+	}
+
+	public T setXRange(double min, double max) {
+		return setXRange(Range.between(min, max));
+	}
+
 }

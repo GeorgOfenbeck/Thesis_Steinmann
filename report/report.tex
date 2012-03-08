@@ -24,33 +24,33 @@
 \end{figure}
 }
 
-\newcommand{\graphNoVskip}[1]{%
-	\settowidth{\imgwidth}{\includegraphics{graphs/#1.pdf}}%
-	\setlength{\imgleftoverhang}{0.1\textwidth}%
-	\setlength{\imgwidth}{1.1765\textwidth}%
-	\hfuzz50pt%
-	\noindent\hskip-\imgleftoverhang%
-	\hskip-0.1in\includegraphics[width=\imgwidth]{graphs/#1.pdf}%
-	\hfuzz0.1pt}
+\newcommand{\graphNoVskip}[1]
+{
+	\settowidth{\imgwidth}{\includegraphics{graphs/#1.pdf}}
+	\setlength{\imgleftoverhang}{0.1\textwidth}
+	\setlength{\imgwidth}{1.1765\textwidth}
+	\hfuzz50pt
+	\noindent\hskip-\imgleftoverhang
+	\hskip-0.1in\includegraphics[width=\imgwidth]{graphs/#1.pdf}
+	\hfuzz0.1pt
+}
 	
-\newcommand{\graph}[1]{%
-	\par\vskip0.5cm%
+\newcommand{\graph}[1]
+{
+	\par\vskip0.5cm
 	\graphNoVskip{#1}
-	\vskip0.5cm}
+	\vskip0.5cm
+}
 
-\newcommand{\graphFloat}[2]{
-\begin{figure}[tbh]
-\hfuzz50pt
+\newcommand{\graphFloat}[2]
+{
+\begin{figure}[htbp]
 \graphNoVskip{#1}
 \vskip-0.5cm
 \caption{#2}
 \label{#1}
-\hfuzz0.1pt
 \end{figure}
 }
-
-\renewcommand{\floatpagefraction}{0.5}
-\renewcommand{\dblfloatpagefraction}{0.5}
 
 \newcommand{\umlFloatCap}[3]{
 \begin{figure}[tbh]
@@ -76,7 +76,9 @@
 }
 
 \sloppy
-
+\renewcommand{\floatpagefraction}{0.7}
+\renewcommand{\dblfloatpagefraction}{0.7}
+    
 \title{Applying the Roofline Model}
 \author{Ruedi Steinmann}
 \date{\today}
@@ -246,19 +248,41 @@ in registers. We use multiple accumulators and unroll the loop.
 writing $a$ back.
 \end{description}
 
+\subsection{Transferred Bytes}
+\graphFloat{yonah/valTBValues}{Yonah: Transferred Bytes}
+\graphFloat{yonah/valTBError}{Yonah: Error of Transferred Bytes}
+
+We tried to estimate the amount of memory that has to be transferred. For pure
+reading, we expect to observe the whole buffer beeing transferred to the core.
+When writing is involved, we expect some of the writes to be held back in the
+cache. It is hard to estimate the number of writes which is actually held back,
+therfore we just presume that the whole cache is used for write back.
+
+Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
+of memory transfer. The errors (see fig. \ref{yonah/valTBError}) decrease for
+growing buffer sizes. 
 
 \subsection{Time}
+\graphFloat{yonah/valTimeArithValues}{Yonah: Execution Time of the ADD kernel}
+\graphFloat{yonah/valTimeArithError}{Yonah: Error of the Execution Time of the
+ADD kernel}
 
-\graphFloat{yonah/valTimeArithValues}{Execution Time of the ADD kernel}
-\graphFloat{yonah/valTimeArithError}{Error of the Execution Time of the ADD
-kernel}
-\graphFloat{yonah/valTimeMemValues}{Execution Time of the memory kernels}
-\graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the memory
-kernels}
+The first two graphs show the result of measuring the execution time of the ADD
+kernel. Figure \ref{yonah/valTimeArithValues} shows that the execution time is
+around one cycle per operation and does not differ between SSE and x87, which is
+consistent with the information found in the Intel manual. Figure
+\ref{yonah/valTimeArithError} shows that the errors are small for operation counts above 10000.
+
+\graphFloat{yonah/valTimeMemValues}{Execution Time of the memory kernels} sdf
+
+\graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the memory kernels}
+
+For the memory intesive kernels, we show the expected memory transfer on
+the x axis. (fig. \ref{yonah/valTimeMemValues}) 
 
 \graphFloat{yonah/dgemv}{bar}
 \clearpage
-\subsection{Transferred Bytes}
+
 \subsection{Operation Count}
 
 \section{Measurement Tool Architecture}

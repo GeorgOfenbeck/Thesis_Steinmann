@@ -26,6 +26,7 @@ public class ReportMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		measure(ValidateTimeMeasurementController.class);
+		measure(ValidateTransferredBytesMeasurementController.class);
 		measure(DgemvMeasurementController.class);
 	}
 

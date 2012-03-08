@@ -60,14 +60,12 @@ public class MMMMeasurementController implements IMeasurementController {
 			configuration.push();
 			for (long i = 100; i <= 1200; i += 100) {
 				if (i < 400) {
-					configuration.set(
-							QuantityMeasuringService.numberOfMeasurementsKey,
+					configuration.set(QuantityMeasuringService.numberOfRunsKey,
 							10);
 				}
 				else {
-					configuration
-							.set(QuantityMeasuringService.numberOfMeasurementsKey,
-									1);
+					configuration.set(QuantityMeasuringService.numberOfRunsKey,
+							1);
 				}
 
 				MMMKernel kernel = new MMMKernel();
@@ -137,14 +135,12 @@ public class MMMMeasurementController implements IMeasurementController {
 			for (Coordinate coordinate : space
 					.getAllPoints(algorithmAxis, null)) {
 				if (coordinate.get(matrixSizeAxis) < 400) {
-					configuration.set(
-							QuantityMeasuringService.numberOfMeasurementsKey,
+					configuration.set(QuantityMeasuringService.numberOfRunsKey,
 							10);
 				}
 				else {
-					configuration
-							.set(QuantityMeasuringService.numberOfMeasurementsKey,
-									1);
+					configuration.set(QuantityMeasuringService.numberOfRunsKey,
+							1);
 				}
 				// skip large sizes for tripple loop
 				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TripleLoop

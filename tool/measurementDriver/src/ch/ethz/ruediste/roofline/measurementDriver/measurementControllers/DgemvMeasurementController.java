@@ -50,12 +50,10 @@ public class DgemvMeasurementController implements IMeasurementController {
 		configuration.push();
 		for (long matrixSize = 500; matrixSize <= 10000; matrixSize += 500) {
 			if (matrixSize > 2000) {
-				configuration.set(
-						QuantityMeasuringService.numberOfMeasurementsKey, 1);
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
 			}
 			else {
-				configuration.set(
-						QuantityMeasuringService.numberOfMeasurementsKey, 10);
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
 			}
 			DgemvKernel kernel = new DgemvKernel();
 			kernel.setOptimization("-O3");
@@ -69,5 +67,4 @@ public class DgemvMeasurementController implements IMeasurementController {
 		}
 		configuration.pop();
 	}
-
 }

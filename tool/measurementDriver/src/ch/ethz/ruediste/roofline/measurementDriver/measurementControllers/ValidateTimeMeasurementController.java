@@ -1,22 +1,20 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.single;
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.kernelAxis;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.HashMap;
 
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.lang3.Range;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Time;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -56,8 +54,15 @@ public class ValidateTimeMeasurementController extends
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "ArithValues")
-				.setTitle("Time Values").setLog().setxLabel("expOperations")
-				.setxUnit("operation").setyLabel("time").setyUnit("cycles");
+				.setTitle("Time Values (n=100)").setLog()
+				.setxLabel("expOperations").setxUnit("operation")
+				.setyLabel("time").setyUnit("cycles");
+
+		DistributionPlot plotMinValues = new DistributionPlot();
+		plotMinValues.setOutputName(outputName + "ArithMinValues")
+				.setTitle("Time Min Values (n=10)").setLog()
+				.setxLabel("expOpCount").setxUnit("1").setyLabel("min(time)")
+				.setyUnit("cycles");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -69,65 +74,40 @@ public class ValidateTimeMeasurementController extends
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 
-			// get the meaurer
-			MeasurerBase measurer = single(calc.getRequiredMeasurers());
-
-			// setup the measurement
-			Measurement measurement = new Measurement();
-			Workload workload = new Workload();
-			measurement.addWorkload(workload);
-			workload.setKernel(kernel);
-			workload.setMeasurerSet(new MeasurerSet(measurer));
-
 			// run the measurement
-			MeasurementResult result = measurementService.measure(measurement,
-					10);
+			QuantityMap result = quantityMeasuringService.measureQuantities(
+					kernel, 100, calc);
 
-			// print results to console and fill plot
-			/*System.out.printf("%s %s: expected: %s\n", kernelNames.get(kernel),
-					coordinate, expected);*/
-			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
-				Time actual = calc.getResult(Collections
-						.singletonList(runOutput
-								.getMeasurerOutputUntyped(measurer)));
+			String kernelName = kernelNames.get(kernel);
+			long expected = (long) kernel.getExpectedOperationCount()
+					.getValue();
 
-				plotValues.addValue(kernelNames.get(kernel), (long) kernel
-						.getExpectedOperationCount().getValue(), actual
-						.getValue());
-
-			}
+			fillDistributionPlots(kernelName, expected, plotValues,
+					plotMinValues, result, calc);
 		}
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "ArithError")
-				.setTitle("Time Error").setLogX().setxLabel("expOpCount")
-				.setKeyPosition(KeyPosition.TopRight).setxUnit("operations")
-				.setyLabel("err(cycles/min(cycles))").setyUnit("%");
+				.setTitle("Time Error (n=100)").setLogX()
+				.setxLabel("expOpCount").setKeyPosition(KeyPosition.TopLeft)
+				.setxUnit("operations").setyLabel("err(time/min(time))")
+				.setyUnit("%").setYRange(Range.between(0., 100.));
 
-		SeriesPlot plotMinValues = new SeriesPlot();
-		plotMinValues.setOutputName(outputName + "ArithMinValues")
-				.setTitle("Time Min Values").setLog().setxLabel("expOpCount")
-				.setxUnit("1").setyLabel("min(cycles)").setyUnit("1");
+		fillErrorPlotMin(plotValues, plotError);
 
-		for (DistributionPlotSeries series : plotValues.getAllSeries()) {
-			for (Entry<Long, DescriptiveStatistics> entry : series
-					.getStatisticsMap().entrySet()) {
+		DistributionPlot plotMinError = new DistributionPlot();
+		plotMinError.setOutputName(outputName + "ArithMinError")
+				.setTitle("Time Min Error (n=10)").setLogX()
+				.setxLabel("expOpCount").setKeyPosition(KeyPosition.TopRight)
+				.setxUnit("operations").setyLabel("err(time10/min(time10))")
+				.setyUnit("%").setYRange(Range.between(0., 100.));
 
-				plotMinValues.setValue(series.getName(), entry.getKey(), entry
-						.getValue().getMin());
-
-				double min = entry.getValue().getMin();
-
-				for (double value : entry.getValue().getValues()) {
-					plotError.addValue(series.getName(), entry.getKey(),
-							toError(value / min));
-				}
-			}
-		}
+		fillErrorPlotMin(plotMinValues, plotMinError);
 
 		plotService.plot(plotValues);
 		plotService.plot(plotMinValues);
 		plotService.plot(plotError);
+		plotService.plot(plotMinError);
 	}
 
 	public void measureMem(String outputName) throws ExecuteException,
@@ -140,8 +120,15 @@ public class ValidateTimeMeasurementController extends
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "MemValues")
-				.setTitle("Time Values").setLog().setxLabel("expMemTransfer")
-				.setxUnit("bytes").setyLabel("time").setyUnit("cycles");
+				.setTitle("Time Values (n=100)").setLog()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("time").setyUnit("cycles");
+
+		DistributionPlot plotMinValues = new DistributionPlot();
+		plotMinValues.setOutputName(outputName + "MemMinValues")
+				.setTitle("Time Min Values (n=10)").setLog()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("time10").setyUnit("cycles");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -153,64 +140,40 @@ public class ValidateTimeMeasurementController extends
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 
-			// get the meaurer
-			MeasurerBase measurer = single(calc.getRequiredMeasurers());
+			QuantityMap result = quantityMeasuringService.measureQuantities(
+					kernel, 100, calc);
 
-			// setup the measurement
-			Measurement measurement = new Measurement();
-			Workload workload = new Workload();
-			measurement.addWorkload(workload);
-			workload.setKernel(kernel);
-			workload.setMeasurerSet(new MeasurerSet(measurer));
+			long expTransBytes = (long) kernel.getExpectedTransferredBytes()
+					.getValue();
+			String kernelName = kernelNames.get(kernel);
 
-			// run the measurement
-			MeasurementResult result = measurementService.measure(measurement,
-					10);
-
-			// print results to console and fill plot
-			/*System.out.printf("%s %s: expected: %s\n", kernelNames.get(kernel),
-					coordinate, expected);*/
-			for (MeasurementRunOutput runOutput : result.getRunOutputs()) {
-				Time actual = calc.getResult(Collections
-						.singletonList(runOutput
-								.getMeasurerOutputUntyped(measurer)));
-
-				plotValues.addValue(kernelNames.get(kernel), (long) kernel
-						.getExpectedTransferredBytes().getValue(), actual
-						.getValue());
-
-			}
+			fillDistributionPlots(kernelName, expTransBytes, plotValues,
+					plotMinValues, result, calc);
 		}
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "MemError");
-		plotError.setTitle("Time Error").setLogX().setxLabel("expMemTransfer")
-				.setxUnit("bytes").setyLabel("err(time/min(time))")
-				.setyUnit("\\%");
-
-		SeriesPlot plotMinValues = new SeriesPlot();
-		plotMinValues.setOutputName(outputName + "MemMinValues");
-		plotMinValues.setTitle("Time Min Values").setLog()
+		plotError.setTitle("Time Error (n=100)").setLogX()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("min(time)").setyUnit("cycles");
+				.setyLabel("err(time/min(time))").setyUnit("\\%")
+				.setYRange(Range.between(0., 100.))
+				.setKeyPosition(KeyPosition.TopRight);
 
-		for (DistributionPlotSeries series : plotValues.getAllSeries()) {
-			for (Entry<Long, DescriptiveStatistics> entry : series
-					.getStatisticsMap().entrySet()) {
+		DistributionPlot plotMinError = new DistributionPlot();
+		plotMinError.setOutputName(outputName + "MemMinError")
+				.setTitle("Time Min Error (n=10)").setLogX()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("err(time10/min(time10))").setyUnit("\\%")
+				.setYRange(Range.between(0., 100.))
+				.setKeyPosition(KeyPosition.TopRight);
 
-				double min = entry.getValue().getMin();
+		fillErrorPlotMin(plotValues, plotError);
 
-				plotMinValues.setValue(series.getName(), entry.getKey(), min);
-
-				for (double value : entry.getValue().getValues()) {
-					plotError.addValue(series.getName(), entry.getKey(),
-							toError(value / min));
-				}
-			}
-		}
+		fillErrorPlotMin(plotMinValues, plotMinError);
 
 		plotService.plot(plotValues);
 		plotService.plot(plotMinValues);
 		plotService.plot(plotError);
+		plotService.plot(plotMinError);
 	}
 }

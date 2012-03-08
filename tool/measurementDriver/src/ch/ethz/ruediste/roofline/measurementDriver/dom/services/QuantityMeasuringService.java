@@ -19,10 +19,10 @@ import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
 import com.google.inject.Inject;
 
 public class QuantityMeasuringService {
-	public static ConfigurationKey<Integer> numberOfMeasurementsKey = ConfigurationKey
+	public static ConfigurationKey<Integer> numberOfRunsKey = ConfigurationKey
 			.Create(Integer.class,
-					"qms.numberOfMeasurements",
-					"number of measurements the QuantityMeasuringService should perform to get reliable results",
+					"qms.numberOfRuns",
+					"number of runs the QuantityMeasuringService should perform to get reliable results",
 					10);
 
 	public static ConfigurationKey<Boolean> useAltTBKey = ConfigurationKey
@@ -265,8 +265,19 @@ public class QuantityMeasuringService {
 	 */
 	public QuantityMap measureQuantities(final KernelBase kernel,
 			QuantityCalculator<?>... calculators) {
-		int numMeasurements = configuration.get(numberOfMeasurementsKey);
+		int numMeasurements = configuration.get(numberOfRunsKey);
 
+		QuantityMap result = measureQuantities(kernel, numMeasurements,
+				calculators);
+		return result;
+	}
+
+	/**
+	 * Measure a single workload with the given kernel for all measurers
+	 * required by the calculators
+	 */
+	public QuantityMap measureQuantities(final KernelBase kernel, int numRuns,
+			QuantityCalculator<?>... calculators) {
 		IMeasurementBuilder builder = new IMeasurementBuilder() {
 
 			public Measurement build(Map<String, MeasurerSet> sets) {
@@ -278,8 +289,8 @@ public class QuantityMeasuringService {
 				return measurement;
 			}
 		};
-		QuantityMap result = measureQuantities(builder, numMeasurements).with(
-				"main", calculators).get();
+		QuantityMap result = measureQuantities(builder, numRuns).with("main",
+				calculators).get();
 		return result;
 	}
 
@@ -332,7 +343,6 @@ public class QuantityMeasuringService {
 
 		@SuppressWarnings("unchecked")
 		public <T extends Quantity<T>> T get(QuantityCalculator<T> calc) {
-			T result;
 			return (T) super.get(calc);
 		}
 	}

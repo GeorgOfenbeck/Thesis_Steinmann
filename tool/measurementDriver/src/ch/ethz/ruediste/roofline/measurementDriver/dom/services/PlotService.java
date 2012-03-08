@@ -26,7 +26,7 @@ public class PlotService {
 	private final static Logger log = Logger.getLogger(PlotService.class);
 
 	private static final double plotWidth = 14;
-	private static final double plotHeight = plotWidth * 17. / 28.;
+	private static final double plotHeight = plotWidth * 16. / 28.;
 
 	private static double bMargin = 0.1;
 	private static double tMargin = 0.93;

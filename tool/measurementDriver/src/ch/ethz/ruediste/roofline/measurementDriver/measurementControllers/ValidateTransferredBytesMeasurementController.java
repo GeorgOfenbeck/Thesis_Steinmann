@@ -4,29 +4,25 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.kernelAxis;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.Map.Entry;
 
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.RunQuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
 
 public class ValidateTransferredBytesMeasurementController extends
-ValidationMeasurementControllerBase implements IMeasurementController {
+		ValidationMeasurementControllerBase implements IMeasurementController {
 
 	public String getName() {
 		return "valTB";
@@ -61,7 +57,7 @@ ValidationMeasurementControllerBase implements IMeasurementController {
 	}
 
 	public void measureArith(String outputName) throws ExecuteException,
-	IOException {
+			IOException {
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 		ParameterSpace space = new ParameterSpace();
 
@@ -70,15 +66,16 @@ ValidationMeasurementControllerBase implements IMeasurementController {
 		// initialize plot
 		DistributionPlot plotTbValues = new DistributionPlot();
 		plotTbValues.setOutputName(outputName + "ArithTBValues")
-		.setTitle("Memory Transfer Values").setLog()
-		.setxLabel("expOperationCount").setxUnit("flop")
-		.setyLabel("actualMemTransfer").setyUnit("bytes");
+				.setTitle("Memory Transfer Values").setLog()
+				.setxLabel("expOperationCount").setxUnit("flop")
+				.setyLabel("actualMemTransfer").setyUnit("bytes")
+				.setKeyPosition(KeyPosition.TopRight);
 
 		DistributionPlot plotTimeValues = new DistributionPlot();
 		plotTimeValues.setOutputName(outputName + "ArithTimeValues")
-		.setTitle("Memory Execution Time Values").setLog()
-		.setxLabel("expOperationCount").setxUnit("flop")
-		.setyLabel("executionTime").setyUnit("cycles");
+				.setTitle("Memory Execution Time Values").setLog()
+				.setxLabel("expOperationCount").setxUnit("flop")
+				.setyLabel("executionTime").setyUnit("cycles");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -133,7 +130,7 @@ ValidationMeasurementControllerBase implements IMeasurementController {
 	 * @throws IOException
 	 */
 	public void measureMem(String outputName) throws ExecuteException,
-	IOException {
+			IOException {
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 		ParameterSpace space = new ParameterSpace();
 
@@ -142,36 +139,31 @@ ValidationMeasurementControllerBase implements IMeasurementController {
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "Values");
-		plotValues.setTitle("Memory Values").setLog()
-		.setxLabel("expMemTransfer").setxUnit("bytes")
-		.setyLabel("actualMemTransfer/expMemTransfer").setyUnit("1");
+		plotValues.setTitle("Transferred Bytes Values (n=100)").setLog()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("actualMemTransfer/expMemTransfer").setyUnit("1")
+				.setKeyPosition(KeyPosition.TopRight);
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "Error");
-		plotError.setTitle("Memory Error").setLog().setxLabel("expMemTransfer")
-		.setxUnit("bytes")
-		.setyLabel("err(actualMemTransfer/expMemTransfer)")
-		.setyUnit("%");
+		plotError.setTitle("Transferred Bytes Error (n=100)").setLogX()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("err(actualMemTransfer/expMemTransfer)")
+				.setyUnit("%").setYRange(0, 100)
+				.setKeyPosition(KeyPosition.TopRight);
 
-		SeriesPlot plotMinValues = new SeriesPlot();
+		DistributionPlot plotMinValues = new DistributionPlot();
 		plotMinValues.setOutputName(outputName + "MinValues");
-		plotMinValues.setTitle("Memory Min Values").setLog()
-		.setxLabel("expMemTransfer").setxUnit("bytes")
-		.setyLabel("min(actualMemTransfer)/expMemTransfer")
-		.setyUnit("1");
+		plotMinValues.setTitle("Transferred Bytes Min Values (n=10)").setLog()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("actualMemTransfer10/expMemTransfer").setyUnit("1");
 
-		SeriesPlot plotMinError = new SeriesPlot();
+		DistributionPlot plotMinError = new DistributionPlot();
 		plotMinError.setOutputName(outputName + "MinError");
-		plotMinError.setTitle("Memory Min Error").setLog()
-		.setxLabel("expMemTransfer").setxUnit("bytes")
-		.setyLabel("err(min(actualMemTransfer)/expMemTransfer)")
-		.setyUnit("%");
-
-		DistributionPlot plotInterrupts = new DistributionPlot();
-		plotInterrupts.setOutputName(outputName + "Interrupts");
-		plotInterrupts.setTitle("Memory Interrupts").setLogX(true)
-		.setxLabel("expMemTransfer").setxUnit("bytes")
-		.setyLabel("# interrupts").setyUnit("1");
+		plotMinError.setTitle("Transferred Bytes Min Error (n=10)").setLogX()
+				.setxLabel("expMemTransfer").setxUnit("bytes")
+				.setyLabel("err(actualMemTransfer10/expMemTransfer)")
+				.setyUnit("%").setYRange(0, 100);
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -183,59 +175,26 @@ ValidationMeasurementControllerBase implements IMeasurementController {
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
 
-			// get the calculator for the interrupts
-			QuantityCalculator<Interrupts> interrupts = quantityMeasuringService
-					.getInterruptsCalculator();
-
 			// run the measurement
 			QuantityMap result = quantityMeasuringService.measureQuantities(
-					kernel, calc, interrupts);
+					kernel, 100, calc);
 
 			// get the expected number of bytes transferred
 			TransferredBytes expected = kernel.getExpectedTransferredBytes();
 
-			// print results to console and fill plot
-			/*System.out.printf("%s %s: expected: %s\n", kernelNames.get(kernel),
-					coordinate, expected);*/
-			for (RunQuantityMap runMap : result.getRunMaps()) {
-				TransferredBytes actual = runMap.get(calc);
+			fillDistributionPlotsExpected(kernelNames.get(kernel),
+					expected.getValue(), plotValues, plotMinValues, result,
+					calc);
 
-				double ratio = actual.getValue() / expected.getValue();
-				//System.out.printf("%s -> %g\n", actual, ratio);
-
-				plotValues.addValue(kernelNames.get(kernel),
-						(long) expected.getValue(),
-						//coordinate.get(bufferSizeAxis),
-						ratio);
-
-				plotError.addValue(kernelNames.get(kernel),
-						(long) expected.getValue(), toError(ratio));
-
-				plotInterrupts.addValue(kernelNames.get(kernel),
-						(long) expected.getValue(), runMap.get(interrupts)
-						.getValue());
-			}
 		}
 
-		for (DistributionPlotSeries series : plotValues.getAllSeries()) {
-			for (Entry<Long, DescriptiveStatistics> entry : series
-					.getStatisticsMap().entrySet()) {
-
-				double ratio = entry.getValue().getMin();
-
-				System.out.printf("%s %d %e\n", series.getName(),
-						entry.getKey(), ratio);
-				plotMinValues.setValue(series.getName(), entry.getKey(), ratio);
-				plotMinError.setValue(series.getName(), entry.getKey(),
-						toError(ratio));
-			}
-		}
+		fillErrorPlotExpected(plotValues, plotError);
+		fillErrorPlotExpected(plotMinValues, plotMinError);
 
 		plotService.plot(plotError);
 		plotService.plot(plotValues);
 		plotService.plot(plotMinError);
 		plotService.plot(plotMinValues);
-		plotService.plot(plotInterrupts);
 	}
 
 }

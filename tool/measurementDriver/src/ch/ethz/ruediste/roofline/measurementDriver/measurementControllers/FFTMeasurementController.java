@@ -95,12 +95,10 @@ public class FFTMeasurementController implements IMeasurementController {
 		for (Coordinate coordinate : space) {
 
 			if (coordinate.get(bufferSizeAxis) > 64 * 1024L) {
-				configuration.set(
-						QuantityMeasuringService.numberOfMeasurementsKey, 1);
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
 			}
 			else {
-				configuration.set(
-						QuantityMeasuringService.numberOfMeasurementsKey, 10);
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
 			}
 			// skip non-power of two sizes for the NR kernel
 			if (coordinate.get(kernelAxis) instanceof FFTnrKernel
