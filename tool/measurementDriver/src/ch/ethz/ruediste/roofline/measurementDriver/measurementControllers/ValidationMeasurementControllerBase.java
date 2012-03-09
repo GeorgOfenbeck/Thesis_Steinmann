@@ -63,7 +63,7 @@ public class ValidationMeasurementControllerBase {
 		}
 
 		// setup buffer sizes
-		for (long i = 128; i < 1024 * 1024 * 4; i *= 2) {
+		for (long i = 128; i < 1024 * 1024 * 16; i *= 2) {
 			space.add(bufferSizeAxis, i);
 		}
 	}

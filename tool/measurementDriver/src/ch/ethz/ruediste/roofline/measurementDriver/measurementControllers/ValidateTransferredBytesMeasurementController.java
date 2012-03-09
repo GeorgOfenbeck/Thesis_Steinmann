@@ -152,7 +152,7 @@ public class ValidateTransferredBytesMeasurementController extends
 				.setTitle("Transferred Bytes Flush Values (n=100)").setLog()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("actualMemTransfer").setyUnit("1")
-				.setKeyPosition(KeyPosition.TopRight);
+				.setKeyPosition(KeyPosition.TopLeft);
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "Error");
@@ -220,10 +220,6 @@ public class ValidateTransferredBytesMeasurementController extends
 			for (RunQuantityMap runMap : result.getRunMaps()) {
 				flushValues.addValue(kernelNames.get(kernel), (long) expected
 						.getValue(), runMap.get(flushCalc).getValue());
-				flushValues
-						.addValue(kernelNames.get(kernel) + "m",
-								(long) expected.getValue(), runMap.get(calc)
-										.getValue());
 			}
 
 		}
