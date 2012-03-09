@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 
 	// send a notification to let the parent know where the notification instruction is
 	ChildProcess::notifyParent(ParentNotification_Startup,
-			(uint32_t) ChildThread::processNotification);
+			(long) ChildThread::processNotification);
 
 	// start the child process
 	ChildProcess child;

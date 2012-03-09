@@ -199,6 +199,6 @@ int ChildProcess::main(int argc, char* argv[]) {
 	return 0;
 }
 
-void ChildProcess::notifyParent(ParentNotification event, uint32_t arg) {
+void ChildProcess::notifyParent(ParentNotification event, long arg) {
 	asm("int3": : "c" (event), "d" (arg));
 }

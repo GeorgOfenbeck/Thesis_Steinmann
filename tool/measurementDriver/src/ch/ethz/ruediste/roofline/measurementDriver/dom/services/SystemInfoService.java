@@ -242,6 +242,8 @@ public class SystemInfoService {
 		case Yonah:
 			// two megabyte cache size
 			return 1024L * 1024L * 2L;
+		case Core:
+			return 1024L * 1024L * 4L;
 		}
 		throw new Error("CPU not supported");
 	}

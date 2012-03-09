@@ -13,7 +13,7 @@
 class ChildProcess {
 public:
 	int main(int argc, char* argv[]);
-	static void notifyParent(ParentNotification event, uint32_t arg);
+	static void notifyParent(ParentNotification event, long arg);
 };
 
 #endif /* CHILDPROCESS_H_ */

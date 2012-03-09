@@ -22,6 +22,11 @@
 #define foreach         BOOST_FOREACH
 #define reverse_foreach BOOST_REVERSE_FOREACH
 
+#ifdef _LP64
+#define REG(regs,reg) (regs).r##reg
+#else
+#define REG(regs,reg) (regs).e##reg
+#endif
 void ParentProcess::handleChildExited(pid_t stoppedChild) {
 	LENTER
 	switch (childStates[stoppedChild]) {
@@ -100,9 +105,8 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 		perror("trapOccured:error reading child regs");
 		exit(1);
 	}
-
-	ParentNotification notification = (ParentNotification) regs.ecx;
-	uint32_t arg = regs.edx;
+	ParentNotification notification = (ParentNotification) REG(regs,cx);
+	uint32_t arg = REG(regs,dx);
 
 	switch (childStates[stoppedChild]) {
 	case ChildState_New:
@@ -111,8 +115,8 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 			// this is the first trap in the main child, which notifies us of the
 			// position of the notification int3 instruction and the child notification
 			// entry point
-			notifyAddress = regs.eip;
-			notificationProcedureEntry = regs.edx;
+			notifyAddress = REG(regs,ip);
+			notificationProcedureEntry = REG(regs,dx);
 
 			LDEBUG("got startup notification")
 			LDEBUG("child procedure entry: %x",notificationProcedureEntry)
@@ -138,7 +142,7 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 	case ChildState_Running:
 
 		// check if a notification was sent
-		if (regs.eip == notifyAddress) {
+		if (REG(regs,ip) == notifyAddress) {
 			LTRACE("trap comes from the parent notification address of the child")
 			if (!handleNotification(stoppedChild, notification, arg)) {
 				LWARNING("unhandled notification received: %s", ParentNotificationNames[notification]);
@@ -154,7 +158,7 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 		return;
 	case ChildState_ProcessingNotification:
 		// check if a processing done notification was sent
-		if (regs.eip == notifyAddress) {
+		if (REG(regs,ip) == notifyAddress) {
 
 			if (notification == ParentNotification_ProcessingDone) {
 				LDEBUG("child %i finished processing a notification",stoppedChild);
@@ -200,7 +204,7 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 }
 
 bool ParentProcess::handleNotification(pid_t stoppedChild,
-		ParentNotification event, uint32_t arg) {
+		ParentNotification event, long arg) {
 	switch (event) {
 	case ParentNotification_QueueProcessActions: {
 		uint32_t p = arg;
@@ -234,7 +238,7 @@ bool ParentProcess::handleNotification(pid_t stoppedChild,
 }
 
 void ParentProcess::setupChildNotification(pid_t stoppedChild,
-		ChildNotification event, uint32_t arg) {
+		ChildNotification event, long arg) {
 
 	LDEBUG("stopped child: %i, event: %s, arg: %i",
 			stoppedChild, ChildNotificationNames[event], arg);
@@ -260,11 +264,18 @@ void ParentProcess::setupChildNotification(pid_t stoppedChild,
 	}
 
 	// set the target address
+
+#ifdef _LP64
+	regs.rip = notificationProcedureEntry;
+	regs.rax = stoppedChild;
+	regs.rbx = event;
+	regs.rcx = arg;
+#else
 	regs.eip = notificationProcedureEntry;
 	regs.eax = stoppedChild;
 	regs.ebx = event;
 	regs.ecx = arg;
-
+#endif
 	// set the modified registers
 	ptrace(PTRACE_SETREGS, stoppedChild, NULL, &regs);
 }
@@ -280,7 +291,7 @@ void ParentProcess::setupChildNotification(pid_t stoppedChild) {
 	}
 	// pop notification
 	{
-		queue<pair<ChildNotification, uint32_t> >* queue =
+		queue<pair<ChildNotification, long> >* queue =
 				childNotificationQueue[stoppedChild];
 		event = queue->front().first;
 		arg = queue->front().second;
@@ -325,8 +336,7 @@ int ParentProcess::traceLoop() {
 		if (childStates.count(stoppedPid) == 0) {
 			LDEBUG("unknown child stopped %i", stoppedPid);
 			if (WIFSTOPPED(status)) {
-				int stopSig = WSTOPSIG(status);
-				LDEBUG("stopped by signal %s",strsignal(stopSig))
+				LDEBUG("stopped by signal %s",strsignal( WSTOPSIG(status)))
 				if (ptrace(PTRACE_CONT, stoppedPid, 0, 0) < 0) {
 					perror("cont: error on ptrace syscall");
 					exit(1);
@@ -394,12 +404,12 @@ int ParentProcess::traceLoop() {
 }
 
 void ParentProcess::queueNotification(pid_t stoppedChild, pid_t receiver,
-		ChildNotification event, uint32_t arg) {
-	queue<pair<ChildNotification, uint32_t> >* queue;
+		ChildNotification event, long arg) {
+	queue<pair<ChildNotification, long> >* queue;
 	if (childNotificationQueue.count(receiver) > 0) {
 		queue = childNotificationQueue[receiver];
 	} else {
-		queue = new ::queue<pair<ChildNotification, uint32_t> >();
+		queue = new ::queue<pair<ChildNotification, long> >();
 		childNotificationQueue[receiver] = queue;
 	}
 	queue->push(make_pair(event, arg));

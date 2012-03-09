@@ -41,7 +41,7 @@ const char *ChildStateNames[]
 class ParentProcess {
 	map<pid_t,ChildState> childStates;
 	map<pid_t,user_regs_struct> childRegs;
-	map<pid_t,queue<pair<ChildNotification,uint32_t> >* > childNotificationQueue;
+	map<pid_t,queue<pair<ChildNotification,long> >* > childNotificationQueue;
 
 	pid_t mainChild;
 
@@ -49,16 +49,16 @@ class ParentProcess {
 	void handleChildCloned(pid_t stoppedChild,pid_t clonePid);
 	void setupChildNotification(pid_t stoppedChild);
 	void handleTrapOccured(pid_t stoppedChild);
-	bool handleNotification(pid_t stoppedChild, ParentNotification event, uint32_t arg);
+	bool handleNotification(pid_t stoppedChild, ParentNotification event, long arg);
 	int handleSignalReceived(pid_t stoppedChild, int signal);
-	void queueNotification(pid_t stoppedChild, pid_t receiver, ChildNotification event, uint32_t arg);
+	void queueNotification(pid_t stoppedChild, pid_t receiver, ChildNotification event, long arg);
 
 	bool hasPendingNotification(pid_t child);
-    void setupChildNotification(pid_t stoppedChild, ChildNotification event, uint32_t arg);
+    void setupChildNotification(pid_t stoppedChild, ChildNotification event, long arg);
 
     bool notificationSystemReady;
-    int32_t notifyAddress;
-	int32_t notificationProcedureEntry;
+    unsigned long notifyAddress;
+	unsigned long notificationProcedureEntry;
 public:
 	ParentProcess(pid_t mainChild){
 		this->mainChild=mainChild;

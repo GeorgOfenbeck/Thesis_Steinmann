@@ -6,6 +6,9 @@ Required Packages
 - openjdk-6-jdk
 - libboost-dev
 - gnuplot
+- g++
+
+sudo apt-get install ccache openjdk-6-jdk libboost-dev gnuplot g++
 
 Steps
 *****
@@ -19,8 +22,12 @@ Steps
 ==> builds the tool, generates eclipse project files
 This might take a while, since all dependencies are downloaded, including Gradle
 
-4. install libpfm4_2.0_i386.deb and libpfm4-dev_2.0_i386.deb located in masterthesis/tool/lib
+4. install libpfm4 and libpfm4-dev located in masterthesis/tool/lib
+i386:
 sudo dpkg -i lib/libpfm4_2.0_i386.deb lib/libpfm4-dev_2.0_i386.deb
+
+amd64:
+sudo dpkg -i lib/libpfm4_2.0_amd64.deb lib/libpfm4-dev_2.0_amd64.deb
 
 5. link masterthesis/tool/frontend/build/rot from a directory which is in the shell path
 cd /usr/local/bin
@@ -44,4 +51,14 @@ Go to evaluation, the link is at the very bottom.
 sudo apt-get install libopenblas-dev
 
 -Spiral-WHT
-got to tools/lib and install the library contained in spiral-wht-1.8.tgz 
+got to tools/lib and install the library contained in spiral-wht-1.8.tgz
+ * extract
+ * ./configure
+ * make
+ * sudo make install
+
+BitBucket Connection
+********************
+The connector can be found at
+
+http://www.mylynbitbucketconnector.xpg.com.br/update
