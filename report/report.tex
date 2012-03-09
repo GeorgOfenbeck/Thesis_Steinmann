@@ -256,11 +256,32 @@ We tried to estimate the amount of memory that has to be transferred. For pure
 reading, we expect to observe the whole buffer beeing transferred to the core.
 When writing is involved, we expect some of the writes to be held back in the
 cache. It is hard to estimate the number of writes which is actually held back,
-therfore we just presume that the whole cache is used for write back.
+therfore we just presume that the whole cache is used for write back. 
 
 Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
 of memory transfer. The errors (see fig. \ref{yonah/valTBError}) decrease for
 growing buffer sizes. 
+
+\graphFloat{yonah/valTBALTFlushValues}{Yonah: Memory Transfer during Cache
+Flush after kernel execution}
+
+To validate our assumption on the write back cache, we measured the memory
+transfer while flushing the cache using 'CLFLUSH' after the execution of the
+kernel completes. (fig. \ref{yonah/valTBALTFlushValues}) There is a small
+overhead for the Read kernel. The data of the write kernel shows that almost the
+whole 2MB 2nd level cache is used for write back caching. For the Triad kernel
+one could suspect that each buffer receives about one third of the cache, which
+is affirmed by the data.
+
+\graphFloat{yonah/valTBArithTBValues}{Yonah: Transferred Bytes of the Arithmetic
+Kernel}
+
+When measuring the memory transfer of the arithmetic kernels, we observe an
+overhead of around 1KB for for short running kernels. When the execution time
+exceeds 1ms to 10ms, the memory transfer starts to correlate with the execution
+time, at around one byte every 10 to 100 cycles. (see fig.
+\ref{yonah/valTBArithTBValues} and \ref{yonah/valTimeArithValues})
+
 
 \subsection{Time}
 \graphFloat{yonah/valTimeArithValues}{Yonah: Execution Time of the ADD kernel}
