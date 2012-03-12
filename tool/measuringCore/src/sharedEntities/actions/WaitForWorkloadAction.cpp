@@ -72,7 +72,7 @@ void WaitForWorkloadAction::initialize() {
 	pthread_cond_init(&condvar, NULL);
 
 	// listen for start events
-	workloadStartEventPredicate.setWorkloadId(getWaitForWorkloadId());
+	workloadStartEventPredicate.setWorkload(getWaitForWorkload());
 	Locator::addEventListener(this);
 }
 

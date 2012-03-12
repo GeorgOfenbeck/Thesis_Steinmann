@@ -8,5 +8,5 @@
 	javaSuffix="Data"
 	comment="Event predicate matching the start of a workload">
 
-	<field name="workloadId" type="int" comment="match only the specified workload"/>	
+	<field name="workload" type="Workload" comment="match only the specified workload"/>	
 </derivedClass>

@@ -7,6 +7,5 @@
 	cSuffix="Data"
 	comment="Event predicate matching a thread start">
 
-	<field name="parentTid" type="int" comment="match only if the clone was invoked by the thread with this tid. -1 matches any thread"/>
-	<field name="workloadId" type="int" comment="match only if the thread was caused to be started by the workload with this id. -1 matches any workload"/>	
+	<field name="workload" type="Workload" comment="match only if the thread was caused to be started by this workload. null matches any workload"/>	
 </derivedClass>

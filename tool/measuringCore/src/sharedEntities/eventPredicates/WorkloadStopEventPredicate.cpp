@@ -7,6 +7,7 @@
 
 #include "WorkloadStopEventPredicate.h"
 #include "baseClasses/WorkloadStopEvent.h"
+#include "sharedEntities/Workload.h"
 
 #include <typeinfo>
 
@@ -17,7 +18,7 @@ bool WorkloadStopEventPredicate::doesMatch(EventBase *event)
 		WorkloadStopEvent *stopEvent=(WorkloadStopEvent*)event;
 
 		// check the workload id
-		if (stopEvent->getWorkloadId()==getWorkloadId()){
+		if (getWorkload()==NULL || stopEvent->getWorkloadId()==getWorkload()->getId()){
 			return true;
 		}
 	}

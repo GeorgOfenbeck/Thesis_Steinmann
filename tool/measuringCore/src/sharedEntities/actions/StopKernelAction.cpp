@@ -15,8 +15,7 @@ StopKernelAction::~StopKernelAction() {
 
 void StopKernelAction::execute(EventBase *event)
 {
-	KernelBase *kernel=Locator::getKernel(getKernelId());
-	kernel->setKeepRunning(false);
+	getKernel()->setKeepRunning(false);
 }
 
 

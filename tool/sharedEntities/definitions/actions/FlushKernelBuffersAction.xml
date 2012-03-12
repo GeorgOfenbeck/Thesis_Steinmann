@@ -7,5 +7,5 @@
 	javaSuffix="Data"
 	comment="Action flushing the buffers of a kernel">
 
-	<field name="kernelId" type="int" comment="id of the kernel to be stopped"/>
+	<field name="kernel" type="KernelBase" comment="kernel whose buffers have to be flushed"/>
 </derivedClass>

@@ -8,6 +8,7 @@
 #include "WorkloadStartEventPredicate.h"
 
 #include "baseClasses/WorkloadStartEvent.h"
+#include "sharedEntities/Workload.h"
 
 #include <typeinfo>
 
@@ -18,7 +19,7 @@ bool WorkloadStartEventPredicate::doesMatch(EventBase *event)
 		WorkloadStartEvent *startEvent=(WorkloadStartEvent*)event;
 
 		// check the workload id
-		if (startEvent->getWorkloadId()==getWorkloadId()){
+		if (getWorkload()==NULL || startEvent->getWorkloadId()==getWorkload()->getId()){
 			return true;
 		}
 	}

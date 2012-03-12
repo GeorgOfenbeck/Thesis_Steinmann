@@ -8,6 +8,7 @@
 #include "FlushKernelBuffersAction.h"
 #include "baseClasses/Locator.h"
 #include "sharedEntities/KernelBase.h"
+#include "Logger.h"
 
 FlushKernelBuffersAction::~FlushKernelBuffersAction() {
 	// TODO Auto-generated destructor stub
@@ -15,8 +16,9 @@ FlushKernelBuffersAction::~FlushKernelBuffersAction() {
 
 void FlushKernelBuffersAction::execute(EventBase *event)
 {
-	KernelBase *kernel=Locator::getKernel(getKernelId());
-	kernel->flushBuffers();
+	LENTER
+	getKernel()->flushBuffers();
+	LLEAVE
 }
 
 
