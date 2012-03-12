@@ -11,12 +11,13 @@
 #include <string>
 #include "baseClasses/PolymorphicBase.h"
 #include <set>
+#include <map>
 
 class SharedEntityBase: public PolymorphicBase {
 public:
 	virtual ~SharedEntityBase();
-	virtual void cloneFrom(SharedEntityBase *c){}
-	virtual SharedEntityBase * clone()=0;
+	virtual void cloneFrom(SharedEntityBase *c, std::map<PolymorphicBase*,PolymorphicBase*> &map){}
+	virtual SharedEntityBase * clone(std::map<PolymorphicBase*,PolymorphicBase*> &map)=0;
 	virtual void addAll(std::set<SharedEntityBase*> &result);
 };
 

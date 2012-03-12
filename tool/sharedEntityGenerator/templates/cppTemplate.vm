@@ -29,12 +29,6 @@ static class Serializer${class.name}: public Serializer{
 #end 
 
 	void serialize(SharedEntityBase *o, ostream &output, SerializationContext *ctx){
-		if (o==NULL){
-			output<<"<null>\n";
-			return;
-		}
-		
-		
 		output << "$class.name" <<"\n";
 		#foreach($field in $class.allFields)
 			{
@@ -102,6 +96,8 @@ static class Serializer${class.name}: public Serializer{
 
 		$class.name *result=new ${class.name}();
 		
+		ctx->addObject(result);
+		
 		#foreach($field in $class.allFields)
 		{
 			getline(input,line);
@@ -141,18 +137,25 @@ static class Serializer${class.name}: public Serializer{
 ## *************************
 
 #if (!$class.isAbstract())
-	$class.cName * ${class.cName}::clone(){
+	$class.cName * ${class.cName}::clone(std::map<PolymorphicBase*,PolymorphicBase*> &map){
+		if (map.count(this)>0){
+			return ($class.Name *) map[this];
+		}
 		$class.Name *result=new ${class.Name}();
-		result->cloneFrom(this);
+		
+		map[this]=result;
+		
+		result->cloneFrom(this, map);
 		return result;
 	}
 #end
 
-void ${class.cName}::cloneFrom($class.cName *c){
-	//printf("cloning $class.Name\n");
+void ${class.cName}::cloneFrom($class.cName *c, std::map<PolymorphicBase*,PolymorphicBase*> &map){
+	
+	
 	## call base method
 	#if ($class.hascBaseType()) 
-	$class.cBaseType::cloneFrom(c); 
+	$class.cBaseType::cloneFrom(c, map); 
 	#end
 	
 	#foreach($field in $class.fields)
@@ -161,7 +164,7 @@ void ${class.cName}::cloneFrom($class.cName *c){
 			for (unsigned long i=0; i<c->get${field.nameUpperCamel}().size(); i++) {
 				#if ($field.typeDescriptor.reference)
 					if (c->get${field.nameUpperCamel}()[i]!=NULL){
-						get${field.nameUpperCamel}().push_back(($field.getType()*)(((SharedEntityBase*)($field.getType()*)c->get${field.nameUpperCamel}()[i])->clone()));
+						get${field.nameUpperCamel}().push_back(($field.getType()*)(((SharedEntityBase*)($field.getType()*)c->get${field.nameUpperCamel}()[i])->clone(map)));
 						}
 					else
 						get${field.nameUpperCamel}().push_back(NULL);
@@ -172,7 +175,7 @@ void ${class.cName}::cloneFrom($class.cName *c){
 		#else
 			#if ($field.typeDescriptor.reference)
 				if (c->get${field.nameUpperCamel}()!=NULL){
-					set${field.nameUpperCamel}(($field.getType()*)(((SharedEntityBase*)($field.getType()*)c->get${field.nameUpperCamel}())->clone()));
+					set${field.nameUpperCamel}(($field.getType()*)(((SharedEntityBase*)($field.getType()*)c->get${field.nameUpperCamel}())->clone(map)));
 				}
 			#else
 				set${field.nameUpperCamel}(c->get${field.nameUpperCamel}());

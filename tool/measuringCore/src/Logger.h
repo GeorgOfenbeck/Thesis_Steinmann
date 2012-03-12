@@ -14,7 +14,9 @@
 #define LOGLEVEL_DEBUG 4
 #define LOGLEVEL_TRACE 5
 
+#ifndef LOGLEVEL
 #include "LogLevel.h"
+#endif
 
 #ifndef LOGLEVEL
 #define LOGLEVEL LOGLEVEL_TRACE

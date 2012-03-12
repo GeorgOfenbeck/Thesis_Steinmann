@@ -4,7 +4,7 @@
  *  Created on: Nov 9, 2011
  *      Author: ruedi
  */
-
+#include "Logger.h"
 #include "MemoryKernel.h"
 #include <cstdlib>
 #include <cstring>
@@ -34,7 +34,7 @@ static float fastRand(){
 	return f;
 }
 void MemoryKernel::initialize() {
-
+	LENTER
 	srand48(0);
 
 	size_t size = getBufferSize();
@@ -49,13 +49,16 @@ void MemoryKernel::initialize() {
 			buffer[p * size * UNROLL + i] = fastRand();
 		}
 	}
+	LLEAVE
 }
 
 std::vector<std::pair<void*, long> > MemoryKernel::getBuffers() {
+	LENTER
 	std::vector<std::pair<void*, long> > result;
 	result.push_back(
 			std::make_pair((void*) buffer,
 					UNROLL * DLP * getBufferSize() * sizeof(float)));
+	LLEAVE
 	return result;
 }
 
@@ -166,6 +169,8 @@ void MemoryKernel::run() {
 }
 
 void MemoryKernel::dispose() {
+	LENTER
 	free(buffer);
+	LLEAVE
 }
 

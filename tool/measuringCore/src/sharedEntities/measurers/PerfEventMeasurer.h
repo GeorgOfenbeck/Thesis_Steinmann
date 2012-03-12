@@ -42,6 +42,7 @@ public:
 		ret = ioctl(groupFd, PERF_EVENT_IOC_ENABLE, 0);
 		if (ret)
 			err(1, "ioctl(enable) failed");
+		LLEAVE
 
 	}
 	void stop(){

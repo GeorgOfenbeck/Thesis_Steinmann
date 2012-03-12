@@ -84,6 +84,7 @@ int registerEvent(int parentFd, string eventName){
 }
 
 void PerfEventMeasurer::initialize(){
+	LENTER
 	groupFd=-1;
 	for (size_t i=0; i<getEvents().size(); i++){
 		PerfEventDefinition *definition=getEvents()[i];
@@ -95,7 +96,7 @@ void PerfEventMeasurer::initialize(){
 			groupFd=fd;
 		}
 	}
-
+	LLEAVE
 }
 
 void PerfEventMeasurer::dispose(){
@@ -150,6 +151,7 @@ static class PerfEventMeasurerInitializer: public SystemInitializer{
 		ret = pfm_initialize();
 		if (ret != PFM_SUCCESS)
 			errx(1, "cannot initialize library: %s", pfm_strerror(ret));
+		LLEAVE
 	}
 
 	void stop(){

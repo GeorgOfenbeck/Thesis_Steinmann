@@ -12,6 +12,7 @@
 \#include <string>
 \#include <stdint.h>
 \#include <set>
+\#include <map>
 
 #foreach ($reference in $references)
 class $reference;
@@ -56,10 +57,10 @@ class $class.cName #if ($class.hascBaseType()) : public $class.cBaseType #end{
 ## create clone method
 public:
 	#if (!$class.isAbstract())
-	virtual $class.cName * clone();
+	virtual $class.cName * clone(std::map<PolymorphicBase*,PolymorphicBase*> &map);
 	#end
 	
-	virtual void cloneFrom($class.cName *c);
+	virtual void cloneFrom($class.cName *c, std::map<PolymorphicBase*,PolymorphicBase*> &map);
 	virtual void addAll(std::set<SharedEntityBase*> &result);
 };
 #endif

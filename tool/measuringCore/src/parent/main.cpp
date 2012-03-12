@@ -78,10 +78,6 @@ pid_t startChildProcess(int argc, char* argv[]) {
 
 
 int main(int argc, char* argv[]) {
-	//ChildProcess child;
-	//child.main(argc,argv);
-	//return 0;
-
 	LENTER
 
 	// start the child process

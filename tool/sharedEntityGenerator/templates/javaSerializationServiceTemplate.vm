@@ -4,21 +4,64 @@ package ${javaBasePackage}.serializationService;
 
 import java.io.*;
 import java.util.Scanner;
+import java.util.IdentityHashMap;
 import java.math.BigInteger;
 
 /** Serializes and deserializes multi language objects */
 public class SharedEntitySerializationService{
 
+	private class SerializationContext {
+		IdentityHashMap<Object, Long> map = new IdentityHashMap<Object, Long>();
+		private long nextIdx = 0;
+
+		public boolean contains(Object obj) {
+			return map.containsKey(obj);
+		}
+
+		public long getIdx(Object obj) {
+			return map.get(obj);
+		}
+
+		public long addObject(Object obj) {
+			map.put(obj, nextIdx);
+			nextIdx++;
+			return nextIdx;
+		}
+	}
+	
+	private class DeSerializationContext {
+		IdentityHashMap<Long, Object> map = new IdentityHashMap<Long, Object>();
+		private long nextIdx = 0;
+
+		public boolean contains(Long obj) {
+			return map.containsKey(obj);
+		}
+
+		public Object getObj(Long idx) {
+			return map.get(idx);
+		}
+
+		public long addObject(Object obj) {
+			map.put(nextIdx, obj);
+			nextIdx++;
+			return nextIdx;
+		}
+	}
+	
 	public void Serialize(Object o, OutputStream output){
 		// we use a print stream for serialization
 		PrintStream stream=new PrintStream(output);
-		SerializeImp(o, stream);
+		
+		SerializationContext ctx = new SerializationContext();
+		SerializeImp(o, stream, ctx);
 	}
 	
 	public Object DeSerialize(InputStream input){
 		// we use a scanner for parsing the input
 		Scanner scanner=new Scanner(input);
-		return DeSerializeImp(scanner);
+		
+		DeSerializationContext ctx=new DeSerializationContext();
+		return DeSerializeImp(scanner,ctx);
 	}
 	
 	/**
@@ -91,7 +134,7 @@ public class SharedEntitySerializationService{
 #macro( serializeNonList $value )
 	#if ($field.typeDescriptor.reference)
 		// for references, recursively serialize the referenced object
-		SerializeImp($value,output);	
+		SerializeImp($value,output,ctx);	
 	#else
 		#if ($field.type == "bool")
 			// booleans are serialized using ones and zeros
@@ -105,13 +148,22 @@ public class SharedEntitySerializationService{
 	#end
 #end
  
-	private void SerializeImp(Object o, PrintStream output){
+	private void SerializeImp(Object o, PrintStream output, SerializationContext ctx){
 		// check for null, and serialize with a string which 
 		// can not be a class name
 		if (o==null){
 			output.println("<null>");
 			return;
 		}
+		
+		// check if the object is already serialized
+		if (ctx.contains(o)) {
+			output.printf("=> %d\n", ctx.getIdx(o));
+			return;
+		}
+
+		// add the object to the context
+		ctx.addObject(o);
 		
 		##iterate over all classes	
 		#foreach($class in $classes)
@@ -160,7 +212,7 @@ public class SharedEntitySerializationService{
 #if ($field.type!="string") scanner.nextLine(); #end 
 #end
 
-private Object DeSerializeImp(Scanner scanner) {
+private Object DeSerializeImp(Scanner scanner, DeSerializationContext ctx) {
 	// parse null values
 	if (scanner.hasNext("<null>")){
 		scanner.next("<null>");
@@ -168,11 +220,22 @@ private Object DeSerializeImp(Scanner scanner) {
 		return null;
 	}
 	
+	// handle references
+	if (scanner.hasNext("=> ")){
+		scanner.next("=> ");
+		long idx = scanner.nextLong();
+		scanner.nextLine();
+		return ctx.getObj(idx);
+	}
+		
 	#foreach($class in $classes)	
 		#if(!$class.isAbstract())
 			if (scanner.hasNext("$class.name")){
 				// instantiate the resulting class instance
 				$class.javaNameQualified result=new ${class.javaNameQualified}();
+				
+				// add result to context
+				ctx.addObject(result);
 				
 				// remove the class name
 				scanner.next("$class.name");
@@ -190,7 +253,7 @@ private Object DeSerializeImp(Scanner scanner) {
 						for (int i=0; i<count; i++){
 			
 							#if ($field.typeDescriptor.reference)
-								result.get${field.nameUpperCamel}().add(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
+								result.get${field.nameUpperCamel}().add(($field.typeDescriptor.javaName)DeSerializeImp(scanner,ctx));
 							#else
 								result.get${field.nameUpperCamel}().add(#parseNonReference());
 								#advanceAfterParseNonReference
@@ -198,7 +261,7 @@ private Object DeSerializeImp(Scanner scanner) {
 						}
 					}
 					#elseif ($field.typeDescriptor.reference)
-						result.set${field.nameUpperCamel}(($field.typeDescriptor.javaName)DeSerializeImp(scanner));
+						result.set${field.nameUpperCamel}(($field.typeDescriptor.javaName)DeSerializeImp(scanner,ctx));
 					#else
 						result.set${field.nameUpperCamel}(#parseNonReference());
 						#advanceAfterParseNonReference

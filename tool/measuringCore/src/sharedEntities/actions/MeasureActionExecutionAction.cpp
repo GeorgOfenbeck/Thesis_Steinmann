@@ -4,7 +4,7 @@
  *  Created on: Mar 8, 2012
  *      Author: ruedi
  */
-
+#include "Logger.h"
 #include "MeasureActionExecutionAction.h"
 #include "sharedEntities/MeasurerSet.h"
 MeasureActionExecutionAction::~MeasureActionExecutionAction() {
@@ -13,6 +13,7 @@ MeasureActionExecutionAction::~MeasureActionExecutionAction() {
 
 void MeasureActionExecutionAction::execute(EventBase *event)
 {
+	LENTER
 	getMeasurerSet()->initialize();
 
 	getMeasurerSet()->start();
@@ -20,6 +21,7 @@ void MeasureActionExecutionAction::execute(EventBase *event)
 	getMeasurerSet()->stop();
 
 	getMeasurerSet()->dispose();
+	LLEAVE
 }
 
 void MeasureActionExecutionAction::initialize()

@@ -103,7 +103,11 @@ int ChildProcess::main(int argc, char* argv[]) {
 	for (int runNumber = 0; runNumber < command->getRunCount(); runNumber++) {
 
 		LTRACE("cloning measurement");
-		Measurement *measurementClone = (Measurement*) measurement->clone();
+		Measurement *measurementClone;
+		{
+			std::map<PolymorphicBase*, PolymorphicBase*> map;
+			measurementClone = (Measurement*) measurement->clone(map);
+		}
 
 		// set the measurement in the locator
 		Locator::setMeasurement(measurementClone);
@@ -168,8 +172,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 		measurementClone->addAll(all);
 		foreach(SharedEntityBase *obj, all)
 				{
-					MeasurerSet *output =
-							dynamic_cast<MeasurerSet*>(obj);
+					MeasurerSet *output = dynamic_cast<MeasurerSet*>(obj);
 					if (output != NULL)
 						measurementRunOutput->getMeasurerSetOutputs().push_back(
 								output->getOutput());
