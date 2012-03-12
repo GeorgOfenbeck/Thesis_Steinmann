@@ -282,30 +282,48 @@ exceeds 1ms to 10ms, the memory transfer starts to correlate with the execution
 time, at around one byte every 10 to 100 cycles. (see fig.
 \ref{yonah/valTBArithTBValues} and \ref{yonah/valTimeArithValues})
 
-
 \subsection{Time}
 \graphFloat{yonah/valTimeArithValues}{Yonah: Execution Time of the ADD kernel}
 \graphFloat{yonah/valTimeArithError}{Yonah: Error of the Execution Time of the
 ADD kernel}
 
-The first two graphs show the result of measuring the execution time of the ADD
-kernel. Figure \ref{yonah/valTimeArithValues} shows that the execution time is
-around one cycle per operation and does not differ between SSE and x87, which is
-consistent with the information found in the Intel manual. Figure
-\ref{yonah/valTimeArithError} shows that the errors are small for operation counts above 10000.
+For the ADD kernels, figure \ref{yonah/valTimeArithValues} shows that the
+execution time is around one cycle per operation and does not differ between SSE
+and x87, which is consistent with the information found in the Intel manual.
+The same applies for the MUL kernels, with a throughput of around $0.5$
+multiplications per cycle. The error is small for operation counts above 10000
+(fig \ref{yonah/valTimeArithError}).
 
-\graphFloat{yonah/valTimeMemValues}{Execution Time of the memory kernels} sdf
-
+\graphFloat{yonah/valTimeMemValues}{Execution Time of the memory kernels} 
 \graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the memory kernels}
+For the kernels causing memory transfer, we observe a strong correlation between
+expected memory transfer and execution time (fig. \ref{yonah/valTimeMemValues}),
+but the errors far exceed those observed for the arithmetic kernels (fig.
+\ref{yonah/valTimeMemError}).
 
-For the memory intesive kernels, we show the expected memory transfer on
-the x axis. (fig. \ref{yonah/valTimeMemValues}) 
-
-\graphFloat{yonah/dgemv}{bar}
-\clearpage
 
 \subsection{Operation Count}
+\graphFloat{yonah/valOpValues}{Yonah: Operation Count}
+\graphFloat{yonah/valOpError}{Yonah: Operation Count Error}
+Figures \ref{yonah/valOpValues} and \ref{yonah/valOpError} show that we get
+almost perfect results for measuring the operation count. The error for the x87
+ADD and MUL could be explained by an overhead of around 50 respectively
+500 floating point instructions.
 
+\subsection{Handling the Variance}
+In the previous sections we saw that our measurements produce plausible results.
+But as soon as the kernels cause memory transfer, we observe a high variance
+when measuring execution time and transferred bytes. We presume this is due to
+various activities happening in the background during the measurement. (Task
+switches etc). 
+
+These activities cause events to be measured which are not related to
+the execution of the kernel. Fortunately, additional events only increase the
+measured execution time, memory transfer or operation count. Ideally, the true
+value is the minimal value observed. We therefore repeat each measurement $K$
+times and discard all but the minimal value. 
+
+\clearpage
 \section{Measurement Tool Architecture}
 The tool consists of two main components: The Measuring Core, which performs the
 actual measurements, and the Measurement Driver, which controls the core.

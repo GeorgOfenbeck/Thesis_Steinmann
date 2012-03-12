@@ -53,7 +53,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 
 		{
 			ParameterSpace space = new ParameterSpace();
-			for (long i = 64; i <= 900; i += 64) {
+			for (long i = 64; i <= 400; i += 64) {
 				space.add(Axes.matrixSizeAxis, i);
 			}
 			space.add(Axes.blockSizeAxis, 64L);

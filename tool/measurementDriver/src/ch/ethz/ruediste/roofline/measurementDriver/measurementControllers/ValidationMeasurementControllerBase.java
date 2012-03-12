@@ -98,6 +98,30 @@ public class ValidationMeasurementControllerBase {
 			kernelNames.put(kernel, "ADD x87");
 		}
 
+		// setup mul sse kernel
+		{
+			ArithmeticKernel kernel = new ArithmeticKernel();
+			kernel.setUnroll(4);
+			kernel.setDlp(2);
+			kernel.setOptimization("-O3 -msse2");
+			kernel.setOperation(ArithmeticOperation.ArithmeticOperation_MUL);
+			kernel.setInstructionSet(InstructionSet.SSE);
+			space.add(kernelAxis, kernel);
+			kernelNames.put(kernel, "MUL SSE");
+		}
+
+		// setup mul x87 kernel
+		{
+			ArithmeticKernel kernel = new ArithmeticKernel();
+			kernel.setUnroll(4);
+			kernel.setDlp(3);
+			kernel.setOptimization("-O3");
+			kernel.setOperation(ArithmeticOperation.ArithmeticOperation_MUL);
+			kernel.setInstructionSet(InstructionSet.x87);
+			space.add(kernelAxis, kernel);
+			kernelNames.put(kernel, "MUL x87");
+		}
+
 		// setup iteration counts
 		for (long i = 128; i < 1024 * 1024 * 128L; i *= 4) {
 			space.add(iterationsAxis, i);
