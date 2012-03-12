@@ -1,12 +1,12 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-import java.io.*;
+import java.io.IOException;
 import java.util.*;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.log4j.*;
+import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
 import ch.ethz.ruediste.roofline.measurementDriver.commandControllers.IAutoCompletionAwareCommandController;
@@ -53,12 +53,11 @@ public class Main {
 	@Inject
 	public ReflectionRepository reflectionRepository;
 
-	public static void main(String args[]) throws IOException {
-		// setup dependency Injection
-		Injector injector = Guice.createInjector(new MainModule());
+	@Inject
+	public MainHelper mainHelper;
 
-		// make the injector available to the instantiator
-		injector.getInstance(Instantiator.class).setInjector(injector);
+	public static void main(String args[]) throws IOException {
+		Injector injector = MainHelper.createInjector();
 
 		Main main = injector.getInstance(Main.class);
 
@@ -95,71 +94,16 @@ public class Main {
 		userConfiguration.setParentConfiguration(defaultConfiguration);
 
 		// load default configuration
-		{
-			InputStream inStream = ClassLoader
-					.getSystemResourceAsStream("defaultConfiguration.config");
-			if (inStream == null) {
-				throw new Error(
-						"could not load <defaultConfiguration.config>. Does not seem to be in the class path. Is it compiled into the .jar?");
-			}
-
-			fillConfiguration(defaultConfiguration, inStream);
-		}
+		mainHelper.loadDefaultConfiguration(defaultConfiguration);
 
 		// parse command line
 		List<String> parsedArgs = parseCommandLine(args);
 
-		// load user configuration
-		{
-			// retrieve the user configuration file
-			String userConfigFileString = configuration.get(userConfigFileKey);
+		// load user Configuration
+		mainHelper.loadUserConfiguration(userConfiguration);
 
-			// replace a starting tilde with the user home directory
-			if (userConfigFileString.startsWith("~")) {
-				userConfigFileString = System.getProperty("user.home")
-						+ userConfigFileString.substring(1);
-			}
-
-			// check if the user configuration file exists
-			File userConfigFile = new File(userConfigFileString);
-			if (userConfigFile.exists() && userConfigFile.isFile()) {
-				// parse the user configuration
-				InputStream inStream = new FileInputStream(userConfigFile);
-				fillConfiguration(userConfiguration, inStream);
-			}
-		}
-
-		// initialize log4j
-		{
-			InputStream inStream = ClassLoader
-					.getSystemResourceAsStream("log4j.config");
-			if (inStream == null) {
-				throw new Error(
-						"could not load <log4j.config>. Does not seem to be in the class path. Is it compiled into the .jar?");
-			}
-
-			Properties properties = new Properties();
-			properties.load(inStream);
-			PropertyConfigurator.configure(properties);
-
-			// load user configuration
-			File userConfigFile = new File(
-					configuration.get(userLog4jConfigFileKey));
-			if (userConfigFile.exists() && !userConfigFile.isDirectory()) {
-				PropertyConfigurator
-						.configure(userConfigFile.getAbsolutePath());
-			}
-		}
-
-		// set the loglevel
-		Logger.getRootLogger().setLevel(
-				Level.toLevel(configuration.get(logLevelKey)));
-
-		// set debug loglevel
-		if (configuration.get(debugOutputKey)) {
-			// System.out.println("set loglevel to debug");
-			Logger.getRootLogger().setLevel((Level) Level.DEBUG);
-		}
+		// configure log4j
+		mainHelper.configureLog4j();
 
 		runtimeMonitor.startupCategory.leave();
 
@@ -191,25 +135,6 @@ public class Main {
 		}
 		runtimeMonitor.rootCategory.leave();
 		runtimeMonitor.print();
-	}
-
-	/**
-	 * parse the configuration file accessible through the inStream, and put all
-	 * flags into the provided configuration.
-	 */
-	public void fillConfiguration(Configuration configuration,
-			InputStream inStream) throws IOException {
-		// load the stream
-		Properties properties = new Properties();
-		properties.load(inStream);
-
-		// put properties into the configuration
-		for (String key : properties.stringPropertyNames()) {
-			ConfigurationKeyBase configKey = reflectionRepository
-					.getConfigurationKeyMap().get(key);
-
-			configuration.parseAndSet(configKey, properties.getProperty(key));
-		}
 	}
 
 	private void doAutocompetion(String[] args) {
