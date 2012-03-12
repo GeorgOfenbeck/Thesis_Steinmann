@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
@@ -19,7 +20,15 @@ import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.MemoryOperation;
 
+import com.google.inject.Inject;
+
 public class ValidationMeasurementControllerBase {
+
+	public static ConfigurationKey<Boolean> fastKey = ConfigurationKey.Create(
+			Boolean.class, "fast", "reduce proble sizes", false);
+
+	@Inject
+	public Configuration configuration;
 
 	public ValidationMeasurementControllerBase() {
 		super();
@@ -62,8 +71,13 @@ public class ValidationMeasurementControllerBase {
 			kernelNames.put(kernel, "Triad");
 		}
 
+		long maxSize = 16;
+		if (configuration.get(fastKey)) {
+			maxSize = 1;
+		}
+
 		// setup buffer sizes
-		for (long i = 128; i < 1024 * 1024 * 16; i *= 2) {
+		for (long i = 128; i < 1024 * 1024 * maxSize; i *= 2) {
 			space.add(bufferSizeAxis, i);
 		}
 	}
@@ -122,8 +136,13 @@ public class ValidationMeasurementControllerBase {
 			kernelNames.put(kernel, "MUL x87");
 		}
 
+		long maxSize = 128;
+		if (configuration.get(fastKey)) {
+			maxSize = 1;
+		}
+
 		// setup iteration counts
-		for (long i = 128; i < 1024 * 1024 * 128L; i *= 4) {
+		for (long i = 128; i < 1024 * 1024 * maxSize; i *= 4) {
 			space.add(iterationsAxis, i);
 		}
 	}

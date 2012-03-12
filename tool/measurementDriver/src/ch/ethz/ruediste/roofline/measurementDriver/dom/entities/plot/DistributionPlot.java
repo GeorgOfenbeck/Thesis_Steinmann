@@ -53,4 +53,28 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 	public List<DistributionPlotSeries> getAllSeries() {
 		return toList(allSeries.values());
 	}
+
+	public DescriptiveStatistics getStatisticsOfN() {
+		DescriptiveStatistics result = new DescriptiveStatistics();
+		for (DistributionPlotSeries series : getAllSeries()) {
+			for (DescriptiveStatistics seriesStats : series.getStatisticsMap()
+					.values()) {
+				result.addValue(seriesStats.getN());
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public String getTitle() {
+		DescriptiveStatistics statisticsOfN = getStatisticsOfN();
+		if (Math.abs(statisticsOfN.getMin() - statisticsOfN.getMax()) < 0.1) {
+			return String.format("%s (n=%.0f)", super.getTitle(),
+					statisticsOfN.getMax());
+		}
+		else {
+			return String.format("%s (n=%.0f...%.0f)", super.getTitle(),
+					statisticsOfN.getMin(), statisticsOfN.getMax());
+		}
+	}
 }

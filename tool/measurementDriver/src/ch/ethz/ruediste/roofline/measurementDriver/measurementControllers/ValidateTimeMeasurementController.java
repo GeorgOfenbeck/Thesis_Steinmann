@@ -54,15 +54,13 @@ public class ValidateTimeMeasurementController extends
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "ArithValues")
-				.setTitle("Time Values (n=100)").setLog()
-				.setxLabel("expOperations").setxUnit("operation")
-				.setyLabel("time").setyUnit("cycles");
+				.setTitle("Time Values").setLog().setxLabel("expOperations")
+				.setxUnit("operation").setyLabel("time").setyUnit("cycles");
 
 		DistributionPlot plotMinValues = new DistributionPlot();
 		plotMinValues.setOutputName(outputName + "ArithMinValues")
-				.setTitle("Time Min Values (n=10)").setLog()
-				.setxLabel("expOpCount").setxUnit("1").setyLabel("min(time)")
-				.setyUnit("cycles");
+				.setTitle("Time Min Values").setLog().setxLabel("expOpCount")
+				.setxUnit("1").setyLabel("min(time)").setyUnit("cycles");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -88,19 +86,19 @@ public class ValidateTimeMeasurementController extends
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "ArithError")
-				.setTitle("Time Error (n=100)").setLogX()
-				.setxLabel("expOpCount").setKeyPosition(KeyPosition.TopLeft)
-				.setxUnit("operations").setyLabel("err(time/min(time))")
-				.setyUnit("%").setYRange(Range.between(0., 100.));
+				.setTitle("Time Error").setLogX().setxLabel("expOpCount")
+				.setKeyPosition(KeyPosition.TopLeft).setxUnit("operations")
+				.setyLabel("err(time/min(time))").setyUnit("%")
+				.setYRange(Range.between(0., 100.));
 
 		fillErrorPlotMin(plotValues, plotError);
 
 		DistributionPlot plotMinError = new DistributionPlot();
 		plotMinError.setOutputName(outputName + "ArithMinError")
-				.setTitle("Time Min Error (n=10)").setLogX()
-				.setxLabel("expOpCount").setKeyPosition(KeyPosition.TopRight)
-				.setxUnit("operations").setyLabel("err(time10/min(time10))")
-				.setyUnit("%").setYRange(Range.between(0., 100.));
+				.setTitle("Time Min Error").setLogX().setxLabel("expOpCount")
+				.setKeyPosition(KeyPosition.TopRight).setxUnit("operations")
+				.setyLabel("err(time10/min(time10))").setyUnit("%")
+				.setYRange(Range.between(0., 100.));
 
 		fillErrorPlotMin(plotMinValues, plotMinError);
 
@@ -120,13 +118,12 @@ public class ValidateTimeMeasurementController extends
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "MemValues")
-				.setTitle("Time Values (n=100)").setLog()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("time").setyUnit("cycles");
+				.setTitle("Time Values").setLog().setxLabel("expMemTransfer")
+				.setxUnit("bytes").setyLabel("time").setyUnit("cycles");
 
 		DistributionPlot plotMinValues = new DistributionPlot();
 		plotMinValues.setOutputName(outputName + "MemMinValues")
-				.setTitle("Time Min Values (n=10)").setLog()
+				.setTitle("Time Min Values").setLog()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("time10").setyUnit("cycles");
 
@@ -153,15 +150,14 @@ public class ValidateTimeMeasurementController extends
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "MemError");
-		plotError.setTitle("Time Error (n=100)").setLogX()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("err(time/min(time))").setyUnit("\\%")
-				.setYRange(Range.between(0., 100.))
+		plotError.setTitle("Time Error").setLogX().setxLabel("expMemTransfer")
+				.setxUnit("bytes").setyLabel("err(time/min(time))")
+				.setyUnit("\\%").setYRange(Range.between(0., 100.))
 				.setKeyPosition(KeyPosition.TopRight);
 
 		DistributionPlot plotMinError = new DistributionPlot();
 		plotMinError.setOutputName(outputName + "MemMinError")
-				.setTitle("Time Min Error (n=10)").setLogX()
+				.setTitle("Time Min Error").setLogX()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("err(time10/min(time10))").setyUnit("\\%")
 				.setYRange(Range.between(0., 100.))

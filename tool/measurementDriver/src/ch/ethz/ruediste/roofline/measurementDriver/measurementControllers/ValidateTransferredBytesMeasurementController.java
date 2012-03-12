@@ -142,21 +142,21 @@ public class ValidateTransferredBytesMeasurementController extends
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "Values")
-				.setTitle("Transferred Bytes Values (n=100)").setLog()
+				.setTitle("Transferred Bytes Values").setLog()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("actualMemTransfer/expMemTransfer").setyUnit("1")
 				.setKeyPosition(KeyPosition.TopRight);
 
 		DistributionPlot flushValues = new DistributionPlot();
 		flushValues.setOutputName(outputName + "FlushValues")
-				.setTitle("Transferred Bytes Flush Values (n=100)").setLog()
+				.setTitle("Transferred Bytes Flush Values").setLog()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("actualMemTransfer").setyUnit("1")
 				.setKeyPosition(KeyPosition.TopLeft);
 
 		DistributionPlot plotError = new DistributionPlot();
 		plotError.setOutputName(outputName + "Error");
-		plotError.setTitle("Transferred Bytes Error (n=100)").setLogX()
+		plotError.setTitle("Transferred Bytes Error").setLogX()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("err(actualMemTransfer/expMemTransfer)")
 				.setyUnit("%").setYRange(0, 100)
@@ -164,13 +164,13 @@ public class ValidateTransferredBytesMeasurementController extends
 
 		DistributionPlot plotMinValues = new DistributionPlot();
 		plotMinValues.setOutputName(outputName + "MinValues");
-		plotMinValues.setTitle("Transferred Bytes Min Values (n=10)").setLog()
+		plotMinValues.setTitle("Transferred Bytes Min Values").setLog()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("actualMemTransfer10/expMemTransfer").setyUnit("1");
 
 		DistributionPlot plotMinError = new DistributionPlot();
 		plotMinError.setOutputName(outputName + "MinError");
-		plotMinError.setTitle("Transferred Bytes Min Error (n=10)").setLogX()
+		plotMinError.setTitle("Transferred Bytes Min Error").setLogX()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("err(actualMemTransfer10/expMemTransfer)")
 				.setyUnit("%").setYRange(0, 100);
