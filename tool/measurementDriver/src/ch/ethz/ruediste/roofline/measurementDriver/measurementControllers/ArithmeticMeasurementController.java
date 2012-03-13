@@ -68,9 +68,9 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		operationMap.put(InstructionSet.x87, Operation.CompInstr);
 
 		space.add(unrollAxis, 7);
-		space.add(dlpAxis, 5);
-		space.add(arithBalancedAdditionsAxis, 1);
-		space.add(arithBalancedMultiplicationsAxis, 1);
+		space.add(dlpAxis, 1);
+		space.add(arithBalancedAdditionsAxis, 3);
+		space.add(arithBalancedMultiplicationsAxis, 5);
 
 		log.debug("starting space exploration");
 		for (Coordinate coordinate : space.getAllPoints(null,

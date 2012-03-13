@@ -40,9 +40,9 @@ public class RooflineController {
 		plot.setOutputName("roofline");
 		plot.setTitle("A Roofline Plot");
 		plot.setxLabel("Operational Intensity");
-		plot.setxUnit("flop/Byte");
+		plot.setxUnit("Flop/Byte");
 		plot.setyLabel("Performance");
-		plot.setyUnit("flop/cycle");
+		plot.setyUnit("Flop/Cycle");
 	}
 
 	public void addPeakPerformance(String name, PeakAlgorithm algorithm,
@@ -72,7 +72,7 @@ public class RooflineController {
 		QuantityCalculator<Time> timeCalc = quantityMeasuringService
 				.getExecutionTimeCalculator(clockType);
 
-		// measure 
+		// measure
 		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,
 				timeCalc, opCountCalculator, tbCalculator);
 
@@ -152,19 +152,27 @@ public class RooflineController {
 		case Core:
 			plot.addPeakPerformance("Balanced SSE", new Performance(4));
 			plot.addPeakPerformance("Balanced Scalar", new Performance(2));
-		break;
+			break;
 		case Yonah:
 			plot.addPeakPerformance("Balanced", new Performance(1.5));
 			addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
 			addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
-		break;
+			break;
 		}
 
-		addPeakThroughput("MemLoad", PeakAlgorithm.Load,
-				MemoryTransferBorder.LlcRam);
-
-		addPeakThroughput("MemRand", PeakAlgorithm.RandomLoad,
-				MemoryTransferBorder.LlcRam);
+		switch (systemInfoService.getCpuType()) {
+		case Core:
+			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
+					MemoryTransferBorder.LlcRam);
+			break;
+		case Yonah:
+			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
+					MemoryTransferBorder.LlcRam);
+			
+			addPeakThroughput("MemRand", PeakAlgorithm.RandomLoad,
+					MemoryTransferBorder.LlcRam);
+			break;
+		}
 	}
 
 	public void setOutputName(String outputName) {

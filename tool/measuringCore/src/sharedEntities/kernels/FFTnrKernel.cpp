@@ -21,7 +21,7 @@ void FFTnrKernel::initialize() {
 		throw "could not allocate memory";
 	}
 	// initialize buffer
-	for (size_t i = 0; i < getBufferSize() * 2; i++) {
+	for (int64_t i = 0; i < getBufferSize() * 2; i++) {
 		doubleData[i] = drand48();
 	}
 }

@@ -36,35 +36,30 @@ void FFTSpiralKernel::initialize() {
 	}
 
 	// initialize buffer
-	for (size_t i = 0; i < getBufferSize() * 2; i++) {
+	for (int64_t i = 0; i < getBufferSize() * 2; i++) {
 		pSrc[i] = drand48();
 	}
 }
 
 void FFTSpiralKernel::run() {
 
-	spiral_status_t status=spiral_fft_double(getBufferSize(), 1, pSrc, pDst);
+	spiral_status_t status = spiral_fft_double(getBufferSize(), 1, pSrc, pDst);
 
-	if (status != SPIRAL_OK) {
-		std::string statusStr;
-		switch(status){
-		case SPIRAL_SIZE_NOT_SUPPORTED:
-			statusStr="SIZE_NOT_SUPPORTED";
-			break;
-		case SPIRAL_INVALID_PARAM:
-			statusStr="SPIRAL_INVALID_PARAM";
-			break;
-		case SPIRAL_OUT_OF_MEMORY:
-			statusStr="SPIRAL_OUT_OF_MEMORY";
-			break;
-		}
-		throw "FFT failed: "+statusStr;
+	std::string statusStr;
+	switch (status) {
+	case SPIRAL_SIZE_NOT_SUPPORTED:
+		statusStr = "SIZE_NOT_SUPPORTED";
+		break;
+	case SPIRAL_INVALID_PARAM:
+		statusStr = "SPIRAL_INVALID_PARAM";
+		break;
+	case SPIRAL_OUT_OF_MEMORY:
+		statusStr = "SPIRAL_OUT_OF_MEMORY";
+		break;
+	case SPIRAL_OK:
+		return;
 	}
-	/*
-	 spiral_status_t spiral_fft_double)
-	 (int n, int sign, const double *pSrc, double *pDst );
-	 */
-
+	throw "FFT failed: " + statusStr;
 }
 
 void FFTSpiralKernel::dispose() {

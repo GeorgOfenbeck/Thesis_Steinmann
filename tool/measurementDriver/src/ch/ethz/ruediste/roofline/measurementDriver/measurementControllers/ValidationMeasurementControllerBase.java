@@ -58,7 +58,7 @@ public class ValidationMeasurementControllerBase {
 			MemoryKernel kernel = new MemoryKernel();
 			kernel.setUnroll(2);
 			kernel.setDlp(1);
-			kernel.setOptimization("-O3 -msse2");
+			kernel.setOptimization("-O3");
 			kernel.setPrefetchDistance(0L);
 			kernel.setOperation(MemoryOperation.MemoryOperation_WRITE);
 			space.add(kernelAxis, kernel);

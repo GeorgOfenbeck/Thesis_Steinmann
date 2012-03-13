@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="11.4">
+  <zoom_level>10</zoom_level>
+  <element>
+    <type>com.umlet.element.SequenceDiagram</type>
+    <coordinates>
+      <x>20</x>
+      <y>20</y>
+      <w>460</w>
+      <h>500</h>
+    </coordinates>
+    <panel_attributes>title: Action Enqueuing
+Parent~p|Child:A~a|Child:B~b
+iframe{:Enqueue Message
+a-&gt;b:a,b:pushAction()
+a-&gt;p:a,p:notify(QPA)
+p-&gt;a:p,a:CONT
+p-&gt;b:p,ch,a,b:signal(TRAP)
+iframe}
+iframe{:Process Message
+b-&gt;p:b,p:STOPPED
+p-&gt;b:p,b:notify(ProcessActions)
+b-&gt;b:b,p:processActions
+b-&gt;p:b,p:notify(done)
+p-&gt;b:b,p:CONT
+iframe}
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

@@ -33,6 +33,11 @@ public class PlotService {
 	private static double lMargin = 0.1;
 	private static double rMargin = 0.95;
 
+	private static int lwTic=2;
+	private static int lwMTic=1;
+	private static int lwMaxBound=2;
+	private static int lwBound=2;
+	private static int lwLine=2;
 	@Inject
 	public CommandService commandService;
 
@@ -117,13 +122,13 @@ public class PlotService {
 		output.println("unset border");
 
 		// set the point size
-		output.println("set pointsize 0.5");
+		output.println("set pointsize 0.25");
 
 		// add gray background
 		output.println("set object 1 rectangle from graph 0,0 to graph 1,1 behind fillcolor rgb\"#E0E0E0\" lw 0");
 
 		// add white grid
-		output.println("set grid xtics ytics mxtics mytics lt -1 lw 6 linecolor rgb\"#FFFFFF\",lt -1 lw 2 linecolor rgb\"#FFFFFF\"");
+		output.printf("set grid xtics ytics mxtics mytics lt -1 lw %d linecolor rgb\"#FFFFFF\",lt -1 lw %d linecolor rgb\"#FFFFFF\"\n",lwTic,lwMTic);
 
 		// set the margins
 		output.printf("set bmargin at screen %e\n", bMargin);
@@ -221,14 +226,15 @@ public class PlotService {
 
 				plotLines
 						.add(String
-								.format("'%s.data' index %d using 1:2:3:4:5 notitle  with candlesticks whiskerbars lw 4 lc rgb\"%s\"",
-										plot.getOutputName(), seriesNr,
+								.format("'%s.data' index %d using 1:2:3:4:5 notitle  with candlesticks whiskerbars lw %d lc rgb\"%s\"",
+										plot.getOutputName(), seriesNr, lwLine,
 										getLineColor(seriesNr)));
 				plotLines
 						.add(String
-								.format("'%s.data' index %d using 1:6 title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
+								.format("'%s.data' index %d using 1:6 title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
 										plot.getOutputName(), seriesNr,
 										series.getName(),
+										lwLine,
 										getPointType(seriesNr),
 										getLineColor(seriesNr)));
 			}
@@ -274,9 +280,10 @@ public class PlotService {
 
 				plotLines
 						.add(String
-								.format("'%s.data' index %d title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
+								.format("'%s.data' index %d title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
 										plot.getOutputName(), seriesNr,
 										series.getName(),
+										lwLine,
 										getPointType(seriesNr),
 										getLineColor(seriesNr)));
 			}
@@ -336,15 +343,17 @@ public class PlotService {
 									.<Performance> moreThan()))) {
 				// set the default color
 				String lineColor = "rgb\"#B0B0B0\"";
+				int lw=lwBound;
 				if (first) {
 					first = false;
 					// set the color of the first line
 					lineColor = "rgb\"black\"";
+					lw=lwMaxBound;
 				}
 
 				// generate the string
-				plotLines.add(String.format("%e notitle with lines lc %s lw 6",
-						peak.getRight().getValue(), lineColor));
+				plotLines.add(String.format("%e notitle with lines lc %s lw %d",
+						peak.getRight().getValue(), lineColor,lw));
 			}
 
 			// print the lines for the peak performances
@@ -363,15 +372,17 @@ public class PlotService {
 									.<Throughput> moreThan()))) {
 				// set the default color
 				String lineColor = "rgb\"#B0B0B0\"";
+				int lw=lwBound;
 				if (first) {
 					first = false;
 					// set the color of the first line
 					lineColor = "rgb\"black\"";
+					lw=lwMaxBound;
 				}
 
 				plotLines.add(String.format(
-						"%e*x notitle with lines lc %s lw 6", peak.getRight()
-								.getValue(), lineColor));
+						"%e*x notitle with lines lc %s lw %d", peak.getRight()
+								.getValue(), lineColor,lw));
 			}
 
 			// calculate the angle of the memory border lines
@@ -421,9 +432,9 @@ public class PlotService {
 
 				plotLines
 						.add(String
-								.format("'%s.data' index %d title '%s' with linespoints lw 4 lt -1 pt %d lc rgb\"%s\"",
+								.format("'%s.data' index %d title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
 										plot.getOutputName(), i,
-										series.getName(), getPointType(i),
+										series.getName(), lwLine, getPointType(i),
 										getLineColor(i)));
 
 				// add label for the first and the last point

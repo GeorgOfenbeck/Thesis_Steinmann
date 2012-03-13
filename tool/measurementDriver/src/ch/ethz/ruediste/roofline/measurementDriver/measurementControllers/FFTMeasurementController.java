@@ -92,7 +92,7 @@ public class FFTMeasurementController implements IMeasurementController {
 		space.add(Axes.optimizationAxis, "-O3 -msse2");
 
 		configuration.push();
-		for (Coordinate coordinate : space) {
+		for (Coordinate coordinate : space.getAllPoints(kernelAxis,null)) {
 
 			if (coordinate.get(bufferSizeAxis) > 64 * 1024L) {
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
@@ -137,11 +137,11 @@ public class FFTMeasurementController implements IMeasurementController {
 						System.out
 						.printf("Operations %s: %s\n", coordinate, operationCount);*/
 
-			TransferredBytes bytes = quantityMeasuringService
+			/*TransferredBytes bytes = quantityMeasuringService
 					.measureTransferredBytes(kernel,
 							MemoryTransferBorder.LlcRam);
 
-			System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
+			System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);*/
 
 			rooflineController.addRooflinePoint(
 					algorithmName.get(kernel.getClass()),

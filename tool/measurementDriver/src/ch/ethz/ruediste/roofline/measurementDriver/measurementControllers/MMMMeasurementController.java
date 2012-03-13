@@ -40,13 +40,12 @@ public class MMMMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
-		/*addSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_TripleLoop,
+		addSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_TripleLoop,
 				MMMAlgorithm.MMMAlgorithm_Blas_Openblas,
-				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);*/
+				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
 
 		addBlockedSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_Blocked);
-		addBlockedSeries(rooflineController,
-				MMMAlgorithm.MMMAlgorithm_Blocked_Restrict);
+		//addBlockedSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_Blocked_Restrict);
 
 		rooflineController.plot();
 	}

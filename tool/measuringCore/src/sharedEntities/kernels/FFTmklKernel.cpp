@@ -36,7 +36,7 @@ void FFTmklKernel::initialize() {
 	}
 
 	// initialize buffer
-	for (size_t i = 0; i < getBufferSize(); i++) {
+	for (int64_t i = 0; i < getBufferSize(); i++) {
 		complexData[i] = drand48() + drand48() * 1i;
 	}
 }

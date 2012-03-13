@@ -36,7 +36,7 @@ void FFTfftwKernel::initialize() {
 	}
 
 	// initialize buffer
-	for (size_t i = 0; i < getBufferSize(); i++) {
+	for (int64_t i = 0; i < getBufferSize(); i++) {
 		fftwData[i][0] = drand48();
 		fftwData[i][1] = drand48();
 	}
