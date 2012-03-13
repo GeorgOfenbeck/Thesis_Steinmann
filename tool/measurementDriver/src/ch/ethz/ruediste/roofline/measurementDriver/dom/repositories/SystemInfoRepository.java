@@ -18,6 +18,7 @@ public class SystemInfoRepository {
 	private List<PmuDescription> allPmus;
 	private Iterable<PmuDescription> presentPmus;
 	private List<Integer> possibleCPUs;
+	private Boolean is64Bit;
 
 	final private HashSet<BigInteger> observedFrequencies = new HashSet<BigInteger>();
 
@@ -47,5 +48,13 @@ public class SystemInfoRepository {
 
 	public void setOnlineCPUs(List<Integer> possibleCPUs) {
 		this.possibleCPUs = possibleCPUs;
+	}
+
+	public Boolean getIs64Bit() {
+		return is64Bit;
+	}
+
+	public void setIs64Bit(Boolean is64Bit) {
+		this.is64Bit = is64Bit;
 	}
 }

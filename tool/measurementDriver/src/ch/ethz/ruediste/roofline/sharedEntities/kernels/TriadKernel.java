@@ -3,8 +3,7 @@ package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.bufferSizeAxis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
-import ch.ethz.ruediste.roofline.measurementDriver.util.Instantiator;
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 
 public class TriadKernel extends TriadKernelData {
 
@@ -20,9 +19,7 @@ public class TriadKernel extends TriadKernelData {
 		// 8: for double
 
 		long bufferSizeBytes = getBufferSize() * 8;
-		SystemInfoService systemInfoService = Instantiator.instance
-				.getInstance(SystemInfoService.class);
-		long cacheSize = systemInfoService.getL2CacheSize();
+		long cacheSize = SystemInformation.L2CacheSize;
 
 		// 4: two buffers reading, one buffer writing, which involves read+write
 		return new TransferredBytes(bufferSizeBytes * 2 // two buffers reading

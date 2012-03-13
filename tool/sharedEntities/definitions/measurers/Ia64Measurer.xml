@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	baseType="MeasurerBase"
+	javaSuffix="Data"
+	cSuffix="Data"
+	comment="measures if the system runs on 64 bit">
+	
+</derivedClass>

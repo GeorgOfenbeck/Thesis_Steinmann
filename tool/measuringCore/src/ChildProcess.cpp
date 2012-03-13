@@ -102,6 +102,8 @@ int ChildProcess::main(int argc, char* argv[]) {
 	// perform measurements
 	for (int runNumber = 0; runNumber < command->getRunCount(); runNumber++) {
 		printf("*");
+		fflush(stdout);
+
 		LTRACE("cloning measurement");
 		Measurement *measurementClone;
 		{
@@ -181,6 +183,9 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 		outputCollection.getOutputs().push_back(measurementRunOutput);
 	}
+
+	// finish stars
+	printf("\n");
 
 	// notify configurators
 	reverse_foreach (ConfiguratorBase *configurator, measurement->getConfigurators())

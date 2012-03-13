@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.CpuType;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;

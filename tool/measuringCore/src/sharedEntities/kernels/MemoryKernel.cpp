@@ -126,11 +126,12 @@ void MemoryKernel::run() {
 
 #ifdef RMT_MEMORY_OPERATION__MemoryOperation_WRITE
 #ifdef __SSE__
+		__m128 tmp=_mm_set_ps(1,2,3,4);
 		for (long i = 0; i < bufferSize; i += 4) {
 			for (int j = 0; j < UNROLL; j++) {
 				for (int p = 0; p < DLP; p++) {
 					_mm_store_ps(&(buffer[p*bufferSize*UNROLL+i * UNROLL + j * 4]),
-							_mm_setzero_ps());
+							tmp);
 				}
 			}
 		}

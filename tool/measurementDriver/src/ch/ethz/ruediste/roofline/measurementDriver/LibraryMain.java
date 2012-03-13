@@ -5,6 +5,7 @@ import java.io.*;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.repositories.ReflectionRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
@@ -27,6 +28,9 @@ public class LibraryMain {
 
 	@Inject
 	public MainHelper mainHelper;
+	
+	@Inject
+	public SystemInfoService systemInfoService;
 
 	/**
 	 * Initializes the measurement driver
@@ -65,6 +69,8 @@ public class LibraryMain {
 
 		runtimeMonitor.startupCategory.leave();
 
+		// initialize the system information
+		systemInfoService.InitializeSystemInformation();
 	}
 
 	/**

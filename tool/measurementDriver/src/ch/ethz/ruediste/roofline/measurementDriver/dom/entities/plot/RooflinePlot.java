@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 
 public class RooflinePlot extends Plot2D<RooflinePlot> {
 
@@ -112,8 +113,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 					.getValue() * 2);
 		}
 		else {
-			switch (Instantiator.instance.getInstance(SystemInfoService.class)
-					.getCpuType()) {
+			switch (SystemInformation.CpuType) {
 			case Core:
 				return Range.between(0.03, 100.);
 			case Yonah:
@@ -134,8 +134,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 					performanceRange.getMaximum().getValue() * 2);
 		}
 		else {
-			switch (Instantiator.instance.getInstance(SystemInfoService.class)
-					.getCpuType()) {
+			switch (SystemInformation.CpuType) {
 			case Core:
 				return Range.between(0.03, 20.);
 			case Yonah:

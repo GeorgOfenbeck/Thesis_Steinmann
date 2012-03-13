@@ -6,6 +6,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredByt
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.measurementDriver.util.Instantiator;
 import ch.ethz.ruediste.roofline.sharedEntities.MacroKey;
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 
 /** Kernel just loading a memory block into memory */
 public class MemoryKernel extends MemoryKernelData {
@@ -100,15 +101,12 @@ public class MemoryKernel extends MemoryKernelData {
 
 	@Override
 	public TransferredBytes getExpectedTransferredBytes() {
-		SystemInfoService systemInfoService = Instantiator.instance
-				.getInstance(SystemInfoService.class);
-
 		long bufferBytes = getBufferSize() * getUnroll() * getDlp() * 4;
 		switch (getOperation()) {
 		case MemoryOperation_READ:
 			return new TransferredBytes(bufferBytes);
 		case MemoryOperation_WRITE:
-			long cacheSize = systemInfoService.getL2CacheSize();
+			long cacheSize = SystemInformation.L2CacheSize;
 			return new TransferredBytes(bufferBytes // read
 					+ Math.max(0, bufferBytes - cacheSize)); // write, taking write back into account
 		default:

@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.CpuType;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.repositories.SystemInfoRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
@@ -102,14 +101,7 @@ public class SystemInfoService {
 		workload.setKernel(kernel);
 		workload.setMeasurerSet(new MeasurerSet(measurer));
 
-		// make a raw measurement
-		configuration.push();
-		configuration.set(MeasurementService.measureRawKey, true);
-
-		MeasurementResult result = measurementService.measure(measurement, 1);
-
-		// restore configuration
-		configuration.pop();
+		MeasurementResult result = measureRaw(measurement);
 
 		// get the output of the measurer
 		ListEventsMeasurerOutput output = single(result
@@ -134,8 +126,7 @@ public class SystemInfoService {
 								return pmu.getIsPresent();
 							}
 						}));
-			}
-			else {
+			} else {
 				// only retrieve the present pmus
 				systemInfoRepository.setPresentPmus(readPMUs(true));
 			}
@@ -159,9 +150,18 @@ public class SystemInfoService {
 	 * Use the measuring core to read the online CPUs
 	 */
 	private List<Integer> readOnlineCPUs() {
+		String fileName = "/sys/devices/system/cpu/online";
+
+		String fileContent = readFileUsingCore(fileName);
+
+		return parseCpuList(fileContent);
+
+	}
+
+	private String readFileUsingCore(String fileName) {
 		// setup measurer
 		FileMeasurer measurer = new FileMeasurer();
-		measurer.addFile("/sys/devices/system/cpu/online");
+		measurer.addFile(fileName);
 
 		// setup measurement
 		Measurement measurement = new Measurement();
@@ -173,6 +173,16 @@ public class SystemInfoService {
 		workload.setKernel(kernel);
 		workload.setMeasurerSet(new MeasurerSet(measurer));
 
+		MeasurementResult result = measureRaw(measurement);
+
+		// retrieve output
+		FileMeasurerOutput output = single(result.getMeasurerOutputs(measurer));
+		String fileContent = single(output.getFileContentList())
+				.getStopContent().trim();
+		return fileContent;
+	}
+
+	private MeasurementResult measureRaw(Measurement measurement) {
 		// make a raw measurement
 		configuration.push();
 		configuration.set(MeasurementService.measureRawKey, true);
@@ -182,14 +192,7 @@ public class SystemInfoService {
 
 		// restore configuration
 		configuration.pop();
-
-		// retrieve output
-		FileMeasurerOutput output = single(result.getMeasurerOutputs(measurer));
-		String fileContent = single(output.getFileContentList())
-				.getStopContent().trim();
-
-		return parseCpuList(fileContent);
-
+		return result;
 	}
 
 	/**
@@ -213,8 +216,7 @@ public class SystemInfoService {
 				for (int i = start; i <= stop; i++) {
 					result.add(i);
 				}
-			}
-			else {
+			} else {
 				result.add(Integer.getInteger(part));
 			}
 		}
@@ -246,5 +248,37 @@ public class SystemInfoService {
 			return 1024L * 1024L * 4L;
 		}
 		throw new Error("CPU not supported");
+	}
+
+	public boolean is64Bit() {
+		if (systemInfoRepository.getIs64Bit()==null){
+			systemInfoRepository.setIs64Bit(measureIs64Bit());	
+		}
+		
+		return systemInfoRepository.getIs64Bit();
+	}
+
+	private boolean measureIs64Bit() {
+		// setup measurer
+		Ia64Measurer measurer = new Ia64Measurer();
+
+		// setup measurement
+		Measurement measurement = new Measurement();
+		Workload workload = new Workload();
+		measurement.addWorkload(workload);
+		DummyKernel kernel = new DummyKernel();
+		kernel.setOptimization("-O2");
+
+		workload.setKernel(kernel);
+		workload.setMeasurerSet(new MeasurerSet(measurer));
+
+		MeasurementResult result = measureRaw(measurement);
+		return single(result.getMeasurerOutputs(measurer)).getIsIa64();
+	}
+	
+	public void InitializeSystemInformation(){
+		SystemInformation.CpuType=getCpuType();
+		SystemInformation.Is64Bit=is64Bit();
+		SystemInformation.L2CacheSize=getL2CacheSize();
 	}
 }

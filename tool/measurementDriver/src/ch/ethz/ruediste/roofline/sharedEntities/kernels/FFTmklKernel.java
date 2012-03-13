@@ -4,7 +4,7 @@ public class FFTmklKernel extends FFTmklKernelData {
 
 	@Override
 	public String getAdditionalLibraries() {
-		return "-L/opt/intel/mkl/lib/ia32 -lmkl_intel -lmkl_sequential -lmkl_core";
+		return LibraryHelper.getMklLibs();
 	}
 
 	@Override

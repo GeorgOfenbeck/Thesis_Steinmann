@@ -17,7 +17,7 @@ public class DaxpyKernel extends DaxpyKernelData {
 	@Override
 	public String getAdditionalLibraries() {
 		if (useMkl)
-			return "-L/opt/intel/mkl/lib/ia32 -lmkl_intel -lmkl_sequential -lmkl_core";
+			return LibraryHelper.getMklLibs();
 		return "-lblas";
 	}
 

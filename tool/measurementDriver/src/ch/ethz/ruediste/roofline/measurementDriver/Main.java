@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.ICommandController;
 import ch.ethz.ruediste.roofline.measurementDriver.commandControllers.IAutoCompletionAwareCommandController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.repositories.ReflectionRepository;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 
@@ -55,6 +56,9 @@ public class Main {
 
 	@Inject
 	public MainHelper mainHelper;
+	
+	@Inject
+	public SystemInfoService systemInfoService;
 
 	public static void main(String args[]) throws IOException {
 		Injector injector = MainHelper.createInjector();
@@ -107,6 +111,9 @@ public class Main {
 
 		runtimeMonitor.startupCategory.leave();
 
+		// initialize the system information
+		systemInfoService.InitializeSystemInformation();
+		
 		if (parsedArgs.size() < 1) {
 			throw new Error("expected command name");
 		}

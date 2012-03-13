@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.*;
 
 import org.apache.commons.exec.ExecuteException;
+import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
@@ -21,12 +22,15 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasurin
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadStopEventPredicate;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.TriadKernel;
 
 import com.google.inject.Inject;
 
 public class ValidateTransferredBytesMeasurementController extends
 		ValidationMeasurementControllerBase implements IMeasurementController {
 
+	private static final Logger log=Logger.getLogger(ValidateTransferredBytesMeasurementController.class);
+	
 	public String getName() {
 		return "valTB";
 	}
@@ -51,6 +55,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		measureMem(outputName);
 		measureArith(outputName);
 
+		log.info("Measuring ALT");
 		configuration.push();
 		configuration.set(QuantityMeasuringService.useAltTBKey, true);
 		measureMem(outputName + "ALT");
@@ -85,6 +90,8 @@ public class ValidateTransferredBytesMeasurementController extends
 			// initialize the kernel
 			final KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
+			
+			log.info("measuring "+coordinate);
 
 			// get the calculator for the transferred bytes
 			QuantityCalculator<TransferredBytes> transferredBytesCalc = quantityMeasuringService
@@ -180,7 +187,13 @@ public class ValidateTransferredBytesMeasurementController extends
 			// initialize the kernel
 			final KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
+			
+			if (kernel instanceof TriadKernel && coordinate.get(Axes.bufferSizeAxis)>1024L*1024L){
+				continue;
+			}
 
+			log.info("measuring "+coordinate);
+			
 			// get the calculator for the transferred bytes
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
