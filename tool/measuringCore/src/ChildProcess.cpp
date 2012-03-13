@@ -101,7 +101,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 	// perform measurements
 	for (int runNumber = 0; runNumber < command->getRunCount(); runNumber++) {
-
+		printf("*");
 		LTRACE("cloning measurement");
 		Measurement *measurementClone;
 		{
@@ -134,6 +134,7 @@ int ChildProcess::main(int argc, char* argv[]) {
 		if (measurementClone->getOverallMeasurerSet() != NULL) {
 			measurementClone->getOverallMeasurerSet()->start();
 		}
+
 		// start workloads
 		vector<pthread_t> threads;
 		foreach(Workload *workload, measurementClone->getWorkloads())

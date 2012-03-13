@@ -5,6 +5,7 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.Range;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
@@ -236,5 +237,9 @@ public class ValidationMeasurementControllerBase {
 				stats.clear();
 			}
 		}
+	}
+
+	public Range<Double> yErrorRange() {
+		return Range.between(0., 50.);
 	}
 }

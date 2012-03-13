@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.lang3.Range;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
@@ -89,7 +88,7 @@ public class ValidateTimeMeasurementController extends
 				.setTitle("Time Error").setLogX().setxLabel("expOpCount")
 				.setKeyPosition(KeyPosition.TopLeft).setxUnit("operations")
 				.setyLabel("err(time/min(time))").setyUnit("%")
-				.setYRange(Range.between(0., 100.));
+				.setYRange(yErrorRange());
 
 		fillErrorPlotMin(plotValues, plotError);
 
@@ -98,7 +97,7 @@ public class ValidateTimeMeasurementController extends
 				.setTitle("Time Min Error").setLogX().setxLabel("expOpCount")
 				.setKeyPosition(KeyPosition.TopRight).setxUnit("operations")
 				.setyLabel("err(time10/min(time10))").setyUnit("%")
-				.setYRange(Range.between(0., 100.));
+				.setYRange(yErrorRange());
 
 		fillErrorPlotMin(plotMinValues, plotMinError);
 
@@ -152,7 +151,7 @@ public class ValidateTimeMeasurementController extends
 		plotError.setOutputName(outputName + "MemError");
 		plotError.setTitle("Time Error").setLogX().setxLabel("expMemTransfer")
 				.setxUnit("bytes").setyLabel("err(time/min(time))")
-				.setyUnit("\\%").setYRange(Range.between(0., 100.))
+				.setyUnit("\\%").setYRange(yErrorRange())
 				.setKeyPosition(KeyPosition.TopRight);
 
 		DistributionPlot plotMinError = new DistributionPlot();
@@ -160,8 +159,7 @@ public class ValidateTimeMeasurementController extends
 				.setTitle("Time Min Error").setLogX()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("err(time10/min(time10))").setyUnit("\\%")
-				.setYRange(Range.between(0., 100.))
-				.setKeyPosition(KeyPosition.TopRight);
+				.setYRange(yErrorRange()).setKeyPosition(KeyPosition.TopRight);
 
 		fillErrorPlotMin(plotValues, plotError);
 

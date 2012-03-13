@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.measurementDriver.util.Instantiator;
@@ -9,6 +11,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.util.Instantiator;
 import com.google.inject.Inject;
 
 public class ReportMeasurementController implements IMeasurementController {
+	private static final Logger log = Logger
+			.getLogger(RooflineMeasurementController.class);
 
 	public String getName() {
 		return "report";
@@ -27,15 +31,19 @@ public class ReportMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		measure(ValidateTimeMeasurementController.class);
 		measure(ValidateTransferredBytesMeasurementController.class);
+		measure(ValidateOpCountMeasurementController.class);
 		measure(DgemvMeasurementController.class);
 	}
 
 	private void measure(Class<? extends IMeasurementController> clazz) {
 		IMeasurementController measurementController = instantiator
 				.getInstance(clazz);
-		String outputName = measurementController.getName();
-		outputName = systemInfoService.getCpuType().toString().toLowerCase()
-				+ "/" + outputName;
+		String outputName = systemInfoService.getCpuType().toString()
+				.toLowerCase()
+				+ "/" + measurementController.getName();
+
+		log.info("measuring " + outputName);
+
 		try {
 
 			measurementController.measure(outputName);

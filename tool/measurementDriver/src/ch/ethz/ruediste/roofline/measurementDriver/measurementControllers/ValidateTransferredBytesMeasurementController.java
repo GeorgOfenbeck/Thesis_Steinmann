@@ -159,7 +159,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		plotError.setTitle("Transferred Bytes Error").setLogX()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("err(actualMemTransfer/expMemTransfer)")
-				.setyUnit("%").setYRange(0, 100)
+				.setyUnit("%").setYRange(yErrorRange())
 				.setKeyPosition(KeyPosition.TopRight);
 
 		DistributionPlot plotMinValues = new DistributionPlot();
@@ -173,7 +173,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		plotMinError.setTitle("Transferred Bytes Min Error").setLogX()
 				.setxLabel("expMemTransfer").setxUnit("bytes")
 				.setyLabel("err(actualMemTransfer10/expMemTransfer)")
-				.setyUnit("%").setYRange(0, 100);
+				.setyUnit("%").setYRange(yErrorRange());
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -207,7 +207,7 @@ public class ValidateTransferredBytesMeasurementController extends
 			};
 			// run the measurement
 			QuantityMap result = quantityMeasuringService
-					.measureQuantities(builder, 11).with("main", calc)
+					.measureQuantities(builder, 100).with("main", calc)
 					.with("flush", flushCalc).get();
 
 			// get the expected number of bytes transferred

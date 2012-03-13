@@ -4,20 +4,15 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.kernelAxis;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.Map.Entry;
-
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.*;
-import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 import com.google.inject.Inject;
@@ -55,11 +50,11 @@ public class ValidateOpCountMeasurementController extends
 				.setxUnit("flop").setyLabel("actualOpCount/expOpCount")
 				.setyUnit("1");
 
-		DistributionPlot plotError = new DistributionPlot();
-		plotError.setOutputName(outputName + "Error");
-		plotError.setTitle("OpCount Error").setLog().setxLabel("expOpCount")
-				.setxUnit("operations")
-				.setyLabel("err(actualOpCount/expOpCount)").setyUnit("\\%");
+		DistributionPlot plotMinValues = new DistributionPlot();
+		plotMinValues.setOutputName(outputName + "MinValues");
+		plotMinValues.setTitle("OpCount Min Values").setLog()
+				.setxLabel("expOpCount").setxUnit("operations")
+				.setyLabel("min(actualOpCount)/expOpCount").setyUnit("1");
 
 		// iterate over space
 		for (Coordinate coordinate : space) {
@@ -87,53 +82,30 @@ public class ValidateOpCountMeasurementController extends
 			};
 
 			QuantityMap quantities = quantityMeasuringService
-					.measureQuantities(builder, 10).with("operations", calc).get();
+					.measureQuantities(builder, 100).with("operations", calc)
+					.get();
 
 			OperationCount expected = kernel.getExpectedOperationCount();
 
-			for (OperationCount actual : quantities.get(calc)) {
-
-				double ratio = actual.getValue() / expected.getValue();
-				//System.out.printf("%s -> %g\n", actual, ratio);
-
-				plotValues.addValue(kernelNames.get(kernel),
-						(long) expected.getValue(),
-						//coordinate.get(bufferSizeAxis),
-						ratio);
-
-				plotError.addValue(kernelNames.get(kernel),
-						(long) expected.getValue(), toError(ratio));
-
-			}
+			fillDistributionPlotsExpected(kernelNames.get(kernel),
+					expected.getValue(), plotValues, plotMinValues, quantities,
+					calc);
 		}
 
-		SeriesPlot plotMinValues = new SeriesPlot();
-		plotMinValues.setOutputName(outputName + "MinValues");
-		plotMinValues.setTitle("OpCount Min Values").setLog()
-				.setxLabel("expOpCount").setxUnit("operations")
-				.setyLabel("min(actualOpCount)/expOpCount").setyUnit("1");
+		DistributionPlot plotError = new DistributionPlot();
+		plotError.setOutputName(outputName + "Error");
+		plotError.setTitle("OpCount Error").setLog().setxLabel("expOpCount")
+				.setxUnit("operations")
+				.setyLabel("err(actualOpCount/expOpCount)").setyUnit("%");
 
-		SeriesPlot plotMinError = new SeriesPlot();
+		DistributionPlot plotMinError = new DistributionPlot();
 		plotMinError.setOutputName(outputName + "MinError");
 		plotMinError.setTitle("OpCount Min Error").setLog()
 				.setxLabel("expOpCount").setxUnit("operations")
 				.setyLabel("err(min(actualOpCount)/expOpCount)").setyUnit("%");
 
-		for (DistributionPlotSeries series : plotValues.getAllSeries()) {
-			for (Entry<Long, DescriptiveStatistics> entry : series
-					.getStatisticsMap().entrySet()) {
-
-				double ratio = entry.getValue().getMin();
-
-				plotMinValues.setValue(series.getName(), entry.getKey(), ratio);
-				if (ratio < 1) {
-					ratio = 1 / ratio;
-				}
-				plotMinError.setValue(series.getName(), entry.getKey(),
-						100 * (ratio - 1));
-
-			}
-		}
+		fillErrorPlotExpected(plotValues, plotError);
+		fillErrorPlotExpected(plotMinValues, plotMinError);
 
 		plotService.plot(plotValues);
 		plotService.plot(plotMinValues);

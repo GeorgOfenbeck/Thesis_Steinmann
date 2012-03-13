@@ -170,7 +170,7 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 				} else {
 					// there are no more notifications
 
-					// set the new state
+					// set the state back to running
 					childStates[stoppedChild] = ChildState_Running;
 					user_regs_struct childReg = childRegs[stoppedChild];
 
