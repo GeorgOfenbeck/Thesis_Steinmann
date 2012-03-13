@@ -47,8 +47,16 @@ Various kernels require additional libraries:
 They can be downloaded for free for non-commercial purposes from the Intel website. 
 Go to evaluation, the link is at the very bottom.
 
+The libraries have to be put into the search path
+IA32:
+sudo bash -c "echo '/opt/intel/mkl/lib/ia32' >/etc/ld.so.conf.d/mkl.conf && ldconfig"
+
+IA64:
+sudo bash -c "echo '/opt/intel/mkl/lib/intel64' >/etc/ld.so.conf.d/mkl.conf && ldconfig"
+
+
 -OpenBlas
-sudo apt-get install libopenblas-dev
+sudo apt-get install libopenblas-dev libblas-dev
 
 -Spiral-WHT
 got to tools/lib and install the library contained in spiral-wht-1.8.tgz
