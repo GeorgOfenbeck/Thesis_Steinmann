@@ -15,6 +15,7 @@
 #include "macros/RMT_ARITHMETIC_DLP.h"
 #include "macros/RMT_ARITHMETIC_ADDITIONS.h"
 #include "macros/RMT_ARITHMETIC_MULTIPLICATIONS.h"
+#include "macros/RMT_ARITHMETIC_MUL_ADD_MIX.h"
 
 #ifdef __SSE2__
 #include <emmintrin.h>
@@ -159,7 +160,8 @@ void ArithmeticKernel::run() {
 			}
 
 		}
-		if (RMT_ARITHMETIC_OPERATION == ArithmeticOperation_MULADD) {
+#ifdef RMT_ARITHMETIC_OPERATION__ArithmeticOperation_MULADD
+		{
 			double base = getBase(iterations, 4);
 #ifdef __SSE2__
 			if (RMT_ARITHMETIC_INSTRUCTION_SET == SSE) {
@@ -197,19 +199,23 @@ void ArithmeticKernel::run() {
 				tmp[1] = 1;
 				addC = _mm_loadu_pd(tmp);
 
+#define MUL for (int h = 0; h < MULTIPLICATIONS; h++)\
+				mulA[j * MULTIPLICATIONS + h] = _mm_mul_pd(\
+						mulA[j * MULTIPLICATIONS + h], mulC);
+#define ADD for (int h = 0; h < ADDITIONS; h++)\
+				addA[j * ADDITIONS + h] = _mm_add_pd(\
+						addA[j * ADDITIONS + h], addC);
+
 				for (long i = 0; i < iterations; i++) {
 					for (int p = 0; p < UNROLL; p++) {
 						for (int j = 0; j < DLP; j++) {
-							for (int h = 0; h < MULTIPLICATIONS; h++)
-								mulA[j * MULTIPLICATIONS + h] = _mm_mul_pd(
-										mulA[j * MULTIPLICATIONS + h], mulC);
-							for (int h = 0; h < ADDITIONS; h++)
-								addA[j * ADDITIONS + h] = _mm_add_pd(
-										addA[j * ADDITIONS + h], addC);
+							RMT_ARITHMETIC_MUL_ADD_MIX
 						}
 					}
 				}
 
+#undef MUL
+#undef ADD
 				result = 0;
 				for (int i = 0; i < DLP; i++) {
 					for (int p = 0; p < MULTIPLICATIONS; p++) {
@@ -243,18 +249,20 @@ void ArithmeticKernel::run() {
 					}
 				}
 
+#define MUL for (int h = 0; h < MULTIPLICATIONS; h++)\
+				mulR[j * MULTIPLICATIONS + h] *= base;
+#define ADD for (int h = 0; h < ADDITIONS; h++)\
+				addR[j * ADDITIONS + h] += 1;
 				// loop
 				for (long i = 0; i < iterations; i++) {
 					for (int p = 0; p < UNROLL; p++) {
 						for (int j = 0; j < DLP; j++) {
-							for (int h = 0; h < MULTIPLICATIONS; h++)
-								mulR[j * MULTIPLICATIONS + h] *= base;
-							for (int h = 0; h < ADDITIONS; h++)
-								addR[j * ADDITIONS + h] += 1;
+							RMT_ARITHMETIC_MUL_ADD_MIX
 						}
 					}
 				}
-
+#undef MUL
+#undef ADD
 				result = 0;
 				for (int i = 0; i < DLP; i++) {
 					for (int p = 0; p < MULTIPLICATIONS; p++)
@@ -264,6 +272,7 @@ void ArithmeticKernel::run() {
 				}
 			}
 		}
+#endif
 	} while (getRunUntilStopped() && isKeepRunning());
 }
 #pragma GCC diagnostic pop

@@ -20,6 +20,10 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 			"RMT_ARITHMETIC_INSTRUCTION_SET",
 			"specifies the instruction set to be used (x87 or SSE)", "x87");
 
+	private static final MacroKey mulAddMixMacro = MacroKey.Create(
+			"RMT_ARITHMETIC_MUL_ADD_MIX",
+			"specifies the mix of multiplications and additions to be used", "ADD MUL");
+	
 	public enum ArithmeticOperation {
 		ArithmeticOperation_ADD, ArithmeticOperation_MUL, ArithmeticOperation_MULADD
 	}
@@ -32,6 +36,14 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 		setIterations(10000);
 	}
 
+	public String getMulAddMix(){
+		return getMacroDefinition(mulAddMixMacro);
+	}
+	
+	public void setMulAddMix(String mulAddMix){
+		setMacroDefinition(mulAddMixMacro, mulAddMix);
+	}
+	
 	public ArithmeticOperation getOperation() {
 		return ArithmeticOperation.valueOf(getMacroDefinition(operationMacro));
 	}

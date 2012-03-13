@@ -41,7 +41,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		log.trace("entering arithmetic measurement controller");
 
 		ParameterSpace space = new ParameterSpace();
-		// space.add(iterationsAxis, 10000L);
+		space.add(iterationsAxis, 10000L);
 		space.add(iterationsAxis, 100000L);
 
 		//space.add(ArithmeticKernel.arithmeticOperationAxis,
@@ -53,7 +53,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		HashMap<InstructionSet, String> optimizationMap = new HashMap<InstructionSet, String>();
 		HashMap<InstructionSet, Operation> operationMap = new HashMap<InstructionSet, Operation>();
 
-		//space.add(instructionSetAxis, InstructionSet.SSEScalar);
+		space.add(instructionSetAxis, InstructionSet.SSEScalar);
 		optimizationMap
 				.put(InstructionSet.SSEScalar, "-O3 -mfpmath=sse -msse2");
 		operationMap.put(InstructionSet.SSEScalar,
@@ -63,11 +63,11 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 		optimizationMap.put(InstructionSet.SSE, "-O3 -msse2");
 		operationMap.put(InstructionSet.SSE, Operation.DoublePrecisionFlop);
 
-		//space.add(instructionSetAxis, InstructionSet.x87);
+		space.add(instructionSetAxis, InstructionSet.x87);
 		optimizationMap.put(InstructionSet.x87, "-O3");
 		operationMap.put(InstructionSet.x87, Operation.CompInstr);
 
-		space.add(unrollAxis, 7);
+		space.add(unrollAxis, 3);
 		space.add(dlpAxis, 1);
 		space.add(arithBalancedAdditionsAxis, 3);
 		space.add(arithBalancedMultiplicationsAxis, 5);
@@ -82,6 +82,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);
 			kernel.setOptimization(optimizationMap.get(instructionSet));
+			kernel.setMulAddMix("MUL ADD ADD MUL ADD ADD MUL ADD");
 
 			if (true) {
 				Performance performance = quantityMeasuringService
