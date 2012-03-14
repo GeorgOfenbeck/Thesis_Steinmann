@@ -21,7 +21,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasurin
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.RunQuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
-import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadStopEventPredicate;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPredicate.WorkloadEventEnum;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.TriadKernel;
 
 import com.google.inject.Inject;
@@ -213,7 +214,8 @@ public class ValidateTransferredBytesMeasurementController extends
 					workload.setMeasurerSet(sets.get("main"));
 
 					measurement.addRule(new Rule(
-							new WorkloadStopEventPredicate(workload),
+							new WorkloadEventPredicate(workload,
+									WorkloadEventEnum.KernelStop),
 							new MeasureActionExecutionAction(
 									new FlushKernelBuffersAction(kernel), sets
 											.get("flush"))));

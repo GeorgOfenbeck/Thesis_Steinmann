@@ -13,6 +13,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include "Exception.h"
+#include "baseClasses/events/ThreadStartEvent.h"
+#include "baseClasses/Locator.h"
 
 static pthread_mutex_t threadMapMutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -45,6 +47,9 @@ void ChildThread::processNotification() {
 		pthread_mutex_lock(&threadMapMutex);
 		threadMap[childPid] =  new ChildThread(childPid);
 		pthread_mutex_unlock(&threadMapMutex);
+
+		ThreadStartEvent *event=new ThreadStartEvent(childPid);
+		Locator::dispatchEvent(event);
 	}
 
 	if (notification == ChildNotification_ProcessActions) {

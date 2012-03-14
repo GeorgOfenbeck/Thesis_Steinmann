@@ -11,8 +11,7 @@
 #include "Workload.h"
 #include "sharedEntities/KernelBase.h"
 #include "baseClasses/Locator.h"
-#include "baseClasses/events/WorkloadStartEvent.h"
-#include "baseClasses/events/WorkloadStopEvent.h"
+#include "baseClasses/events/WorkloadEvent.h"
 #include "ChildThread.h"
 
 #include "utils.h"
@@ -107,18 +106,17 @@ void Workload::startInThread() {
 		sched_setaffinity(0, size, mask);
 	}
 
+	LTRACE("raise start event")
+	{
+		WorkloadEvent *event = new WorkloadEvent(this,WorkloadEvent_Start);
+		Locator::dispatchEvent(event);
+	}
+
 	LTRACE("initializing Kernel");
 	getKernel()->initialize();
 
 	LTRACE("initializing Measurer Set");
 	getMeasurerSet()->initialize();
-
-	LTRACE("raise start event")
-	{
-		WorkloadStartEvent *startEvent = new WorkloadStartEvent(getId());
-		Locator::dispatchEvent(startEvent);
-		free(startEvent);
-	}
 
 	LTRACE("starting validation measurers")
 	getMeasurerSet()->startValidationMeasurers();
@@ -128,6 +126,12 @@ void Workload::startInThread() {
 
 	LTRACE("start additional measurers")
 	getMeasurerSet()->startAdditionalMeasurers();
+
+	LTRACE("raise kernel start event")
+	{
+		WorkloadEvent *event = new WorkloadEvent(this,WorkloadEvent_KernelStart);
+		Locator::dispatchEvent(event);
+	}
 
 	LTRACE("start main measurer")
 	if (getMeasurerSet()->getMainMeasurer()!=NULL){
@@ -146,14 +150,19 @@ void Workload::startInThread() {
 	LTRACE("stop additional measurers")
 	getMeasurerSet()->stopAdditionalMeasurers();
 
+	LTRACE("raise kernel stop event")
+	{
+		WorkloadEvent *event = new WorkloadEvent(this,WorkloadEvent_KernelStop);
+		Locator::dispatchEvent(event);
+	}
+
 	LTRACE("stop the validation measurers")
 	getMeasurerSet()->stopValidationMeasurers();
 
 	LTRACE("raise stop event")
 	{
-		WorkloadStopEvent *stopEvent = new WorkloadStopEvent(getId());
-		Locator::dispatchEvent(stopEvent);
-		free(stopEvent);
+		WorkloadEvent *event = new WorkloadEvent(this,WorkloadEvent_Stop);
+		Locator::dispatchEvent(event);
 	}
 
 	LTRACE("add measurer outputs to the runOutput")

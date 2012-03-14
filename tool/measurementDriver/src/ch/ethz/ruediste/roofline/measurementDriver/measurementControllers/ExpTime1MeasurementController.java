@@ -16,6 +16,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasurin
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPredicate.WorkloadEventEnum;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 
@@ -157,7 +158,8 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 			};
 
 			QuantityMap quantityMap = quantityMeasuringService
-					.measureQuantities(builder, 10).with("main", interruptsCalc)
+					.measureQuantities(builder, 10)
+					.with("main", interruptsCalc)
 					.get();
 
 			// take minimum
@@ -207,7 +209,8 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		// setup stop rules for system load workloads
 		for (Workload loadWorkload : systemLoadWorkloads) {
 			Rule stopRule = new Rule();
-			stopRule.setPredicate(new WorkloadStopEventPredicate(mainWorkload));
+			stopRule.setPredicate(new WorkloadEventPredicate(mainWorkload,
+					WorkloadEventEnum.Stop));
 			stopRule.setAction(new StopKernelAction(loadWorkload.getKernel()));
 			measurement.addRule(stopRule);
 		}
@@ -216,7 +219,8 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		for (Workload loadWorkload : systemLoadWorkloads) {
 			Rule startRule = new Rule();
 			startRule
-					.setPredicate(new WorkloadStartEventPredicate(mainWorkload));
+					.setPredicate(new WorkloadEventPredicate(mainWorkload,
+							WorkloadEventEnum.Start));
 			startRule.setAction(new WaitForWorkloadAction(loadWorkload));
 			measurement.addRule(startRule);
 		}

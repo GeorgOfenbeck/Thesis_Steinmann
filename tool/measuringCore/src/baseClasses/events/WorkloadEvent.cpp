@@ -5,9 +5,9 @@
  *      Author: ruedi
  */
 
-#include "WorkloadStartEvent.h"
+#include "WorkloadEvent.h"
 
-WorkloadStartEvent::~WorkloadStartEvent() {
+WorkloadEvent::~WorkloadEvent() {
 	// TODO Auto-generated destructor stub
 }
 

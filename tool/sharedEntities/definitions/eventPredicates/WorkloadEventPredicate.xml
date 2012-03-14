@@ -2,11 +2,11 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="WorkloadStopEventPredicate" 
 	baseType="EventPredicateBase"
 	cSuffix="Data"
 	javaSuffix="Data"
 	comment="Event predicate matching the start of a workload">
 
-	<field name="workload" type="Workload" comment="match only the specified workload"/>	
+	<field name="workload" type="Workload" comment="match only the specified workload"/>
+	<field name="eventNr" type="int" comment="event number to match"/>	
 </derivedClass>

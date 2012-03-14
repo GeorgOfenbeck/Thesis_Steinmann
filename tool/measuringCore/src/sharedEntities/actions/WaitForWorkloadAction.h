@@ -10,11 +10,11 @@
 
 #include "sharedEntities/actions/WaitForWorkloadActionData.h"
 #include "baseClasses/Locator.h"
-#include "sharedEntities/eventPredicates/WorkloadStartEventPredicate.h"
+#include "sharedEntities/eventPredicates/WorkloadEventPredicate.h"
 #include <pthread.h>
 
 class WaitForWorkloadAction : public WaitForWorkloadActionData, IEventListener {
-	WorkloadStartEventPredicate workloadStartEventPredicate;
+	WorkloadEventPredicate workloadStartEventPredicate;
 	pthread_mutex_t mutex;
 	pthread_cond_t condvar;
 	bool workloadStarted;
