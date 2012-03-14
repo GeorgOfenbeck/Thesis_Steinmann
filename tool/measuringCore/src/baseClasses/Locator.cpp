@@ -27,10 +27,12 @@ std::vector<IEventListener*> Locator::listeners;
 
 void Locator::dispatchEvent(EventBase *event) {
 	LENTER
-	foreach(Rule *rule, measurement->getRules())
-			{
-				rule->handle(event);
-			}
+	if (measurement!=NULL){
+		foreach(Rule *rule, measurement->getRules())
+				{
+					rule->handle(event);
+				}
+	}
 
 	foreach (IEventListener *listener, listeners)
 			{
