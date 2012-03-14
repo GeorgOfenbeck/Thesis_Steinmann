@@ -55,7 +55,7 @@ public:
 	/**
 	 * queue the action in this thread and send a stop notification
 	 */
-	void pushAction(ActionBase *action, EventBase *event);
+	void queueAction(ActionBase *action, EventBase *event);
 };
 
 #endif /* CHILDTHREAD_H_ */

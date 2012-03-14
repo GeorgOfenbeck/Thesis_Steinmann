@@ -1234,7 +1234,7 @@ generate an event.
 
 The rule list is always searched in the thread generating the event. If an
 action has to be executed in another thread, it has to be queued using
-\method{ChildThread::pushAction()}
+\method{ChildThread::queueAction()}
 
 The technically most challenging problem is to interrupt another thread and make
 it execute some action. There are two approaches to this problem, either using a
@@ -1273,7 +1273,7 @@ the startup routine of the workload will associate the instantiated child thread
 with the workload.
 
 Actions can be sent from one thread to another using
-\method{ChildThread::pushAction()}. 
+\method{ChildThread::queueAction()}. 
 
 \subsubsection{Building}
 Each measurement can be performed with different compiler optimization flags and

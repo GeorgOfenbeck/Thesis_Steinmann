@@ -87,7 +87,7 @@ ChildThread *ChildThread::getChildThread(pid_t childPid) {
 	return child;
 }
 
-void ChildThread::pushAction(ActionBase *action, EventBase *event) {
+void ChildThread::queueAction(ActionBase *action, EventBase *event) {
 	pthread_mutex_lock(&actionQueueMutex);
 	actionQueue.push(make_pair(action, event));
 	pthread_mutex_unlock(&actionQueueMutex);
