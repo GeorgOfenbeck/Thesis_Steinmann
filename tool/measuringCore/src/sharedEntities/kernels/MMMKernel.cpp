@@ -60,6 +60,7 @@ void MMMKernel::initialize() {
 
 void MMMKernel::blas(double *a, double *b, double *c) {
 #if RMT_MMM_Algorithm__MMMAlgorithm_Blas_Openblas || RMT_MMM_Algorithm__MMMAlgorithm_Blas_Mkl
+	LENTER
 	int size = getMatrixSize();
 	cblas_dgemm(
 			CblasRowMajor,
@@ -70,6 +71,7 @@ void MMMKernel::blas(double *a, double *b, double *c) {
 			b, size,
 			1,
 			c, size);
+	LLEAVE
 #endif
 }
 

@@ -265,6 +265,7 @@ int ParentProcess::traceLoop() {
 		// check if the child is stopped
 		if (WIFSTOPPED(status)) {
 			int stopSig = WSTOPSIG(status);
+			LDEBUG("Stopped with signal %s",strsignal(stopSig))
 
 			// check if the child is known
 			if (childStates.count(stoppedPid) == 0) {
@@ -295,7 +296,7 @@ int ParentProcess::traceLoop() {
 				int event = (status >> 16) & 0xFF;
 				LDEBUG("got sigtrap, event: %i", event);
 				if (event == PTRACE_EVENT_EXIT) {
-					LDEBUG("SIGTRAP | EVENT_EXIT<<16 %i", stoppedPid);
+					LDEBUG("SIGTRAP and EVENT_EXIT %i", stoppedPid);
 					if (stoppedPid == mainChild) {
 						// retrieve the exit status
 						if (ptrace(PTRACE_GETEVENTMSG, stoppedPid, 0,
@@ -311,6 +312,7 @@ int ParentProcess::traceLoop() {
 
 					handleChildExited(stoppedPid);
 				}else if (event == PTRACE_EVENT_CLONE) {
+					LTRACE("SIGTRAP and EVENT_CLONE")
 					// The child cloned another thread.
 					// We don't have anything to do now, since the
 					// child will be stopped with SIG_STOP, which we will detect.
@@ -320,6 +322,7 @@ int ParentProcess::traceLoop() {
 					LWARNING("unknown event %i\n", event)
 
 			} else {
+				LDEBUG("forwarding signal to child")
 				// forward the signal to the child
 				sendSig = stopSig;
 			}

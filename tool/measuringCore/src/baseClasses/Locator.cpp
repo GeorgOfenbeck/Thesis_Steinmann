@@ -4,6 +4,7 @@
  *  Created on: Feb 15, 2012
  *      Author: ruedi
  */
+#include "Logger.h"
 
 #include "Locator.h"
 
@@ -25,6 +26,7 @@ MeasurementRunOutput *Locator::runOutput;
 std::vector<IEventListener*> Locator::listeners;
 
 void Locator::dispatchEvent(EventBase *event) {
+	LENTER
 	foreach(Rule *rule, measurement->getRules())
 			{
 				rule->handle(event);
@@ -34,6 +36,7 @@ void Locator::dispatchEvent(EventBase *event) {
 			{
 				listener->handleEvent(event);
 			}
+	LLEAVE
 }
 
 void Locator::setMeasurement(Measurement *measurement, MeasurementRunOutput *runOutput) {

@@ -26,7 +26,7 @@ void ChildThread::processNotification() {
 	uint32_t arg;
 	asm("":"=a" (childPid), "=b" (notification), "=c" (arg)::);
 
-	LDEBUG("pid %i, notification: %s, arg: %i\n", childPid,
+	LDEBUG("pid %i, notification: %s, arg: %i", childPid,
 			ChildNotificationNames[notification], arg);
 
 	if (notification == ChildNotification_ChildExited) {

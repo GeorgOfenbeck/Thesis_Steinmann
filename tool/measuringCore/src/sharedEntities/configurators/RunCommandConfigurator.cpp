@@ -5,6 +5,7 @@
  *      Author: ruedi
  */
 
+#include "Logger.h"
 #include "RunCommandConfigurator.h"
 #include "sharedEntities/configurators/RunCommand.h"
 #include <cstdlib>
@@ -20,20 +21,28 @@ RunCommandConfigurator::~RunCommandConfigurator() {
 }
 
 void RunCommandConfigurator::beforeMeasurement(){
+	LENTER
 	runConfigurator(getBeforeMeasurementCommands());
+	LLEAVE
 }
 
 void RunCommandConfigurator::afterMeasurement(){
+	LENTER
 	runConfigurator(getAfterMeasurementCommands());
+	LLEAVE
 }
 
 void RunCommandConfigurator::beforeRun(){
+	LENTER
 	runConfigurator(getBeforeRunCommands());
+	LLEAVE
 }
 
 
 void RunCommandConfigurator::afterRun(){
+	LENTER
 	runConfigurator(getAfterRunCommands());
+	LLEAVE
 }
 
 void RunCommandConfigurator::runConfigurator(std::vector<RunCommand*> &commands)

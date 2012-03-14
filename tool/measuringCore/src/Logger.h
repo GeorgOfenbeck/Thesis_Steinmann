@@ -27,15 +27,18 @@
 #endif
 
 #include <cstdio>
+#include <unistd.h>
+#include <sys/syscall.h>
 
 #define LOG_LOG(name,level,msg,...) { \
+	int tid=syscall(__NR_gettid);\
 	if (level<=LOGLEVEL_WARNING){\
-			fprintf(stderr,"%s %s:%s():%i",name, __FILE__,__FUNCTION__,__LINE__);\
+			fprintf(stderr,"%s %i %s:%s():%i",name, tid, __FILE__,__FUNCTION__,__LINE__);\
 			fprintf(stderr," " LOG_ADDITIONAL);\
 			fprintf(stderr,"--> " msg, ##__VA_ARGS__);\
 			fprintf(stderr,"\n");\
 		}else{\
-			printf("%s %s:%s():%i",name, __FILE__,__FUNCTION__,__LINE__);\
+			printf("%s %i %s:%s():%i",name, tid, __FILE__,__FUNCTION__,__LINE__);\
 			printf(" " LOG_ADDITIONAL);\
 			printf("--> " msg, ##__VA_ARGS__);\
 			printf("\n");\
