@@ -255,8 +255,9 @@ writing $a$ back.
 We tried to estimate the amount of memory that has to be transferred. For pure
 reading, we expect to observe the whole buffer beeing transferred to the core.
 When writing is involved, we expect some of the writes to be held back in the
-cache. It is hard to estimate the number of writes which is actually held back,
-therfore we just presume that the whole cache is used for write back. 
+cache. For the write kernel we presume that the whole cache is used for write
+back caching, and one third of the cache for the triad kernel, since there are
+three buffers.
 
 Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
 of memory transfer. The errors (see fig. \ref{yonah/valTBError}) decrease for
@@ -272,6 +273,12 @@ overhead for the Read kernel. The data of the write kernel shows that almost the
 whole 2MB 2nd level cache is used for write back caching. For the Triad kernel
 one could suspect that each buffer receives about one third of the cache, which
 is affirmed by the data.
+
+When measuring on an Intel Core, we observed a strange behaviour. While the Read
+and the Triad kernels behaved as expected, the we observed a memory transfer of
+half the buffer size for the write kernel, independent of the buffer size. We
+used the SSE intrinsics. Switching to the normal integer registers produced the
+expected results.
 
 \graphFloat{yonah/valTBArithTBValues}{Yonah: Transferred Bytes of the Arithmetic
 Kernel}
@@ -344,7 +351,8 @@ Figures \ref{yonah/valTBMinValues}, \ref{yonah/valTBMinError},
 \ref{yonah/valTimeMemMinValues},\ref{yonah/valTimeArithMinValues},
 \ref{yonah/valTimeMemMinError},
 \ref{yonah/valTimeArithMinError},\ref{yonah/valOpMinValues},
-\ref{yonah/valOpMinError} show the result of taking the minimum of $K=10$ repetitions.
+\ref{yonah/valOpMinError} show the result of taking the minimum of $K=10$
+repetitions.
 
 \clearpage
 \section{Measurement Tool Architecture}

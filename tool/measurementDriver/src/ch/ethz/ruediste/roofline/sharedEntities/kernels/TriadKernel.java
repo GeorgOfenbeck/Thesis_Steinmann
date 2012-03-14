@@ -19,7 +19,9 @@ public class TriadKernel extends TriadKernelData {
 		// 8: for double
 
 		long bufferSizeBytes = getBufferSize() * 8;
-		long cacheSize = SystemInformation.L2CacheSize;
+
+		// divide by three, since we have three buffers
+		double cacheSize = SystemInformation.L2CacheSize / 3.;
 
 		// 4: two buffers reading, one buffer writing, which involves read+write
 		return new TransferredBytes(bufferSizeBytes * 2 // two buffers reading
