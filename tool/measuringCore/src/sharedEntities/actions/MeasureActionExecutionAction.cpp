@@ -14,6 +14,7 @@ MeasureActionExecutionAction::~MeasureActionExecutionAction() {
 void MeasureActionExecutionAction::execute(EventBase *event)
 {
 	LENTER
+	getAction()->initialize();
 	getMeasurerSet()->initialize();
 
 	getMeasurerSet()->start();
@@ -21,23 +22,10 @@ void MeasureActionExecutionAction::execute(EventBase *event)
 	getMeasurerSet()->stop();
 
 	getMeasurerSet()->dispose();
-	LLEAVE
-}
-
-void MeasureActionExecutionAction::initialize()
-{
-	getAction()->initialize();
-
-}
-
-
-
-void MeasureActionExecutionAction::dispose()
-{
 	getAction()->dispose();
 
+	LLEAVE
 }
-
 
 
 

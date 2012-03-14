@@ -13,8 +13,6 @@ class MeasureActionExecutionAction:  public MeasureActionExecutionActionData {
 public:
 	virtual ~MeasureActionExecutionAction();
 	virtual void execute(EventBase *event);
-	void initialize();
-	void dispose();
 };
 
 #endif /* MEASUREACTIONEXECUTIONACTION_H_ */

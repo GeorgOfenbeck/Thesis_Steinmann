@@ -10,7 +10,7 @@ GRAPHS=$(shell find -L -name "*.pdf" \( -path "./graphs/*" \) -print)
 LATEX=pdflatex
 FLAGS=-interaction=nonstopmode
 
-.PHONY: report clean quick
+.PHONY: report clean quick graphs
 report: report.pdf
 
 clean:
@@ -24,8 +24,10 @@ out:
 	mkdir out
 	mkdir out/diagrams
 
-report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES) $(GRAPHS)
+graphs:
 	cd graphs && rot measure -checkCore report
+
+report.pdf: report.tex report.bib out $(DIAGRAM_IMAGES) $(GRAPHS)
 	(($(LATEX) $(FLAGS) report.tex \
 	&& bibtex report.aux \
 	&& $(LATEX) $(FLAGS) report.tex \

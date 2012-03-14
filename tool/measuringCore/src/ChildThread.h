@@ -52,6 +52,9 @@ public:
 	 */
 	void processActions();
 
+	/**
+	 * queue the action in this thread and send a stop notification
+	 */
 	void pushAction(ActionBase *action, EventBase *event);
 };
 

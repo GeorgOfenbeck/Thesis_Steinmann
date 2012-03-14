@@ -13,6 +13,7 @@
 #include "baseClasses/Locator.h"
 #include "baseClasses/WorkloadStartEvent.h"
 #include "baseClasses/WorkloadStopEvent.h"
+#include "ChildThread.h"
 
 #include "utils.h"
 #include <sched.h>
@@ -20,6 +21,9 @@
 #include "Exception.h"
 #include <string.h>
 #include <cstdio>
+#include <sys/types.h>
+#include <unistd.h>
+
 
 using namespace std;
 
@@ -48,7 +52,7 @@ void Workload::clearCaches() {
 	LLEAVE
 }
 
-void *Workload::threadStart(void *arg) {
+void *Workload::threadStartHelper(void *arg) {
 	Workload *workload = (Workload*) arg;
 	try {
 		workload->startInThread();
@@ -75,13 +79,16 @@ pthread_t Workload::start() {
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
 
 	pthread_t thread;
-	pthread_create(&thread, &attr, Workload::threadStart, this);
+	pthread_create(&thread, &attr, Workload::threadStartHelper, this);
 
 	pthread_attr_destroy(&attr);
 	return thread;
 }
 
 void Workload::startInThread() {
+	// set the childThread
+	childThread=ChildThread::getChildThread(getpid());
+
 	LTRACE("setting CPU affinity");
 	if (getCpu() != -1) {
 		cpu_set_t *mask = CPU_ALLOC(getCpu());

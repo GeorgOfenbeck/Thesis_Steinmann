@@ -1231,12 +1231,10 @@ child process as well. A notification is used to communicate between the child
 process and the parent process. However, the parent can notify (using a
 notification) the child of a certain observation, which causes the child to
 generate an event.
- 
-Actions can be associated with a thread. In this case,
-the action is always executed within that thread. Measurers can be associated with a thread, too. In
-that case, all functions of the measurer have to be called within the specified
-thread. It is the responsibility of the callee to respect such an association.
-If necessary, an intermediate action has to be used.
+
+The rule list is always searched in the thread generating the event. If an
+action has to be executed in another thread, it has to be queued using
+\method{ChildThread::pushAction()}
 
 The technically most challenging problem is to interrupt another thread and make
 it execute some action. There are two approaches to this problem, either using a
@@ -1247,17 +1245,35 @@ cause it to be stopped. The parent modifies the thread state of the stopped
 thread. When the thread resumes execution, it executes some event handling code
 and then return to the location the thread was interrupted.
 
-\subsubsection{Child Thread Lifetime}
-The parent process manages a thread table, which contains the state of each
-child thread. When a child thread is cloned, the parent receives a signal by
-ptrace. It will create a new entry in the thread table and set the state to
-"new". In this state, the child cannot receive messages yet. When the thread is
-started, the parent process will receive a SIGSTOP from the child. Upon
-receiving this signal from a thread in the new state, the parent will send the
-"process" command and mark the thread as processing. As soon as the child is
-done with the initialization, it will send "done" to the parent. The process is
-put into the running state. When the child receives a message, the parent will
-possibly send process to it again. If it exits, it will go the the exit state.
+\subsubsection{Child Thread States}
+\umlDiagram{measuringCore/ChildState}
+The parent process manages a state for each child thread. When a child thread
+starts, ptrace will immediately stop it with SIGSTOP. If the notification system
+is ready, a ThreadStarted notification will be sent to the child.
+
+While a notification is beeing processed by the child, it's state is set to
+processing. When no more notifications are pending, the state is set to running.
+If a notification is queued from one thread to another and the state of the
+receiving thread is running, a SIGTRAP is sent to the receiving thread and the
+state of the receiving thread is set to stopping. The stopping state indicates
+that the thread will stop eventually.
+
+A thread can exit at any time. When this is detected by the parent process, the
+state and the notification queue are erased.
+
+\subsection{Thread Representation in the Child Process}
+In the child process, threads are represented as \class{ChildThread} objects.
+Since every \class{Workload} runs in it's own thread, a child thread is
+associated with every workload. 
+
+When a new thread is spawned, it will be stopped by ptrace. The parent sends the
+ThreadStarted notification to the child. In the handler, the child will
+instantiate the \class{ChildThread}. If the started thread is a workload thread,
+the startup routine of the workload will associate the instantiated child thread
+with the workload.
+
+Actions can be sent from one thread to another using
+\method{ChildThread::pushAction()}. 
 
 \subsubsection{Building}
 Each measurement can be performed with different compiler optimization flags and

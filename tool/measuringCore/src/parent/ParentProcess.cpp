@@ -152,28 +152,9 @@ bool ParentProcess::handleNotification(pid_t stoppedChild,
 		ParentNotification event, long arg) {
 	switch (event) {
 	case ParentNotification_QueueProcessActions: {
-		uint32_t p = arg;
-		// iterate over array pointed to by arg
-		while (1) {
-			// read word from array
-			long word = ptrace(PTRACE_PEEKDATA, stoppedChild, p, NULL);
-			if (word == -1 && errno) {
-				perror("peekdata");
-				exit(1);
-			}
-
-			// check if the end of the array is reached
-			if (word == 0) {
-				break;
-			}
-
-			// queue the process actions
-			queueNotification(stoppedChild, word,
-					ChildNotification_ProcessActions, 0);
-
-			// advance pointer
-			p += 4;
-		}
+		// queue the process actions
+		queueNotification(stoppedChild, arg,
+				ChildNotification_ProcessActions, 0);
 		return true;
 	}
 	default:

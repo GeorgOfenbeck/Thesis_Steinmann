@@ -12,6 +12,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include "Exception.h"
 
 static pthread_mutex_t threadMapMutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -40,7 +41,10 @@ void ChildThread::processNotification() {
 	}
 
 	if (notification == ChildNotification_ThreadStarted) {
-		// TODO: implement
+		// add a child thread for the new thread
+		pthread_mutex_lock(&threadMapMutex);
+		threadMap[childPid] =  new ChildThread(childPid);
+		pthread_mutex_unlock(&threadMapMutex);
 	}
 
 	if (notification == ChildNotification_ProcessActions) {
@@ -75,18 +79,11 @@ void ChildThread::processActions() {
 }
 
 ChildThread *ChildThread::getChildThread(pid_t childPid) {
-	ChildThread *child;
 	pthread_mutex_lock(&threadMapMutex);
-
-	if (threadMap.count(childPid) == 0) {
-		child = new ChildThread(childPid);
-		threadMap[childPid] = child;
-	} else {
-		child = threadMap[childPid];
-	}
-
+	if (threadMap.count(childPid)==0)
+		throw new Exception("threadMap does not contain a childthread for "+ childPid);
+	ChildThread *child = threadMap[childPid];
 	pthread_mutex_unlock(&threadMapMutex);
-
 	return child;
 }
 
@@ -94,5 +91,7 @@ void ChildThread::pushAction(ActionBase *action, EventBase *event) {
 	pthread_mutex_lock(&actionQueueMutex);
 	actionQueue.push(make_pair(action, event));
 	pthread_mutex_unlock(&actionQueueMutex);
+
+	ChildProcess::notifyParent(ParentNotification_QueueProcessActions,pid);
 }
 
