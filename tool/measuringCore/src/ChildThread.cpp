@@ -39,7 +39,7 @@ void ChildThread::processNotification() {
 		pthread_mutex_unlock(&threadMapMutex);
 	}
 
-	if (notification == ChildNotification_Started) {
+	if (notification == ChildNotification_ThreadStarted) {
 		// TODO: implement
 	}
 

@@ -27,74 +27,16 @@
 #else
 #define REG(regs,reg) (regs).e##reg
 #endif
+
 void ParentProcess::handleChildExited(pid_t stoppedChild) {
 	LENTER
-	switch (childStates[stoppedChild]) {
-	case ChildState_Stopping:
-	case ChildState_New:
-	case ChildState_Running:
-		childStates.erase(stoppedChild);
-		childNotificationQueue.erase(stoppedChild);
-		childRegs.erase(stoppedChild);
-		queueNotification(stoppedChild, mainChild,
-				ChildNotification_ChildExited, stoppedChild);
-		LLEAVE
-		return;
-	default:
-		break;
-	}
-	printf("handleChildExited: transition not supported");
-	exit(1);
-
-}
-
-void ParentProcess::handleChildCloned(pid_t stoppedChild, pid_t clonePid) {
-	LDEBUG("cloned pid: %i",clonePid)
-
-	switch (childStates[stoppedChild]) {
-	case ChildState_Running:
-	case ChildState_Stopping:
-	case ChildState_New:
-		childStates[clonePid] = ChildState_New;
-		return;
-	default:
-		break;
-	}
-	printf("handleChildCloned: transition not supported");
-	exit(1);
-}
-
-int ParentProcess::handleSignalReceived(pid_t stoppedChild, int signal) {
-	LDEBUG("signal: %s",strsignal(signal))
-	switch (childStates[stoppedChild]) {
-	case ChildState_New:
-		// only accept the initial SigStop notification
-		if (signal == SIGSTOP) {
-			if (notificationSystemReady) {
-				LTRACE("notificationSystemReady\n");
-				// setup the initilization notification
-				setupChildNotification(stoppedChild, ChildNotification_Started,
-						0);
-			} else {
-				queueNotification(stoppedChild, stoppedChild,
-						ChildNotification_Started, 0);
-			}
-			LLEAVE
-			return 0;
-		}
-		printf("childstate: NEW, signal=%i\n", signal);
-		break;
-	case ChildState_Running:
-	case ChildState_Stopping:
-	case ChildState_ProcessingNotification:
-		// forward the signal to the child
-		LTRACE("forwarding signal to child")
-		return signal;
-	}
-
-	printf("handleSignalReceived: transition not supported");
-	exit(1);
-	return 1;
+	// exiting is always allowed. We can't do anything about it, anyways
+	childStates.erase(stoppedChild);
+	childNotificationQueue.erase(stoppedChild);
+	childRegs.erase(stoppedChild);
+	queueNotification(stoppedChild, mainChild, ChildNotification_ChildExited,
+			stoppedChild);
+	LLEAVE
 }
 
 void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
@@ -108,44 +50,44 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 	ParentNotification notification = (ParentNotification) REG(regs,cx);
 	uint32_t arg = REG(regs,dx);
 
-	switch (childStates[stoppedChild]) {
-	case ChildState_New:
-		if (stoppedChild == mainChild
-				&& notification == ParentNotification_Startup) {
-			// this is the first trap in the main child, which notifies us of the
-			// position of the notification int3 instruction and the child notification
-			// entry point
-			notifyAddress = REG(regs,ip);
-			notificationProcedureEntry = REG(regs,dx);
+	if (stoppedChild == mainChild && notification == ParentNotification_Startup
+			&& !notificationSystemReady) {
+		// this is the first trap in the main child, which notifies us of the
+		// position of the notification int3 instruction and the child notification
+		// entry point
+		notifyAddress = REG(regs,ip);
+		notificationProcedureEntry = REG(regs,dx);
 
-			LDEBUG("got startup notification")
-			LDEBUG("child procedure entry: %x",notificationProcedureEntry)
-			LDEBUG("address notifications come from child: %x",notifyAddress);
-			notificationSystemReady = true;
+		LDEBUG("got startup notification")
+		LDEBUG("child procedure entry: %x", notificationProcedureEntry)
+		LDEBUG("address notifications come from child: %x", notifyAddress);
+		notificationSystemReady = true;
 
-			// stop processes with pending notifications
-			typedef map<pid_t, ChildState>::value_type StatePair;
-			foreach(StatePair state, childStates)
-					{
-						if (state.second == ChildState_Running) {
-							syscall(__NR_tgkill, mainChild, state.first,
-									SIGTRAP);
-							childStates[state.first] = ChildState_Stopping;
-						}
-					}
-
-			childStates[mainChild] = ChildState_Running;
-			return;
+		// stop processes with pending notifications
+		typedef map<pid_t, ChildState>::value_type StatePair;
+		foreach(StatePair state, childStates) {
+			if (state.second == ChildState_Running
+					&& hasPendingNotification(state.first)) {
+				syscall(__NR_tgkill, mainChild, state.first, SIGTRAP);
+				childStates[state.first] = ChildState_Stopping;
+			}
 		}
-		break;
+
+		childStates[mainChild] = ChildState_Running;
+		return;
+	}
+
+	switch (childStates[stoppedChild]) {
 	case ChildState_Stopping:
 	case ChildState_Running:
 
 		// check if a notification was sent
-		if (REG(regs,ip) == notifyAddress) {
-			LTRACE("trap comes from the parent notification address of the child")
+		if ((unsigned long) REG(regs,ip) == notifyAddress) {
+			LTRACE(
+					"trap comes from the parent notification address of the child")
 			if (!handleNotification(stoppedChild, notification, arg)) {
-				LWARNING("unhandled notification received: %s", ParentNotificationNames[notification]);
+				LWARNING("unhandled notification received: %s",
+						ParentNotificationNames[notification]);
 				//exit(1);
 			}
 		}
@@ -158,14 +100,16 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 		return;
 	case ChildState_ProcessingNotification:
 		// check if a processing done notification was sent
-		if (REG(regs,ip) == notifyAddress) {
+		if ((unsigned long) REG(regs,ip) == notifyAddress) {
 
 			if (notification == ParentNotification_ProcessingDone) {
-				LDEBUG("child %i finished processing a notification",stoppedChild);
+				LDEBUG("child %i finished processing a notification",
+						stoppedChild);
 
 				// we are done with processing, check the queue
 				if (hasPendingNotification(stoppedChild)) {
-					LDEBUG("there are more pending notifications, setting up the next for processing");
+					LDEBUG(
+							"there are more pending notifications, setting up the next for processing");
 					setupChildNotification(stoppedChild);
 				} else {
 					// there are no more notifications
@@ -174,7 +118,8 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 					childStates[stoppedChild] = ChildState_Running;
 					user_regs_struct childReg = childRegs[stoppedChild];
 
-					LDEBUG("there are no more pending notification, continuing");
+					LDEBUG(
+							"there are no more pending notification, continuing");
 
 					// restore previous registers
 					ptrace(PTRACE_SETREGS, stoppedChild, NULL, &childReg);
@@ -302,7 +247,7 @@ void ParentProcess::setupChildNotification(pid_t stoppedChild) {
 }
 
 int ParentProcess::traceLoop() {
-	int exitStatus=0;
+	int exitStatus = 0;
 	while (1) {
 		int status;
 		pid_t stoppedPid;
@@ -320,8 +265,8 @@ int ParentProcess::traceLoop() {
 		// check if the child exited
 		if (WIFEXITED(status)) {
 			// the child exited
-			if (stoppedPid == mainChild){
-				exitStatus=WEXITSTATUS(status);
+			if (stoppedPid == mainChild) {
+				exitStatus = WEXITSTATUS(status);
 				break;
 			}
 
@@ -332,56 +277,64 @@ int ParentProcess::traceLoop() {
 			continue;
 		}
 
-		// check if the child is known
-		if (childStates.count(stoppedPid) == 0) {
-			LDEBUG("unknown child stopped %i", stoppedPid);
-			if (WIFSTOPPED(status)) {
-				LDEBUG("stopped by signal %s",strsignal( WSTOPSIG(status)))
-				if (ptrace(PTRACE_CONT, stoppedPid, 0, 0) < 0) {
-					perror("cont: error on ptrace syscall");
-					exit(1);
-				}
-			}
-			continue;
-		}
-
-		LDEBUG("childState: %s", ChildStateNames[childStates[stoppedPid]]);
+		int sendSig = 0;
 
 		// check if the child is stopped
 		if (WIFSTOPPED(status)) {
 			int stopSig = WSTOPSIG(status);
-			int sendSig = 0;
+
+			// check if the child is known
+			if (childStates.count(stoppedPid) == 0) {
+				LDEBUG("new child observed: %i", stoppedPid)
+				// child is not known, add as running
+				childStates[stoppedPid] = ChildState_Running;
+
+				// only accept the initial SigStop notification
+				if (stopSig != SIGSTOP) {
+					LERROR("new child was not stopped first by SIGSTOP")
+					exitStatus = 1;
+					break;
+				}
+
+				if (notificationSystemReady) {
+					LTRACE("notificationSystemReady\n");
+					// setup the initilization notification
+					setupChildNotification(stoppedPid,
+							ChildNotification_ThreadStarted, 0);
+				} else {
+					queueNotification(stoppedPid, stoppedPid,
+							ChildNotification_ThreadStarted, 0);
+				}
+			}
 			// check if we have a trap
-			if (stopSig == SIGTRAP) {
+			else if (stopSig == SIGTRAP) {
 				// get the event which caused the trap
 				int event = (status >> 16) & 0xFF;
 				LDEBUG("got sigtrap, event: %i", event);
 				if (event == PTRACE_EVENT_EXIT) {
 					LDEBUG("SIGTRAP | EVENT_EXIT<<16 %i", stoppedPid);
-					if (stoppedPid == mainChild){
+					if (stoppedPid == mainChild) {
 						// retrieve the exit status
-						if (ptrace(PTRACE_GETEVENTMSG, stoppedPid, 0, &exitStatus) < 0) {
-										perror("error on geteventmsg");
-										exit(1);
-									}
-						exitStatus=WEXITSTATUS(exitStatus);
+						if (ptrace(PTRACE_GETEVENTMSG, stoppedPid, 0,
+								&exitStatus) < 0) {
+							perror("error on geteventmsg");
+							exit(1);
+						}
+						exitStatus = WEXITSTATUS(exitStatus);
 
-						LDEBUG("Exit Status: %i",exitStatus);
+						LDEBUG("Exit Status: %i", exitStatus);
 						break;
 					}
 
 					handleChildExited(stoppedPid);
-				} else if (event == PTRACE_EVENT_CLONE) {
-					uint32_t newChildPid;
-					ptrace(PTRACE_GETEVENTMSG, stoppedPid, 0, &newChildPid);
-					handleChildCloned(stoppedPid, newChildPid);
 				} else if (event == 0) {
 					handleTrapOccured(stoppedPid);
 				} else
 					LWARNING("unknown event %i\n", event)
 
 			} else {
-				sendSig = handleSignalReceived(stoppedPid, stopSig);
+				// forward the signal to the child
+				sendSig = stopSig;
 			}
 
 			// continue the child
@@ -418,7 +371,6 @@ void ParentProcess::queueNotification(pid_t stoppedChild, pid_t receiver,
 		switch (childStates[receiver]) {
 		case ChildState_ProcessingNotification:
 		case ChildState_Stopping:
-		case ChildState_New:
 			// child will stop anyways
 			break;
 		case ChildState_Running:

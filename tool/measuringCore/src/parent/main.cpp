@@ -61,7 +61,7 @@ pid_t startChildProcess(int argc, char* argv[]) {
 
 	// set ptrace options
 	if (ptrace(PTRACE_SETOPTIONS, childPid, 0,
-			PTRACE_O_TRACEEXIT | PTRACE_O_TRACECLONE |PTRACE_O_TRACESYSGOOD) < 0) {
+			PTRACE_O_TRACEEXIT |PTRACE_O_TRACESYSGOOD) < 0) {
 		perror("error on ptrace set options");
 		exit(1);
 	}

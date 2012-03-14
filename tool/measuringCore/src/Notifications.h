@@ -29,7 +29,7 @@ const char* ParentNotificationNames[]
 ;
 
 enum ChildNotification{
-	ChildNotification_Started,
+	ChildNotification_ThreadStarted,
 	ChildNotification_ProcessActions,
 	ChildNotification_ChildExited,
 };

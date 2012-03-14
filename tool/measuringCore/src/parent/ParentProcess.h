@@ -21,7 +21,6 @@
 using namespace std;
 
 enum ChildState{
-	ChildState_New,
 	ChildState_Running,
 	ChildState_ProcessingNotification,
 	ChildState_Stopping,
@@ -33,7 +32,7 @@ extern
 const char *ChildStateNames[]
 #ifdef PARENTPROCESS_CPP_
                             ={
-		"New","Running","ProcessingNotification","Stopping"
+		"Running","ProcessingNotification","Stopping"
 }
 #endif
 ;
@@ -46,11 +45,9 @@ class ParentProcess {
 	pid_t mainChild;
 
 	void handleChildExited(pid_t stoppedChild);
-	void handleChildCloned(pid_t stoppedChild,pid_t clonePid);
 	void setupChildNotification(pid_t stoppedChild);
 	void handleTrapOccured(pid_t stoppedChild);
 	bool handleNotification(pid_t stoppedChild, ParentNotification event, long arg);
-	int handleSignalReceived(pid_t stoppedChild, int signal);
 	void queueNotification(pid_t stoppedChild, pid_t receiver, ChildNotification event, long arg);
 
 	bool hasPendingNotification(pid_t child);
@@ -62,7 +59,6 @@ class ParentProcess {
 public:
 	ParentProcess(pid_t mainChild){
 		this->mainChild=mainChild;
-		childStates[mainChild]=ChildState_New;
 		notificationSystemReady=false;
 	}
 	int traceLoop();

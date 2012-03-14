@@ -29,8 +29,9 @@ import com.google.inject.Inject;
 public class ValidateTransferredBytesMeasurementController extends
 		ValidationMeasurementControllerBase implements IMeasurementController {
 
-	private static final Logger log=Logger.getLogger(ValidateTransferredBytesMeasurementController.class);
-	
+	private static final Logger log = Logger
+			.getLogger(ValidateTransferredBytesMeasurementController.class);
+
 	public String getName() {
 		return "valTB";
 	}
@@ -90,8 +91,8 @@ public class ValidateTransferredBytesMeasurementController extends
 			// initialize the kernel
 			final KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
-			
-			log.info("measuring "+coordinate);
+
+			log.info("measuring " + coordinate);
 
 			// get the calculator for the transferred bytes
 			QuantityCalculator<TransferredBytes> transferredBytesCalc = quantityMeasuringService
@@ -187,13 +188,14 @@ public class ValidateTransferredBytesMeasurementController extends
 			// initialize the kernel
 			final KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
-			
-			if (kernel instanceof TriadKernel && coordinate.get(Axes.bufferSizeAxis)>1024L*1024L){
+
+			if (kernel instanceof TriadKernel
+					&& coordinate.get(Axes.bufferSizeAxis) > 1024L * 1024L) {
 				continue;
 			}
 
-			log.info("measuring "+coordinate);
-			
+			log.info("measuring " + coordinate);
+
 			// get the calculator for the transferred bytes
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
@@ -218,9 +220,16 @@ public class ValidateTransferredBytesMeasurementController extends
 					return measurement;
 				}
 			};
+
+			// determine the number of runs
+			int numRuns = 100;
+			if (configuration.get(ValidationMeasurementControllerBase.fastKey)) {
+				numRuns = 10;
+			}
+
 			// run the measurement
 			QuantityMap result = quantityMeasuringService
-					.measureQuantities(builder, 100).with("main", calc)
+					.measureQuantities(builder, numRuns).with("main", calc)
 					.with("flush", flushCalc).get();
 
 			// get the expected number of bytes transferred
