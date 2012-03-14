@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include "utils.h"
 #include <cstdio>
+#include "Exception.h"
 
 using namespace std;
 
@@ -79,7 +80,7 @@ void RunCommandConfigurator::runConfigurator(std::vector<RunCommand*> &commands)
 
 		// chck if the child ran succefully
 		if (WEXITSTATUS(status)!=0){
-			throw "systemConfigurator encountered an error";
+			throw Exception("systemConfigurator encountered an error");
 		}
 	}
 }

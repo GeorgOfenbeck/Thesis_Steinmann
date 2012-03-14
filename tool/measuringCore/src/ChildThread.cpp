@@ -80,8 +80,10 @@ void ChildThread::processActions() {
 
 ChildThread *ChildThread::getChildThread(pid_t childPid) {
 	pthread_mutex_lock(&threadMapMutex);
-	if (threadMap.count(childPid)==0)
-		throw new Exception("threadMap does not contain a childthread for "+ childPid);
+	if (threadMap.count(childPid)==0){
+		LERROR("threadMap does not contain pid %i",childPid)
+		throw new Exception("threadMap does not contain pid");
+	}
 	ChildThread *child = threadMap[childPid];
 	pthread_mutex_unlock(&threadMapMutex);
 	return child;

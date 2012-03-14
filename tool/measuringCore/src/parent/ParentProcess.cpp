@@ -59,8 +59,8 @@ void ParentProcess::handleTrapOccured(pid_t stoppedChild) {
 		notificationProcedureEntry = REG(regs,dx);
 
 		LDEBUG("got startup notification")
-		LDEBUG("child procedure entry: %x", notificationProcedureEntry)
-		LDEBUG("address notifications come from child: %x", notifyAddress);
+		LDEBUG("child procedure entry: %lx", notificationProcedureEntry)
+		LDEBUG("address notifications come from child: %lx", notifyAddress);
 		notificationSystemReady = true;
 
 		// stop processes with pending notifications
@@ -166,7 +166,7 @@ bool ParentProcess::handleNotification(pid_t stoppedChild,
 void ParentProcess::setupChildNotification(pid_t stoppedChild,
 		ChildNotification event, long arg) {
 
-	LDEBUG("stopped child: %i, event: %s, arg: %i",
+	LDEBUG("stopped child: %i, event: %s, arg: %li",
 			stoppedChild, ChildNotificationNames[event], arg);
 
 	if (notificationSystemReady == false) {
@@ -228,6 +228,8 @@ void ParentProcess::setupChildNotification(pid_t stoppedChild) {
 }
 
 int ParentProcess::traceLoop() {
+	childStates[mainChild]=ChildState_Running;
+
 	int exitStatus = 0;
 	while (1) {
 		int status;
@@ -272,7 +274,7 @@ int ParentProcess::traceLoop() {
 
 				// only accept the initial SigStop notification
 				if (stopSig != SIGSTOP) {
-					LERROR("new child was not stopped first by SIGSTOP")
+					LERROR("new child was not stopped first by SIGSTOP, instead %s was used",strsignal(stopSig))
 					exitStatus = 1;
 					break;
 				}
@@ -308,6 +310,10 @@ int ParentProcess::traceLoop() {
 					}
 
 					handleChildExited(stoppedPid);
+				}else if (event == PTRACE_EVENT_CLONE) {
+					// The child cloned another thread.
+					// We don't have anything to do now, since the
+					// child will be stopped with SIG_STOP, which we will detect.
 				} else if (event == 0) {
 					handleTrapOccured(stoppedPid);
 				} else

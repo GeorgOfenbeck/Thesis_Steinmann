@@ -111,8 +111,11 @@ int ChildProcess::main(int argc, char* argv[]) {
 			measurementClone = (Measurement*) measurement->clone(map);
 		}
 
+		// prepare the output
+		MeasurementRunOutput *measurementRunOutput = new MeasurementRunOutput();
+
 		// set the measurement in the locator
-		Locator::setMeasurement(measurementClone);
+		Locator::setMeasurement(measurementClone,measurementRunOutput);
 
 		// initialize overall measurer set
 		if (measurementClone->getOverallMeasurerSet() != NULL) {
@@ -168,19 +171,9 @@ int ChildProcess::main(int argc, char* argv[]) {
 
 		LTRACE("collecting output");
 
-		// add the outputs
-		MeasurementRunOutput *measurementRunOutput = new MeasurementRunOutput();
-
-		set<SharedEntityBase*> all;
-		measurementClone->addAll(all);
-		foreach(SharedEntityBase *obj, all)
-				{
-					MeasurerSet *output = dynamic_cast<MeasurerSet*>(obj);
-					if (output != NULL)
-						measurementRunOutput->getMeasurerSetOutputs().push_back(
-								output->getOutput());
-				}
-
+		// add the run output to the output collection
+		// the outputs were already fed into the run output using
+		// Locator::addMeasurementSetOutput()
 		outputCollection.getOutputs().push_back(measurementRunOutput);
 	}
 

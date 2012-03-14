@@ -73,8 +73,6 @@ int registerEvent(int parentFd, string eventName){
 	 * create the event and attach to self
 	 * Note that it attaches only to the main thread, there is no inheritance
 	 * to threads that may be created subsequently.
-	 *
-	 * if mulithreaded, then getpid() must be replaced by gettid()
 	 */
 	int tid=syscall(__NR_gettid);
 	fd = perf_event_open(&attr, tid, -1, parentFd, 0);
@@ -106,7 +104,7 @@ void PerfEventMeasurer::dispose(){
 
 }
 
-MeasurerOutputBase *PerfEventMeasurer::doRead(){
+MeasurerOutputBase *PerfEventMeasurer::read(){
 	uint64_t values[3];
 	int ret;
 

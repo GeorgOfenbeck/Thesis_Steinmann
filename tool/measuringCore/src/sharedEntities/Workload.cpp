@@ -23,6 +23,7 @@
 #include <cstdio>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/syscall.h>
 
 
 using namespace std;
@@ -60,6 +61,10 @@ void *Workload::threadStartHelper(void *arg) {
 		fprintf(stderr, "Exception occurred: %s\n", e.get_message().c_str());
 		e.print(2);
 		exit(1);
+	} catch (Exception *e) {
+		fprintf(stderr, "Exception occurred: %s\n", e->get_message().c_str());
+		e->print(2);
+		exit(1);
 	} catch (string &s) {
 		fprintf(stderr, "Exception occurred: %s\n", s.c_str());
 		exit(1);
@@ -74,6 +79,7 @@ void *Workload::threadStartHelper(void *arg) {
 }
 
 pthread_t Workload::start() {
+	LENTER
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -82,12 +88,15 @@ pthread_t Workload::start() {
 	pthread_create(&thread, &attr, Workload::threadStartHelper, this);
 
 	pthread_attr_destroy(&attr);
+	LLEAVE
 	return thread;
 }
 
 void Workload::startInThread() {
+	LENTER
 	// set the childThread
-	childThread=ChildThread::getChildThread(getpid());
+	int tid=syscall(__NR_gettid);
+	childThread=ChildThread::getChildThread(tid);
 
 	LTRACE("setting CPU affinity");
 	if (getCpu() != -1) {
@@ -147,10 +156,15 @@ void Workload::startInThread() {
 		free(stopEvent);
 	}
 
+	LTRACE("add measurer outputs to the runOutput")
+	Locator::addMeasurerSetOutput(getMeasurerSet()->getOutput());
+
 	LTRACE("dispose kernel")
 	getKernel()->dispose();
 
 	LTRACE("dispose measurer set")
 	getMeasurerSet()->dispose();
+
+	LLEAVE
 }
 

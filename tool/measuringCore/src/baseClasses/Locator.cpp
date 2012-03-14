@@ -11,6 +11,7 @@
 #include "sharedEntities/Measurement.h"
 #include "sharedEntities/Workload.h"
 #include "sharedEntities/ActionBase.h"
+#include "sharedEntities/MeasurementRunOutput.h"
 
 #include "utils.h"
 
@@ -19,6 +20,8 @@
 using namespace std;
 
 Measurement *Locator::measurement;
+MeasurementRunOutput *Locator::runOutput;
+
 std::vector<IEventListener*> Locator::listeners;
 
 void Locator::dispatchEvent(EventBase *event) {
@@ -33,8 +36,9 @@ void Locator::dispatchEvent(EventBase *event) {
 			}
 }
 
-void Locator::setMeasurement(Measurement *measurement) {
+void Locator::setMeasurement(Measurement *measurement, MeasurementRunOutput *runOutput) {
 	Locator::measurement = measurement;
+	Locator::runOutput = runOutput;
 }
 
 Workload* Locator::getWorkload(int id) {
@@ -71,4 +75,9 @@ KernelBase *Locator::getKernel(int id) {
 
 IEventListener::~IEventListener() {
 }
+
+void Locator::addMeasurerSetOutput(MeasurerSetOutput* setOutput) {
+	runOutput->getMeasurerSetOutputs().push_back(setOutput);
+}
+
 
