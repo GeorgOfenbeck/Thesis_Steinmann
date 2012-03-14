@@ -7,7 +7,7 @@
 
 #include "WorkloadStartEventPredicate.h"
 
-#include "baseClasses/WorkloadStartEvent.h"
+#include "baseClasses/events/WorkloadStartEvent.h"
 #include "sharedEntities/Workload.h"
 
 #include <typeinfo>

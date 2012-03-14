@@ -6,7 +6,7 @@
  */
 
 #include "WorkloadStopEventPredicate.h"
-#include "baseClasses/WorkloadStopEvent.h"
+#include "baseClasses/events/WorkloadStopEvent.h"
 #include "sharedEntities/Workload.h"
 
 #include <typeinfo>

@@ -11,8 +11,8 @@
 #include "Workload.h"
 #include "sharedEntities/KernelBase.h"
 #include "baseClasses/Locator.h"
-#include "baseClasses/WorkloadStartEvent.h"
-#include "baseClasses/WorkloadStopEvent.h"
+#include "baseClasses/events/WorkloadStartEvent.h"
+#include "baseClasses/events/WorkloadStopEvent.h"
 #include "ChildThread.h"
 
 #include "utils.h"

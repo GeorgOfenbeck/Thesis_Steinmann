@@ -8,7 +8,7 @@
 #ifndef WORKLOADSTOPEVENT_H_
 #define WORKLOADSTOPEVENT_H_
 
-#include "EventBase.h"
+#include "baseClasses/EventBase.h"
 
 class WorkloadStopEvent: public EventBase {
     int workloadId;
