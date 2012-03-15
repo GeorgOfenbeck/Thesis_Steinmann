@@ -13,7 +13,7 @@ MeasureActionExecutionAction::~MeasureActionExecutionAction() {
 	// TODO Auto-generated destructor stub
 }
 
-void MeasureActionExecutionAction::execute(EventBase *event)
+void MeasureActionExecutionAction::executeImp(EventBase *event)
 {
 	LENTER
 
@@ -23,7 +23,7 @@ void MeasureActionExecutionAction::execute(EventBase *event)
 
 	// measure action
 	getMeasurerSet()->start();
-	getAction()->execute(event);
+	getAction()->executeDirect(event);
 	getMeasurerSet()->stop();
 
 	// store action result

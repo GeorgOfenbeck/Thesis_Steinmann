@@ -12,7 +12,7 @@
 class MeasureActionExecutionAction:  public MeasureActionExecutionActionData {
 public:
 	virtual ~MeasureActionExecutionAction();
-	virtual void execute(EventBase *event);
+	virtual void executeImp(EventBase *event);
 };
 
 #endif /* MEASUREACTIONEXECUTIONACTION_H_ */

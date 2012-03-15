@@ -13,7 +13,7 @@ class FlushKernelBuffersAction: public FlushKernelBuffersActionData {
 public:
 	virtual ~FlushKernelBuffersAction();
 
-	virtual void execute(EventBase *event);
+	virtual void executeImp(EventBase *event);
 };
 
 #endif /* FLUSHKERNELBUFFERSACTION_H_ */

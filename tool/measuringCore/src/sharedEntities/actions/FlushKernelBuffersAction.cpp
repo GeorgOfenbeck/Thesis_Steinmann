@@ -14,7 +14,7 @@ FlushKernelBuffersAction::~FlushKernelBuffersAction() {
 	// TODO Auto-generated destructor stub
 }
 
-void FlushKernelBuffersAction::execute(EventBase *event)
+void FlushKernelBuffersAction::executeImp(EventBase *event)
 {
 	LENTER
 	getKernel()->flushBuffers();

@@ -11,11 +11,36 @@
 #include "sharedEntities/ActionBaseData.h"
 #include "baseClasses/EventBase.h"
 class ActionBase: public ActionBaseData {
+	void startExecute(ActionBase *action, EventBase *event);
+protected:
+	virtual void executeImp(EventBase *event)=0;
 public:
 	virtual ~ActionBase();
-	virtual void execute(EventBase *event)=0;
-	virtual void initialize(){};
-	virtual void dispose(){};
+
+	/**
+	 * execute this action asynchronously if restricted to a different thread, synchronously
+	 * if this action can be executed on the current thread
+	 */
+	void startExecute(EventBase *event);
+
+	/**
+	 * Execute synchronously
+	 */
+	void execute(EventBase *event);
+
+	/**
+	 * execute the action without checking the thread
+	 */
+	void executeDirect(EventBase *event) {
+		executeImp(event);
+	}
+
+	virtual void initialize() {
+	}
+	;
+	virtual void dispose() {
+	}
+	;
 };
 
 #endif /* ACTIONBASE_H_ */

@@ -13,7 +13,7 @@ StopKernelAction::~StopKernelAction() {
 	// TODO Auto-generated destructor stub
 }
 
-void StopKernelAction::execute(EventBase *event)
+void StopKernelAction::executeImp(EventBase *event)
 {
 	getKernel()->setKeepRunning(false);
 }

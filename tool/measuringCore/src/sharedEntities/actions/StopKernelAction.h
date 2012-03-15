@@ -12,7 +12,7 @@
 class StopKernelAction : public StopKernelActionData{
 public:
 	virtual ~StopKernelAction();
-	void execute(EventBase *event);
+	void executeImp(EventBase *event);
 
 };
 
