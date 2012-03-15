@@ -6,6 +6,7 @@
  */
 
 #include "ThreadStartEventPredicate.h"
+#include "baseClasses/events/ThreadStartEvent.h"
 
 bool ThreadStartEventPredicate::doesMatch(EventBase *event) {
 	ThreadStartEvent *threadStartEvent = dynamic_cast<ThreadStartEvent*>(event);
