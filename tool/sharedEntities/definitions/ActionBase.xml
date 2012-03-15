@@ -8,5 +8,7 @@
 	cSuffix="Data"
 	isAbstract="true"
 	comment="Base class of all action descriptions">
-		
+
+	<field name="workload" type="Workload" comment="Workload in whose thread the action has to be executed, null for no association"/>
+	<field name="tid" type="int" comment="thread id the action has to be executed in, -1 for no association"/>
 </class>
