@@ -44,6 +44,7 @@ void Locator::dispatchEvent(EventBase *event) {
 void Locator::setMeasurement(Measurement *measurement, MeasurementRunOutput *runOutput) {
 	Locator::measurement = measurement;
 	Locator::runOutput = runOutput;
+	listeners.clear();
 }
 
 Workload* Locator::getWorkload(int id) {
