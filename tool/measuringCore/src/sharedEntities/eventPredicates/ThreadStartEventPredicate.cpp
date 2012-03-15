@@ -7,9 +7,11 @@
 
 #include "ThreadStartEventPredicate.h"
 
-
-bool ThreadStartEventPredicate::doesMatch(EventBase *event)
-{
+bool ThreadStartEventPredicate::doesMatch(EventBase *event) {
+	ThreadStartEvent *threadStartEvent = dynamic_cast<ThreadStartEvent*>(event);
+	if (threadStartEvent != NULL) {
+		return true;
+	}
 	return false;
 }
 
