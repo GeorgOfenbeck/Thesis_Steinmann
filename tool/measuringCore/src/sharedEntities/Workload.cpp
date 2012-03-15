@@ -93,9 +93,19 @@ pthread_t Workload::start() {
 
 void Workload::startInThread() {
 	LENTER
-	// set the childThread
+
 	int tid=syscall(__NR_gettid);
+
+	// set the childThread and forward queued actions
+	childThreadMutex.lock();
 	childThread=ChildThread::getChildThread(tid);
+	{
+		pair<ActionBase*, EventBase*> pair;
+		while (actionQueue.pop(pair)){
+			childThread->queueAction(pair.first, pair.second);
+		}
+	}
+	childThreadMutex.unLock();
 
 	LTRACE("setting CPU affinity");
 	if (getCpu() != -1) {
@@ -177,3 +187,13 @@ void Workload::startInThread() {
 	LLEAVE
 }
 
+void Workload::queueAction(ActionBase* action, EventBase* event) {
+	childThreadMutex.lock();
+	// if there is a child thread, forward the action
+	if (childThread!=NULL)
+		childThread->queueAction(action,event);
+	else
+		actionQueue.push(make_pair(action,event));
+
+	childThreadMutex.unLock();
+}

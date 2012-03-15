@@ -11,11 +11,18 @@
 #include "sharedEntities/WorkloadData.h"
 #include "MeasurerSet.h"
 #include "KernelBase.h"
+#include "SynchronizedQueue.h"
 
 class ChildThread;
+class ActionBase;
+class EventBase;
 
 class Workload: public WorkloadData {
+	SynchronizedQueue<std::pair<ActionBase*,EventBase*> > actionQueue;
+
+	Mutex childThreadMutex;
 	ChildThread *childThread;
+
 	void clearL1ICache();
 	void clearCaches();
 	void warmOrClearCaches() {
@@ -55,6 +62,8 @@ public:
 	 */
 	pthread_t start();
 	virtual ~Workload();
+
+	void queueAction(ActionBase *action, EventBase *event);
 };
 
 #endif /* WORKLOAD_H_ */
