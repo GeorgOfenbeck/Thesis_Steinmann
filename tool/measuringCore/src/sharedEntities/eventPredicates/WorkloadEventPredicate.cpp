@@ -14,10 +14,9 @@
 
 bool WorkloadEventPredicate::doesMatch(EventBase *event)
 {
+	WorkloadEvent *workloadEvent=dynamic_cast<WorkloadEvent*>(event);
 	// check if it is a start event
-	if (typeid(*event)==typeid(WorkloadEvent)){
-		WorkloadEvent *workloadEvent=(WorkloadEvent*)event;
-
+	if (workloadEvent!=NULL){
 		// check event
 		if (workloadEvent->getEvent()!=getEventNr()){
 			return false;
