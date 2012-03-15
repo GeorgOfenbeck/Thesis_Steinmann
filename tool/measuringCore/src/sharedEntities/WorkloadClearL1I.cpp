@@ -24,3 +24,4 @@ void Workload::clearL1ICache()
 	// 2500*15=37500, which is more than the 32K code l1 cache of most pentiums
 	dummy=clear<2500>();
 }
+

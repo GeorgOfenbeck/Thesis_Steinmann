@@ -12,6 +12,7 @@
 #include "sharedEntities/MeasurementRunOutputCollection.h"
 #include "sharedEntities/MeasurementRunOutput.h"
 #include "baseClasses/SystemInitializer.h"
+#include "baseClasses/events/MeasurementRunEvent.h"
 
 #include "utils.h"
 
