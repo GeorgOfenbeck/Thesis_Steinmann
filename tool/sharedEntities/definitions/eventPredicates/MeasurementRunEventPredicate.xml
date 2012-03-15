@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	baseType="EventPredicateBase"
+	cSuffix="Data"
+	javaSuffix="Data"
+	comment="Event predicate matching events of a measurement run">
+
+	<field name="eventNr" type="int" comment="event number to match"/>	
+</derivedClass>

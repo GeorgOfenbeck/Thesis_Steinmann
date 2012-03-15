@@ -135,6 +135,12 @@ int ChildProcess::main(int argc, char* argv[]) {
 					configurator->beforeRun();
 				}
 
+		// raise start event
+		{
+			MeasurementRunEvent *event=new MeasurementRunEvent(MeasurementRunEvent_Start);
+			Locator::dispatchEvent(event);
+		}
+
 		// start overall measurer set
 		if (measurementClone->getOverallMeasurerSet() != NULL) {
 			measurementClone->getOverallMeasurerSet()->start();
@@ -160,6 +166,12 @@ int ChildProcess::main(int argc, char* argv[]) {
 		// stop overall measurer set
 		if (measurementClone->getOverallMeasurerSet() != NULL) {
 			measurementClone->getOverallMeasurerSet()->stop();
+		}
+
+		// raise stop event
+		{
+			MeasurementRunEvent *event=new MeasurementRunEvent(MeasurementRunEvent_Stop);
+			Locator::dispatchEvent(event);
 		}
 
 		LTRACE("notifying configurators: afterRun()");
