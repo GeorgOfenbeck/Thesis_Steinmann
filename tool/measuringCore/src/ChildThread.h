@@ -13,11 +13,10 @@
 #include <queue>
 #include <pthread.h>
 #include <utility>
+#include "SynchronizedQueue.h"
 
-using namespace std;
 class ChildThread {
-	queue<pair<ActionBase*,EventBase*> > actionQueue;
-	pthread_mutex_t actionQueueMutex;
+	SynchronizedQueue<std::pair<ActionBase*,EventBase*> > actionQueue;
 	bool isProcessing;
 	pid_t pid;
 
@@ -27,15 +26,13 @@ public:
 
 	ChildThread(pid_t pid){
 		this->pid=pid;
-		pthread_mutex_init(&actionQueueMutex,NULL);
 		isProcessing=false;
 	}
 
 	~ChildThread(){
-		pthread_mutex_destroy(&actionQueueMutex);
 	}
 
-	static map<pid_t, ChildThread*> threadMap;
+	static std::map<pid_t, ChildThread*> threadMap;
 
 	/**
 	 * When called,

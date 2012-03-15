@@ -11,22 +11,23 @@
 #include "sharedEntities/actions/WaitForWorkloadActionData.h"
 #include "baseClasses/Locator.h"
 #include "sharedEntities/eventPredicates/WorkloadEventPredicate.h"
-#include <pthread.h>
+#include "Barrier.h"
 
 class WaitForWorkloadAction : public WaitForWorkloadActionData, IEventListener {
 	WorkloadEventPredicate workloadStartEventPredicate;
-	pthread_mutex_t mutex;
-	pthread_cond_t condvar;
-	bool workloadStarted;
+	Barrier *workloadStartedBarrier;
 public:
-	WaitForWorkloadAction(){
-		workloadStarted=false;
-	}
+
 	virtual ~WaitForWorkloadAction();
 
-	void execute(EventBase *event);
+	void executeImp(EventBase *event);
 	void handleEvent(EventBase *event);
+
+	/**
+	 * initialize the action. Has to be called before the workload is started
+	 */
 	void initialize();
+
 	void dispose();
 };
 

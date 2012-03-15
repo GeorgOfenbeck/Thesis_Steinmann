@@ -16,8 +16,9 @@
 #include "baseClasses/events/ThreadStartEvent.h"
 #include "baseClasses/Locator.h"
 
-static pthread_mutex_t threadMapMutex = PTHREAD_MUTEX_INITIALIZER;
+using namespace std;
 
+static Mutex threadMapMutex;
 map<pid_t, ChildThread*> ChildThread::threadMap;
 
 void ChildThread::processNotification() {
@@ -30,7 +31,8 @@ void ChildThread::processNotification() {
 			ChildNotificationNames[notification], arg);
 
 	if (notification == ChildNotification_ChildExited) {
-		pthread_mutex_lock(&threadMapMutex);
+
+		threadMapMutex.lock();
 
 		// check that the child is initialized
 		if (threadMap.count(arg) > 0) {
@@ -39,14 +41,14 @@ void ChildThread::processNotification() {
 			threadMap.erase(arg);
 		}
 
-		pthread_mutex_unlock(&threadMapMutex);
+		threadMapMutex.unLock();
 	}
 
 	if (notification == ChildNotification_ThreadStarted) {
 		// add a child thread for the new thread
-		pthread_mutex_lock(&threadMapMutex);
+		threadMapMutex.lock();
 		threadMap[childPid] =  new ChildThread(childPid);
-		pthread_mutex_unlock(&threadMapMutex);
+		threadMapMutex.unLock();
 
 		ThreadStartEvent *event=new ThreadStartEvent(childPid);
 		Locator::dispatchEvent(event);
@@ -65,40 +67,25 @@ void ChildThread::processNotification() {
 
 void ChildThread::processActions() {
 	LENTER
-	while (1) {
-		// get the next action
-		pair<ActionBase*, EventBase*> pair;
-		pthread_mutex_lock(&actionQueueMutex);
-		if (actionQueue.empty()) {
-			// break the loop if the queue is empty
-			pthread_mutex_unlock(&actionQueueMutex);
-			LLEAVE
-			return;
-		}
-		pair = actionQueue.front();
-		actionQueue.pop();
-		pthread_mutex_unlock(&actionQueueMutex);
-
-		pair.first->execute(pair.second);
+	pair<ActionBase*,EventBase*> pair;
+	while (actionQueue.pop(pair)) {
+		pair.first->executeDirect(pair.second);
 	}
 }
 
 ChildThread *ChildThread::getChildThread(pid_t childPid) {
-	pthread_mutex_lock(&threadMapMutex);
+	threadMapMutex.lock();
 	if (threadMap.count(childPid)==0){
 		LERROR("threadMap does not contain pid %i",childPid)
 		throw new Exception("threadMap does not contain pid");
 	}
 	ChildThread *child = threadMap[childPid];
-	pthread_mutex_unlock(&threadMapMutex);
+	threadMapMutex.unLock();
 	return child;
 }
 
 void ChildThread::queueAction(ActionBase *action, EventBase *event) {
-	pthread_mutex_lock(&actionQueueMutex);
 	actionQueue.push(make_pair(action, event));
-	pthread_mutex_unlock(&actionQueueMutex);
-
-	ChildProcess::notifyParent(ParentNotification_QueueProcessActions,pid);
+	ChildProcess::notifyParent(ParentNotification_QueueProcessActions, pid);
 }
 
