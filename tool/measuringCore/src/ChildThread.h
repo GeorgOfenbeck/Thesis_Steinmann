@@ -14,11 +14,13 @@
 #include <pthread.h>
 #include <utility>
 #include "SynchronizedQueue.h"
+#include <vector>
 
 class ChildThread {
 	SynchronizedQueue<std::pair<ActionBase*,EventBase*> > actionQueue;
 	bool isProcessing;
 	pid_t pid;
+	static std::map<pid_t, ChildThread*> threadMap;
 
 public:
 
@@ -32,8 +34,6 @@ public:
 	~ChildThread(){
 	}
 
-	static std::map<pid_t, ChildThread*> threadMap;
-
 	/**
 	 * When called,
 	 * eax contains the process to notify
@@ -43,6 +43,8 @@ public:
 	static void processNotification();
 
 	static ChildThread* getChildThread(pid_t child);
+
+	static std::vector<ChildThread*> getChildThreads();
 
 	/**
 	 * start processing of the actions

@@ -15,6 +15,10 @@ class ActionBase: public ActionBaseData {
 protected:
 	virtual void executeImp(EventBase *event)=0;
 public:
+	ActionBase(){
+		setTid(-1);
+		setWorkload(NULL);
+	}
 	virtual ~ActionBase();
 
 	/**

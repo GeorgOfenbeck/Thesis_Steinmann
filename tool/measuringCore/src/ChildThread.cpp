@@ -15,6 +15,8 @@
 #include "Exception.h"
 #include "baseClasses/events/ThreadStartEvent.h"
 #include "baseClasses/Locator.h"
+#include "utils.h"
+#include <typeinfo>
 
 using namespace std;
 
@@ -69,8 +71,11 @@ void ChildThread::processActions() {
 	LENTER
 	pair<ActionBase*,EventBase*> pair;
 	while (actionQueue.pop(pair)) {
+		LTRACE("%p",pair.first)
+		LTRACE("processing action %s",typeid(*(pair.first)).name())
 		pair.first->executeDirect(pair.second);
 	}
+	LLEAVE
 }
 
 ChildThread *ChildThread::getChildThread(pid_t childPid) {
@@ -82,6 +87,17 @@ ChildThread *ChildThread::getChildThread(pid_t childPid) {
 	ChildThread *child = threadMap[childPid];
 	threadMapMutex.unLock();
 	return child;
+}
+
+vector<ChildThread*> ChildThread::getChildThreads() {
+	vector<ChildThread*> result;
+	threadMapMutex.lock();
+	typedef pair<pid_t, ChildThread*> ThreadMapPair;
+	foreach(ThreadMapPair pair,threadMap){
+		result.push_back(pair.second);
+	}
+	threadMapMutex.unLock();
+	return result;
 }
 
 void ChildThread::queueAction(ActionBase *action, EventBase *event) {
