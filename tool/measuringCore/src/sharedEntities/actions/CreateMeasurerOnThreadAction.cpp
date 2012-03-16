@@ -21,6 +21,9 @@
 #include "baseClasses/Locator.h"
 #include "sharedEntities/Workload.h"
 
+#include <unistd.h>
+#include <sys/syscall.h>
+
 using namespace std;
 
 CreateMeasurerOnThreadAction::~CreateMeasurerOnThreadAction() {
@@ -33,6 +36,7 @@ void CreateMeasurerOnThreadAction::executeImp(EventBase* event) {
 	vector<Workload*> workloads=Locator::getWorkloads();
 
 	foreach(ChildThread *childThread, childThreads) {
+
 		// check if the childThread is no workload thread
 		bool isWorkloadThread=false;
 		foreach(Workload *workload, workloads){
@@ -41,6 +45,13 @@ void CreateMeasurerOnThreadAction::executeImp(EventBase* event) {
 			}
 		}
 		if (isWorkloadThread) continue;
+
+		// make sure we are not instrumenting the current thread
+		{
+			int tid=syscall(__NR_gettid);
+			if (childThread->getPid()==tid)
+				continue;
+		}
 
 		pid_t pid = childThread->getPid();
 
