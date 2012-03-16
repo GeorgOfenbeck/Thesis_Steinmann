@@ -15,7 +15,7 @@ public class MMMKernel extends MMMKernelData {
 	@Override
 	public String getAdditionalLibraries() {
 		if (getAlgorithm() == MMMAlgorithm.MMMAlgorithm_Blas_Mkl) {
-			return LibraryHelper.getMklLibs();
+			return LibraryHelper.getMklLibs(getMultiThreaded());
 		}
 
 		if (getAlgorithm() == MMMAlgorithm.MMMAlgorithm_Blas_Openblas) {

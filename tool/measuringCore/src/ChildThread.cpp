@@ -16,6 +16,7 @@
 #include "baseClasses/Locator.h"
 #include "utils.h"
 #include <typeinfo>
+#include "sharedEntities/Rule.h"
 
 using namespace std;
 
@@ -48,10 +49,11 @@ void ChildThread::processNotification() {
 	if (notification == ChildNotification_ThreadStarted) {
 		// add a child thread for the new thread
 		threadMapMutex.lock();
-		threadMap[childPid] =  new ChildThread(childPid);
+		ChildThread* childThread = new ChildThread(childPid);
+		threadMap[childPid] = childThread;
 		threadMapMutex.unLock();
 
-		ThreadStartEvent *event=new ThreadStartEvent(childPid);
+		ThreadStartEvent *event=new ThreadStartEvent(childThread);
 		Locator::dispatchEvent(event);
 	}
 
@@ -84,6 +86,18 @@ vector<ChildThread*> ChildThread::getChildThreads() {
 	foreach(ThreadMapPair pair,threadMap){
 		result.push_back(pair.second);
 	}
+	threadMapMutex.unLock();
+	return result;
+}
+
+vector<ChildThread*> ChildThread::getChildThreadsAndAddRule(Rule *rule) {
+	vector<ChildThread*> result;
+	threadMapMutex.lock();
+	typedef pair<pid_t, ChildThread*> ThreadMapPair;
+	foreach(ThreadMapPair pair,threadMap){
+		result.push_back(pair.second);
+	}
+	Locator::addRule(rule);
 	threadMapMutex.unLock();
 	return result;
 }

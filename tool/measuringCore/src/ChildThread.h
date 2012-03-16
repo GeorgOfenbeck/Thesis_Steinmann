@@ -16,6 +16,8 @@
 #include "SynchronizedQueue.h"
 #include <vector>
 
+class Rule;
+
 class ChildThread {
 	SynchronizedQueue<std::pair<ActionBase*,EventBase*> > actionQueue;
 	bool isProcessing;
@@ -45,6 +47,7 @@ public:
 	static ChildThread* getChildThread(pid_t child);
 
 	static std::vector<ChildThread*> getChildThreads();
+	static std::vector<ChildThread*> getChildThreadsAndAddRule(Rule *rule);
 
 	/**
 	 * start processing of the actions

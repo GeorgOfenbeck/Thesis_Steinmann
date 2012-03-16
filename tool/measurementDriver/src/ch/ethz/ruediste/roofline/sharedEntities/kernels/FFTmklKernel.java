@@ -4,7 +4,7 @@ public class FFTmklKernel extends FFTmklKernelData {
 
 	@Override
 	public String getAdditionalLibraries() {
-		return LibraryHelper.getMklLibs();
+		return LibraryHelper.getMklLibs(false);
 	}
 
 	@Override

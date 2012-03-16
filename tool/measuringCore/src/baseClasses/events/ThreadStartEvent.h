@@ -10,17 +10,19 @@
 #include "baseClasses/EventBase.h"
 #include <sys/types.h>
 
+class ChildThread;
+
 class ThreadStartEvent: public EventBase {
-	pid_t tid;
+	ChildThread* childThread;
 public:
-	ThreadStartEvent(pid_t tid){
-		this->tid=tid;
+	ThreadStartEvent(ChildThread* childThread){
+		this->childThread=childThread;
 	}
 
 	virtual ~ThreadStartEvent();
 
-	pid_t getTid() const {
-		return tid;
+	ChildThread* getChildThread() const {
+		return childThread;
 	}
 };
 

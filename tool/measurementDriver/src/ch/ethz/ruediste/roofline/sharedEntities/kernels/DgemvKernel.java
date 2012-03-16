@@ -18,7 +18,7 @@ public class DgemvKernel extends DgemvKernelData {
 	@Override
 	public String getAdditionalLibraries() {
 		if (useMkl)
-			return LibraryHelper.getMklLibs();
+			return LibraryHelper.getMklLibs(false);
 		return "-lblas";
 	}
 

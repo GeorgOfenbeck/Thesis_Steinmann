@@ -6,7 +6,6 @@ import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.tuple.Pair;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 
@@ -138,7 +137,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 			case Core:
 				return Range.between(0.03, 20.);
 			case Yonah:
-				return Range.between(0.03, 4.5);
+				return Range.between(0.1, 4.5);
 			}
 			throw new Error("Cpu Type not supported");
 		}

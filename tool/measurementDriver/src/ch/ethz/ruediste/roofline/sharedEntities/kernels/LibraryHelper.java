@@ -3,7 +3,7 @@ package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 
 public class LibraryHelper {
-	public static String getMklLibs() {
+	public static String getMklLibs(boolean threaded) {
 		String libraryPath;
 		String mklIntel;
 		if (SystemInformation.Is64Bit) {
@@ -16,7 +16,21 @@ public class LibraryHelper {
 			mklIntel = "-lmkl_intel";
 		}
 
-		return String.format("%s %s -lmkl_sequential -lmkl_core", libraryPath,
-				mklIntel);
+		String mkl;
+		if (threaded) {
+			mkl = "-lmkl_gnu_thread";
+		}
+		else {
+			mkl = "-lmkl_sequential";
+		}
+
+		String additional = "";
+		if (threaded) {
+			additional = "-fopenmp -lpthread";
+		}
+
+		return String.format("%s %s %s -lmkl_core %s", libraryPath,
+				mklIntel, mkl, additional);
 	}
+
 }

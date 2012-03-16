@@ -87,12 +87,7 @@ public class RooflineController {
 		RooflinePoint point = new RooflinePoint(label, operationalIntensity,
 				performance);
 
-		// log output
-		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
-				label, point));
-
-		// add point
-		plot.addPoint(seriesName, point);
+		addRooflinePoint(seriesName, point);
 	}
 
 	public void addRooflinePoint(String seriesName, String label,
@@ -108,9 +103,7 @@ public class RooflineController {
 				new OperationalIntensity(transferredBytes, operationCount),
 				new Performance(operationCount, time));
 
-		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
-				label, point));
-		plot.addPoint(seriesName, point);
+		addRooflinePoint(seriesName, point);
 	}
 
 	public void addRooflinePoint(String seriesName, String label,
@@ -124,9 +117,26 @@ public class RooflineController {
 				new OperationalIntensity(transferredBytes, operationCount),
 				new Performance(operationCount, time));
 
-		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
-				label, point));
+		addRooflinePoint(seriesName, point);
+	}
 
+	public void addRooflinePoint(String seriesName, String label,
+			OperationCount opCount,
+			TransferredBytes transferredBytes, Time executionTime) {
+
+		RooflinePoint point = new RooflinePoint(label,
+				new OperationalIntensity(transferredBytes, opCount),
+				new Performance(opCount, executionTime));
+		addRooflinePoint(seriesName, point);
+	}
+
+	/**
+	 * @param seriesName
+	 * @param point
+	 */
+	public void addRooflinePoint(String seriesName, RooflinePoint point) {
+		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
+				point.getLabel(), point));
 		plot.addPoint(seriesName, point);
 	}
 
@@ -152,26 +162,27 @@ public class RooflineController {
 		case Core:
 			plot.addPeakPerformance("Balanced SSE", new Performance(4));
 			plot.addPeakPerformance("Balanced Scalar", new Performance(2));
-			break;
+		break;
 		case Yonah:
-			plot.addPeakPerformance("Balanced", new Performance(1.5));
-			addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
-			addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
-			break;
+			plot.addPeakPerformance("Single Core", new Performance(1));
+			plot.addPeakPerformance("Dual Core", new Performance(2));
+		//addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
+		//addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
+		break;
 		}
 
 		switch (systemInfoService.getCpuType()) {
 		case Core:
 			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 					MemoryTransferBorder.LlcRam);
-			break;
+		break;
 		case Yonah:
 			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 					MemoryTransferBorder.LlcRam);
-			
+
 			addPeakThroughput("MemRand", PeakAlgorithm.RandomLoad,
 					MemoryTransferBorder.LlcRam);
-			break;
+		break;
 		}
 	}
 
