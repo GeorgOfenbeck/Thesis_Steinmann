@@ -4,6 +4,7 @@ import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 
 import java.util.*;
 
+import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
@@ -433,11 +434,11 @@ public class QuantityMeasuringService {
 
 	public QuantityMap mesaureQuantities(
 			IMeasurementBuilder measurementBuilder, int numberOfMeasurements,
-			List<Pair<String, QuantityCalculator<?>[]>> calculators) {
+			List<Pair<String, QuantityCalculator<?>[]>> calculatorGroups) {
 
 		// extract the measurer sets for the calculators of each group
 		ArrayList<Pair<String, List<MeasurerSet>>> measurerSets = new ArrayList<Pair<String, List<MeasurerSet>>>();
-		for (Pair<String, QuantityCalculator<?>[]> entry : calculators) {
+		for (Pair<String, QuantityCalculator<?>[]> entry : calculatorGroups) {
 			List<MeasurerBase> measurers = new ArrayList<MeasurerBase>();
 			for (QuantityCalculator<?> calc : entry.getRight()) {
 				measurers.addAll(calc.getRequiredMeasurers());
@@ -492,20 +493,45 @@ public class QuantityMeasuringService {
 			for (int idx = 0; idx < numberOfMeasurements; idx++) {
 				ArrayList<MeasurerOutputBase> tmp = new ArrayList<MeasurerOutputBase>();
 				for (MeasurementResult result : results) {
-					addAll(tmp, result.getRunOutputs().get(idx)
-							.getMeasurerOutputs());
+					Iterable<MeasurerOutputBase> measurerOutputsOfOneRun = result
+							.getRunOutputs().get(idx)
+							.getMeasurerOutputs();
+
+					// A measurer might have been instantiated multiple time in the core.
+					// Then multiple outputs for one measurer can be present.
+					// Merge the outputs from one measurer whithin one run.
+
+					// fill a map for grouping
+					MultiValueMap map = new MultiValueMap();
+					for (MeasurerOutputBase output : measurerOutputsOfOneRun)
+						map.put(output.getMeasurerId(), output);
+
+					// combine the measures of each group
+					for (Object key : map.keySet()) {
+						@SuppressWarnings("unchecked")
+						Collection<MeasurerOutputBase> outputs = map
+								.getCollection(key);
+
+						MeasurerOutputBase combinedOutput = MeasurerOutputBase
+								.combine(outputs);
+
+						tmp.add(combinedOutput);
+					}
 				}
 				combinedResults.add(tmp);
 			}
 		}
 
 		QuantityMap resultMap = new QuantityMap();
-
 		// calculate the quantities for each quantity calculator
-		for (Pair<String, QuantityCalculator<?>[]> pair : calculators) {
+		for (Pair<String, QuantityCalculator<?>[]> pair : calculatorGroups) {
 			for (QuantityCalculator<?> calculator : pair.getRight()) {
+				// will contain a quantity for each run 
 				ArrayList<Quantity<?>> quantities = new ArrayList<Quantity<?>>();
+
+				// iterate over the combined results of each measurement run
 				for (List<MeasurerOutputBase> measurerOutputs : combinedResults) {
+					// calculate the quantity for each run
 					quantities.add(calculator.getResult(where(measurerOutputs,
 							calculator.isFromRequiredMeasurer())));
 				}

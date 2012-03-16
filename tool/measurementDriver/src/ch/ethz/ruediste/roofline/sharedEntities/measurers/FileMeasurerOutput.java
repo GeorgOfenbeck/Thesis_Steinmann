@@ -1,7 +1,9 @@
 package ch.ethz.ruediste.roofline.sharedEntities.measurers;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
-import ch.ethz.ruediste.roofline.sharedEntities.measurers.*;
+import ch.ethz.ruediste.roofline.sharedEntities.MeasurerOutputBase;
 
 public class FileMeasurerOutput extends FileMeasurerOutputData {
 
@@ -14,6 +16,11 @@ public class FileMeasurerOutput extends FileMeasurerOutputData {
 					}
 				});
 
+	}
+
+	@Override
+	protected void combineImp(MeasurerOutputBase a, MeasurerOutputBase b) {
+		throw new NotImplementedException();
 	}
 
 }

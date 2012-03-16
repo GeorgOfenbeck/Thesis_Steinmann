@@ -3,6 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	baseType="MeasurerOutputBase"
+	javaSuffix="Data"
 	comment="result of the ia64 measurer">
 	
 	<field name="isIa64" type="bool" comment="true if the kernel was compiled for 64 Bits"/>

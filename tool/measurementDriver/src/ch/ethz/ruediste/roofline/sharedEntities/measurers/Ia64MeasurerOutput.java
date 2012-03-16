@@ -1,14 +1,14 @@
 package ch.ethz.ruediste.roofline.sharedEntities.measurers;
 
+import org.apache.commons.lang.NotImplementedException;
+
 import ch.ethz.ruediste.roofline.sharedEntities.MeasurerOutputBase;
 
-public class TscMeasurerOutput extends TscMeasurerOutputData {
+public class Ia64MeasurerOutput extends Ia64MeasurerOutputData {
 
 	@Override
 	protected void combineImp(MeasurerOutputBase a, MeasurerOutputBase b) {
-		TscMeasurerOutput outA = (TscMeasurerOutput) a;
-		TscMeasurerOutput outB = (TscMeasurerOutput) b;
-		setTics(outA.getTics().add(outB.getTics()));
+		throw new NotImplementedException();
 	}
 
 }

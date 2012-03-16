@@ -3,6 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	baseType="MeasurerOutputBase"
+	javaSuffix="Data"
 	comment="result of the list events measurer">
 	
 	<list name="pmus" type="PmuDescription" comment="list of the available PMUs"/>
