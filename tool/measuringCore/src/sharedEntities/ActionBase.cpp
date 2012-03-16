@@ -108,6 +108,7 @@ void ActionBase::startExecute(ActionBase* action, EventBase* event) {
 			throw new Exception("there was no ChildThread for the specified tid");
 
 		childThread->queueAction(action,event);
+		return;
 	}
 
 	action->executeDirect(event);
