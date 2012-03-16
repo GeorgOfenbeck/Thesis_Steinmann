@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <typeinfo>
 
 #define LOG_LOG(name,level,msg,...) { \
 	int tid=syscall(__NR_gettid);\
@@ -77,5 +78,8 @@
 
 #define LENTER LTRACE("entering method")
 #define LLEAVE LTRACE("leaving method")
+
+#define LENTERT LTRACE("entering method %p->%s", this, typeid(*this).name())
+#define LLEAVET LTRACE("leaving method %p->%s", this, typeid(*this).name())
 
 #endif /* LOGGER_H_ */

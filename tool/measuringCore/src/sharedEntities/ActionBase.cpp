@@ -33,10 +33,10 @@ public:
 };
 
 void SynchronousExecutionHelperAction::executeImp(EventBase *event){
-	LENTER
+	LENTERT
 	innerAction->executeDirect(event);
 	barrier.open();
-	LLEAVE
+	LLEAVET
 }
 
 SharedEntityBase * SynchronousExecutionHelperAction::clone(std::map<PolymorphicBase*,PolymorphicBase*> &map){
@@ -44,16 +44,17 @@ SharedEntityBase * SynchronousExecutionHelperAction::clone(std::map<PolymorphicB
 }
 
 void ActionBase::execute(EventBase* event) {
-	LENTER
+	LENTERT
 	SynchronousExecutionHelperAction helperAction;
 	helperAction.innerAction=this;
 	startExecute(&helperAction,event);
+	LTRACE("Waiting for barrier to open")
 	helperAction.barrier.waitIfClosed();
-	LLEAVE
+	LLEAVET
 }
 
 void ActionBase::startExecute(ActionBase* action, EventBase* event) {
-	LENTER
+	LENTERT
 	// is there any restriction on the execution thread?
 	if (getWorkload()==NULL && getTid()==-1 ){
 		LTRACE()
@@ -85,7 +86,7 @@ void ActionBase::startExecute(ActionBase* action, EventBase* event) {
 		if (workloadThread->getPid()!=tid){
 			LTRACE()
 			workloadThread->queueAction(action,event);
-			LLEAVE
+			LLEAVET
 			return;
 		}
 
@@ -93,7 +94,7 @@ void ActionBase::startExecute(ActionBase* action, EventBase* event) {
 		// we don't have to switch the thread
 		action->executeDirect(event);
 
-		LLEAVE
+		LLEAVET
 		return;
 	}
 
@@ -108,9 +109,11 @@ void ActionBase::startExecute(ActionBase* action, EventBase* event) {
 			throw new Exception("there was no ChildThread for the specified tid");
 
 		childThread->queueAction(action,event);
+		LLEAVET
 		return;
 	}
 
 	action->executeDirect(event);
+	LLEAVET
 }
 

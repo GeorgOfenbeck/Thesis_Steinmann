@@ -15,11 +15,9 @@ Rule::~Rule() {
 }
 
 void Rule::handle(EventBase *event) {
-	LENTER
 	if (getPredicate()->doesMatch(event)) {
 		LTRACE("starting action %s", typeid(*getAction()).name())
 		getAction()->execute(event);
 	}
-	LLEAVE
 }
 

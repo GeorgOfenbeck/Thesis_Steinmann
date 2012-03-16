@@ -24,6 +24,8 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
+#include <typeinfo>
+
 
 using namespace std;
 
@@ -188,6 +190,7 @@ void Workload::startInThread() {
 }
 
 void Workload::queueAction(ActionBase* action, EventBase* event) {
+	LDEBUG("queuing action %p->%s",action,typeid(*action).name())
 	childThreadMutex.lock();
 	// if there is a child thread, forward the action
 	if (childThread!=NULL)

@@ -4,7 +4,6 @@
  *  Created on: Feb 8, 2012
  *      Author: ruedi
  */
-
 #include "Logger.h"
 #include "ChildThread.h"
 #include "Notifications.h"
@@ -67,17 +66,6 @@ void ChildThread::processNotification() {
 	ChildProcess::notifyParent(ParentNotification_ProcessingDone, 0);
 }
 
-void ChildThread::processActions() {
-	LENTER
-	pair<ActionBase*,EventBase*> pair;
-	while (actionQueue.pop(pair)) {
-		LTRACE("%p",pair.first)
-		LTRACE("processing action %s",typeid(*(pair.first)).name())
-		pair.first->executeDirect(pair.second);
-	}
-	LLEAVE
-}
-
 ChildThread *ChildThread::getChildThread(pid_t childPid) {
 	threadMapMutex.lock();
 	if (threadMap.count(childPid)==0){
@@ -100,7 +88,20 @@ vector<ChildThread*> ChildThread::getChildThreads() {
 	return result;
 }
 
+void ChildThread::processActions() {
+	LENTER
+	LDEBUG("pid: %i",pid)
+	pair<ActionBase*,EventBase*> pair;
+	while (actionQueue.pop(pair)) {
+		LTRACE("%p",pair.first)
+		LTRACE("processing action %s",typeid(*(pair.first)).name())
+		pair.first->executeDirect(pair.second);
+	}
+	LLEAVE
+}
+
 void ChildThread::queueAction(ActionBase *action, EventBase *event) {
+	LDEBUG("pid: %i, queuing action %p->%s",pid,action,typeid(*action).name())
 	actionQueue.push(make_pair(action, event));
 	ChildProcess::notifyParent(ParentNotification_QueueProcessActions, pid);
 }
