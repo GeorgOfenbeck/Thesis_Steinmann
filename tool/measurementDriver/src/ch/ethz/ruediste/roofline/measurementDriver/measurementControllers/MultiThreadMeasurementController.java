@@ -13,7 +13,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasurin
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.CreateMeasurerOnThreadAction;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
-import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.MeasurementRunEventPredicate.MeasurementRunEventEnum;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPredicate.WorkloadEventEnum;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
@@ -56,19 +55,18 @@ public class MultiThreadMeasurementController implements IMeasurementController 
 				workload.setMeasurerSet(sets.get("main"));
 
 				CreateMeasurerOnThreadAction action = new CreateMeasurerOnThreadAction();
-				measurement.addRule(new Rule(new MeasurementRunEventPredicate(
-						MeasurementRunEventEnum.Start), action));
+				measurement.addRule(new Rule(new WorkloadEventPredicate(
+						workload,
+						WorkloadEventEnum.KernelStart), action));
 
 				action.setCreateOnExistingNonWorkloadThreads(true);
 				action.setMeasurerSet(sets.get("main"));
-				action.setStartPredicate(new WorkloadEventPredicate(workload,
-						WorkloadEventEnum.KernelStart));
 				action.setStopPredicate(new WorkloadEventPredicate(workload,
 						WorkloadEventEnum.KernelStop));
 				action.setReadPredicate(new WorkloadEventPredicate(workload,
-						WorkloadEventEnum.Stop));
-				action.setDisposePredicate(new MeasurementRunEventPredicate(
-						MeasurementRunEventEnum.Stop));
+						WorkloadEventEnum.KernelStop));
+				action.setDisposePredicate(new WorkloadEventPredicate(workload,
+						WorkloadEventEnum.KernelStop));
 				return measurement;
 			}
 		};

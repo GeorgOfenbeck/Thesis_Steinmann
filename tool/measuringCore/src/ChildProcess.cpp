@@ -34,6 +34,7 @@
 #include "sharedEntities/Workload.h"
 #include "baseClasses/Locator.h"
 #include "sharedEntities/Rule.h"
+#include "Exception.h"
 
 #define THREADCOUNT 2
 using namespace std;
@@ -61,6 +62,18 @@ void handleSerializationTest() {
 }
 
 int ChildProcess::main(int argc, char* argv[]) {
+	try{
+		return innerMain(argc,argv);
+	}
+	catch (Exception *e){
+		LERROR("Exception Occurred: %s",e->get_message().c_str());
+		e->print(2);
+		exit(1);
+	}
+	return 1;
+}
+
+int ChildProcess::innerMain(int argc, char* argv[]) {
 	// check if doing a serialization test is requested
 	if (argc == 2 && strcmp(argv[1], "serializationTest") == 0) {
 		handleSerializationTest();
