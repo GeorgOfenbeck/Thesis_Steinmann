@@ -24,6 +24,7 @@ enum ChildState{
 	ChildState_Running,
 	ChildState_ProcessingNotification,
 	ChildState_Stopping,
+	ChildState_Exiting,
 };
 
 #ifndef PARENTPROCESS_CPP_
@@ -32,7 +33,7 @@ extern
 const char *ChildStateNames[]
 #ifdef PARENTPROCESS_CPP_
                             ={
-		"Running","ProcessingNotification","Stopping"
+		"Running","ProcessingNotification","Stopping","Exiting"
 }
 #endif
 ;
@@ -42,6 +43,7 @@ class ParentProcess {
 	map<pid_t,user_regs_struct> childRegs;
 	map<pid_t,queue<pair<ChildNotification,long> >* > childNotificationQueue;
 	map<pid_t,bool > childInSyscall;
+	map<pid_t,long > childExitValue;
 
 	pid_t mainChild;
 

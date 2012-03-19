@@ -12,7 +12,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "Exception.h"
-#include "baseClasses/events/ThreadStartEvent.h"
+#include "baseClasses/events/ThreadEvent.h"
 #include "baseClasses/Locator.h"
 #include "utils.h"
 #include <typeinfo>
@@ -33,6 +33,12 @@ void ChildThread::processNotification() {
 		LDEBUG("pid %i, notification: %s, arg: %i",
 				childPid, ChildNotificationNames[notification], arg);
 
+		if (notification == ChildNotification_ThreadExiting){
+			ThreadEvent *event = new ThreadEvent(getChildThread(childPid),ThreadEventEnum_Exiting);
+			Locator::dispatchEvent(event);
+
+			exit(arg);
+		}
 		if (notification == ChildNotification_ThreadExited) {
 
 			threadMapMutex.lock();
@@ -54,7 +60,7 @@ void ChildThread::processNotification() {
 			threadMap[childPid] = childThread;
 			threadMapMutex.unLock();
 
-			ThreadStartEvent *event = new ThreadStartEvent(childThread);
+			ThreadEvent *event = new ThreadEvent(childThread,ThreadEventEnum_Started);
 			Locator::dispatchEvent(event);
 		}
 

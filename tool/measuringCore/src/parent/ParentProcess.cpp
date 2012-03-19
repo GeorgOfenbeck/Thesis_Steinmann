@@ -303,11 +303,58 @@ int ParentProcess::traceLoop() {
 			else if (stopSig == SIGTRAP && sysGood) {
 				if (!childInSyscall[stoppedPid]) {
 					LTRACE("Syscall enter")
-
 					childInSyscall[stoppedPid] = true;
+
+					// read registers
+					user_regs_struct regs;
+					if (ptrace(PTRACE_GETREGS, stoppedPid, NULL, &regs) < 0) {
+						LERROR("error reading child regs")
+						exit(1);
+					}
+
+					// read the syscall number
+					long sysCall = regs.orig_eax;
+					LDEBUG("syscall %li", sysCall)
+
+					if (sysCall == SYS_exit) {
+						LTRACE("got exit")
+
+						// only start the exiting sequence if it is not beeing executed already
+						if (childStates[stoppedPid] != ChildState_Exiting) {
+							// execute a getpid instead of the exit
+							regs.orig_eax = SYS_getpid;
+
+							if (ptrace(PTRACE_SETREGS, stoppedPid, NULL, &regs)
+									< 0) {
+								LERROR("error reading child regs")
+								exit(1);
+							}
+
+							childStates[stoppedPid] = ChildState_Exiting;
+							childExitValue[stoppedPid]= REG(regs,bx);
+						}
+					}
+					/*
+					 LDEBUG("eip %lx",regs.eip)
+
+					 // print the code at stopped location
+					 long p= regs.eip-4;
+					 for (int i=0; i<16; i++){
+					 printf("%hhx ",(int) ptrace(PTRACE_PEEKDATA,stoppedPid,p+i,0));
+					 }
+					 printf("\n");
+					 */
 				} else {
 					LTRACE("Syscall leave")
 					childInSyscall[stoppedPid] = false;
+
+					// queue the exiting notification if the child is exiting
+					if (childStates[stoppedPid] == ChildState_Exiting) {
+						queueNotification(stoppedPid, stoppedPid,
+								ChildNotification_ThreadExiting, childExitValue[stoppedPid]);
+
+						setupChildNotification(stoppedPid);
+					}
 				}
 
 				// and continue
@@ -384,6 +431,7 @@ void ParentProcess::queueNotification(pid_t stoppedChild, pid_t receiver,
 		switch (childStates[receiver]) {
 		case ChildState_ProcessingNotification:
 		case ChildState_Stopping:
+		case ChildState_Exiting:
 			// child will stop anyways
 			break;
 		case ChildState_Running:

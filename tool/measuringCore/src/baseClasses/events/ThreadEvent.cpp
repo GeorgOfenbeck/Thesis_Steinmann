@@ -5,9 +5,9 @@
  *      Author: ruedi
  */
 
-#include "ThreadStartEvent.h"
+#include "ThreadEvent.h"
 
-ThreadStartEvent::~ThreadStartEvent() {
+ThreadEvent::~ThreadEvent() {
 	// TODO Auto-generated destructor stub
 }
 

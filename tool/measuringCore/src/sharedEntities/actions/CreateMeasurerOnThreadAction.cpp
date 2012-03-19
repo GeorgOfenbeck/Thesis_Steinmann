@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include "sharedEntities/EventPredicateBase.h"
-#include "baseClasses/events/ThreadStartEvent.h"
+#include "baseClasses/events/ThreadEvent.h"
 #include "sharedEntities/eventPredicates/ThreadStartEventPredicate.h"
 
 using namespace std;
@@ -148,7 +148,7 @@ void CreateMeasurerOnThreadAction::createOnExistingNonMeasurementThreads(
 
 void CreateMeasurerOnThreadAction::executeImp(EventBase* event) {
 	LENTER
-	ThreadStartEvent *startEvent=dynamic_cast<ThreadStartEvent*>(event);
+	ThreadEvent *startEvent=dynamic_cast<ThreadEvent*>(event);
 
 	if (startEvent!=NULL){
 		installMeasurer(startEvent->getChildThread(),event);
