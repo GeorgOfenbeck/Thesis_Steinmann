@@ -465,21 +465,29 @@ public class PlotService {
 	}
 
 	private int getPointType(int index) {
+		return pointTypes[getPointTypeIndex(index)];
+	}
+
+	public int getPointTypeIndex(int index) {
+		int idx;
 		if (index >= pointTypes.length) {
 			// iterate slowly over point types
-			int idx = index - pointTypes.length;
+			idx = index - pointTypes.length;
 			idx = idx / lineColors.length;
 			idx = idx % pointTypes.length;
-			return pointTypes[idx];
 		}
-		return pointTypes[index];
+		else
+			idx = index;
+		return idx;
 	}
 
 	private String getLineColor(int index) {
 		if (index >= lineColors.length) {
 			// iterate fast over line colors
 			int idx = index - lineColors.length;
-			idx = idx % lineColors.length;
+			idx = idx % (lineColors.length - 1);
+			if (idx >= getPointTypeIndex(index))
+				idx++;
 			return lineColors[idx];
 		}
 		return lineColors[index];
