@@ -1,5 +1,7 @@
 package ch.ethz.ruediste.roofline.sharedEntities;
 
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
+
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +37,15 @@ public class Workload extends WorkloadData {
 	}
 
 	public void initialize(Coordinate coordinate) {
+		if (coordinate.contains(warmCodeAxis))
+			setWarmCode(coordinate.get(warmCodeAxis));
+
+		if (coordinate.contains(warmDataAxis))
+			setWarmData(coordinate.get(warmDataAxis));
+
+		if (coordinate.contains(kernelAxis))
+			setKernel(coordinate.get(kernelAxis));
+
 		if (getKernel() != null)
 			getKernel().initialize(coordinate);
 

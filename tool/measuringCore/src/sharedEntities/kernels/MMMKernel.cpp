@@ -95,3 +95,8 @@ void MMMKernel::dispose() {
 	free(c);
 	free(check);
 }
+
+void MMMKernel::warmCodeCache() {
+	run();
+}
+

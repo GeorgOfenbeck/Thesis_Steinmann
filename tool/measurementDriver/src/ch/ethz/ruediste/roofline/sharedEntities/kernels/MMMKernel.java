@@ -86,4 +86,19 @@ public class MMMKernel extends MMMKernelData {
 		if (coordinate.contains(Axes.blockSizeAxis))
 			setNb(coordinate.get(Axes.blockSizeAxis));
 	}
+
+	@Override
+	public Operation getSuggestedOperation() {
+		switch (getAlgorithm()) {
+		case MMMAlgorithm_Blas_Mkl:
+			return Operation.DoublePrecisionFlop;
+		case MMMAlgorithm_Blas_Openblas:
+		case MMMAlgorithm_Blocked:
+		case MMMAlgorithm_Blocked_Restrict:
+		case MMMAlgorithm_TripleLoop:
+			return Operation.CompInstr;
+
+		}
+		throw new Error("should not happen");
+	}
 }

@@ -16,7 +16,10 @@
 class KernelBase : public KernelBaseData {
 	bool keepRunning;
 protected:
-	virtual void warmCachesAdditional(){}
+	/**
+	 * called when warming up
+	 */
+	virtual void warmDataCacheAdditional(){}
 	virtual std::vector<std::pair<void*,long> > getBuffers()=0;
 
 public:
@@ -28,7 +31,8 @@ public:
 	virtual void dispose()=0;
 
 	void flushBuffers();
-	void warmCaches();
+	void warmDataCache();
+	virtual void warmCodeCache();
 
 	void flushCacheLine(void *p){
 		__asm__ __volatile__ ("clflush %0" :: "m" (*(char*)p));

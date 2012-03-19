@@ -47,4 +47,11 @@ public class Axes {
 			"5452e251-7851-437a-a87e-1a9b41c18302", "clockType",
 			ClockType.uSecs);
 
+	public static final Axis<Boolean> warmCodeAxis = new Axis<Boolean>(
+			"f34ff279-faa1-46ac-b284-868ac0e62843", "warmCode",
+			false);
+	public static final Axis<Boolean> warmDataAxis = new Axis<Boolean>(
+			"fc1fc977-5ab4-4ac5-8a04-991fbd8554ac", "warmData",
+			false);
+
 }

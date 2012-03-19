@@ -427,9 +427,16 @@ public class QuantityMeasuringService {
 	}
 
 	public ArgBuilderGetQuantities measureQuantities(
-			IMeasurementBuilder measurementBuilder, int numberOfMeasurements) {
+			IMeasurementBuilder measurementBuilder) {
+		return measureQuantities(measurementBuilder,
+				configuration.get(numberOfRunsKey));
+
+	}
+
+	public ArgBuilderGetQuantities measureQuantities(
+			IMeasurementBuilder measurementBuilder, int numberOfRuns) {
 		return new ArgBuilderGetQuantities(measurementBuilder,
-				numberOfMeasurements);
+				numberOfRuns);
 	}
 
 	public QuantityMap mesaureQuantities(

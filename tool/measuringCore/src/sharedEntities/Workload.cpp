@@ -26,7 +26,6 @@
 
 #include <typeinfo>
 
-
 using namespace std;
 
 Workload::~Workload() {
@@ -37,16 +36,13 @@ static char dummy;
 
 void Workload::clearCaches() {
 	LENTER
-
-	getKernel()->flushBuffers();
-
 	clearL1ICache();
 	// just access 10M of memory, which is the maximum cache size present in current processors
-	size_t blockSize = 10 * (1 << 20) ;
+	size_t blockSize = 10 * (1 << 20);
 	char *buffer = (char*) malloc(blockSize);
 
 	// bring the whole buffer into memory
-	for (size_t i = 0; i < blockSize; i++) {
+	for (size_t i = 0; i < blockSize; i+=CacheLineSize) {
 		dummy += buffer[i];
 	}
 
@@ -69,9 +65,9 @@ void *Workload::threadStartHelper(void *arg) {
 	} catch (string &s) {
 		fprintf(stderr, "Exception occurred: %s\n", s.c_str());
 		exit(1);
-	} catch (const char* str){
+	} catch (const char* str) {
 		fprintf(stderr, "Exception occurred: %s\n", str);
-				exit(1);
+		exit(1);
 	} catch (...) {
 		fprintf(stderr, "Exception occurred \n");
 		exit(1);
@@ -96,14 +92,14 @@ pthread_t Workload::start() {
 void Workload::startInThread() {
 	LENTER
 
-	int tid=syscall(__NR_gettid);
+	int tid = syscall(__NR_gettid);
 
 	// set the childThread and forward queued actions
 	childThreadMutex.lock();
-	childThread=ChildThread::getChildThread(tid);
+	childThread = ChildThread::getChildThread(tid);
 	{
 		pair<ActionBase*, EventBase*> pair;
-		while (actionQueue.pop(pair)){
+		while (actionQueue.pop(pair)) {
 			childThread->queueAction(pair.first, pair.second);
 		}
 	}
@@ -120,7 +116,7 @@ void Workload::startInThread() {
 
 	LTRACE("raise start event")
 	{
-		WorkloadEvent *event = new WorkloadEvent(this,WorkloadEvent_Start);
+		WorkloadEvent *event = new WorkloadEvent(this, WorkloadEvent_Start);
 		Locator::dispatchEvent(event);
 	}
 
@@ -136,17 +132,18 @@ void Workload::startInThread() {
 	LTRACE("warm or clear caches")
 	warmOrClearCaches();
 
-	LTRACE("start additional measurers")
-	getMeasurerSet()->startAdditionalMeasurers();
-
 	LTRACE("raise kernel start event")
 	{
-		WorkloadEvent *event = new WorkloadEvent(this,WorkloadEvent_KernelStart);
+		WorkloadEvent *event = new WorkloadEvent(this,
+				WorkloadEvent_KernelStart);
 		Locator::dispatchEvent(event);
 	}
 
+	LTRACE("start additional measurers")
+	getMeasurerSet()->startAdditionalMeasurers();
+
 	LTRACE("start main measurer")
-	if (getMeasurerSet()->getMainMeasurer()!=NULL){
+	if (getMeasurerSet()->getMainMeasurer() != NULL) {
 		getMeasurerSet()->getMainMeasurer()->start();
 	}
 
@@ -155,7 +152,7 @@ void Workload::startInThread() {
 
 	// stop main measurer
 	LTRACE("stop main measurer")
-	if (getMeasurerSet()->getMainMeasurer()!=NULL){
+	if (getMeasurerSet()->getMainMeasurer() != NULL) {
 		getMeasurerSet()->getMainMeasurer()->stop();
 	}
 
@@ -164,7 +161,8 @@ void Workload::startInThread() {
 
 	LTRACE("raise kernel stop event")
 	{
-		WorkloadEvent *event = new WorkloadEvent(this,WorkloadEvent_KernelStop);
+		WorkloadEvent *event = new WorkloadEvent(this,
+				WorkloadEvent_KernelStop);
 		Locator::dispatchEvent(event);
 	}
 
@@ -173,7 +171,7 @@ void Workload::startInThread() {
 
 	LTRACE("raise stop event")
 	{
-		WorkloadEvent *event = new WorkloadEvent(this,WorkloadEvent_Stop);
+		WorkloadEvent *event = new WorkloadEvent(this, WorkloadEvent_Stop);
 		Locator::dispatchEvent(event);
 	}
 
@@ -189,14 +187,40 @@ void Workload::startInThread() {
 	LLEAVE
 }
 
+void Workload::warmOrClearCaches() {
+	// warm up measurers
+	getMeasurerSet()->startAdditionalMeasurers();
+	getMeasurerSet()->stopAdditionalMeasurers();
+
+	if (getMeasurerSet()->getMainMeasurer() != NULL) {
+		getMeasurerSet()->getMainMeasurer()->start();
+		getMeasurerSet()->getMainMeasurer()->stop();
+	}
+
+	// handle code and data
+	if (getWarmCode()) {
+		getKernel()->warmCodeCache();
+		if (!getWarmData()) {
+			getKernel()->flushBuffers();
+		}
+	} else {
+		clearCaches();
+		if (getWarmData()) {
+			getKernel()->warmDataCache();
+		} else {
+			getKernel()->flushBuffers();
+		}
+	}
+}
+
 void Workload::queueAction(ActionBase* action, EventBase* event) {
-	LDEBUG("queuing action %p->%s",action,typeid(*action).name())
+	LDEBUG("queuing action %p->%s", action, typeid(*action).name())
 	childThreadMutex.lock();
 	// if there is a child thread, forward the action
-	if (childThread!=NULL)
-		childThread->queueAction(action,event);
+	if (childThread != NULL)
+		childThread->queueAction(action, event);
 	else
-		actionQueue.push(make_pair(action,event));
+		actionQueue.push(make_pair(action, event));
 
 	childThreadMutex.unLock();
 }

@@ -8,6 +8,8 @@
 #include "Logger.h"
 #include "KernelBase.h"
 #include "utils.h"
+#include "Exception.h"
+#include "typeinfo"
 
 using namespace std;
 
@@ -36,7 +38,7 @@ void KernelBase::flushBuffers()
 
 static char dummy;
 
-void KernelBase::warmCaches()
+void KernelBase::warmDataCache()
 {
 	typedef pair<void *,long> TBufferPair;
 	foreach(TBufferPair bufferPair,getBuffers()){
@@ -47,8 +49,15 @@ void KernelBase::warmCaches()
 			dummy^=buffer[i];
 		}
 	}
-	warmCachesAdditional();
+
+	warmDataCacheAdditional();
 }
+
+void KernelBase::warmCodeCache() {
+	LERROR("code cache warming not implemented in %s",typeid(*this).name())
+	throw new Exception("code cache warming not implemented");
+}
+
 
 
 

@@ -207,7 +207,7 @@ public class PlotService {
 				outputFile.printf("%d %e %e %e %e %e\n", entry.getKey(),
 						statistics.getPercentile(25), statistics.getMin(),
 						statistics.getMax(), statistics.getPercentile(75),
-						statistics.getMean());
+						statistics.getPercentile(50));
 			}
 			outputFile.printf("\n\n");
 		}
@@ -219,7 +219,8 @@ public class PlotService {
 					+ ".gnuplot");
 			preparePlot(output, plot);
 
-			output.printf("set boxwidth 0.1\n");
+			if (plot.isLogX())
+				output.printf("set boxwidth 0.1\n");
 
 			List<String> plotLines = new ArrayList<String>();
 

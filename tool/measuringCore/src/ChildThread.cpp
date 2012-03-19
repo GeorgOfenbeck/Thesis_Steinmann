@@ -29,49 +29,54 @@ void ChildThread::processNotification() {
 	uint32_t arg;
 	asm("":"=a" (childPid), "=b" (notification), "=c" (arg)::);
 
-	LDEBUG("pid %i, notification: %s, arg: %i", childPid,
-			ChildNotificationNames[notification], arg);
+	try {
+		LDEBUG("pid %i, notification: %s, arg: %i",
+				childPid, ChildNotificationNames[notification], arg);
 
-	if (notification == ChildNotification_ChildExited) {
+		if (notification == ChildNotification_ChildExited) {
 
-		threadMapMutex.lock();
+			threadMapMutex.lock();
 
-		// check that the child is initialized
-		if (threadMap.count(arg) > 0) {
-			// remove the child from the thread map
-			delete (threadMap[arg]);
-			threadMap.erase(arg);
+			// check that the child is initialized
+			if (threadMap.count(arg) > 0) {
+				// remove the child from the thread map
+				delete (threadMap[arg]);
+				threadMap.erase(arg);
+			}
+
+			threadMapMutex.unLock();
 		}
 
-		threadMapMutex.unLock();
+		if (notification == ChildNotification_ThreadStarted) {
+			// add a child thread for the new thread
+			threadMapMutex.lock();
+			ChildThread* childThread = new ChildThread(childPid);
+			threadMap[childPid] = childThread;
+			threadMapMutex.unLock();
+
+			ThreadStartEvent *event = new ThreadStartEvent(childThread);
+			Locator::dispatchEvent(event);
+		}
+
+		if (notification == ChildNotification_ProcessActions) {
+			// invoke child
+			getChildThread(childPid)->processActions();
+		}
+
+		LLEAVE
+
+		// notify the parent that the child is done processing
+		ChildProcess::notifyParent(ParentNotification_ProcessingDone, 0);
+	} catch (Exception *e) {
+		LERROR("caught exception %s",e->get_message().c_str())
+		e->print(2);
 	}
-
-	if (notification == ChildNotification_ThreadStarted) {
-		// add a child thread for the new thread
-		threadMapMutex.lock();
-		ChildThread* childThread = new ChildThread(childPid);
-		threadMap[childPid] = childThread;
-		threadMapMutex.unLock();
-
-		ThreadStartEvent *event=new ThreadStartEvent(childThread);
-		Locator::dispatchEvent(event);
-	}
-
-	if (notification == ChildNotification_ProcessActions) {
-		// invoke child
-		getChildThread(childPid)->processActions();
-	}
-
-	LLEAVE
-
-	// notify the parent that the child is done processing
-	ChildProcess::notifyParent(ParentNotification_ProcessingDone, 0);
 }
 
 ChildThread *ChildThread::getChildThread(pid_t childPid) {
 	threadMapMutex.lock();
-	if (threadMap.count(childPid)==0){
-		LERROR("threadMap does not contain pid %i",childPid)
+	if (threadMap.count(childPid) == 0) {
+		LERROR("threadMap does not contain pid %i", childPid)
 		throw new Exception("threadMap does not contain pid");
 	}
 	ChildThread *child = threadMap[childPid];
@@ -83,7 +88,7 @@ vector<ChildThread*> ChildThread::getChildThreads() {
 	vector<ChildThread*> result;
 	threadMapMutex.lock();
 	typedef pair<pid_t, ChildThread*> ThreadMapPair;
-	foreach(ThreadMapPair pair,threadMap){
+	foreach(ThreadMapPair pair,threadMap) {
 		result.push_back(pair.second);
 	}
 	threadMapMutex.unLock();
@@ -94,7 +99,7 @@ vector<ChildThread*> ChildThread::getChildThreadsAndAddRule(Rule *rule) {
 	vector<ChildThread*> result;
 	threadMapMutex.lock();
 	typedef pair<pid_t, ChildThread*> ThreadMapPair;
-	foreach(ThreadMapPair pair,threadMap){
+	foreach(ThreadMapPair pair,threadMap) {
 		result.push_back(pair.second);
 	}
 	Locator::addRule(rule);
@@ -104,18 +109,19 @@ vector<ChildThread*> ChildThread::getChildThreadsAndAddRule(Rule *rule) {
 
 void ChildThread::processActions() {
 	LENTER
-	LDEBUG("pid: %i",pid)
-	pair<ActionBase*,EventBase*> pair;
+	LDEBUG("pid: %i", pid)
+	pair<ActionBase*, EventBase*> pair;
 	while (actionQueue.pop(pair)) {
-		LTRACE("%p",pair.first)
-		LTRACE("processing action %s",typeid(*(pair.first)).name())
+		LTRACE("%p", pair.first)
+		LTRACE("processing action %s", typeid(*(pair.first)).name())
 		pair.first->executeDirect(pair.second);
 	}
 	LLEAVE
 }
 
 void ChildThread::queueAction(ActionBase *action, EventBase *event) {
-	LDEBUG("pid: %i, queuing action %p->%s",pid,action,typeid(*action).name())
+	LDEBUG("pid: %i, queuing action %p->%s",
+			pid, action, typeid(*action).name())
 	actionQueue.push(make_pair(action, event));
 	ChildProcess::notifyParent(ParentNotification_QueueProcessActions, pid);
 }

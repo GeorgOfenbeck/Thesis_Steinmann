@@ -1,6 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.controllers;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.exec.ExecuteException;
 import org.apache.log4j.Logger;
@@ -9,6 +10,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculat
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.RooflineService.PeakAlgorithm;
@@ -62,8 +64,27 @@ public class RooflineController {
 	}
 
 	public void addRooflinePoint(String seriesName, String label,
-			KernelBase kernel, Operation operation, MemoryTransferBorder border) {
+			final KernelBase kernel, Operation operation,
+			MemoryTransferBorder border) {
 
+		IMeasurementBuilder builder = new IMeasurementBuilder() {
+
+			public Measurement build(Map<String, MeasurerSet> sets) {
+				Measurement measurement = new Measurement();
+				Workload workload = new Workload();
+				workload.setKernel(kernel);
+				workload.setMeasurerSet(sets.get("main"));
+				measurement.addWorkload(workload);
+				return measurement;
+			}
+		};
+
+		addRooflinePoint(seriesName, label, builder, operation, border);
+	}
+
+	public void addRooflinePoint(String seriesName, String label,
+			IMeasurementBuilder builder, Operation operation,
+			MemoryTransferBorder border) {
 		// get required calculators
 		QuantityCalculator<TransferredBytes> tbCalculator = quantityMeasuringService
 				.getTransferredBytesCalculator(border);
@@ -73,8 +94,10 @@ public class RooflineController {
 				.getExecutionTimeCalculator(clockType);
 
 		// measure
-		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,
-				timeCalc, opCountCalculator, tbCalculator);
+		QuantityMap result = quantityMeasuringService
+				.measureQuantities(builder).with(
+						"main", timeCalc, opCountCalculator, tbCalculator)
+				.get();
 
 		// build derived quantities
 		OperationalIntensity operationalIntensity = new OperationalIntensity(

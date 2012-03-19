@@ -91,7 +91,7 @@ public:
 
 	}
 	void dispose();
-
+	void warmCodeCache();
 };
 
 #endif /* MMMKERNEL_H_ */

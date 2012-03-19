@@ -35,7 +35,6 @@ public class DiskIoMeasurementController implements IMeasurementController {
 
 			DiskIoKernel kernel = new DiskIoKernel();
 			workload.setKernel(kernel);
-			workload.setWarmCaches(false);
 			workload.setMeasurerSet(new MeasurerSet());
 
 			kernel.setFileSize(1024L * 1024L * size);
@@ -45,7 +44,8 @@ public class DiskIoMeasurementController implements IMeasurementController {
 			ExecutionTimeMeasurer measurer = new ExecutionTimeMeasurer();
 			measurerSet.setMainMeasurer(measurer);
 			workload.setMeasurerSet(measurerSet);
-			workload.setWarmCaches(true);
+			workload.setWarmData(true);
+			workload.setWarmCode(true);
 
 			MeasurementResult result = measurementService.measure(measurement,
 					1);
@@ -72,7 +72,6 @@ public class DiskIoMeasurementController implements IMeasurementController {
 
 		DiskIoKernel kernel = new DiskIoKernel();
 		workload.setKernel(kernel);
-		workload.setWarmCaches(false);
 		workload.setMeasurerSet(new MeasurerSet());
 
 		kernel.setFileSize(1024L * 1024L * size);

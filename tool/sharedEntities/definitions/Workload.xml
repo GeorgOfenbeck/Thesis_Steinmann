@@ -13,5 +13,6 @@
 	<field name="kernel" type="KernelBase" comment="kernel to be executed" />
 	<field name="measurerSet" type="MeasurerSet" comment="Measurers used to measure from begin to end of the kernel"/>
 	<field name="cpu" type="int" comment="CPU the kernel should be started on. -1 means no pinning"/>
-	<field name="warmCaches" type="bool" comment="if true, warm caches, if false, clear caches before running the kernel"/>	
+	<field name="warmCode" type="bool" comment="if true, warm code, if false, clear code cache before running the kernel"/>	
+	<field name="warmData" type="bool" comment="if true, warm data if false, clear data before running the kernel"/>
 </class>

@@ -25,22 +25,7 @@ class Workload: public WorkloadData {
 
 	void clearL1ICache();
 	void clearCaches();
-	void warmOrClearCaches() {
-		// warm or clear caches
-		if (getWarmCaches()) {
-			getMeasurerSet()->startAdditionalMeasurers();
-			getMeasurerSet()->stopAdditionalMeasurers();
-
-			if (getMeasurerSet()->getMainMeasurer() != NULL) {
-				getMeasurerSet()->getMainMeasurer()->start();
-				getMeasurerSet()->getMainMeasurer()->stop();
-			}
-
-			getKernel()->warmCaches();
-		} else {
-			clearCaches();
-		}
-	}
+	void warmOrClearCaches();
 
 	/**
 	 * method executed in the workload thread

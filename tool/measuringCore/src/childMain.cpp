@@ -27,7 +27,6 @@ int main(int argc, char* argv[]) {
 	// start the child process
 	ChildProcess child;
 	int ret;
-	ret = child.main(argc, argv);
 	try {
 		ret = child.main(argc, argv);
 	} catch (Exception &e) {
