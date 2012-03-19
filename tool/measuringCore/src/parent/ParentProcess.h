@@ -41,6 +41,7 @@ class ParentProcess {
 	map<pid_t,ChildState> childStates;
 	map<pid_t,user_regs_struct> childRegs;
 	map<pid_t,queue<pair<ChildNotification,long> >* > childNotificationQueue;
+	map<pid_t,bool > childInSyscall;
 
 	pid_t mainChild;
 

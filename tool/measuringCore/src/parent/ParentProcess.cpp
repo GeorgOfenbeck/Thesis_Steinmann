@@ -265,13 +265,20 @@ int ParentProcess::traceLoop() {
 		// check if the child is stopped
 		if (WIFSTOPPED(status)) {
 			int stopSig = WSTOPSIG(status);
-			LDEBUG("Stopped with signal %s",strsignal(stopSig))
+			bool sysGood = stopSig & 0x80;
+			stopSig = stopSig & 0x7F;
+
+			LDEBUG("Stopped with signal %s and sysGood %i",
+					strsignal(stopSig), (int) sysGood)
 
 			// check if the child is known
 			if (childStates.count(stoppedPid) == 0) {
 				LDEBUG("new child observed: %i", stoppedPid)
 				// child is not known, add as running
 				childStates[stoppedPid] = ChildState_Running;
+
+				// and mark as not processing a syscall
+				childInSyscall[stoppedPid] = false;
 
 				// only accept the initial SigStop notification
 				if (stopSig != SIGSTOP) {
@@ -289,6 +296,19 @@ int ParentProcess::traceLoop() {
 					queueNotification(stoppedPid, stoppedPid,
 							ChildNotification_ThreadStarted, 0);
 				}
+			}
+			// did we receive the entry or exit of a syscall?
+			else if (stopSig == SIGTRAP && sysGood) {
+				if (!childInSyscall[stoppedPid]) {
+					LTRACE("Syscall enter")
+
+					childInSyscall[stoppedPid] = true;
+				} else {
+					LTRACE("Syscall leave")
+					childInSyscall[stoppedPid] = false;
+				}
+
+				// and continue
 			}
 			// check if we have a trap
 			else if (stopSig == SIGTRAP) {
@@ -329,7 +349,8 @@ int ParentProcess::traceLoop() {
 
 			// continue the child
 			//printf("continue %i\n",stoppedPid);
-			if (ptrace(PTRACE_CONT, stoppedPid, 0, sendSig) < 0) {
+			if (ptrace(PTRACE_SYSCALL, stoppedPid, 0, sendSig) < 0) {
+				LERROR("error on PTRACE_SYSCALL")
 				perror("cont: error on ptrace syscall");
 				exit(1);
 			}

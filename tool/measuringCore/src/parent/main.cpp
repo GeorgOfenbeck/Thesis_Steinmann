@@ -67,7 +67,8 @@ pid_t startChildProcess(int argc, char* argv[]) {
 	}
 
 	// restart child
-	if (ptrace(PTRACE_CONT, childPid, 0, 0) < 0) {
+	if (ptrace(PTRACE_SYSCALL, childPid, 0, 0) < 0) {
+		LERROR("error on PTRACE_SYSCALL")
 		perror("error on ptrace syscall");
 		exit(1);
 	}
