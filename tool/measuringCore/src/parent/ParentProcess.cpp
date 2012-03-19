@@ -153,8 +153,8 @@ bool ParentProcess::handleNotification(pid_t stoppedChild,
 	switch (event) {
 	case ParentNotification_QueueProcessActions: {
 		// queue the process actions
-		queueNotification(stoppedChild, arg,
-				ChildNotification_ProcessActions, 0);
+		queueNotification(stoppedChild, arg, ChildNotification_ProcessActions,
+				0);
 		return true;
 	}
 	default:
@@ -228,7 +228,7 @@ void ParentProcess::setupChildNotification(pid_t stoppedChild) {
 }
 
 int ParentProcess::traceLoop() {
-	childStates[mainChild]=ChildState_Running;
+	childStates[mainChild] = ChildState_Running;
 
 	int exitStatus = 0;
 	while (1) {
@@ -282,7 +282,9 @@ int ParentProcess::traceLoop() {
 
 				// only accept the initial SigStop notification
 				if (stopSig != SIGSTOP) {
-					LERROR("new child was not stopped first by SIGSTOP, instead %s was used",strsignal(stopSig))
+					LERROR(
+							"new child was not stopped first by SIGSTOP, instead %s was used",
+							strsignal(stopSig))
 					exitStatus = 1;
 					break;
 				}
@@ -331,7 +333,7 @@ int ParentProcess::traceLoop() {
 					}
 
 					handleChildThreadExited(stoppedPid);
-				}else if (event == PTRACE_EVENT_CLONE) {
+				} else if (event == PTRACE_EVENT_CLONE) {
 					LTRACE("SIGTRAP and EVENT_CLONE")
 					// The child cloned another thread.
 					// We don't have anything to do now, since the
