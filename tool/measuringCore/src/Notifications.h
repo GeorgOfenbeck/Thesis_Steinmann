@@ -31,7 +31,8 @@ const char* ParentNotificationNames[]
 enum ChildNotification{
 	ChildNotification_ThreadStarted,
 	ChildNotification_ProcessActions,
-	ChildNotification_ChildExited,
+	ChildNotification_ThreadExited,
+	ChildNotification_ThreadExiting,
 };
 
 #ifndef NOTIFICATIONS_CPP_
@@ -42,7 +43,8 @@ const char* ChildNotificationNames[]
                                     ={
 		"Started",
 		"ProcessActions",
-		"ChildExited",
+		"ThreadExited",
+		"ThreadExiting",
 		0
 }
 #endif

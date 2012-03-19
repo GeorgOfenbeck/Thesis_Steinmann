@@ -28,13 +28,13 @@
 #define REG(regs,reg) (regs).e##reg
 #endif
 
-void ParentProcess::handleChildExited(pid_t stoppedChild) {
+void ParentProcess::handleChildThreadExited(pid_t stoppedChild) {
 	LENTER
 	// exiting is always allowed. We can't do anything about it, anyways
 	childStates.erase(stoppedChild);
 	childNotificationQueue.erase(stoppedChild);
 	childRegs.erase(stoppedChild);
-	queueNotification(stoppedChild, mainChild, ChildNotification_ChildExited,
+	queueNotification(stoppedChild, mainChild, ChildNotification_ThreadExited,
 			stoppedChild);
 	LLEAVE
 }
@@ -256,7 +256,7 @@ int ParentProcess::traceLoop() {
 			LDEBUG("WIFEXITED\n");
 			// check if the child has been exited already, if not, do it
 			if (childStates.count(stoppedPid) > 0)
-				handleChildExited(stoppedPid);
+				handleChildThreadExited(stoppedPid);
 			continue;
 		}
 
@@ -310,7 +310,7 @@ int ParentProcess::traceLoop() {
 						break;
 					}
 
-					handleChildExited(stoppedPid);
+					handleChildThreadExited(stoppedPid);
 				}else if (event == PTRACE_EVENT_CLONE) {
 					LTRACE("SIGTRAP and EVENT_CLONE")
 					// The child cloned another thread.

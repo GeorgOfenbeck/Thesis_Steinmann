@@ -33,7 +33,7 @@ void ChildThread::processNotification() {
 		LDEBUG("pid %i, notification: %s, arg: %i",
 				childPid, ChildNotificationNames[notification], arg);
 
-		if (notification == ChildNotification_ChildExited) {
+		if (notification == ChildNotification_ThreadExited) {
 
 			threadMapMutex.lock();
 

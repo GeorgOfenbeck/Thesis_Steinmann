@@ -44,7 +44,7 @@ class ParentProcess {
 
 	pid_t mainChild;
 
-	void handleChildExited(pid_t stoppedChild);
+	void handleChildThreadExited(pid_t stoppedChild);
 	void setupChildNotification(pid_t stoppedChild);
 	void handleTrapOccured(pid_t stoppedChild);
 	bool handleNotification(pid_t stoppedChild, ParentNotification event, long arg);
