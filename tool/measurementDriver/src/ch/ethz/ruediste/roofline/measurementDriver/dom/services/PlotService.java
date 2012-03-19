@@ -33,11 +33,11 @@ public class PlotService {
 	private static double lMargin = 0.1;
 	private static double rMargin = 0.95;
 
-	private static int lwTic=2;
-	private static int lwMTic=1;
-	private static int lwMaxBound=2;
-	private static int lwBound=2;
-	private static int lwLine=2;
+	private static int lwTic = 2;
+	private static int lwMTic = 1;
+	private static int lwMaxBound = 2;
+	private static int lwBound = 2;
+	private static int lwLine = 2;
 	@Inject
 	public CommandService commandService;
 
@@ -128,7 +128,9 @@ public class PlotService {
 		output.println("set object 1 rectangle from graph 0,0 to graph 1,1 behind fillcolor rgb\"#E0E0E0\" lw 0");
 
 		// add white grid
-		output.printf("set grid xtics ytics mxtics mytics lt -1 lw %d linecolor rgb\"#FFFFFF\",lt -1 lw %d linecolor rgb\"#FFFFFF\"\n",lwTic,lwMTic);
+		output.printf(
+				"set grid xtics ytics mxtics mytics lt -1 lw %d linecolor rgb\"#FFFFFF\",lt -1 lw %d linecolor rgb\"#FFFFFF\"\n",
+				lwTic, lwMTic);
 
 		// set the margins
 		output.printf("set bmargin at screen %e\n", bMargin);
@@ -343,17 +345,18 @@ public class PlotService {
 									.<Performance> moreThan()))) {
 				// set the default color
 				String lineColor = "rgb\"#B0B0B0\"";
-				int lw=lwBound;
+				int lw = lwBound;
 				if (first) {
 					first = false;
 					// set the color of the first line
 					lineColor = "rgb\"black\"";
-					lw=lwMaxBound;
+					lw = lwMaxBound;
 				}
 
 				// generate the string
-				plotLines.add(String.format("%e notitle with lines lc %s lw %d",
-						peak.getRight().getValue(), lineColor,lw));
+				plotLines.add(String.format(
+						"%e notitle with lines lc %s lw %d",
+						peak.getRight().getValue(), lineColor, lw));
 			}
 
 			// print the lines for the peak performances
@@ -372,17 +375,17 @@ public class PlotService {
 									.<Throughput> moreThan()))) {
 				// set the default color
 				String lineColor = "rgb\"#B0B0B0\"";
-				int lw=lwBound;
+				int lw = lwBound;
 				if (first) {
 					first = false;
 					// set the color of the first line
 					lineColor = "rgb\"black\"";
-					lw=lwMaxBound;
+					lw = lwMaxBound;
 				}
 
 				plotLines.add(String.format(
 						"%e*x notitle with lines lc %s lw %d", peak.getRight()
-								.getValue(), lineColor,lw));
+								.getValue(), lineColor, lw));
 			}
 
 			// calculate the angle of the memory border lines
@@ -434,7 +437,8 @@ public class PlotService {
 						.add(String
 								.format("'%s.data' index %d title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
 										plot.getOutputName(), i,
-										series.getName(), lwLine, getPointType(i),
+										series.getName(), lwLine,
+										getPointType(i),
 										getLineColor(i)));
 
 				// add label for the first and the last point
