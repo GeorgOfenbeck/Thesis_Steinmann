@@ -5,6 +5,7 @@
  *      Author: ruedi
  */
 
+#include "Logger.h"
 #include "FFTmklKernel.h"
 #include <stdlib.h>
 #include "Exception.h"
@@ -22,11 +23,13 @@ void FFTmklKernel::initialize() {
 	status = DftiCreateDescriptor( &mklDescriptor, DFTI_DOUBLE,
 			DFTI_COMPLEX, 1, getBufferSize());
 	if (status != 0) {
+		LERROR("DftiCreateDescriptor failed")
 		throw Exception("MKL FFT " + string(DftiErrorMessage(status)));
 	}
 
 	status = DftiCommitDescriptor(mklDescriptor);
 	if (status != 0) {
+		LERROR("DftiCommitDescriptor failed")
 		throw Exception("MKL FFT " + string(DftiErrorMessage(status)));
 	}
 
@@ -46,6 +49,7 @@ void FFTmklKernel::run() {
 
 	status = DftiComputeForward(mklDescriptor, complexData);
 	if (status != 0) {
+		LERROR("DftiComputeForward failed")
 		throw Exception("MKL FFT " + string(DftiErrorMessage(status)));
 	}
 }
@@ -67,6 +71,16 @@ void FFTmklKernel::dispose() {
 
 	free(complexData);
 }
+
+void FFTmklKernel::warmCodeCache() {
+	run();
+
+	// initialize buffer
+	for (int64_t i = 0; i < getBufferSize(); i++) {
+		complexData[i] = drand48() + drand48() * 1i;
+	}
+}
+
 
 
 

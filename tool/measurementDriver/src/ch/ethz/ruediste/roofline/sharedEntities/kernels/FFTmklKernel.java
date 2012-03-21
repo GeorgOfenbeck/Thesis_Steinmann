@@ -1,5 +1,7 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
+import ch.ethz.ruediste.roofline.sharedEntities.Operation;
+
 public class FFTmklKernel extends FFTmklKernelData {
 
 	@Override
@@ -10,5 +12,10 @@ public class FFTmklKernel extends FFTmklKernelData {
 	@Override
 	public String getAdditionalIncludeDirs() {
 		return "-I/opt/intel/mkl/include";
+	}
+	
+	@Override
+	public Operation getSuggestedOperation() {
+		return Operation.DoublePrecisionFlop;
 	}
 }

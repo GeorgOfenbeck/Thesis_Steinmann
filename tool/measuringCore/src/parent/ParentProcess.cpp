@@ -6,6 +6,8 @@
  */
 #define PARENTPROCESS_CPP_
 
+//#define LOGLEVEL LOGLEVEL_TRACE
+
 #include "ParentProcess.h"
 #include "Logger.h"
 
@@ -26,6 +28,12 @@
 #define REG(regs,reg) (regs).r##reg
 #else
 #define REG(regs,reg) (regs).e##reg
+#endif
+
+#ifdef _LP64
+#define REGOrigAx(regs) (regs).orig_rax
+#else
+#define REGOrigAx(regs) (regs).orig_eax
 #endif
 
 void ParentProcess::handleChildThreadExited(pid_t stoppedChild) {
@@ -249,6 +257,7 @@ int ParentProcess::traceLoop() {
 		if (WIFEXITED(status)) {
 			// the child exited
 			if (stoppedPid == mainChild) {
+				LTRACE("main child exited")
 				exitStatus = WEXITSTATUS(status);
 				break;
 			}
@@ -302,7 +311,7 @@ int ParentProcess::traceLoop() {
 			// did we receive the entry or exit of a syscall?
 			else if (stopSig == SIGTRAP && sysGood) {
 				if (!childInSyscall[stoppedPid]) {
-					LTRACE("Syscall enter")
+					LDEBUG("Syscall enter, state %s",ChildStateNames[childStates[stoppedPid]])
 					childInSyscall[stoppedPid] = true;
 
 					// read registers
@@ -313,16 +322,16 @@ int ParentProcess::traceLoop() {
 					}
 
 					// read the syscall number
-					long sysCall = regs.orig_eax;
+					long sysCall = REGOrigAx(regs);
 					LDEBUG("syscall %li", sysCall)
 
 					if (sysCall == SYS_exit) {
 						LTRACE("got exit")
 
 						// only start the exiting sequence if it is not beeing executed already
-						if (childStates[stoppedPid] != ChildState_Exiting) {
+						if (childExiting.count(stoppedPid)==0) {
 							// execute a getpid instead of the exit
-							regs.orig_eax = SYS_getpid;
+							REGOrigAx(regs) = SYS_getpid;
 
 							if (ptrace(PTRACE_SETREGS, stoppedPid, NULL, &regs)
 									< 0) {
@@ -330,7 +339,7 @@ int ParentProcess::traceLoop() {
 								exit(1);
 							}
 
-							childStates[stoppedPid] = ChildState_Exiting;
+							childExiting[stoppedPid] = true;
 							childExitValue[stoppedPid]= REG(regs,bx);
 						}
 					}
@@ -349,7 +358,7 @@ int ParentProcess::traceLoop() {
 					childInSyscall[stoppedPid] = false;
 
 					// queue the exiting notification if the child is exiting
-					if (childStates[stoppedPid] == ChildState_Exiting) {
+					if (childExiting.count(stoppedPid)>0) {
 						queueNotification(stoppedPid, stoppedPid,
 								ChildNotification_ThreadExiting, childExitValue[stoppedPid]);
 
@@ -408,8 +417,10 @@ int ParentProcess::traceLoop() {
 
 	// let the main child continue
 	if (ptrace(PTRACE_DETACH, mainChild, 0, 0) < 0) {
-		perror("cont: error on ptrace syscall");
-		exit(1);
+		// ignore errors
+		//LERROR("error on PTRACE_DETACH")
+		//perror("error on ptrace syscall");
+		//exit(1);
 	}
 
 	return exitStatus;
@@ -431,7 +442,6 @@ void ParentProcess::queueNotification(pid_t stoppedChild, pid_t receiver,
 		switch (childStates[receiver]) {
 		case ChildState_ProcessingNotification:
 		case ChildState_Stopping:
-		case ChildState_Exiting:
 			// child will stop anyways
 			break;
 		case ChildState_Running:

@@ -37,7 +37,7 @@ void ChildThread::processNotification() {
 			ThreadEvent *event = new ThreadEvent(getChildThread(childPid),ThreadEventEnum_Exiting);
 			Locator::dispatchEvent(event);
 
-			exit(arg);
+			syscall(SYS_exit,arg);
 		}
 		if (notification == ChildNotification_ThreadExited) {
 

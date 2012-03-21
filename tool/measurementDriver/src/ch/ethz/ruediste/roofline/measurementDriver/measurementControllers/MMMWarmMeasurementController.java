@@ -52,29 +52,32 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		measureRoofline(outputName);
-		//measureDifferences(outputName);
+		measureDifferences(outputName);
 	}
 
 	public void measureDifferences(String outputName) throws ExecuteException,
 			IOException {
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "Diff")
-				.setTitle("MMM - Warm and Cold Caches")
+				.setTitle("FFT - Warm and Cold Caches")
 				.setxLabel("Matrix Size").setxUnit("1")
-				.setyLabel("Transfer Difference").setyUnit("bytes");//.setYRange(-1e6, 1e6);
+				.setyLabel("Transfer Difference").setyUnit("bytes").setLogY();//.setYRange(-1e6, 1e6);
 
 		ParameterSpace space = new ParameterSpace();
 
-		space.add(matrixSizeAxis, 50L);
+		//space.add(matrixSizeAxis, 50L);
 
-		for (long i = 100; i < 700; i += 100)
-			space.add(matrixSizeAxis, i);
+		/*for (long i = 100; i < 700; i += 100)
+			space.add(matrixSizeAxis, i);*/
+		
+		for (long i=32; i< 1024*1024; i*=2)
+			space.add(bufferSizeAxis,i);
 
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 
 		addMklKernel(space, kernelNames);
 
-		addBlockedKernel(space, kernelNames);
+		//addBlockedKernel(space, kernelNames);
 
 		for (final Coordinate c : space.getAllPoints(kernelAxis, null)) {
 			Coordinate base = c;
@@ -83,21 +86,15 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 			Iterable<TransferredBytes> tbBase = measureTransferredBytes(base);
 			Iterable<TransferredBytes> tbWarm = measureTransferredBytes(warm);
 
-			Long matrixSize = c.get(matrixSizeAxis);
+			Long matrixSize = c.get(bufferSizeAxis);
 
 			for (Pair<TransferredBytes, TransferredBytes> pair : zip(tbBase,
 					tbWarm)) {
 				plot.addValue(
-						kernelNames.get(c.get(kernelAxis)) + "Base",
+						kernelNames.get(c.get(kernelAxis)),
 						matrixSize,
-						pair.getLeft().getValue() / Math.pow(matrixSize, 2) //- pair.getRight().getValue()
+						pair.getLeft().getValue()-pair.getRight().getValue()
 				);
-				plot.addValue(
-						kernelNames.get(c.get(kernelAxis)) + "Code",
-						matrixSize,
-						//pair.getLeft().getValue() - 
-						pair.getRight().getValue() / Math.pow(matrixSize, 2)
-						);
 			}
 		}
 
@@ -128,31 +125,33 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 	public void measureRoofline(String outputName) throws ExecuteException,
 			IOException {
 		rooflineController.setOutputName(outputName);
-		rooflineController.setTitle("MMM - Warm and Cold Caches");
+		rooflineController.setTitle("FFT - Warm and Cold Caches");
 		rooflineController.addDefaultPeaks();
 
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "tb")
 				.setTitle("MMM - Warm and Cold Caches")
 				.setxLabel("Matrix Size").setxUnit("1")
-				.setyLabel("Memory Transfer").setyUnit("bytes");
+				.setyLabel("min10(Memory Transfer)").setyUnit("bytes");
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(warmCodeAxis, false);
 		space.add(warmCodeAxis, true);
 		space.add(warmDataAxis, false);
-		//space.add(warmDataAxis, true);
+		space.add(warmDataAxis, true);
 
-		space.add(matrixSizeAxis, 50L);
-
+		/*space.add(matrixSizeAxis, 50L);
 		for (long i = 100; i < 700; i += 100)
-			space.add(matrixSizeAxis, i);
+			space.add(matrixSizeAxis, i);*/
+		
+		for (long i=128; i< 1024*1024; i*=2)
+			space.add(bufferSizeAxis,i);
 
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 
 		addMklKernel(space, kernelNames);
 
-		addBlockedKernel(space, kernelNames);
+		//addBlockedKernel(space, kernelNames);
 
 		configuration.push();
 		for (final Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
@@ -166,9 +165,9 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
 
 			QuantityMap quantities = quantityMeasuringService
-					.measureQuantities(builder, 100).with("main", calc).get();
+					.measureQuantities(builder, 10).with("main", calc).get();
 
-			Long matrixSize = coordinate.get(matrixSizeAxis);
+			Long matrixSize = coordinate.get(bufferSizeAxis);
 
 			String name = kernelNames.get(kernel);
 			if (coordinate.get(warmDataAxis))
@@ -188,15 +187,15 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 				i++;
 			}
 
-			/*rooflineController
+			rooflineController
 					.addRooflinePoint(name,
 							matrixSize.toString(), builder,
 							kernel.getSuggestedOperation(),
-							MemoryTransferBorder.LlcRam);*/
+							MemoryTransferBorder.LlcRam);
 		}
 		configuration.pop();
 
-		//rooflineController.plot();
+		rooflineController.plot();
 		plotService.plot(plot);
 	}
 
@@ -245,12 +244,17 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 	 */
 	public void addMklKernel(ParameterSpace space,
 			HashMap<KernelBase, String> kernelNames) {
-		{
+		/*{
 			MMMKernel kernel = new MMMKernel();
 			kernel.setOptimization("-O3");
 			kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
 			space.add(kernelAxis, kernel);
 			kernelNames.put(kernel, "MMM-Mkl");
-		}
+		}*/
+		
+		FFTmklKernel kernel = new FFTmklKernel();
+		kernel.setOptimization("-O3");
+		space.add(kernelAxis, kernel);
+		kernelNames.put(kernel, "FFT-Mkl");
 	}
 }

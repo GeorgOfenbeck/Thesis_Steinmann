@@ -4,6 +4,8 @@
  *  Created on: Dec 19, 2011
  *      Author: ruedi
  */
+#define LOGLEVEL LOGLEVEL_WARNING
+
 #include "Logger.h"
 #include "ListEventsMeasurer.h"
 #include "sharedEntities/measurers/ListEventsMeasurerOutput.h"

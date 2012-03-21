@@ -17,8 +17,8 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-	LDEBUG("address of notification procedure entry: %x",
-			(uint32_t) ChildThread::processNotification)
+	LDEBUG("address of notification procedure entry: %p",
+			ChildThread::processNotification)
 
 	// send a notification to let the parent know where the notification instruction is
 	ChildProcess::notifyParent(ParentNotification_Startup,

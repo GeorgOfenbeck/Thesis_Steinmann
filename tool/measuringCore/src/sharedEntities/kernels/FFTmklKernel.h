@@ -24,6 +24,7 @@ public:
 	void initialize();
 	void run();
 	void dispose();
+	void warmCodeCache();
 };
 
 #endif /* FFTMKLKERNEL_H_ */

@@ -183,6 +183,7 @@ public class RooflineController {
 
 		switch (systemInfoService.getCpuType()) {
 		case Core:
+			plot.addPeakPerformance("SSE 2x", new Performance(8));
 			plot.addPeakPerformance("Balanced SSE", new Performance(4));
 			plot.addPeakPerformance("Balanced Scalar", new Performance(2));
 		break;
