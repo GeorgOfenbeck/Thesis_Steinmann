@@ -28,10 +28,10 @@ import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
 import com.google.inject.Inject;
 
-public class MMMWarmMeasurementController implements IMeasurementController {
+public class FFTWarmMeasurementController implements IMeasurementController {
 
 	public String getName() {
-		return "MMMwarm";
+		return "FFTwarm";
 	}
 
 	public String getDescription() {
@@ -61,22 +61,19 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 			IOException {
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "Diff")
-				.setTitle("MMM - Warm and Cold Caches")
+				.setTitle("FFT - Warm and Cold Caches")
 				.setxLabel("Buffer Size").setxUnit("1")
 				.setyLabel("Transfer Difference").setyUnit("bytes").setLogY();//.setYRange(-1e6, 1e6);
 
 		ParameterSpace space = new ParameterSpace();
 
-		space.add(matrixSizeAxis, 50L);
-
-		for (long i = 100; i < 700; i += 100)
-			space.add(matrixSizeAxis, i);
+		for (long i=32; i< 1024*1024; i*=2)
+			space.add(bufferSizeAxis,i);
 
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 
 		addMklKernel(space, kernelNames);
 
-		//addBlockedKernel(space, kernelNames);
 
 		for (final Coordinate c : space.getAllPoints(kernelAxis, null)) {
 			Coordinate base = c;
@@ -95,7 +92,7 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 			
 			for (Pair<Iterable<TransferredBytes>,String> series: allSeries){
 			
-				Long matrixSize = c.get(matrixSizeAxis);
+				Long matrixSize = c.get(bufferSizeAxis);
 				for (Pair<TransferredBytes, TransferredBytes> pair : zip(tbBase,
 						series.getLeft())) {
 					
@@ -134,12 +131,12 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 	public void measureRoofline(String outputName) throws ExecuteException,
 			IOException {
 		rooflineController.setOutputName(outputName);
-		rooflineController.setTitle("MMM - Warm and Cold Caches");
+		rooflineController.setTitle("FFT - Warm and Cold Caches");
 		rooflineController.addDefaultPeaks();
 
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "tb")
-				.setTitle("MMM - Warm and Cold Caches")
+				.setTitle("FFT - Warm and Cold Caches")
 				.setxLabel("Buffer Size").setxUnit("1")
 				.setyLabel("min10(Memory Transfer)").setyUnit("bytes");
 
@@ -149,9 +146,8 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		space.add(warmDataAxis, false);
 		space.add(warmDataAxis, true);
 
-		space.add(matrixSizeAxis, 50L);
-		for (long i = 100; i < 700; i += 100)
-			space.add(matrixSizeAxis, i);
+		for (long i=128; i< 1024*1024; i*=2)
+			space.add(bufferSizeAxis,i);
 
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 
@@ -171,7 +167,7 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 			QuantityMap quantities = quantityMeasuringService
 					.measureQuantities(builder, 10).with("main", calc).get();
 
-			Long matrixSize = coordinate.get(matrixSizeAxis);
+			Long matrixSize = coordinate.get(bufferSizeAxis);
 
 			String name = kernelNames.get(kernel);
 			if (coordinate.get(warmDataAxis))
@@ -246,12 +242,10 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 	 */
 	public void addMklKernel(ParameterSpace space,
 			HashMap<KernelBase, String> kernelNames) {
-		{
-			MMMKernel kernel = new MMMKernel();
-			kernel.setOptimization("-O3");
-			kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
-			space.add(kernelAxis, kernel);
-			kernelNames.put(kernel, "MMM-Mkl");
-		}
+		
+		FFTmklKernel kernel = new FFTmklKernel();
+		kernel.setOptimization("-O3");
+		space.add(kernelAxis, kernel);
+		kernelNames.put(kernel, "FFT-Mkl");
 	}
 }
