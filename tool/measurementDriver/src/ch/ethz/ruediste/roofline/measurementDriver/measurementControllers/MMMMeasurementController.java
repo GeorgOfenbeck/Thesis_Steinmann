@@ -40,7 +40,8 @@ public class MMMMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
-		addSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_TripleLoop,
+		addSeries(rooflineController, false,
+				MMMAlgorithm.MMMAlgorithm_TripleLoop,
 				MMMAlgorithm.MMMAlgorithm_Blas_Openblas,
 				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
 
@@ -109,9 +110,12 @@ public class MMMMeasurementController implements IMeasurementController {
 
 	/**
 	 * series may not be blocked
+	 * 
+	 * @param multiThreaded
+	 *            TODO
 	 */
 	public void addSeries(RooflineController rooflineController,
-			MMMAlgorithm... algorithms) {
+			boolean multiThreaded, MMMAlgorithm... algorithms) {
 		{
 			configuration.push();
 			ParameterSpace space = new ParameterSpace();
@@ -123,6 +127,7 @@ public class MMMMeasurementController implements IMeasurementController {
 			Axis<MMMKernel.MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
 					"742250a7-5ea2-4a39-b0c6-7145d0c4b292", "algorithm");
 
+			// add supplied algorithms to the space
 			for (MMMAlgorithm algorithm : algorithms) {
 				if (algorithm == MMMAlgorithm.MMMAlgorithm_Blocked) {
 					throw new Error(
@@ -149,6 +154,7 @@ public class MMMMeasurementController implements IMeasurementController {
 				MMMKernel kernel = new MMMKernel();
 				kernel.setNoCheck(true);
 				kernel.setAlgorithm(coordinate.get(algorithmAxis));
+				kernel.setMultiThreaded(multiThreaded);
 				kernel.initialize(coordinate);
 
 				// get the name of the series
@@ -168,22 +174,15 @@ public class MMMMeasurementController implements IMeasurementController {
 
 				}
 
+				if (multiThreaded)
+					seriesName += "-MultiThreaded";
+
 				// get the label for the point
 				String label = coordinate.get(Axes.matrixSizeAxis).toString();
 
-				// get the operation to be measured
-				Operation operation = Operation.CompInstr;
-				switch (coordinate.get(algorithmAxis)) {
-				case MMMAlgorithm_Blas_Mkl:
-					operation = Operation.DoublePrecisionFlop;
-				break;
-				case MMMAlgorithm_Blas_Openblas:
-					operation = Operation.CompInstr;
-				break;
-				}
-
 				rooflineController.addRooflinePoint(seriesName, label, kernel,
-						operation, MemoryTransferBorder.LlcRam);
+						kernel.getSuggestedOperation(),
+						MemoryTransferBorder.LlcRam);
 
 				/*Performance performance = quantityMeasuringService
 				.measurePerformance(kernel, operation, ClockType.CoreCycles);

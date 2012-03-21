@@ -43,7 +43,9 @@ public class OverviewMeasurementController implements IMeasurementController {
 		daxpyMeasurementController.addPoints(rooflineController, true);
 		dgemvMeasurementController.addRooflinePoints(rooflineController, true);
 		mmmMeasurementController.addSeries(rooflineController,
-				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
+				false, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
+		/*mmmMeasurementController.addSeries(rooflineController,
+				true, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);*/
 
 		fftMeasurementController.addPoints(rooflineController,
 				FFTmklKernel.class);

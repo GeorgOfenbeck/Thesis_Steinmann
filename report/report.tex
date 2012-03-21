@@ -115,8 +115,31 @@ excessively accessing data directly from memory. The balance betweeen memory
 transfer and floating point computation is described by the 'operational
 intensity', measuring the number of performed operations per transferred byte.
 
+\graphFloat{yonah/overview}{Yonah: Overview of different Kernels}
 The roofline model combines the operational intensity with the performance in a
-2D graph.
+2D graph (fig. \ref{yonah/overview}). Each measurement results in a point on the
+plot. Multiple points are connected with a line to a series. The graph is on a
+log-log scale.
+
+The peak floating point performance appears as a horizontal line. There can be
+different bounds depending on the technology or the number of cores used. The
+memory bandwith forms a line of unit slope. There can again be multiple bounds,
+depending on the number of cores or the access pattern (random vs. linear).
+
+The horizontal and diagonal lines give the roofline model it's name. The point
+where the lines intersect is called the ridge point. 
+
+A roofline graph can contain useful information for performance optimization. If
+the operational intensity of a kernel lies to the left of the ridge point, the
+kernel is memory bound. Peak floating point performance can only be reached by
+increasing the operational intensity. If the kernel lies to the right of the
+ridge point, memory bandwith is no limiting factor. If the kernel does not reach
+the peak performance, there must be other performance limiting factors.
+
+When comparing the roofline graphs of different machines, the position of the
+ridge point is an important clue of how difficult it is to reach a good
+performance. The further the ridge point lies to the right, the higher is the
+operational intensity required to achieve peak performance. 
 
 To our knowledge, there is no tool capable of easily creating roofline plots. During this master thesis, we would like to
 create such a tool. Emphasis lies on correctness of the results produced by the
