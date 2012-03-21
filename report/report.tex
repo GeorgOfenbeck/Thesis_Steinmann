@@ -93,9 +93,32 @@ This is the paper's abstract \ldots
 \tableofcontents
 
 \section{Introduction}
-The roofline model \cite{Roofline} premises to be an insightful model for
-analyzing program performance. To our knowledge, there is no tool capable of
-easily creating roofline plots. During this master thesis, we would like to
+'The free lunch is over' \cite{FreeLunchIsOver} In the past decades, the CPU
+manufactures were reliably able to increase the clock speed. However, this has
+become harder and harder due to not just one but several physical issues. To
+increase performance despite the limited clock speed, the CPUs became more
+complex.
+
+From the perspective of software performance optimization, the increased
+complexity made performance observations harder to understand. Since the trend
+to more complex CPUs is likely to continue in the future, an insightfule and
+easy-to-understand performance model would be of high value.
+ 
+The roofline model \cite{Roofline} premises to fulfill these criteria. The key
+observation which led to this model is that, for the forseable future, the
+transfer bandwidth between CPU and Memory will often be the limiting factor of
+system performance. 
+
+If an algorithm manages to largely operate on data which can be held in the CPU
+caches, off-chip bandwith will not be an issue, in contrast to an algorithm 
+excessively accessing data directly from memory. The balance betweeen memory 
+transfer and floating point computation is described by the 'operational
+intensity', measuring the number of performed operations per transferred byte.
+
+The roofline model combines the operational intensity with the performance in a
+2D graph.
+
+To our knowledge, there is no tool capable of easily creating roofline plots. During this master thesis, we would like to
 create such a tool. Emphasis lies on correctness of the results produced by the
 tool and on it's maintainability.
 
