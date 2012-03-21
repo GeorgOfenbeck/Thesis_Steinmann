@@ -21,6 +21,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
+import ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
@@ -55,12 +56,13 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		measureDifferences(outputName);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void measureDifferences(String outputName) throws ExecuteException,
 			IOException {
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "Diff")
 				.setTitle("FFT - Warm and Cold Caches")
-				.setxLabel("Matrix Size").setxUnit("1")
+				.setxLabel("Buffer Size").setxUnit("1")
 				.setyLabel("Transfer Difference").setyUnit("bytes").setLogY();//.setYRange(-1e6, 1e6);
 
 		ParameterSpace space = new ParameterSpace();
@@ -81,20 +83,31 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 
 		for (final Coordinate c : space.getAllPoints(kernelAxis, null)) {
 			Coordinate base = c;
-			Coordinate warm = c.getExtendedPoint(warmCodeAxis, true);
+			Coordinate warmCode = c.getExtendedPoint(warmCodeAxis, true);
+			Coordinate warmData = c.getExtendedPoint(warmDataAxis, true);
+			Coordinate warmDataCode = warmData.getExtendedPoint(warmCodeAxis, true);
 
 			Iterable<TransferredBytes> tbBase = measureTransferredBytes(base);
-			Iterable<TransferredBytes> tbWarm = measureTransferredBytes(warm);
-
-			Long matrixSize = c.get(bufferSizeAxis);
-
-			for (Pair<TransferredBytes, TransferredBytes> pair : zip(tbBase,
-					tbWarm)) {
-				plot.addValue(
-						kernelNames.get(c.get(kernelAxis)),
-						matrixSize,
-						pair.getLeft().getValue()-pair.getRight().getValue()
-				);
+			
+			ArrayList<Pair<Iterable<TransferredBytes>,String>> allSeries=new ArrayList<Pair<Iterable<TransferredBytes>,String>>();
+			IterableUtils.addAll(allSeries,
+					Pair.of(measureTransferredBytes(warmData), "Data"),
+					Pair.of(measureTransferredBytes(warmCode), "Code"),
+					Pair.of(measureTransferredBytes(warmDataCode), "DataCode")
+			);
+			
+			for (Pair<Iterable<TransferredBytes>,String> series: allSeries){
+			
+				Long matrixSize = c.get(bufferSizeAxis);
+				for (Pair<TransferredBytes, TransferredBytes> pair : zip(tbBase,
+						series.getLeft())) {
+					
+					plot.addValue(
+							kernelNames.get(c.get(kernelAxis))+series.getRight(),
+							matrixSize,
+							pair.getLeft().getValue()-pair.getRight().getValue()
+					);
+				}
 			}
 		}
 
@@ -130,8 +143,8 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "tb")
-				.setTitle("MMM - Warm and Cold Caches")
-				.setxLabel("Matrix Size").setxUnit("1")
+				.setTitle("FFT - Warm and Cold Caches")
+				.setxLabel("Buffer Size").setxUnit("1")
 				.setyLabel("min10(Memory Transfer)").setyUnit("bytes");
 
 		ParameterSpace space = new ParameterSpace();

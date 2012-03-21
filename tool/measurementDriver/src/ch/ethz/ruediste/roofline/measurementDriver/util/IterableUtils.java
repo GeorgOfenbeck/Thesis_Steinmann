@@ -283,7 +283,7 @@ public class IterableUtils {
 		return result;
 	}
 
-	public static <T> void addAll(Collection<T> coll, T[] array) {
+	public static <T> void addAll(Collection<T> coll, T ... array) {
 		for (T item : array) {
 			coll.add(item);
 		}
