@@ -129,7 +129,7 @@ depending on the number of cores or the access pattern (random vs. linear).
 The horizontal and diagonal lines give the roofline model it's name. The point
 where the lines intersect is called the ridge point. 
 
-A roofline graph can contain useful information for performance optimization. If
+A roofline graph contains useful information for performance optimization. If
 the operational intensity of a kernel lies to the left of the ridge point, the
 kernel is memory bound. Peak floating point performance can only be reached by
 increasing the operational intensity. If the kernel lies to the right of the
@@ -141,10 +141,12 @@ ridge point is an important clue of how difficult it is to reach a good
 performance. The further the ridge point lies to the right, the higher is the
 operational intensity required to achieve peak performance. 
 
-To our knowledge, there is no tool capable of easily creating roofline plots. During this master thesis, we would like to
-create such a tool. Emphasis lies on correctness of the results produced by the
-tool and on it's maintainability.
-
+\subsection{Goals for the Master Thesis}
+Since we did not find a tool capable of easily creating roofline plots, we
+decided to create one our selves during this thesis. It should be able to
+measure the performance and operational intensity of a program, and to compose
+the results of different measurements into one roofline plot.
+  
 Code to be measured can come either in the form of a relatively isolated
 routine, typically containing a single kernel, or in the form of a larger
 program, containing multiple different kernels. While routines are treated as
@@ -187,13 +189,29 @@ In summary, we need to measure the following quantities:
 \item operation count
 \end{itemize}
 
-On current processors, measuring these quantities should be possible. For the
-execution time either the cycle counter or the system timer can be used. The
-memory traffic can be determined using the performance counters for counting
-cach misses and write back operations. An other option is to use the counters
-for bus transfers. Measuring the operation count depends heavily on the
-definition of operation, but is typically measurable with the performance
-counters, too.
+\subsection{Performance Counters}
+Recent x86 CPUs contain typically two performance counters. Each can be
+configured to measure one performance event. There are many events, 119 on a
+CoreDuo. Examples are:
+\begin{description}
+  \item[INSTRUCTION RETIRED] occurs for every retired instruction
+  \item[DBUS BUSY] occurs for every cycle during which data bus is busy
+  \item[SSE PRE MISS] occurs when an SSE instruction misses all cache levels
+  \item[BR TAKEN RET] occurs for every retired taken branch instruction 
+\end{description}
+
+When working with the linux operation system, the performance counters are
+configured and read using a kernel API. The kernel takes care of isolating
+different processes, such that each process can configure and use the counters
+according to the specific requirements, without interfering with other processes.
+
+Using the perfomance counters, it is possible to measure execution time, memory
+traffic and operation count. For the execution time either the cycle counter or
+the system timer can be used. The memory traffic can be determined using the
+performance counters for countingcach misses and write back operations. An other
+option is to use the counters for bus transfers. Measuring the operation count
+depends heavily on the definition of operation, but is typically measurable with
+the performance counters, too.
 
 \section{Effects Affecting the Measurement of Multiple Quantities}
 While each of the measurements required to produce a roofline plot has it's own

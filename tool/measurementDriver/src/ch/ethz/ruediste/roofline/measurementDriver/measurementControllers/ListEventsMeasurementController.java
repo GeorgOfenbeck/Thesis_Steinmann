@@ -32,10 +32,12 @@ public class ListEventsMeasurementController implements IMeasurementController {
 
 		for (PmuDescription pmu : systemInfoService.getPresentPmus()) {
 
-			System.out.printf(
-					"present PMU: %s counters: %d fixed counters: %d\n",
-					pmu.getPmuName(), pmu.getNumberOfCounters(),
-					pmu.getNumberOfFixedCounters());
+			System.out
+					.printf(
+							"present PMU: %s counters: %d fixed counters: %d events: %d\n",
+							pmu.getPmuName(), pmu.getNumberOfCounters(),
+							pmu.getNumberOfFixedCounters(), pmu.getEvents()
+									.size());
 
 			if (!pmu.getIsDefaultPmu()) {
 				System.out.println("Default PMU: " + pmu.getPmuName());
