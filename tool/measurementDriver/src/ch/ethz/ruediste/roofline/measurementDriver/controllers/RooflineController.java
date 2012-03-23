@@ -69,7 +69,7 @@ public class RooflineController {
 
 		IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-			public Measurement build(Map<String, MeasurerSet> sets) {
+			public Measurement build(Map<Object, MeasurerSet> sets) {
 				Measurement measurement = new Measurement();
 				Workload workload = new Workload();
 				workload.setKernel(kernel);

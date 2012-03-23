@@ -25,7 +25,7 @@
 #include <sys/syscall.h>
 #include "sharedEntities/EventPredicateBase.h"
 #include "baseClasses/events/ThreadEvent.h"
-#include "sharedEntities/eventPredicates/ThreadStartEventPredicate.h"
+#include "sharedEntities/eventPredicates/ThreadEventPredicate.h"
 
 using namespace std;
 
@@ -109,12 +109,13 @@ void CreateMeasurerOnThreadAction::installMeasurer(ChildThread* childThread,
 
 void CreateMeasurerOnThreadAction::createOnExistingNonMeasurementThreads(
 		EventBase* event) {
+
 	// get existing threads and add rule to get notified if new threads are spawned
 	// this is done in one call, to avoid race condition
 	vector<ChildThread*> childThreads;
 	{
 		Rule *rule=new Rule();
-		rule->setPredicate(new ThreadStartEventPredicate());
+		rule->setPredicate(new ThreadEventPredicate());
 		rule->setAction(this);
 
 		childThreads = ChildThread::getChildThreadsAndAddRule(rule);
@@ -150,7 +151,7 @@ void CreateMeasurerOnThreadAction::executeImp(EventBase* event) {
 	LENTER
 	ThreadEvent *startEvent=dynamic_cast<ThreadEvent*>(event);
 
-	if (startEvent!=NULL){
+	if (startEvent!=NULL && startEvent->getEvent()==ThreadEventEnum_Started){
 		installMeasurer(startEvent->getChildThread(),event);
 	}
 	else{

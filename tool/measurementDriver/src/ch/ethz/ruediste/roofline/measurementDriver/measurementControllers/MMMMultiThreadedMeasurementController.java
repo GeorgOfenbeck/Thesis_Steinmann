@@ -102,7 +102,7 @@ public class MMMMultiThreadedMeasurementController implements
 
 			IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-				public Measurement build(Map<String, MeasurerSet> sets) {
+				public Measurement build(Map<Object, MeasurerSet> sets) {
 					Measurement measurement = new Measurement();
 					Workload workload = new Workload();
 					measurement.addWorkload(workload);

@@ -1,8 +1,8 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
-public class FFTSpiralKernel extends FFTSpiralKernelData {
+public class FFTnrKernel extends FFTnrKernelData {
 	@Override
 	public String getLabel() {
-		return "FFT-Spiral";
+		return "FFT-NR";
 	}
 }

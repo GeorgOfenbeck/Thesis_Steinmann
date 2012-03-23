@@ -2,8 +2,8 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="DummyKernel" 
 	baseType="KernelBase"
 	cSuffix="Data"
+	javaSuffix="Data"
 	comment="empty kernel">
 </derivedClass>

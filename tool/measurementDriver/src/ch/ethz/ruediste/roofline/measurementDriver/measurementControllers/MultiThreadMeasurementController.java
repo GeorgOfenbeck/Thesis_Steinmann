@@ -47,7 +47,7 @@ public class MultiThreadMeasurementController implements IMeasurementController 
 
 		IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-			public Measurement build(Map<String, MeasurerSet> sets) {
+			public Measurement build(Map<Object, MeasurerSet> sets) {
 				Measurement measurement = new Measurement();
 				Workload workload = new Workload();
 				measurement.addWorkload(workload);
@@ -59,7 +59,6 @@ public class MultiThreadMeasurementController implements IMeasurementController 
 						workload,
 						WorkloadEventEnum.KernelStart), action));
 
-				action.setCreateOnExistingNonWorkloadThreads(true);
 				action.setMeasurerSet(sets.get("main"));
 				action.setStopPredicate(new WorkloadEventPredicate(workload,
 						WorkloadEventEnum.KernelStop));

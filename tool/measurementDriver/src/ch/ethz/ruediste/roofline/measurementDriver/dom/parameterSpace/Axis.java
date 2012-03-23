@@ -14,6 +14,14 @@ public class Axis<T> implements Comparable<Axis<?>> {
 		};
 	}
 
+	public static <T> IUnaryFunction<Class<? extends T>, String> clazzNameFormatter() {
+		return new IUnaryFunction<Class<? extends T>, String>() {
+			public String apply(Class<? extends T> arg) {
+				return arg.getSimpleName();
+			}
+		};
+	}
+
 	public static final IUnaryFunction<Class<?>, String> clazzNameFormatter = new IUnaryFunction<Class<?>, String>() {
 
 		public String apply(Class<?> arg) {
@@ -21,7 +29,6 @@ public class Axis<T> implements Comparable<Axis<?>> {
 		}
 	};
 
-	private final T defaultValue;
 	private final String name;
 	private final IUnaryFunction<T, String> formatter;
 	private final UUID uid;
@@ -30,21 +37,12 @@ public class Axis<T> implements Comparable<Axis<?>> {
 		this(uid, name, null);
 	};
 
-	public Axis(String uid, String name, T defaultValue) {
-		this(uid, name, defaultValue, null);
-	}
-
-	public Axis(String uid, String name, T defaultValue,
+	public Axis(String uid, String name,
 			IUnaryFunction<T, String> formatter) {
 		super();
-		this.defaultValue = defaultValue;
 		this.name = name;
 		this.formatter = formatter;
 		this.uid = UUID.fromString(uid);
-	}
-
-	public T getDefaultValue() {
-		return defaultValue;
 	}
 
 	public String getName() {

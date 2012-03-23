@@ -3,10 +3,7 @@ package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
-import ch.ethz.ruediste.roofline.measurementDriver.util.Instantiator;
-import ch.ethz.ruediste.roofline.sharedEntities.MacroKey;
-import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 /** Kernel just loading a memory block into memory */
 public class MemoryKernel extends MemoryKernelData {
@@ -14,8 +11,7 @@ public class MemoryKernel extends MemoryKernelData {
 	private static final MacroKey dlpMacro = MacroKey.Create("RMT_MEMORY_DLP",
 			"DataLevelParallelism: buffers to work on concurrently", "2");
 	public static final Axis<MemoryOperation> memoryOperationAxis = new Axis<MemoryOperation>(
-			"5542d80a-2f0c-42d2-8e6e-acaf01c4baf8", "operation",
-			MemoryOperation.MemoryOperation_READ);
+			"5542d80a-2f0c-42d2-8e6e-acaf01c4baf8", "operation");
 
 	public int getDlp() {
 		return Integer.parseInt(getMacroDefinition(dlpMacro));
@@ -114,5 +110,18 @@ public class MemoryKernel extends MemoryKernelData {
 
 		}
 
+	}
+
+	@Override
+	public String getLabel() {
+		switch (getOperation()) {
+		case MemoryOperation_READ:
+			return "Read";
+		case MemoryOperation_RandomRead:
+			return "Random";
+		case MemoryOperation_WRITE:
+			return "Write";
+		}
+		throw new Error("should not happen");
 	}
 }

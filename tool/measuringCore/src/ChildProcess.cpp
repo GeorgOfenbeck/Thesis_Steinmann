@@ -197,6 +197,11 @@ int ChildProcess::innerMain(int argc, char* argv[]) {
 
 		LTRACE("collecting output");
 
+		if (measurementClone->getOverallMeasurerSet() != NULL) {
+			Locator::addMeasurerSetOutput(
+					measurementClone->getOverallMeasurerSet()->getOutput());
+		}
+
 		// add the run output to the output collection
 		// the outputs were already fed into the run output using
 		// Locator::addMeasurementSetOutput()

@@ -29,4 +29,9 @@ public class TriadKernel extends TriadKernelData {
 				+ Math.max(0, bufferSizeBytes - cacheSize) // take write-back into account
 		);
 	}
+
+	@Override
+	public String getLabel() {
+		return "Triad";
+	}
 }

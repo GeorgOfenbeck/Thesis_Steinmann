@@ -67,40 +67,43 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 		ParameterSpace space = new ParameterSpace();
 
-		for (long i=32; i< 1024*1024; i*=2)
-			space.add(bufferSizeAxis,i);
+		for (long i = 32; i < 1024 * 1024; i *= 2)
+			space.add(bufferSizeAxis, i);
 
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 
 		addMklKernel(space, kernelNames);
 
-
 		for (final Coordinate c : space.getAllPoints(kernelAxis, null)) {
 			Coordinate base = c;
 			Coordinate warmCode = c.getExtendedPoint(warmCodeAxis, true);
 			Coordinate warmData = c.getExtendedPoint(warmDataAxis, true);
-			Coordinate warmDataCode = warmData.getExtendedPoint(warmCodeAxis, true);
+			Coordinate warmDataCode = warmData.getExtendedPoint(warmCodeAxis,
+					true);
 
 			Iterable<TransferredBytes> tbBase = measureTransferredBytes(base);
-			
-			ArrayList<Pair<Iterable<TransferredBytes>,String>> allSeries=new ArrayList<Pair<Iterable<TransferredBytes>,String>>();
+
+			ArrayList<Pair<Iterable<TransferredBytes>, String>> allSeries = new ArrayList<Pair<Iterable<TransferredBytes>, String>>();
 			IterableUtils.addAll(allSeries,
 					Pair.of(measureTransferredBytes(warmData), "Data"),
 					Pair.of(measureTransferredBytes(warmCode), "Code"),
 					Pair.of(measureTransferredBytes(warmDataCode), "DataCode")
-			);
-			
-			for (Pair<Iterable<TransferredBytes>,String> series: allSeries){
-			
-				Long matrixSize = c.get(bufferSizeAxis);
-				for (Pair<TransferredBytes, TransferredBytes> pair : zip(tbBase,
-						series.getLeft())) {
-					
-					plot.addValue(
-							kernelNames.get(c.get(kernelAxis))+series.getRight(),
-							matrixSize,
-							pair.getLeft().getValue()-pair.getRight().getValue()
 					);
+
+			for (Pair<Iterable<TransferredBytes>, String> series : allSeries) {
+
+				Long matrixSize = c.get(bufferSizeAxis);
+				for (Pair<TransferredBytes, TransferredBytes> pair : zip(
+						tbBase,
+						series.getLeft())) {
+
+					plot.addValue(
+							kernelNames.get(c.get(kernelAxis))
+									+ series.getRight(),
+							matrixSize,
+							pair.getLeft().getValue()
+									- pair.getRight().getValue()
+							);
 				}
 			}
 		}
@@ -146,8 +149,8 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		space.add(warmDataAxis, false);
 		space.add(warmDataAxis, true);
 
-		for (long i=128; i< 1024*1024; i*=2)
-			space.add(bufferSizeAxis,i);
+		for (long i = 128; i < 1024 * 1024; i *= 2)
+			space.add(bufferSizeAxis, i);
 
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 
@@ -204,7 +207,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 	public IMeasurementBuilder getBuilder(final Coordinate coordinate) {
 		IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-			public Measurement build(Map<String, MeasurerSet> sets) {
+			public Measurement build(Map<Object, MeasurerSet> sets) {
 				Measurement measurement = new Measurement();
 				Workload workload = new Workload();
 				workload.initialize(coordinate);
@@ -242,7 +245,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 	 */
 	public void addMklKernel(ParameterSpace space,
 			HashMap<KernelBase, String> kernelNames) {
-		
+
 		FFTmklKernel kernel = new FFTmklKernel();
 		kernel.setOptimization("-O3");
 		space.add(kernelAxis, kernel);

@@ -6,10 +6,10 @@ import ch.ethz.ruediste.roofline.sharedEntities.*;
 public class MMMKernel extends MMMKernelData {
 	private static final MacroKey algorithmMacro = MacroKey.Create(
 			"RMT_MMM_Algorithm", "specifies the algorithm to be used",
-			"MMMAlgorithm_TripleLoop");
+			"MMMAlgorithm_TrippleLoop");
 
 	public enum MMMAlgorithm {
-		MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blocked_Restrict, MMMAlgorithm_Blas_Openblas, MMMAlgorithm_Blas_Mkl
+		MMMAlgorithm_TrippleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blocked_Restrict, MMMAlgorithm_Blas_Openblas, MMMAlgorithm_Blas_Mkl
 	}
 
 	@Override
@@ -95,8 +95,26 @@ public class MMMKernel extends MMMKernelData {
 		case MMMAlgorithm_Blas_Openblas:
 		case MMMAlgorithm_Blocked:
 		case MMMAlgorithm_Blocked_Restrict:
-		case MMMAlgorithm_TripleLoop:
+		case MMMAlgorithm_TrippleLoop:
 			return Operation.CompInstr;
+
+		}
+		throw new Error("should not happen");
+	}
+
+	@Override
+	public String getLabel() {
+		switch (getAlgorithm()) {
+		case MMMAlgorithm_Blas_Mkl:
+			return "MMM-MKL";
+		case MMMAlgorithm_Blas_Openblas:
+			return "MMM-OpenBlas";
+		case MMMAlgorithm_Blocked:
+			return "MMM-Blocked";
+		case MMMAlgorithm_Blocked_Restrict:
+			return "MMM-Restrict";
+		case MMMAlgorithm_TrippleLoop:
+			return "MMM-Tripple";
 
 		}
 		throw new Error("should not happen");

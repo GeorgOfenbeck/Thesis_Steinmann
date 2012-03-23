@@ -46,7 +46,7 @@ public class MMMOptimizationMeasurementController implements
 		// add triple loop kernel
 		{
 			MMMKernel kernel = new MMMKernel();
-			kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_TripleLoop);
+			kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_TrippleLoop);
 			space.add(kernelAxis, kernel);
 			kernelNames.put(kernel, "Tripple Loop");
 		}

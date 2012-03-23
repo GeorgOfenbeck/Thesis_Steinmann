@@ -3,7 +3,7 @@ package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.bufferSizeAxis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 
-public class FFTKernelBase extends FFTKernelBaseData {
+public abstract class FFTKernelBase extends FFTKernelBaseData {
 
 	@Override
 	public void initialize(Coordinate coordinate) {

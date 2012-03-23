@@ -2,8 +2,8 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="FFTnrKernel" 
 	baseType="FFTKernelBase"
 	cSuffix="Data"
+	javaSuffix="Data"
 	comment="Kernel doing an FFT using the algorithm from Numerical Recipes"> 
 </derivedClass>

@@ -139,9 +139,8 @@ public class MeasurementService {
 		ArrayList<MeasurerBase> nonPerfEventMeasurers = new ArrayList<MeasurerBase>();
 		ArrayList<MeasurerBase> perfEventMeasurers = new ArrayList<MeasurerBase>();
 		for (MeasurerBase measurer : measurers) {
-			if (measurer instanceof PerfEventMeasurer) {
+			if (measurer instanceof PerfEventMeasurer)
 				perfEventMeasurers.add(measurer);
-			}
 			else
 				nonPerfEventMeasurers.add(measurer);
 		}
@@ -167,7 +166,7 @@ public class MeasurementService {
 		}
 
 		// add the last set if necessary
-		if (perfEventMeasurerCount > 0)
+		if (set.getAdditionalMeasurers().size() > 0)
 			result.add(set);
 
 		return result;

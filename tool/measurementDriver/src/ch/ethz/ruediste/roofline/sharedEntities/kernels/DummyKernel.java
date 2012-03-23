@@ -1,8 +1,10 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
-public class FFTSpiralKernel extends FFTSpiralKernelData {
+public class DummyKernel extends DaxpyKernelData {
+
 	@Override
 	public String getLabel() {
-		return "FFT-Spiral";
+		return "Dummy";
 	}
+
 }

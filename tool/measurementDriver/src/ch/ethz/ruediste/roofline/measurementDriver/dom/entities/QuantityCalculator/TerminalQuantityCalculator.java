@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalcula
 
 import java.util.*;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 import ch.ethz.ruediste.roofline.sharedEntities.MeasurerBase;
 
@@ -18,5 +20,40 @@ public abstract class TerminalQuantityCalculator<T extends Quantity<T>> extends
 	@Override
 	public List<MeasurerBase> getRequiredMeasurers() {
 		return Collections.<MeasurerBase> singletonList(requiredMeasurer);
+	}
+
+	public enum Combination {
+		Min,
+		Max,
+		Mean,
+		Median,
+		Sum
+	}
+
+	private Combination combination = Combination.Sum;
+
+	public Combination getCombination() {
+		return combination;
+	}
+
+	public void setCombination(Combination combination) {
+		this.combination = combination;
+	}
+
+	protected double getValueRespectingCombination(DescriptiveStatistics stats) {
+		switch (combination) {
+		case Max:
+			return stats.getMax();
+		case Mean:
+			return stats.getMean();
+		case Median:
+			return stats.getPercentile(50);
+		case Min:
+			return stats.getMin();
+		case Sum:
+			return stats.getSum();
+		default:
+			throw new Error("should not happen");
+		}
 	}
 }

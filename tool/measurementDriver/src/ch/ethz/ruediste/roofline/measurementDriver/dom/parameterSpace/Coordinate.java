@@ -35,7 +35,7 @@ public class Coordinate {
 		if (contains(axis)) {
 			return (T) coordinates.get(axis);
 		}
-		return axis.getDefaultValue();
+		throw new Error("axis not part of the coordinate");
 	}
 
 	@Override
@@ -54,8 +54,8 @@ public class Coordinate {
 	}
 
 	/**
-	 * return the projection of this coordinate to the specified axes. The
-	 * axes not specified are discarded.
+	 * return the projection of this coordinate to the specified axes. The axes
+	 * not specified are discarded.
 	 */
 	public Coordinate getProjection(Axis<?>... axes) {
 		HashSet<Axis<?>> selectedAxes = new HashSet<Axis<?>>(

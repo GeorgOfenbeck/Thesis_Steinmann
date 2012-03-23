@@ -6,4 +6,10 @@ public class FFTfftwKernel extends FFTfftwKernelData {
 	public String getAdditionalLibraries() {
 		return "-lfftw3 -lm";
 	}
+
+	@Override
+	public String getLabel() {
+		return "FFT-FFTW";
+	}
+
 }

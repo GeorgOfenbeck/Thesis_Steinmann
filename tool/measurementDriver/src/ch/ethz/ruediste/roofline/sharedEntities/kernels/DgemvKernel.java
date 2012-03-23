@@ -29,4 +29,12 @@ public class DgemvKernel extends DgemvKernelData {
 	public void setUseMkl(boolean useMkl) {
 		this.useMkl = useMkl;
 	}
+
+	@Override
+	public String getLabel() {
+		if (useMkl) {
+			return "MVM Mkl";
+		}
+		return "MVM OpenBlas";
+	}
 }

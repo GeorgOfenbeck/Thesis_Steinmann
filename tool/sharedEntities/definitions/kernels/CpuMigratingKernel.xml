@@ -2,9 +2,9 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="CpuMigratingKernel" 
 	baseType="KernelBase"
 	cSuffix="Data"
+	javaSuffix="Data"
 	comment="Kernel just migrating to the target CPU">
 	
 	<field name="targetCpu" type="int" comment="cpu to migrate to"/>

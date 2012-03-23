@@ -41,7 +41,7 @@ public class MMMMeasurementController implements IMeasurementController {
 		rooflineController.addDefaultPeaks();
 
 		addSeries(rooflineController, false,
-				MMMAlgorithm.MMMAlgorithm_TripleLoop,
+				MMMAlgorithm.MMMAlgorithm_TrippleLoop,
 				MMMAlgorithm.MMMAlgorithm_Blas_Openblas,
 				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
 
@@ -147,7 +147,7 @@ public class MMMMeasurementController implements IMeasurementController {
 							1);
 				}
 				// skip large sizes for tripple loop
-				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TripleLoop
+				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TrippleLoop
 						&& coordinate.get(Axes.matrixSizeAxis) > 704) {
 					continue;
 				}
@@ -166,7 +166,7 @@ public class MMMMeasurementController implements IMeasurementController {
 				case MMMAlgorithm_Blas_Openblas:
 					seriesName = "MMM-OpenBlas";
 				break;
-				case MMMAlgorithm_TripleLoop:
+				case MMMAlgorithm_TrippleLoop:
 					seriesName = "MMM-TripleLoop";
 				break;
 				default:

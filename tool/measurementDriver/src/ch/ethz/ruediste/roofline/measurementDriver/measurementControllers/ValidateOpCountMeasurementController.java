@@ -43,6 +43,8 @@ public class ValidateOpCountMeasurementController extends
 
 		setupArithmeticKernels(space, kernelNames);
 
+		setupIterations(space);
+
 		// initialize plot
 		DistributionPlot plotValues = new DistributionPlot();
 		plotValues.setOutputName(outputName + "Values");
@@ -68,7 +70,7 @@ public class ValidateOpCountMeasurementController extends
 
 			IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-				public Measurement build(Map<String, MeasurerSet> sets) {
+				public Measurement build(Map<Object, MeasurerSet> sets) {
 
 					// setup the measurement
 					Measurement measurement = new Measurement();

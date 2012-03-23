@@ -28,4 +28,12 @@ public class DaxpyKernel extends DaxpyKernelData {
 	public void setUseMkl(boolean useMkl) {
 		this.useMkl = useMkl;
 	}
+
+	@Override
+	public String getLabel() {
+		if (useMkl) {
+			return "VVM Mkl";
+		}
+		return "VVM OpenBlas";
+	}
 }

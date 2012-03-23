@@ -13,9 +13,14 @@ public class FFTmklKernel extends FFTmklKernelData {
 	public String getAdditionalIncludeDirs() {
 		return "-I/opt/intel/mkl/include";
 	}
-	
+
 	@Override
 	public Operation getSuggestedOperation() {
 		return Operation.DoublePrecisionFlop;
+	}
+
+	@Override
+	public String getLabel() {
+		return "FFT-MKL";
 	}
 }

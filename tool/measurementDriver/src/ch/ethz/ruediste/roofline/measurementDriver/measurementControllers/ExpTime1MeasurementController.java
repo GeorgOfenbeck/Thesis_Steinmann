@@ -127,7 +127,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 
 		IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-			public Measurement build(Map<String, MeasurerSet> sets) {
+			public Measurement build(Map<Object, MeasurerSet> sets) {
 				return createMeasurement(systemLoad, iterations,
 						sets.get("main"));
 			}
@@ -151,7 +151,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 			final long iterationsFinal = iterations;
 			IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-				public Measurement build(Map<String, MeasurerSet> sets) {
+				public Measurement build(Map<Object, MeasurerSet> sets) {
 					return createMeasurement(SystemLoad.Idle, iterationsFinal,
 							sets.get("main"));
 				}

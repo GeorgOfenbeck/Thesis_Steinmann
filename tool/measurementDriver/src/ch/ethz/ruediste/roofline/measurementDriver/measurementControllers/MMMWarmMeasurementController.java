@@ -82,28 +82,32 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 			Coordinate base = c;
 			Coordinate warmCode = c.getExtendedPoint(warmCodeAxis, true);
 			Coordinate warmData = c.getExtendedPoint(warmDataAxis, true);
-			Coordinate warmDataCode = warmData.getExtendedPoint(warmCodeAxis, true);
+			Coordinate warmDataCode = warmData.getExtendedPoint(warmCodeAxis,
+					true);
 
 			Iterable<TransferredBytes> tbBase = measureTransferredBytes(base);
-			
-			ArrayList<Pair<Iterable<TransferredBytes>,String>> allSeries=new ArrayList<Pair<Iterable<TransferredBytes>,String>>();
+
+			ArrayList<Pair<Iterable<TransferredBytes>, String>> allSeries = new ArrayList<Pair<Iterable<TransferredBytes>, String>>();
 			IterableUtils.addAll(allSeries,
 					Pair.of(measureTransferredBytes(warmData), "Data"),
 					Pair.of(measureTransferredBytes(warmCode), "Code"),
 					Pair.of(measureTransferredBytes(warmDataCode), "DataCode")
-			);
-			
-			for (Pair<Iterable<TransferredBytes>,String> series: allSeries){
-			
-				Long matrixSize = c.get(matrixSizeAxis);
-				for (Pair<TransferredBytes, TransferredBytes> pair : zip(tbBase,
-						series.getLeft())) {
-					
-					plot.addValue(
-							kernelNames.get(c.get(kernelAxis))+series.getRight(),
-							matrixSize,
-							pair.getLeft().getValue()-pair.getRight().getValue()
 					);
+
+			for (Pair<Iterable<TransferredBytes>, String> series : allSeries) {
+
+				Long matrixSize = c.get(matrixSizeAxis);
+				for (Pair<TransferredBytes, TransferredBytes> pair : zip(
+						tbBase,
+						series.getLeft())) {
+
+					plot.addValue(
+							kernelNames.get(c.get(kernelAxis))
+									+ series.getRight(),
+							matrixSize,
+							pair.getLeft().getValue()
+									- pair.getRight().getValue()
+							);
 				}
 			}
 		}
@@ -208,7 +212,7 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 	public IMeasurementBuilder getBuilder(final Coordinate coordinate) {
 		IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-			public Measurement build(Map<String, MeasurerSet> sets) {
+			public Measurement build(Map<Object, MeasurerSet> sets) {
 				Measurement measurement = new Measurement();
 				Workload workload = new Workload();
 				workload.initialize(coordinate);

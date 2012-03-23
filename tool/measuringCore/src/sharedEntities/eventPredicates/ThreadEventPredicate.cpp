@@ -5,12 +5,12 @@
  *      Author: ruedi
  */
 
-#include "ThreadStartEventPredicate.h"
+#include "ThreadEventPredicate.h"
 #include "baseClasses/events/ThreadEvent.h"
 
-bool ThreadStartEventPredicate::doesMatch(EventBase *event) {
+bool ThreadEventPredicate::doesMatch(EventBase *event) {
 	ThreadEvent *threadStartEvent = dynamic_cast<ThreadEvent*>(event);
-	if (threadStartEvent != NULL && threadStartEvent->getEvent()==ThreadEventEnum_Started) {
+	if (threadStartEvent != NULL && threadStartEvent->getEvent()==getEventNr()) {
 		return true;
 	}
 	return false;

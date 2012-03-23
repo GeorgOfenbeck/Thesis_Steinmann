@@ -1,6 +1,9 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
+
+import java.util.Map;
+
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
@@ -22,28 +25,28 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 
 	private static final MacroKey mulAddMixMacro = MacroKey.Create(
 			"RMT_ARITHMETIC_MUL_ADD_MIX",
-			"specifies the mix of multiplications and additions to be used", "ADD MUL");
-	
+			"specifies the mix of multiplications and additions to be used",
+			"ADD MUL");
+
 	public enum ArithmeticOperation {
 		ArithmeticOperation_ADD, ArithmeticOperation_MUL, ArithmeticOperation_MULADD
 	}
 
 	public static final Axis<ArithmeticOperation> arithmeticOperationAxis = new Axis<ArithmeticOperation>(
-	"5a393897-bb5a-49ed-898d-1eb62a965ba6", "operation",
-	ArithmeticOperation.ArithmeticOperation_ADD);
+			"5a393897-bb5a-49ed-898d-1eb62a965ba6", "operation");
 
 	public ArithmeticKernel() {
 		setIterations(10000);
 	}
 
-	public String getMulAddMix(){
+	public String getMulAddMix() {
 		return getMacroDefinition(mulAddMixMacro);
 	}
-	
-	public void setMulAddMix(String mulAddMix){
+
+	public void setMulAddMix(String mulAddMix) {
 		setMacroDefinition(mulAddMixMacro, mulAddMix);
 	}
-	
+
 	public ArithmeticOperation getOperation() {
 		return ArithmeticOperation.valueOf(getMacroDefinition(operationMacro));
 	}
@@ -66,7 +69,7 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 	 */
 
 	private static final MacroKey unrollMacro = MacroKey.Create(
-			"RMT_ARITHMETIC_UNROLL", "number of times to unroll the loop", "2");
+			"RMT_ARITHMETIC_UNROLL", "number of times to unroll the loop", "4");
 
 	public int getUnroll() {
 		return Integer.parseInt(getMacroDefinition(unrollMacro));
@@ -79,7 +82,7 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 	private static final MacroKey dlpMacro = MacroKey
 			.Create("RMT_ARITHMETIC_DLP",
 					"DataLevelParallelism: number of values that should be computed concurrently",
-					"2");
+					"3");
 
 	public int getDlp() {
 		return Integer.parseInt(getMacroDefinition(dlpMacro));
@@ -124,7 +127,8 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 		}
 
 		if (coordinate.contains(ArithmeticKernel.arithmeticOperationAxis)) {
-			setOperation(coordinate.get(ArithmeticKernel.arithmeticOperationAxis));
+			setOperation(coordinate
+					.get(ArithmeticKernel.arithmeticOperationAxis));
 		}
 
 		if (coordinate.contains(unrollAxis)) {
@@ -175,5 +179,84 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 			result *= 2;
 		}
 		return new OperationCount(result);
+	}
+
+	public static class CreateParameters {
+		public ArithmeticOperation operation;
+		public InstructionSet instructionSet;
+
+		public CreateParameters(ArithmeticOperation operation,
+				InstructionSet instructionSet) {
+			this.operation = operation;
+			this.instructionSet = instructionSet;
+		}
+	}
+
+	public static ArithmeticKernel create(CreateParameters parameters,
+			Map<KernelBase, String> kernelNames) {
+		ArithmeticKernel result = new ArithmeticKernel();
+		result.setOperation(parameters.operation);
+		result.setInstructionSet(parameters.instructionSet);
+
+		String kernelName = null;
+		switch (parameters.operation) {
+		case ArithmeticOperation_ADD:
+			kernelName = "ADD";
+		break;
+		case ArithmeticOperation_MUL:
+			kernelName = "MUL";
+		break;
+		case ArithmeticOperation_MULADD:
+			kernelName = "BAL";
+		break;
+
+		}
+		switch (parameters.instructionSet) {
+		case SSE:
+			result.setOptimization("-O3 -msse2");
+			kernelName += " SSE";
+		break;
+		case SSEScalar:
+			result.setOptimization("-O3 -mfpmath=sse -msse2");
+			kernelName += " SSEScalar";
+		break;
+		case x87:
+			result.setOptimization("-O3");
+			kernelName += " x87";
+		break;
+		}
+
+		kernelNames.put(result, kernelName);
+
+		return result;
+	}
+
+	@Override
+	public String getLabel() {
+		String kernelName = null;
+		switch (getOperation()) {
+		case ArithmeticOperation_ADD:
+			kernelName = "ADD";
+		break;
+		case ArithmeticOperation_MUL:
+			kernelName = "MUL";
+		break;
+		case ArithmeticOperation_MULADD:
+			kernelName = "BAL";
+		break;
+
+		}
+		switch (getInstructionSet()) {
+		case SSE:
+			kernelName += " SSE";
+		break;
+		case SSEScalar:
+			kernelName += " SSEScalar";
+		break;
+		case x87:
+			kernelName += " x87";
+		break;
+		}
+		return kernelName;
 	}
 }

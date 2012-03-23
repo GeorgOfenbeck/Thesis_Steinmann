@@ -2,10 +2,11 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="ThreadStartEventPredicate" 
 	baseType="EventPredicateBase"
 	cSuffix="Data"
+	javaSuffix="Data"
 	comment="Event predicate matching a thread start">
 
+	<field name="eventNr" type="int" comment="event number to match"/>	
 	<field name="workload" type="Workload" comment="match only if the thread was caused to be started by this workload. null matches any workload"/>	
 </derivedClass>

@@ -73,6 +73,8 @@ public class ValidateTransferredBytesMeasurementController extends
 
 		setupArithmeticKernels(space, kernelNames);
 
+		setupIterations(space);
+
 		// initialize plot
 		DistributionPlot plotTbValues = new DistributionPlot();
 		plotTbValues.setOutputName(outputName + "ArithTBValues")
@@ -104,7 +106,7 @@ public class ValidateTransferredBytesMeasurementController extends
 
 			IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-				public Measurement build(Map<String, MeasurerSet> sets) {
+				public Measurement build(Map<Object, MeasurerSet> sets) {
 					Measurement measurement = new Measurement();
 					Workload workload = new Workload();
 					measurement.addWorkload(workload);
@@ -206,7 +208,7 @@ public class ValidateTransferredBytesMeasurementController extends
 
 			IMeasurementBuilder builder = new IMeasurementBuilder() {
 
-				public Measurement build(Map<String, MeasurerSet> sets) {
+				public Measurement build(Map<Object, MeasurerSet> sets) {
 					Measurement measurement = new Measurement();
 					Workload workload = new Workload();
 					measurement.addWorkload(workload);

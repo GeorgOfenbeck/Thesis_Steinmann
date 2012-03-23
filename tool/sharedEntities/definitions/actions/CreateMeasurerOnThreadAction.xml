@@ -7,9 +7,6 @@
 	javaSuffix="Data"
 	comment="Action stopping a kernel">
 
-	<field name="createOnExistingNonWorkloadThreads" type="bool" comment="indicates if to create measurer on existing non-workload threads"/>
-	<field name="createOnNewThreads" type="bool" comment="indicates if to create measurer on new threads"/>
-
 	<field name="measurerSet" type="MeasurerSet" comment="measurerSet to be installed"/>
 	<field name="startPredicate" type="EventPredicateBase" comment="predicate indicating when to start the measurer"/>
 	<field name="stopPredicate" type="EventPredicateBase" comment="predicate indicating when to stop the measurer"/>

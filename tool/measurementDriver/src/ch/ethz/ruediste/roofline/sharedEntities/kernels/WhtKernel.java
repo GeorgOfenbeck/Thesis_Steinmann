@@ -6,4 +6,9 @@ public class WhtKernel extends WhtKernelData {
 	public String getAdditionalLibraries() {
 		return "-lwht";
 	}
+
+	@Override
+	public String getLabel() {
+		return "WHT";
+	}
 }

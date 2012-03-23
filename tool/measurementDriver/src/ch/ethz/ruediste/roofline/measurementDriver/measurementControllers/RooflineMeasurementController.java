@@ -62,7 +62,7 @@ public class RooflineMeasurementController implements IMeasurementController {
 			Axis<MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
 					"742250a7-5ea2-4a39-b0c6-7145d0c4b292", "algorithm");
 
-			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_TripleLoop);
+			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_TrippleLoop);
 			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blocked);
 			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Openblas);
 			space.add(algorithmAxis, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
