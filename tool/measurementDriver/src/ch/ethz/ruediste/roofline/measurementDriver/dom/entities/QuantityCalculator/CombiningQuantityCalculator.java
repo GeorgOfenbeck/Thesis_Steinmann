@@ -37,7 +37,7 @@ public abstract class CombiningQuantityCalculator<T extends Quantity<T>>
 			// predicate indicating a measurer was used to generate the current output
 			IUnaryPredicate<MeasurerBase> predicate = new IUnaryPredicate<MeasurerBase>() {
 				public Boolean apply(MeasurerBase arg) {
-					return arg.getUid().equals(output.getMeasurerUid());
+					return output.isFrom(arg);
 				}
 			};
 

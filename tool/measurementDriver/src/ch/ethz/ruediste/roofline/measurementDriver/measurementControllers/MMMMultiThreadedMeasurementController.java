@@ -1,5 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.matrixSizeAxis;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -71,8 +73,10 @@ public class MMMMultiThreadedMeasurementController implements
 			kernelNames.put(kernel, "MMM-Mkl-Threaded");
 		}
 
-		for (long size = 400; size <= 700; size += 100)
+		/*for (long size = 400; size <= 700; size += 100)
 			space.add(Axes.matrixSizeAxis, size);
+			*/
+		space.add(matrixSizeAxis, 100L);
 
 		configuration.push();
 		for (Coordinate coordinate : space.getAllPoints(Axes.kernelAxis, null)) {
@@ -139,6 +143,9 @@ public class MMMMultiThreadedMeasurementController implements
 					.measureQuantities(kernel, numRuns, execTimeCalc);
 
 			Time executionTime = quantitiesExec.min(execTimeCalc);
+
+			System.out.printf("OpCount: %f\n", quantities.min(opCountCalc)
+					.getValue());
 
 			rooflineController.addRooflinePoint(kernelNames.get(kernel),
 					coordinate.get(Axes.matrixSizeAxis).toString(),

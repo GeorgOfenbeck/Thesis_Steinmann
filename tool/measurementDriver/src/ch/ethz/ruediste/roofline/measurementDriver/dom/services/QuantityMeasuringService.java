@@ -4,12 +4,13 @@ import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 
 import java.util.*;
 
-import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator.Combination;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils;
@@ -98,8 +99,17 @@ public class QuantityMeasuringService {
 
 	}
 
+	/**
+	 * Creates a quantity calculator for an event. Multiple event definitions
+	 * can be passed. The single available event is measured.
+	 * 
+	 * @param combination
+	 *            TODO
+	 * 
+	 * @return
+	 */
 	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(
-			final Class<T> clazz, String... events) {
+			final Class<T> clazz, Combination combination, String... events) {
 		final PerfEventMeasurer measurer = new PerfEventMeasurer();
 
 		final String eventDefinition = systemInfoService
@@ -110,11 +120,16 @@ public class QuantityMeasuringService {
 
 			@Override
 			public T getResult(Iterable<MeasurerOutputBase> outputs) {
-				PerfEventCount eventCount = single(outputs).cast(measurer)
-						.getEventCount("count");
-				log.debug(String.format("eventDef: %s, %s", eventDefinition,
-						eventCount));
-				return Quantity.construct(clazz, eventCount.getScaledCount());
+				DescriptiveStatistics stats = new DescriptiveStatistics();
+				for (MeasurerOutputBase output : outputs) {
+					stats.addValue(output.cast(measurer).getEventCount("count")
+							.getScaledCount());
+				}
+				if (stats.getN() == 0) {
+					throw new Error("no outputs");
+				}
+				return Quantity.construct(clazz,
+						getValueRespectingCombination(stats));
 			}
 		};
 	}
@@ -136,10 +151,12 @@ public class QuantityMeasuringService {
 		case SinglePrecisionFlop: {
 			QuantityCalculator<OperationCount> scalar = createPerfEventQuantityCalculator(
 					OperationCount.class,
+					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_SINGLE",
 					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE");
 			QuantityCalculator<OperationCount> packed = createPerfEventQuantityCalculator(
 					OperationCount.class,
+					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE",
 					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE");
 			return new AddingQuantityCalculator<OperationCount>(
@@ -150,10 +167,12 @@ public class QuantityMeasuringService {
 		case DoublePrecisionFlop: {
 			QuantityCalculator<OperationCount> scalar = createPerfEventQuantityCalculator(
 					OperationCount.class,
+					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_DOUBLE",
 					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE");
 			QuantityCalculator<OperationCount> packed = createPerfEventQuantityCalculator(
 					OperationCount.class,
+					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
 					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE");
 
@@ -174,7 +193,8 @@ public class QuantityMeasuringService {
 
 		case CompInstr:
 			return createPerfEventQuantityCalculator(OperationCount.class,
-					"coreduo::FP_COMP_INSTR_RET", "core::FP_COMP_OPS_EXE");
+					Combination.Sum, "coreduo::FP_COMP_INSTR_RET",
+					"core::FP_COMP_OPS_EXE");
 
 		default:
 			throw new Error("should not happen");
@@ -204,18 +224,21 @@ public class QuantityMeasuringService {
 						new AddingQuantityCalculator<TransferredBytes>(
 								createPerfEventQuantityCalculator(
 										TransferredBytes.class,
+										Combination.Sum,
 										"coreduo::L2_LINES_IN:SELF",
 										"core::L2_LINES_IN:SELF"),
 								createPerfEventQuantityCalculator(
 										TransferredBytes.class,
+										Combination.Sum,
 										"coreduo::L2_M_LINES_OUT:SELF",
 										"core::L2_M_LINES_OUT:SELF")), 64);
 			}
 			else {
 				return new MultiplyingQuantityCalculator<TransferredBytes>(
 						createPerfEventQuantityCalculator(
-								TransferredBytes.class, "core::BUS_TRANS_MEM",
-								"coreduo::BUS_TRANS_MEM"), 64);
+								TransferredBytes.class, Combination.Sum,
+								"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM"),
+						64);
 			}
 
 		default:
@@ -238,18 +261,31 @@ public class QuantityMeasuringService {
 
 		case CoreCycles:
 			return createPerfEventQuantityCalculator(Time.class,
+					Combination.Min,
 					"core::UNHALTED_CORE_CYCLES",
 					"coreduo::UNHALTED_CORE_CYCLES");
 		case ReferenceCycles:
 			return createPerfEventQuantityCalculator(Time.class,
-					"perf::PERF_COUNT_HW_BUS_CYCLES");
+					Combination.Min, "perf::PERF_COUNT_HW_BUS_CYCLES");
 		case uSecs: {
 			final ExecutionTimeMeasurer measurer = new ExecutionTimeMeasurer();
 			return new TerminalQuantityCalculator<Time>(measurer) {
+				{
+					setCombination(Combination.Min);
+				}
 
 				@Override
 				public Time getResult(Iterable<MeasurerOutputBase> outputs) {
-					return new Time(single(outputs).cast(measurer).getUSecs());
+					DescriptiveStatistics stats = new DescriptiveStatistics();
+					for (MeasurerOutputBase output : outputs) {
+						stats.addValue(output.cast(measurer).getUSecs());
+					}
+
+					if (stats.getN() == 0) {
+						throw new Error("no outputs");
+					}
+
+					return new Time(getValueRespectingCombination(stats));
 				}
 			};
 		}
@@ -296,12 +332,12 @@ public class QuantityMeasuringService {
 
 	public QuantityCalculator<ContextSwitches> getContextSwitchesCalculator() {
 		return createPerfEventQuantityCalculator(ContextSwitches.class,
-				"perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
+				Combination.Sum, "perf::PERF_COUNT_SW_CONTEXT_SWITCHES");
 	}
 
 	public QuantityCalculator<Interrupts> getInterruptsCalculator() {
 		return createPerfEventQuantityCalculator(Interrupts.class,
-				"coreduo::HW_INT_RX", "core::HW_INT_RCV");
+				Combination.Sum, "coreduo::HW_INT_RX", "core::HW_INT_RCV");
 	}
 
 	public Quantity<?> measure(KernelBase kernel, Coordinate measurementPoint) {
@@ -440,7 +476,7 @@ public class QuantityMeasuringService {
 	}
 
 	public QuantityMap mesaureQuantities(
-			IMeasurementBuilder measurementBuilder, int numberOfMeasurements,
+			IMeasurementBuilder measurementBuilder, int numberOfRuns,
 			List<Pair<String, QuantityCalculator<?>[]>> calculatorGroups) {
 
 		// extract the measurer sets for the calculators of each group
@@ -488,7 +524,7 @@ public class QuantityMeasuringService {
 
 			// run the measurement
 			MeasurementResult result = measurementService.measure(measurement,
-					numberOfMeasurements);
+					numberOfRuns);
 
 			// add the result to the results list
 			results.add(result);
@@ -497,33 +533,16 @@ public class QuantityMeasuringService {
 		// combine the results of each run from the different measurements
 		ArrayList<List<MeasurerOutputBase>> combinedResults = new ArrayList<List<MeasurerOutputBase>>();
 		{
-			for (int idx = 0; idx < numberOfMeasurements; idx++) {
+			// iterate over the runs
+			for (int idx = 0; idx < numberOfRuns; idx++) {
+				// for each run, combine the outputs of all measurements
 				ArrayList<MeasurerOutputBase> tmp = new ArrayList<MeasurerOutputBase>();
 				for (MeasurementResult result : results) {
 					Iterable<MeasurerOutputBase> measurerOutputsOfOneRun = result
 							.getRunOutputs().get(idx)
 							.getMeasurerOutputs();
 
-					// A measurer might have been instantiated multiple time in the core.
-					// Then multiple outputs for one measurer can be present.
-					// Merge the outputs from one measurer whithin one run.
-
-					// fill a map for grouping
-					MultiValueMap map = new MultiValueMap();
-					for (MeasurerOutputBase output : measurerOutputsOfOneRun)
-						map.put(output.getMeasurerId(), output);
-
-					// combine the measures of each group
-					for (Object key : map.keySet()) {
-						@SuppressWarnings("unchecked")
-						Collection<MeasurerOutputBase> outputs = map
-								.getCollection(key);
-
-						MeasurerOutputBase combinedOutput = MeasurerOutputBase
-								.combine(outputs);
-
-						tmp.add(combinedOutput);
-					}
+					addAll(tmp, measurerOutputsOfOneRun);
 				}
 				combinedResults.add(tmp);
 			}
