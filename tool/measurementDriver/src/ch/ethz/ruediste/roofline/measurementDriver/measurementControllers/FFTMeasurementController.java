@@ -9,7 +9,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementContr
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
@@ -92,7 +91,7 @@ public class FFTMeasurementController implements IMeasurementController {
 		space.add(Axes.optimizationAxis, "-O3 -msse2");
 
 		configuration.push();
-		for (Coordinate coordinate : space.getAllPoints(kernelAxis,null)) {
+		for (Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
 
 			if (coordinate.get(bufferSizeAxis) > 64 * 1024L) {
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
@@ -150,4 +149,5 @@ public class FFTMeasurementController implements IMeasurementController {
 		}
 		configuration.pop();
 	}
+
 }

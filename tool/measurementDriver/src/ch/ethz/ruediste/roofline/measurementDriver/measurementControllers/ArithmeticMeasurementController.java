@@ -77,7 +77,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 				ArithmeticKernel.arithmeticOperationAxis, dlpAxis, unrollAxis,
 				iterationsAxis
 
-		)) {
+				)) {
 			ArithmeticKernel kernel = new ArithmeticKernel();
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);

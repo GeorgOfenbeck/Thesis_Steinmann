@@ -1,29 +1,24 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.sharedEntities.Axes.kernelAxis;
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import java.io.IOException;
-import java.util.*;
 
-import org.apache.commons.exec.ExecuteException;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.RunQuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPredicate.WorkloadEventEnum;
-import ch.ethz.ruediste.roofline.sharedEntities.kernels.TriadKernel;
 
 import com.google.inject.Inject;
 
@@ -54,209 +49,232 @@ public class ValidateTransferredBytesMeasurementController extends
 	Configuration configuration;
 
 	public void measure(String outputName) throws IOException {
-		measureMem(outputName);
-		measureArith(outputName);
+		instantiator.getInstance(ArithController.class).measure(outputName,
+				cpuSingletonList(), createArithKernelCoordinates());
+
+		instantiator.getInstance(MemController.class).measure(outputName,
+				cpuSingletonList(), createMemKernelCoordinates());
+
+		instantiator.getInstance(MemFlushController.class).measure(outputName,
+				cpuSingletonList(), createMemKernelCoordinates());
 
 		log.info("Measuring ALT");
 		configuration.push();
 		configuration.set(QuantityMeasuringService.useAltTBKey, true);
-		measureMem(outputName + "ALT");
-		measureArith(outputName + "ALT");
+		instantiator.getInstance(ArithController.class).measure(
+				outputName + "ALT",
+				cpuSingletonList(), createArithKernelCoordinates());
+
+		instantiator.getInstance(MemController.class).measure(
+				outputName + "ALT",
+				cpuSingletonList(), createMemKernelCoordinates());
+
+		instantiator.getInstance(MemFlushController.class).measure(
+				outputName + "ALT",
+				cpuSingletonList(), createMemKernelCoordinates());
 
 		configuration.pop();
 	}
 
-	public void measureArith(String outputName) throws ExecuteException,
-			IOException {
-		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
-		ParameterSpace space = new ParameterSpace();
+	private static class ArithController extends
+			DistributionNoExpectationController<TransferredBytes> {
 
-		setupArithmeticKernels(space, kernelNames);
-
-		setupIterations(space);
-
-		// initialize plot
-		DistributionPlot plotTbValues = new DistributionPlot();
-		plotTbValues.setOutputName(outputName + "ArithTBValues")
-				.setTitle("Memory Transfer Values").setLog()
-				.setxLabel("expOperationCount").setxUnit("flop")
-				.setyLabel("actualMemTransfer").setyUnit("bytes")
-				.setKeyPosition(KeyPosition.TopRight);
-
-		DistributionPlot plotTimeValues = new DistributionPlot();
-		plotTimeValues.setOutputName(outputName + "ArithTimeValues")
-				.setTitle("Memory Execution Time Values").setLog()
-				.setxLabel("expOperationCount").setxUnit("flop")
-				.setyLabel("executionTime").setyUnit("cycles");
-
-		// iterate over space
-		for (Coordinate coordinate : space) {
-			// initialize the kernel
-			final KernelBase kernel = coordinate.get(kernelAxis);
-			kernel.initialize(coordinate);
-
-			log.info("measuring " + coordinate);
-
-			// get the calculator for the transferred bytes
-			QuantityCalculator<TransferredBytes> transferredBytesCalc = quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
-
-			QuantityCalculator<Time> executionTimeCalc = quantityMeasuringService
-					.getExecutionTimeCalculator(ClockType.CoreCycles);
-
-			IMeasurementBuilder builder = new IMeasurementBuilder() {
-
-				public Measurement build(Map<Object, MeasurerSet> sets) {
-					Measurement measurement = new Measurement();
-					Workload workload = new Workload();
-					measurement.addWorkload(workload);
-					workload.setKernel(kernel);
-					workload.setMeasurerSet(sets.get("main"));
-					return measurement;
-				}
-			};
-			QuantityMap result = quantityMeasuringService
-					.measureQuantities(builder, 10)
-					.with("main", transferredBytesCalc, executionTimeCalc)
-					.get();
-
-			long expOpCount = (long) kernel.getExpectedOperationCount()
-					.getValue();
-
-			// fill plots
-			for (TransferredBytes transferredBytes : result
-					.get(transferredBytesCalc)) {
-				plotTbValues.addValue(kernelNames.get(kernel), expOpCount,
-						transferredBytes.getValue());
-			}
-			for (Time time : result.get(executionTimeCalc)) {
-				plotTimeValues.addValue(kernelNames.get(kernel), expOpCount,
-						time.getValue());
-			}
+		@Override
+		protected KernelBase createKernel(Coordinate kernelCoordinate,
+				long problemSize) {
+			return KernelBase.create(kernelCoordinate.getExtendedPoint(
+					iterationsAxis, problemSize));
 		}
-		plotService.plot(plotTbValues);
-		plotService.plot(plotTimeValues);
+
+		@Override
+		protected QuantityCalculator<TransferredBytes> createCalculator(
+				KernelBase kernel) {
+			return quantityMeasuringService
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+		}
+
+		@Override
+		public void setupValuesPlot(String outputName,
+				DistributionPlot plotValues) {
+			plotValues.setOutputName(outputName + "ArithTBValues")
+					.setTitle("Memory Transfer Values").setLog()
+					.setxLabel("expOperationCount").setxUnit("flop")
+					.setyLabel("actualMemTransfer").setyUnit("bytes")
+					.setKeyPosition(KeyPosition.TopRight);
+
+		}
+
+		@Override
+		public void setupMinValuesPlot(String outputName,
+				DistributionPlot plotMinValues) {
+			plotMinValues.setOutputName(outputName + "ArithTBMinValues")
+					.setTitle("Memory Transfer Min Values").setLog()
+					.setxLabel("expOperationCount").setxUnit("flop")
+					.setyLabel("actualMemTransfer10").setyUnit("bytes")
+					.setKeyPosition(KeyPosition.TopRight);
+		}
+
+		@Override
+		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
+			plotError.setOutputName(outputName + "ArithTBError")
+					.setTitle("Memory Transfer Error").setLog()
+					.setxLabel("expOperationCount").setxUnit("flop")
+					.setyLabel("error(memTrans/min(memTrans))").setyUnit("%")
+					.setKeyPosition(KeyPosition.TopRight);
+		}
+
+		@Override
+		public void setupMinErrorPlot(String outputName,
+				DistributionPlot plotMinError) {
+			plotMinError.setOutputName(outputName + "ArithTBError")
+					.setTitle("Memory Transfer Error").setLog()
+					.setxLabel("expOperationCount").setxUnit("flop")
+					.setyLabel("error(memTrans10/min(memTrans10))")
+					.setyUnit("%")
+					.setKeyPosition(KeyPosition.TopRight);
+		}
+
 	}
 
-	/**
-	 * @param outputName
-	 * @throws ExecuteException
-	 * @throws IOException
-	 */
-	public void measureMem(String outputName) throws ExecuteException,
-			IOException {
-		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
-		ParameterSpace space = new ParameterSpace();
+	private static class MemFlushController extends
+			DistributionNoExpectationController<TransferredBytes> {
 
-		setupMemoryKernels(space, kernelNames);
+		@Override
+		protected KernelBase createKernel(Coordinate kernelCoordinate,
+				long problemSize) {
+			return KernelBase.create(kernelCoordinate.getExtendedPoint(
+					bufferSizeAxis, problemSize));
+		}
 
-		// initialize plot
-		DistributionPlot plotValues = new DistributionPlot();
-		plotValues.setOutputName(outputName + "Values")
-				.setTitle("Transferred Bytes Values").setLog()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("actualMemTransfer/expMemTransfer").setyUnit("1")
-				.setKeyPosition(KeyPosition.TopRight);
-
-		DistributionPlot flushValues = new DistributionPlot();
-		flushValues.setOutputName(outputName + "FlushValues")
-				.setTitle("Transferred Bytes Flush Values").setLog()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("actualMemTransfer").setyUnit("1")
-				.setKeyPosition(KeyPosition.TopLeft);
-
-		DistributionPlot plotError = new DistributionPlot();
-		plotError.setOutputName(outputName + "Error");
-		plotError.setTitle("Transferred Bytes Error").setLogX()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("err(actualMemTransfer/expMemTransfer)")
-				.setyUnit("%").setYRange(yErrorRange())
-				.setKeyPosition(KeyPosition.TopRight);
-
-		DistributionPlot plotMinValues = new DistributionPlot();
-		plotMinValues.setOutputName(outputName + "MinValues");
-		plotMinValues.setTitle("Transferred Bytes Min Values").setLog()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("actualMemTransfer10/expMemTransfer").setyUnit("1");
-
-		DistributionPlot plotMinError = new DistributionPlot();
-		plotMinError.setOutputName(outputName + "MinError");
-		plotMinError.setTitle("Transferred Bytes Min Error").setLogX()
-				.setxLabel("expMemTransfer").setxUnit("bytes")
-				.setyLabel("err(actualMemTransfer10/expMemTransfer)")
-				.setyUnit("%").setYRange(yErrorRange());
-
-		// iterate over space
-		for (Coordinate coordinate : space) {
-			// initialize the kernel
-			final KernelBase kernel = coordinate.get(kernelAxis);
-			kernel.initialize(coordinate);
-
-			if (kernel instanceof TriadKernel
-					&& coordinate.get(Axes.bufferSizeAxis) > 1024L * 1024L) {
-				continue;
-			}
-
-			log.info("measuring " + coordinate);
-
-			// get the calculator for the transferred bytes
-			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
+		@Override
+		protected QuantityCalculator<TransferredBytes> createCalculator(
+				KernelBase kernel) {
+			return quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+		}
 
-			QuantityCalculator<TransferredBytes> flushCalc = quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+		@Override
+		protected Workload createWorkload(Measurement measurement,
+				KernelBase kernel,
+				MeasurerSet measurerSet) {
+			Workload workload = new Workload();
+			workload.setKernel(kernel);
 
-			IMeasurementBuilder builder = new IMeasurementBuilder() {
-
-				public Measurement build(Map<Object, MeasurerSet> sets) {
-					Measurement measurement = new Measurement();
-					Workload workload = new Workload();
-					measurement.addWorkload(workload);
-					workload.setKernel(kernel);
-					workload.setMeasurerSet(sets.get("main"));
-
-					measurement.addRule(new Rule(
+			measurement
+					.addRule(new Rule(
 							new WorkloadEventPredicate(workload,
 									WorkloadEventEnum.KernelStop),
 							new MeasureActionExecutionAction(
-									new FlushKernelBuffersAction(kernel), sets
-											.get("flush"))));
-					return measurement;
-				}
-			};
+									new FlushKernelBuffersAction(kernel),
+									measurerSet)));
 
-			// determine the number of runs
-			int numRuns = 100;
-			if (configuration.get(ValidationMeasurementControllerBase.fastKey)) {
-				numRuns = 10;
-			}
-
-			// run the measurement
-			QuantityMap result = quantityMeasuringService
-					.measureQuantities(builder, numRuns).with("main", calc)
-					.with("flush", flushCalc).get();
-
-			// get the expected number of bytes transferred
-			TransferredBytes expected = kernel.getExpectedTransferredBytes();
-
-			fillDistributionPlotsExpected(kernelNames.get(kernel),
-					expected.getValue(), plotValues, plotMinValues, result,
-					calc);
-
-			for (RunQuantityMap runMap : result.getRunMaps()) {
-				flushValues.addValue(kernelNames.get(kernel), (long) expected
-						.getValue(), runMap.get(flushCalc).getValue());
-			}
-
+			return workload;
 		}
 
-		fillErrorPlotExpected(plotValues, plotError);
-		fillErrorPlotExpected(plotMinValues, plotMinError);
+		@Override
+		public void setupValuesPlot(String outputName,
+				DistributionPlot plotValues) {
+			plotValues.setOutputName(outputName + "FlushValues")
+					.setTitle("Transferred Bytes Flush Values").setLog()
+					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setyLabel("flushMemTransfer").setyUnit("bytes")
+					.setKeyPosition(KeyPosition.TopLeft);
+		}
 
-		plotService.plot(plotError);
-		plotService.plot(plotValues);
-		plotService.plot(plotMinError);
-		plotService.plot(plotMinValues);
-		plotService.plot(flushValues);
+		@Override
+		public void setupMinValuesPlot(String outputName,
+				DistributionPlot plotMinValues) {
+			plotMinValues.setOutputName(outputName + "FlushMinValues")
+					.setTitle("Transferred Bytes Flush Values").setLog()
+					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setyLabel("flushMemTransfer10").setyUnit("bytes")
+					.setKeyPosition(KeyPosition.TopLeft);
+		}
+
+		@Override
+		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
+			plotError.setOutputName(outputName + "FlushError")
+					.setTitle("Transferred Bytes Flush Values").setLog()
+					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setyLabel("err(flushMemTrans/min(flushMemTrans)")
+					.setyUnit("%")
+					.setKeyPosition(KeyPosition.TopLeft);
+		}
+
+		@Override
+		public void setupMinErrorPlot(String outputName,
+				DistributionPlot plotMinError) {
+			plotMinError.setOutputName(outputName + "FlushMinError")
+					.setTitle("Transferred Bytes Flush Values").setLog()
+					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setyLabel("err(flushMemTrans10/min(flushMemTrans)")
+					.setyUnit("%")
+					.setKeyPosition(KeyPosition.TopLeft);
+		}
+
+	}
+
+	private static class MemController extends
+			DistributionWithExpectationController<TransferredBytes> {
+
+		@Override
+		protected TransferredBytes expected(KernelBase kernel) {
+			return kernel.getExpectedTransferredBytes();
+		}
+
+		@Override
+		protected KernelBase createKernel(Coordinate kernelCoordinate,
+				long problemSize) {
+			return KernelBase.create(kernelCoordinate.getExtendedPoint(
+					bufferSizeAxis, problemSize));
+		}
+
+		@Override
+		protected QuantityCalculator<TransferredBytes> createCalculator(
+				KernelBase kernel) {
+			return quantityMeasuringService
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+		}
+
+		@Override
+		public void setupValuesPlot(String outputName,
+				DistributionPlot plotValues) {
+			plotValues.setOutputName(outputName + "Values")
+					.setTitle("Transferred Bytes Values").setLog()
+					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setyLabel("actualMemTransfer/expMemTransfer")
+					.setyUnit("1")
+					.setKeyPosition(KeyPosition.TopRight);
+		}
+
+		@Override
+		public void setupMinValuesPlot(String outputName,
+				DistributionPlot plotMinValues) {
+			plotMinValues.setOutputName(outputName + "MinValues")
+					.setTitle("Transferred Bytes Min Values").setLog()
+					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setyLabel("actualMemTransfer10/expMemTransfer")
+					.setyUnit("1");
+		}
+
+		@Override
+		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
+			plotError.setOutputName(outputName + "Error")
+					.setTitle("Transferred Bytes Error").setLogX()
+					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setyLabel("err(actualMemTransfer/expMemTransfer)")
+					.setyUnit("%")
+					.setKeyPosition(KeyPosition.TopRight);
+		}
+
+		@Override
+		public void setupMinErrorPlot(String outputName,
+				DistributionPlot plotMinError) {
+			plotMinError.setOutputName(outputName + "MinError")
+					.setTitle("Transferred Bytes Min Error").setLogX()
+					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setyLabel("err(actualMemTransfer10/expMemTransfer)")
+					.setyUnit("%");
+		}
 	}
 }
