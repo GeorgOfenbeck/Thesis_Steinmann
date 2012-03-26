@@ -50,7 +50,7 @@ CURRENT_KERNEL_SOURCES=$(foreach kernel,$(KERNEL_NAMES),$(KERNEL_SOURCES_$(kerne
 CURRENT_KERNEL_OBJECTS=$(foreach kernel,$(KERNEL_NAMES),$(KERNEL_OBJECTS_$(kernel)))
 
 # extract the sources of the parent process
-PARENT_SOURCES=$(filter ./src/parent/%.cpp, $(ALL_SOURCES))
+PARENT_SOURCES=$(filter ./src/parent/%.cpp, $(ALL_SOURCES)) src/Logger.cpp src/Mutex.cpp
 PARENT_OBJECTS=$(call sourcesToObjects, $(PARENT_SOURCES))
 
 # assign the remaining sources to the child

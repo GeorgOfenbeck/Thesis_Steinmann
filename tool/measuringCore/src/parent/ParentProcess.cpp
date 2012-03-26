@@ -6,7 +6,7 @@
  */
 #define PARENTPROCESS_CPP_
 
-//#define LOGLEVEL LOGLEVEL_TRACE
+//#define LOGLEVEL LOGLEVEL_DEBUG
 
 #include "ParentProcess.h"
 #include "Logger.h"
@@ -251,7 +251,7 @@ int ParentProcess::traceLoop() {
 			exit(1);
 		}
 
-		LDEBUG("stoppedPid: %i", stoppedPid);
+		LTRACE("stoppedPid: %i", stoppedPid);
 
 		// check if the child exited
 		if (WIFEXITED(status)) {
@@ -277,7 +277,7 @@ int ParentProcess::traceLoop() {
 			bool sysGood = stopSig & 0x80;
 			stopSig = stopSig & 0x7F;
 
-			LDEBUG("Stopped with signal %s and sysGood %i",
+			LTRACE("Stopped with signal %s and sysGood %i",
 					strsignal(stopSig), (int) sysGood)
 
 			// check if the child is known
@@ -311,7 +311,7 @@ int ParentProcess::traceLoop() {
 			// did we receive the entry or exit of a syscall?
 			else if (stopSig == SIGTRAP && sysGood) {
 				if (!childInSyscall[stoppedPid]) {
-					LDEBUG("Syscall enter, state %s",ChildStateNames[childStates[stoppedPid]])
+					LTRACE("Syscall enter, state %s",ChildStateNames[childStates[stoppedPid]])
 					childInSyscall[stoppedPid] = true;
 
 					// read registers
@@ -323,13 +323,14 @@ int ParentProcess::traceLoop() {
 
 					// read the syscall number
 					long sysCall = REGOrigAx(regs);
-					LDEBUG("syscall %li", sysCall)
+					LTRACE("syscall %li", sysCall)
 
 					if (sysCall == SYS_exit) {
-						LTRACE("got exit")
+						LDEBUG("got exit")
 
 						// only start the exiting sequence if it is not beeing executed already
 						if (childExiting.count(stoppedPid)==0) {
+							LDEBUG("starting executing sequence of child %i",stoppedPid)
 							// execute a getpid instead of the exit
 							REGOrigAx(regs) = SYS_getpid;
 
@@ -359,6 +360,7 @@ int ParentProcess::traceLoop() {
 
 					// queue the exiting notification if the child is exiting
 					if (childExiting.count(stoppedPid)>0 && childExiting[stoppedPid]==2) {
+						LDEBUG("child %i left syscall and is exiting, queuing ThreadExiting notification",stoppedPid)
 						queueNotification(stoppedPid, stoppedPid,
 								ChildNotification_ThreadExiting, childExitValue[stoppedPid]);
 
