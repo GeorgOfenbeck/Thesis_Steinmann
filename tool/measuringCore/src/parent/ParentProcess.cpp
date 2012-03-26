@@ -339,7 +339,7 @@ int ParentProcess::traceLoop() {
 								exit(1);
 							}
 
-							childExiting[stoppedPid] = true;
+							childExiting[stoppedPid] = 2;
 							childExitValue[stoppedPid]= REG(regs,bx);
 						}
 					}
@@ -358,11 +358,12 @@ int ParentProcess::traceLoop() {
 					childInSyscall[stoppedPid] = false;
 
 					// queue the exiting notification if the child is exiting
-					if (childExiting.count(stoppedPid)>0) {
+					if (childExiting.count(stoppedPid)>0 && childExiting[stoppedPid]==2) {
 						queueNotification(stoppedPid, stoppedPid,
 								ChildNotification_ThreadExiting, childExitValue[stoppedPid]);
 
 						setupChildNotification(stoppedPid);
+						childExiting[stoppedPid]=1;
 					}
 				}
 

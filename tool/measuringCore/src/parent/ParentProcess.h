@@ -42,7 +42,7 @@ class ParentProcess {
 	map<pid_t,user_regs_struct> childRegs;
 	map<pid_t,queue<pair<ChildNotification,long> >* > childNotificationQueue;
 	map<pid_t,bool > childInSyscall;
-	map<pid_t,bool > childExiting;
+	map<pid_t,int > childExiting;
 	map<pid_t,long > childExitValue;
 
 	pid_t mainChild;
