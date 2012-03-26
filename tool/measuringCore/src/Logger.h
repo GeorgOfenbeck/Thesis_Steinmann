@@ -33,17 +33,19 @@
 
 #define LOG_LOG(name,level,msg,...) { \
 	int tid=syscall(__NR_gettid);\
+	Logger::lock.lock();\
 	if (level<=LOGLEVEL_WARNING){\
 			fprintf(stderr,"%s %i %s:%s():%i",name, tid, __FILE__,__FUNCTION__,__LINE__);\
 			fprintf(stderr," " LOG_ADDITIONAL);\
 			fprintf(stderr,"--> " msg, ##__VA_ARGS__);\
 			fprintf(stderr,"\n");\
-		}else{\
+	}else{\
 			printf("%s %i %s:%s():%i",name, tid, __FILE__,__FUNCTION__,__LINE__);\
 			printf(" " LOG_ADDITIONAL);\
 			printf("--> " msg, ##__VA_ARGS__);\
 			printf("\n");\
-		}\
+	}\
+	Logger::lock.unLock();\
 }
 
 #if LOGLEVEL>=LOGLEVEL_ERROR
@@ -82,4 +84,10 @@
 #define LENTERT LTRACE("entering method %p->%s", this, typeid(*this).name())
 #define LLEAVET LTRACE("leaving method %p->%s", this, typeid(*this).name())
 
+#include "Mutex.h"
+
+class Logger{
+public:
+	static Mutex lock;
+};
 #endif /* LOGGER_H_ */
