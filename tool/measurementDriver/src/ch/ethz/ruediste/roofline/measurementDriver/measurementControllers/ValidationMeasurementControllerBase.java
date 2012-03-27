@@ -37,8 +37,8 @@ public class ValidationMeasurementControllerBase {
 	public Coordinate createReadKernelCoordinate() {
 		CoordinateBuilder coord = new CoordinateBuilder();
 		coord.set(kernelClassAxis, MemoryKernel.class);
-		coord.set(unrollAxis, 1);
-		coord.set(dlpAxis, 1);
+		coord.set(unrollAxis, 2);
+		coord.set(dlpAxis, 2);
 		coord.set(optimizationAxis, "-O3 -msse2");
 		coord.set(MemoryKernel.memoryOperationAxis,
 				MemoryOperation.MemoryOperation_READ);
@@ -50,7 +50,7 @@ public class ValidationMeasurementControllerBase {
 		coord.set(kernelClassAxis, MemoryKernel.class);
 		coord.set(unrollAxis, 2);
 		coord.set(dlpAxis, 1);
-		coord.set(optimizationAxis, "-O3 -msse2");
+		coord.set(optimizationAxis, "-O3");
 		coord.set(MemoryKernel.memoryOperationAxis,
 				MemoryOperation.MemoryOperation_WRITE);
 		return coord.build();
@@ -68,10 +68,12 @@ public class ValidationMeasurementControllerBase {
 		CoordinateBuilder coord = new CoordinateBuilder();
 		coord.set(kernelClassAxis,
 				ArithmeticKernel.class);
-		coord.set(arithOperationAxis,
+		coord.set(ArithmeticKernel.arithmeticOperationAxis,
 				operation);
 		coord.set(instructionSetAxis,
 				instructionSet);
+		coord.set(optimizationAxis,
+				ArithmeticKernel.getSuggestedOptimization(instructionSet));
 		return coord.build();
 	}
 

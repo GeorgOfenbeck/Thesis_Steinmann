@@ -4,13 +4,15 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.bufferSizeAxis;
 
 import java.io.IOException;
 
+import org.apache.commons.exec.ExecuteException;
+
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.DistributionNoExpectationController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Time;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.MeasurementService;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
@@ -31,14 +33,21 @@ public class ValidateTimeMeasurementController extends
 	@Inject
 	MeasurementService measurementService;
 
+	@Inject
+	PlotService plotService;
+
 	public void measure(String outputName) throws IOException {
 
 		instantiator.getInstance(ArithController.class).measure(
-				outputName + "Add",
+				outputName + "ThAdd",
 				systemInfoService.getOnlineCPUs(),
 				createArithKernelCoordinate(
 						ArithmeticOperation.ArithmeticOperation_ADD,
 						InstructionSet.SSE));
+
+		measure(outputName, "Read", createReadKernelCoordinate());
+		measure(outputName, "Write", createWriteKernelCoordinate());
+		measure(outputName, "Triad", createTriadKernelCoordinate());
 
 		instantiator.getInstance(ArithController.class).measure(
 				outputName,
@@ -52,8 +61,43 @@ public class ValidateTimeMeasurementController extends
 
 	}
 
+	/**
+	 * @param outputName
+	 * @param name
+	 * @param kernelCoordinate
+	 * @throws ExecuteException
+	 * @throws IOException
+	 */
+	protected void measure(String outputName, String name,
+			Coordinate kernelCoordinate)
+			throws ExecuteException, IOException {
+		MemController thRead = instantiator.getInstance(MemController.class);
+		thRead.measure(
+				outputName + "Th" + name,
+				systemInfoService.getOnlineCPUs(),
+				kernelCoordinate);
+
+		MemController read = instantiator.getInstance(MemController.class);
+		read.measure(
+				outputName + name,
+				cpuSingletonList(),
+				kernelCoordinate);
+
+		thRead.getPlotValues().addSeries(read.getPlotValues().getAllSeries());
+		plotService.plot(thRead.getPlotValues());
+
+		thRead.getPlotMinValues().addSeries(
+				read.getPlotMinValues().getAllSeries());
+		plotService.plot(thRead.getPlotMinValues());
+	}
+
 	static class ArithController extends
 			DistributionNoExpectationController<Time> {
+
+		@Override
+		protected double getX(KernelBase kernel, long problemSize) {
+			return kernel.getExpectedOperationCount().getValue();
+		}
 
 		@Override
 		public void setupMinErrorPlot(String outputName,

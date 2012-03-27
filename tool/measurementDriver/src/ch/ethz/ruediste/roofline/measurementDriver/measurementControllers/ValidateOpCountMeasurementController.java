@@ -39,9 +39,7 @@ public class ValidateOpCountMeasurementController extends
 		instantiator.getInstance(OpCountController.class).measure(
 				outputName,
 				cpuSingletonList(),
-				createReadKernelCoordinate(),
-				createWriteKernelCoordinate(),
-				createTriadKernelCoordinate());
+				createArithKernelCoordinates());
 	}
 
 	private static class OpCountController extends
@@ -50,8 +48,9 @@ public class ValidateOpCountMeasurementController extends
 		@Override
 		protected KernelBase createKernel(Coordinate kernelCoordinate,
 				long problemSize) {
-			return KernelBase.create(kernelCoordinate.getExtendedPoint(
-					iterationsAxis, problemSize));
+			return KernelBase.create(kernelCoordinate
+					.getExtendedPoint(
+							iterationsAxis, problemSize));
 		}
 
 		@Override
@@ -83,7 +82,8 @@ public class ValidateOpCountMeasurementController extends
 		@Override
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "Error")
-					.setTitle("OpCount Error").setLog().setxLabel("expOpCount")
+					.setTitle("OpCount Error").setLogX()
+					.setxLabel("expOpCount")
 					.setxUnit("operations")
 					.setyLabel("err(actualOpCount/expOpCount)").setyUnit("%");
 
@@ -93,7 +93,7 @@ public class ValidateOpCountMeasurementController extends
 		public void setupMinErrorPlot(String outputName,
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "MinError")
-					.setTitle("OpCount Min Error").setLog()
+					.setTitle("OpCount Min Error").setLogX()
 					.setxLabel("expOpCount").setxUnit("operations")
 					.setyLabel("err(min(actualOpCount)/expOpCount)")
 					.setyUnit("%");

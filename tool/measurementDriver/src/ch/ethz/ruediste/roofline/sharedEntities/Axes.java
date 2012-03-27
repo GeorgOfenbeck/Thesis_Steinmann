@@ -1,7 +1,6 @@
 package ch.ethz.ruediste.roofline.sharedEntities;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Axis;
-import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 
 public class Axes {
 	public static final Axis<KernelBase> kernelAxis = new Axis<KernelBase>(
@@ -33,9 +32,6 @@ public class Axes {
 
 	public static final Axis<Integer> dlpAxis = new Axis<Integer>(
 			"fec6cd98-a95d-4a3a-86fd-96f3333373ea", "dlp");
-
-	public static final Axis<ArithmeticOperation> arithOperationAxis = new Axis<ArithmeticOperation>(
-			"6bfda8c8-c4f0-4ef0-b14f-e00a905c5796", "arithOperation");
 
 	public static final Axis<Integer> arithBalancedAdditionsAxis = new Axis<Integer>(
 			"bf11e6c9-6675-4ad4-b9e4-c41dfd6ec17c", "additions");

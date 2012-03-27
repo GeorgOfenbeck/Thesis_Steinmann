@@ -1,9 +1,6 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
-
-import java.util.Map;
-
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
@@ -192,43 +189,16 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 		}
 	}
 
-	public static ArithmeticKernel create(CreateParameters parameters,
-			Map<KernelBase, String> kernelNames) {
-		ArithmeticKernel result = new ArithmeticKernel();
-		result.setOperation(parameters.operation);
-		result.setInstructionSet(parameters.instructionSet);
-
-		String kernelName = null;
-		switch (parameters.operation) {
-		case ArithmeticOperation_ADD:
-			kernelName = "ADD";
-		break;
-		case ArithmeticOperation_MUL:
-			kernelName = "MUL";
-		break;
-		case ArithmeticOperation_MULADD:
-			kernelName = "BAL";
-		break;
-
-		}
-		switch (parameters.instructionSet) {
+	public static String getSuggestedOptimization(InstructionSet instructionSet) {
+		switch (instructionSet) {
 		case SSE:
-			result.setOptimization("-O3 -msse2");
-			kernelName += " SSE";
-		break;
+			return "-O3 -msse2";
 		case SSEScalar:
-			result.setOptimization("-O3 -mfpmath=sse -msse2");
-			kernelName += " SSEScalar";
-		break;
+			return "-O3 -mfpmath=sse -msse2";
 		case x87:
-			result.setOptimization("-O3");
-			kernelName += " x87";
-		break;
+			return "-O3";
 		}
-
-		kernelNames.put(result, kernelName);
-
-		return result;
+		throw new Error("Should not happen");
 	}
 
 	@Override

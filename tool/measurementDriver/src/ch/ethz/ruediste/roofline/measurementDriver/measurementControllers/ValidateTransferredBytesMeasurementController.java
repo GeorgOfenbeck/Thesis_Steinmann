@@ -4,6 +4,7 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import java.io.IOException;
 
+import org.apache.commons.exec.ExecuteException;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
@@ -49,35 +50,56 @@ public class ValidateTransferredBytesMeasurementController extends
 	Configuration configuration;
 
 	public void measure(String outputName) throws IOException {
-		instantiator.getInstance(ArithController.class).measure(outputName,
+		measureImp(outputName);
+
+		log.info("Measuring ALT");
+		configuration.push();
+		configuration.set(QuantityMeasuringService.useAltTBKey, true);
+		measureImp(outputName + "ALT");
+
+		configuration.pop();
+	}
+
+	/**
+	 * @param outputName
+	 * @throws ExecuteException
+	 * @throws IOException
+	 */
+	protected void measureImp(String outputName) throws ExecuteException,
+			IOException {
+
+		instantiator.getInstance(MemController.class).measure(
+				outputName + "ThRead",
+				systemInfoService.getOnlineCPUs(),
+				createReadKernelCoordinate());
+
+		instantiator.getInstance(MemController.class)
+				.measure(outputName + "ThWrite",
+						systemInfoService.getOnlineCPUs(),
+						createWriteKernelCoordinate());
+
+		instantiator.getInstance(MemController.class)
+				.measure(outputName + "ThTriad",
+						systemInfoService.getOnlineCPUs(),
+						createTriadKernelCoordinate());
+
+		/*instantiator.getInstance(ArithController.class).measure(outputName,
 				cpuSingletonList(), createArithKernelCoordinates());
 
 		instantiator.getInstance(MemController.class).measure(outputName,
 				cpuSingletonList(), createMemKernelCoordinates());
 
 		instantiator.getInstance(MemFlushController.class).measure(outputName,
-				cpuSingletonList(), createMemKernelCoordinates());
-
-		log.info("Measuring ALT");
-		configuration.push();
-		configuration.set(QuantityMeasuringService.useAltTBKey, true);
-		instantiator.getInstance(ArithController.class).measure(
-				outputName + "ALT",
-				cpuSingletonList(), createArithKernelCoordinates());
-
-		instantiator.getInstance(MemController.class).measure(
-				outputName + "ALT",
-				cpuSingletonList(), createMemKernelCoordinates());
-
-		instantiator.getInstance(MemFlushController.class).measure(
-				outputName + "ALT",
-				cpuSingletonList(), createMemKernelCoordinates());
-
-		configuration.pop();
+				cpuSingletonList(), createMemKernelCoordinates());*/
 	}
 
 	private static class ArithController extends
 			DistributionNoExpectationController<TransferredBytes> {
+
+		@Override
+		protected double getX(KernelBase kernel, long problemSize) {
+			return kernel.getExpectedOperationCount().getValue();
+		}
 
 		@Override
 		protected KernelBase createKernel(Coordinate kernelCoordinate,
@@ -117,7 +139,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		@Override
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "ArithTBError")
-					.setTitle("Memory Transfer Error").setLog()
+					.setTitle("Memory Transfer Error").setLogX()
 					.setxLabel("expOperationCount").setxUnit("flop")
 					.setyLabel("error(memTrans/min(memTrans))").setyUnit("%")
 					.setKeyPosition(KeyPosition.TopRight);
@@ -127,7 +149,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		public void setupMinErrorPlot(String outputName,
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "ArithTBError")
-					.setTitle("Memory Transfer Error").setLog()
+					.setTitle("Memory Transfer Error").setLogX()
 					.setxLabel("expOperationCount").setxUnit("flop")
 					.setyLabel("error(memTrans10/min(memTrans10))")
 					.setyUnit("%")
@@ -138,6 +160,20 @@ public class ValidateTransferredBytesMeasurementController extends
 
 	private static class MemFlushController extends
 			DistributionNoExpectationController<TransferredBytes> {
+
+		@Override
+		protected double getX(KernelBase kernel, long problemSize) {
+			return kernel.getExpectedTransferredBytes().getValue();
+		}
+
+		@Override
+		protected boolean shouldContinue(double time, long problemSize,
+				Coordinate kernelCoordinate) {
+			double value = createKernel(kernelCoordinate, problemSize)
+					.getExpectedTransferredBytes().getValue();
+			System.out.println(value);
+			return value < 1e8;
+		}
 
 		@Override
 		protected KernelBase createKernel(Coordinate kernelCoordinate,
@@ -194,7 +230,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		@Override
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "FlushError")
-					.setTitle("Transferred Bytes Flush Values").setLog()
+					.setTitle("Transferred Bytes Flush Values").setLogX()
 					.setxLabel("expMemTransfer").setxUnit("bytes")
 					.setyLabel("err(flushMemTrans/min(flushMemTrans)")
 					.setyUnit("%")
@@ -205,7 +241,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		public void setupMinErrorPlot(String outputName,
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "FlushMinError")
-					.setTitle("Transferred Bytes Flush Values").setLog()
+					.setTitle("Transferred Bytes Flush Values").setLogX()
 					.setxLabel("expMemTransfer").setxUnit("bytes")
 					.setyLabel("err(flushMemTrans10/min(flushMemTrans)")
 					.setyUnit("%")

@@ -50,6 +50,8 @@ public abstract class DistributionWithExpectationController<TQuantity extends Qu
 		for (RunQuantityMap runOutput : result.getRunMaps()) {
 			TQuantity actual = runOutput.get(calc);
 
+			addedValue(kernelName, expected, actual);
+
 			plotValues.addValue(kernelName, (long) expected,
 					actual.getValue()
 							/ expected);
@@ -61,6 +63,10 @@ public abstract class DistributionWithExpectationController<TQuantity extends Qu
 				stats.clear();
 			}
 		}
+	}
+
+	protected void addedValue(String kernelName, double expected,
+			TQuantity actual) {
 	}
 
 	@Override

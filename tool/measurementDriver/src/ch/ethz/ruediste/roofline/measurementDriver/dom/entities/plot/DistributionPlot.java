@@ -54,6 +54,15 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 		return toList(allSeries.values());
 	}
 
+	public void addSeries(DistributionPlotSeries series) {
+		allSeries.put(series.getName(), series);
+	}
+
+	public void addSeries(Iterable<DistributionPlotSeries> series) {
+		for (DistributionPlotSeries s : series)
+			allSeries.put(s.getName(), s);
+	}
+
 	public DescriptiveStatistics getStatisticsOfN() {
 		DescriptiveStatistics result = new DescriptiveStatistics();
 		for (DistributionPlotSeries series : getAllSeries()) {

@@ -22,7 +22,7 @@ public class MemoryKernel extends MemoryKernelData {
 	}
 
 	private static final MacroKey prefetchDistanceMacro = MacroKey.Create(
-			"RMT_MEMORY_PREFETCH_DIST", "distance to prefetch", "256");
+			"RMT_MEMORY_PREFETCH_DIST", "distance to prefetch", "0");
 
 	public long getPrefetchDistance() {
 		return Integer.parseInt(getMacroDefinition(prefetchDistanceMacro));

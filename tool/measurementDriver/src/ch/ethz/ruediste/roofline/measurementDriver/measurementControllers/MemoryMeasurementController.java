@@ -10,6 +10,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.RooflineService.PeakAlgorithm;
 import ch.ethz.ruediste.roofline.sharedEntities.ClockType;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.MemoryOperation;
@@ -36,7 +37,15 @@ public class MemoryMeasurementController implements IMeasurementController {
 	@Inject
 	public QuantityMeasuringService quantityMeasuringService;
 
+	@Inject
+	public RooflineService rooflineService;
+
 	public void measure(String outputName) throws IOException {
+		System.out.printf("peak tp: %f\n", rooflineService
+				.measurePeakThroughput(PeakAlgorithm.Load,
+						MemoryTransferBorder.LlcRam, ClockType.CoreCycles)
+				.getValue());
+
 		Axis<Long> prefetchDistanceAxis = new Axis<Long>(
 				"a1242032-756e-4d56-b0f1-4f9c63e6b2a9", "prefetchDistance");
 		Axis<PrefetchType> prefetchTypeAxis = new Axis<PrefetchType>(
@@ -45,20 +54,16 @@ public class MemoryMeasurementController implements IMeasurementController {
 		ParameterSpace space = new ParameterSpace();
 		space.add(iterationsAxis, 1L);
 
-		//space.add(memoryOperationAxis, MemoryOperation.MemoryOperation_READ);
 		space.add(MemoryKernel.memoryOperationAxis,
-				MemoryOperation.MemoryOperation_WRITE);
+				MemoryOperation.MemoryOperation_READ);
+		/*space.add(MemoryKernel.memoryOperationAxis,
+				MemoryOperation.MemoryOperation_WRITE);*/
 		/*space.add(MemoryKernel.memoryOperationAxis,
 				MemoryOperation.MemoryOperation_RandomRead);*/
 
 		space.add(optimizationAxis, "-O3 -msse2");
 		/*
-				for (int i = 1; i <= 1; i++) {
-					space.add(dlpAxis, i);
-				}
-				for (int i = 1; i <= 4; i++) {
-					space.add(unrollAxis, i);
-				}
+			
 
 				space.add(prefetchDistanceAxis, 0L);
 				for (long i = 64; i <= 2048; i *= 2) {
@@ -68,9 +73,15 @@ public class MemoryMeasurementController implements IMeasurementController {
 				for (PrefetchType type : PrefetchType.values()) {
 					space.add(prefetchTypeAxis, type);
 				}*/
-		space.add(unrollAxis, 1);
+		for (int i = 1; i <= 2; i++) {
+			space.add(dlpAxis, i);
+		}
 
-		space.add(bufferSizeAxis, 1024L * 1024L);
+		for (int i = 1; i <= 4; i++) {
+			space.add(unrollAxis, i);
+		}
+
+		space.add(bufferSizeAxis, 1024L * 1024L * 10);
 
 		for (Coordinate coordinate : space.getAllPoints(null, optimizationAxis,
 				MemoryKernel.memoryOperationAxis, iterationsAxis)) {
@@ -89,10 +100,9 @@ public class MemoryMeasurementController implements IMeasurementController {
 							MemoryTransferBorder.LlcRam);
 
 			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
-					coordinate.toString(MemoryKernel.memoryOperationAxis,
-							bufferSizeAxis, dlpAxis, unrollAxis,
-							prefetchDistanceAxis, prefetchTypeAxis),
+					coordinate.toString(),
 					throughput, transferredBytes);
 		}
+
 	}
 }

@@ -20,6 +20,11 @@ import com.google.inject.Inject;
 
 public abstract class DistributionControllerBase<TQuantity extends Quantity<TQuantity>> {
 
+	private final DistributionPlot plotValues = new DistributionPlot();
+	private final DistributionPlot plotMinValues = new DistributionPlot();
+	private final DistributionPlot plotError = new DistributionPlot();
+	private final DistributionPlot plotMinError = new DistributionPlot();
+
 	@Inject
 	public QuantityMeasuringService quantityMeasuringService;
 
@@ -37,11 +42,10 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 			throws ExecuteException, IOException {
 
 		// initialize plot
-		DistributionPlot plotValues = new DistributionPlot();
-		setupValuesPlot(outputName, plotValues);
 
-		DistributionPlot plotMinValues = new DistributionPlot();
-		setupMinValuesPlot(outputName, plotMinValues);
+		setupValuesPlot(outputName, getPlotValues());
+
+		setupMinValuesPlot(outputName, getPlotMinValues());
 
 		// iterate over kernels to be measured
 		for (Coordinate kernelCoordinate : kernelCoordinates)
@@ -50,7 +54,7 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 			long problemSize = initialProblemSize();
 
 			// repeat until execution time exceed a certain value
-			while (time < maxTime()) {
+			while (shouldContinue(time, problemSize, kernelCoordinate)) {
 				QuantityCalculator<Time> execTimeCalc = quantityMeasuringService
 						.getExecutionTimeCalculator(ClockType.uSecs);
 
@@ -115,8 +119,9 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 
 					double expected = getX(kernel, problemSize);
 
-					fillDistributionPlots(kernelName, expected, plotValues,
-							plotMinValues, result, calcs.get(i));
+					fillDistributionPlots(kernelName, expected,
+							getPlotValues(),
+							getPlotMinValues(), result, calcs.get(i));
 				}
 
 				// book keeping
@@ -125,22 +130,20 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 			}
 		}
 
-		DistributionPlot plotError = new DistributionPlot();
-		plotError.setYRange(yErrorRange());
-		setupErrorPlot(outputName, plotError);
+		getPlotError().setYRange(yErrorRange());
+		setupErrorPlot(outputName, getPlotError());
 
-		fillErrorPlot(plotValues, plotError);
+		fillErrorPlot(getPlotValues(), getPlotError());
 
-		DistributionPlot plotMinError = new DistributionPlot();
-		plotMinError.setYRange(yErrorRange());
-		setupMinErrorPlot(outputName, plotMinError);
+		getPlotMinError().setYRange(yErrorRange());
+		setupMinErrorPlot(outputName, getPlotMinError());
 
-		fillErrorPlot(plotMinValues, plotMinError);
+		fillErrorPlot(getPlotMinValues(), getPlotMinError());
 
-		plotService.plot(plotValues);
-		plotService.plot(plotMinValues);
-		plotService.plot(plotError);
-		plotService.plot(plotMinError);
+		plotService.plot(getPlotValues());
+		plotService.plot(getPlotMinValues());
+		plotService.plot(getPlotError());
+		plotService.plot(getPlotMinError());
 	}
 
 	private Range<Double> yErrorRange() {
@@ -162,14 +165,22 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 			long problemSize);
 
 	/**
-	 * return the maximal time for a measurement run
+	 * return if the measurement should continue
+	 * 
+	 * @param time
+	 *            time in uSecs of the last measurement
+	 * @param problemSize
+	 *            size of the next problem
+	 * @param kernelCoordinate
+	 *            TODO
 	 */
-	protected double maxTime() {
-		return 1e5;
+	protected boolean shouldContinue(double time, long problemSize,
+			Coordinate kernelCoordinate) {
+		return time < 1e5;
 	}
 
 	protected long grownProblemSize(long problemSize) {
-		return problemSize * 4;
+		return problemSize * 2;
 	}
 
 	protected long initialProblemSize() {
@@ -198,5 +209,21 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 
 	public abstract void fillErrorPlot(DistributionPlot valuesPlot,
 			DistributionPlot errorPlot);
+
+	public DistributionPlot getPlotValues() {
+		return plotValues;
+	}
+
+	public DistributionPlot getPlotMinValues() {
+		return plotMinValues;
+	}
+
+	public DistributionPlot getPlotError() {
+		return plotError;
+	}
+
+	public DistributionPlot getPlotMinError() {
+		return plotMinError;
+	}
 
 }
