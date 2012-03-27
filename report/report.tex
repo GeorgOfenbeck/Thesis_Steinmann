@@ -297,6 +297,26 @@ through the sys file system. The tool offers the possibility to set the
 governor. In addition, it is possible to read the current frequency. If the
 frequency changes during a measurement, this is recored as well.
 
+\section{Measurement Setup}
+All measurements are performed on an IBM X60 Thinkpad, featuring an Intel
+CoreDuo CPU (Family 6, Model 14). The CPU is based on the Yonah
+microarchitecture, which similar to the Pentium-M. The CPU contains two cores,
+each having a 32KB instruction and a 32KB data L1 cache, 8 ways set associative,
+with 64 bytes line size. The two cores share a 2MB unified L2 cache, again 8
+ways set associative and with 64 bytes line size. The core frequency can scale
+between 1GHz and 1.83GHz. The bus frequency is 167MHz. 
+
+The main memory consits of two 2GB DDR2 modules, totaling in 4GB available
+memory. The theoretical throughput of the memory is 5.12 GB/s, which is 2.80
+Bytes per core cycle, if the CPU runs at 1.83GHz.
+
+We used XUbuntu 11.10, running a Linux 3.0.0-16 kernel in 32 bit mode, since
+the CPU does not support the 64 bit mode.
+
+The performance counters are instrumented using the 'perf event' kernel
+interface \cite{unoffPerfEventsWebPage}, using libpfm4  \cite{libpfm4Docu} to
+generate the required parameters.
+
 \section{Single Threaded Validation and Reproducibility}
 To validate the results of single threaded measurements, and to evaluate the
 reproducibility, we designed three groups of measurements. Each group is focused
