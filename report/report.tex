@@ -246,23 +246,7 @@ the time a thread actually executes, omitting events happening during kernel
 execution or while other threads run. This was not treated in the book above,
 and offers interesting new options.
 
-\subsection{Cache}
-Specially for short running kernels, the initial state of the cache can have a
-big impact on the memory traffic and execution time. [?] The impact can be
-controlled by making sure the caches are either warm or cold.
 
-Getting cold caches can be quite tricky. See
-\cite{Whaley:2008:AAC:1462062.1462065} section '3.
-CACHE FLUSHING METHODS WHEN TIMING ONE INVOCATION' for details.
-
-For our tool, we chose a combined approach. We access a large memory buffer,
-execute more than 32KB code to flush the L1 code cache. In addition, the kernels
-report the buffers they allocated and the clflush instruction is executed on
-them.
-
-To get a warm cache, the kernel is usually executed once before starting the
-measurement. This causes the working set to be loaded in the caches, if it fits,
-and the code to be in the cache as well.
 
 \subsection{System Load}
 Specially if the measurement includes context switches, the system load has a
@@ -316,6 +300,91 @@ the CPU does not support the 64 bit mode.
 The performance counters are instrumented using the 'perf event' kernel
 interface \cite{unoffPerfEventsWebPage}, using libpfm4  \cite{libpfm4Docu} to
 generate the required parameters.
+
+We used 'coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
+count, we used the follwing definitions for operation: 
+\begin{description}
+\item[SinglePrecisionFlop] SSE single precision operations.
+\\{\footnotesize
+'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
++2*'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
+\item[DoublePrecisionFlop] SSE double precision operations.
+\\{\footnotesize
+'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
++2*'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
+\item[CompInstr] Computational instructions retired. Counts SSE instructions
+and x87 instructions. Used for x87 code. 
+\\{\footnotesize 'coreduo::FP\_COMP\_INSTR\_RET'}
+\item[SSEFlop] SSE operations, sum of SinglePrecisionFlop and
+DoublePrecisionFlop
+\end{description}
+
+We used two variants of measuring the memory transfer volume. The {\bf MemBus}
+variant uses 64*'coreduo::BUS\_TRANS\_MEM', the {\bf MemL2} variant uses the
+counters for the L2 cache misses and line eviction, namely
+64*('coreduo::L2\_LINES\_IN:SELF'+'coreduo::L2\_M\_LINES\_OUT:SELF')
+
+\subsection{Cache}
+\graphFloat{yonah/FFTwarm}{Yonah: Influence of the initial cache state}
+\graphFloat{yonah/FFTwarmPerformance}{Yonah: Influence of the initial cache
+state on the Performance} 
+
+Specially for short running kernels, the initial state of the cache can have a
+big impact on the memory traffic and execution time.  The impact can be
+controlled by making sure the caches are either warm or cold.
+
+In our tool, it is possible to specify the desired inital state of the code and
+the data separately. We used the fast fourier transformation implementation of
+the Intel Math Kernel Libraries as showcase. Figures \ref{yonah/FFTwarm} and
+\ref{yonah/FFTwarmPerformance} show the results when the cache is cold
+(FFT-Mkl), only the data is warmed up (FFT-Mkl-Data), only the code is warmed up
+(FFT-Mkl-Code) or both data and code is warmed up (FFT-Mkl-Data-Code).
+
+The following snippet shows the relevant logic:
+
+\begin{minipage}{\textwidth-18pt}
+\begin{lstlisting}[language=C++]
+// should the code cache be warm?
+if (getWarmCode()) {
+	// Tell the kernel to warm the code cache,  
+	// which usually results in the kernel 
+	// beeing executed once.
+	getKernel()->warmCodeCache(); 
+	
+	// Should we clear the data?
+	if (!getWarmData()) {
+		getKernel()->flushBuffers();
+	}
+} else { // Code cache should be cold.
+	// Access a large memory buffer and execute  
+	// a lot of code, this clears the code cache.
+	clearCaches();
+	
+	// Should the data be warm?
+	if (getWarmData()) {
+		// Warm the data cache by accessing each 
+		// cache line of the data buffer(s).
+		getKernel()->warmDataCache();
+	} else {
+		// The data cache should be cold. 
+		getKernel()->flushBuffers();
+	}
+} 
+\end{lstlisting}
+\end{minipage}
+
+Getting cold caches can be quite tricky. See
+\cite{Whaley:2008:AAC:1462062.1462065} section '3.
+CACHE FLUSHING METHODS WHEN TIMING ONE INVOCATION' for details.
+
+To clear the code cache, we use the traditiona method of accessing a large
+memory buffer and executing more than 32KB code to flush the L1 code cache.
+
+In addition, the kernels report the buffers they allocated. This is used to
+flush these buffers with the 'clflush' instruction, not affecting code which is
+already in the cache. This is implemented by the \method{flushBuffers()}
+method in the above code snippet.
+
 
 \section{Single Threaded Validation and Reproducibility}
 To validate the results of single threaded measurements, and to evaluate the
