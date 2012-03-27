@@ -22,6 +22,10 @@ public abstract class TerminalQuantityCalculator<T extends Quantity<T>> extends
 		return Collections.<MeasurerBase> singletonList(requiredMeasurer);
 	}
 
+	/**
+	 * If multiple measurerOutputs are present for a single required measurer,
+	 * specifies how they should be combined.
+	 */
 	public enum Combination {
 		Min,
 		Max,
@@ -30,8 +34,16 @@ public abstract class TerminalQuantityCalculator<T extends Quantity<T>> extends
 		Sum
 	}
 
+	/**
+	 * If multiple measurerOutputs are present for a single required measurer,
+	 * specifies how they should be combined.
+	 */
 	private Combination combination = Combination.Sum;
 
+	/**
+	 * If multiple measurerOutputs are present for a single required measurer,
+	 * specifies how they should be combined.
+	 */
 	public Combination getCombination() {
 		return combination;
 	}

@@ -16,7 +16,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineControlle
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
@@ -54,6 +54,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		measureRoofline(outputName);
 		measureDifferences(outputName);
+		measurePerformance(outputName);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -111,6 +112,66 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		plotService.plot(plot);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void measurePerformance(String outputName) throws ExecuteException,
+			IOException {
+		DistributionPlot plot = new DistributionPlot();
+		plot.setOutputName(outputName + "Performance")
+				.setTitle("FFT - Warm and Cold Caches")
+				.setxLabel("Buffer Size").setxUnit("Byte")
+				.setyLabel("Performance").setyUnit("Flop/Cycle").setLogX();//.setYRange(-1e6, 1e6);
+
+		ParameterSpace space = new ParameterSpace();
+
+		for (long i = 32; i < 1024 * 1024; i *= 2)
+			space.add(bufferSizeAxis, i);
+
+		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
+
+		addMklKernel(space, kernelNames);
+
+		for (final Coordinate c : space.getAllPoints(kernelAxis, null)) {
+			Coordinate base = c;
+			Coordinate warmCode = c.getExtendedPoint(warmCodeAxis, true);
+			Coordinate warmData = c.getExtendedPoint(warmDataAxis, true);
+			Coordinate warmDataCode = warmData.getExtendedPoint(warmCodeAxis,
+					true);
+
+			//Iterable<Performance> tbBase = measurePerformance(base);
+
+			ArrayList<Pair<Iterable<Performance>, String>> allSeries = new ArrayList<Pair<Iterable<Performance>, String>>();
+			IterableUtils.addAll(allSeries,
+					Pair.of(measurePerformance(base), ""),
+					Pair.of(measurePerformance(warmData), "Data"),
+					Pair.of(measurePerformance(warmCode), "Code"),
+					Pair.of(measurePerformance(warmDataCode), "DataCode")
+					);
+
+			for (Pair<Iterable<Performance>, String> series : allSeries) {
+
+				Long matrixSize = c.get(kernelAxis).getDataSize();
+				/*for (Pair<Performance, Performance> pair : zip(
+						tbBase,
+						series.getLeft())) {
+
+					plot.addValue(
+							kernelNames.get(c.get(kernelAxis))
+									+ series.getRight(),
+							matrixSize,
+							pair.getLeft().getValue()
+									- pair.getRight().getValue()
+							);
+				}*/
+				for (Performance perf : series.getLeft()) {
+					plot.addValue(kernelNames.get(c.get(kernelAxis))
+							+ series.getRight(), matrixSize, perf.getValue());
+				}
+			}
+		}
+
+		plotService.plot(plot);
+	}
+
 	/**
 	 * @param c
 	 * @return
@@ -120,6 +181,22 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 		QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 				.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+		QuantityMap quantities = quantityMeasuringService
+				.measureQuantities(builder, 20).with("main", calc).get();
+
+		return quantities.get(calc);
+	}
+
+	/**
+	 * @param c
+	 * @return
+	 */
+	public Iterable<Performance> measurePerformance(final Coordinate c) {
+		IMeasurementBuilder builder = getBuilder(c);
+
+		QuantityCalculator<Performance> calc = quantityMeasuringService
+				.getPerformanceCalculator(c.get(kernelAxis)
+						.getSuggestedOperation(), ClockType.CoreCycles);
 		QuantityMap quantities = quantityMeasuringService
 				.measureQuantities(builder, 20).with("main", calc).get();
 

@@ -23,4 +23,9 @@ public class FFTmklKernel extends FFTmklKernelData {
 	public String getLabel() {
 		return "FFT-MKL";
 	}
+
+	@Override
+	public long getDataSize() {
+		return getBufferSize() * 16;
+	}
 }

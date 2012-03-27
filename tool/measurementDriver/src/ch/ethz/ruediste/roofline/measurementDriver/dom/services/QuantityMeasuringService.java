@@ -72,10 +72,20 @@ public class QuantityMeasuringService {
 
 	public Performance measurePerformance(KernelBase kernel,
 			Operation operation, ClockType clockType) {
-		QuantityCalculator<OperationCount> opCalc = getOperationCountCalculator(operation);
+		QuantityCalculator<Performance> calc = getPerformanceCalculator(
+				operation, clockType);
+		QuantityMap result = measureQuantities(kernel, calc);
+		return result.min(calc);
+	}
+
+	public QuantityCalculator<Performance> getPerformanceCalculator(
+			Operation operation, ClockType clockType) {
 		QuantityCalculator<Time> timeCalc = getExecutionTimeCalculator(clockType);
-		QuantityMap result = measureQuantities(kernel, timeCalc, opCalc);
-		return new Performance(result.min(opCalc), result.min(timeCalc));
+		QuantityCalculator<OperationCount> opCalc = getOperationCountCalculator(operation);
+		return DividingQuantityCalculator.create(
+				Performance.class,
+				opCalc,
+				timeCalc);
 	}
 
 	public Throughput measureThroughput(KernelBase kernel,
@@ -102,11 +112,6 @@ public class QuantityMeasuringService {
 	/**
 	 * Creates a quantity calculator for an event. Multiple event definitions
 	 * can be passed. The single available event is measured.
-	 * 
-	 * @param combination
-	 *            TODO
-	 * 
-	 * @return
 	 */
 	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(
 			final Class<T> clazz, Combination combination, String... events) {
@@ -210,6 +215,9 @@ public class QuantityMeasuringService {
 		return result.min(calculator);
 	}
 
+	/**
+	 * creates a calculator for measuring transferred bytes
+	 */
 	public QuantityCalculator<TransferredBytes> getTransferredBytesCalculator(
 			MemoryTransferBorder border) {
 

@@ -197,17 +197,28 @@ void Workload::warmOrClearCaches() {
 		getMeasurerSet()->getMainMeasurer()->stop();
 	}
 
-	// handle code and data
+	// should the code cache be warm?
 	if (getWarmCode()) {
+		// Tell the kernel to warm the code cache, which usually
+		// results in the kernel beeing executed once.
 		getKernel()->warmCodeCache();
+
+		// Should we clear the data?
 		if (!getWarmData()) {
 			getKernel()->flushBuffers();
 		}
-	} else {
+	} else { // Code cache should be cold.
+		// Access a large memory buffer and execute a lot of code,
+		// this clears the code cache.
 		clearCaches();
+
+		// Should the data be warm?
 		if (getWarmData()) {
+			// Warm the data cache by accessing each cache line of the
+			// data buffer(s).
 			getKernel()->warmDataCache();
 		} else {
+			// The data cache should be cold.
 			getKernel()->flushBuffers();
 		}
 	}

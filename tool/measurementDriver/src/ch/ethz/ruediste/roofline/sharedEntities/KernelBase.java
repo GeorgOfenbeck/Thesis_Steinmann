@@ -49,6 +49,13 @@ public abstract class KernelBase extends KernelBaseData {
 		throw new NotImplementedException();
 	}
 
+	/**
+	 * size of the data the kernel operates on
+	 */
+	public long getDataSize() {
+		throw new NotImplementedException();
+	}
+
 	public abstract String getLabel();
 
 	public void setOptimizationFromInstructionSet(InstructionSet set) {
