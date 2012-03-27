@@ -83,14 +83,14 @@ public class ValidateTransferredBytesMeasurementController extends
 						systemInfoService.getOnlineCPUs(),
 						createTriadKernelCoordinate());
 
-		/*instantiator.getInstance(ArithController.class).measure(outputName,
+		instantiator.getInstance(ArithController.class).measure(outputName,
 				cpuSingletonList(), createArithKernelCoordinates());
 
 		instantiator.getInstance(MemController.class).measure(outputName,
 				cpuSingletonList(), createMemKernelCoordinates());
 
 		instantiator.getInstance(MemFlushController.class).measure(outputName,
-				cpuSingletonList(), createMemKernelCoordinates());*/
+				cpuSingletonList(), createMemKernelCoordinates());
 	}
 
 	private static class ArithController extends
@@ -171,7 +171,6 @@ public class ValidateTransferredBytesMeasurementController extends
 				Coordinate kernelCoordinate) {
 			double value = createKernel(kernelCoordinate, problemSize)
 					.getExpectedTransferredBytes().getValue();
-			System.out.println(value);
 			return value < 1e8;
 		}
 

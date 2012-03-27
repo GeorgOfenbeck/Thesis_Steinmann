@@ -89,7 +89,7 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 				// create the argument builder
 				ArgBuilderGetQuantities argBuilder = quantityMeasuringService
 						.measureQuantities(
-								builder, 10).with("execTime", execTimeCalc);
+								builder, 100).with("execTime", execTimeCalc);
 
 				// create the kernels and calculators for all cpus
 				for (int i : cpus) {

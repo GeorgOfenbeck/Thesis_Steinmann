@@ -2,6 +2,7 @@
 \usepackage{color}
 \usepackage{listings}
 \usepackage{calc}
+\usepackage{booktabs}
 
 \usepackage{makeidx}
 
@@ -396,27 +397,68 @@ minimum value observed.
 Based othese considerations, we repeat each measurement $K$ times and
 discard all but the minimum value.
 
-\graphFloat{yonah/valTBMinValues}{Yonah: Transferred Bytes with $K=10$}
 \graphFloat{yonah/valTBMinError}{Yonah: Error of Transferred Bytes with $K=10$}
-\graphFloat{yonah/valTimeMemMinValues}{Yonah: Execution Time with
-$K=10$}
-\graphFloat{yonah/valTimeArithMinValues}{Yonah: Execution Time with
-$K=10$}
 \graphFloat{yonah/valTimeMemMinError}{Yonah: Error of Execution Time with
 $K=10$}
 \graphFloat{yonah/valTimeArithMinError}{Yonah: Error of Execution Time with
 $K=10$}
-\graphFloat{yonah/valOpMinValues}{Yonah: Operation Count with
-$K=10$}
 \graphFloat{yonah/valOpMinError}{Yonah: Error of Operation Count with
 $K=10$}
 
-Figures \ref{yonah/valTBMinValues}, \ref{yonah/valTBMinError},
-\ref{yonah/valTimeMemMinValues},\ref{yonah/valTimeArithMinValues},
-\ref{yonah/valTimeMemMinError},
-\ref{yonah/valTimeArithMinError},\ref{yonah/valOpMinValues},
-\ref{yonah/valOpMinError} show the result of taking the minimum of $K=10$
-repetitions.
+Using this scheme with $K=10$ for measuring the transferred bytes, we get four
+error regions for different tranfer volumes: (fig. \ref{yonah/valTBMinError})
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+&\multicolumn{4}{c}{Region}\\
+&$<$10KB&10KB-500KB&500KB-10MB&$>$10MB\\
+\midrule
+Read&5-25\%&5-10\%&5-40\%&0-5\%\\
+Write&$>$5\%&5-30\%&10-50\%&5-10\%\\
+Triad&5-30\%&10-15\%&10-15\%&0-5\%\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The accuracy and precision strongly depends on the problem size and the kernel.
+For all kernels, the error lies under 5\% when the problem size exceeds 10MB.
+For smaller problem size, we generally measure an overhead of 10\% when memory
+writes are involved and 5\% for pure reading. When the transferred volume is
+about 2MB, the overhead for the write and the read kernel has a peak and the
+results are scattered.
+
+The execution time of the read kernel is scattered within about 15\% of the
+observed value. (fig. \ref{yonah/valTimeMemMinError}) For the write and the
+triad kernel, values are far more scattered.
+
+Finally, figures \ref{yonah/valTimeArithMinError} and \ref{yonah/valOpMinError}
+show that the arithmetic kernels do not pose any problems.
+
+Summarizing our results, using the minimum of $K$ scheme with $K=10$ the
+arithmetic kernels can be measured with high precision and accuracy. The results
+of measuring execution time and memory transfer of memory intensive kernels are
+generally offset by about 10\% and scattered up to twice the minimum value.
+
+\section{Multi Threaded Validation and Reproducibility}
+For the validation of multithreaded measurements, we use the same measurements
+as for the single threaded validation, but run a separate workload instance on
+each core. Since the Yonah does not utilize HyperThreading, we don't expect
+an arithmetic kernel running on one core affecting a memory intensive kernel on
+the other core. Therefore the workloads run in parallel are not mixed.
+
+\graphFloat{yonah/valTBThReadValues}{Yonah: Transfer Volume of the Read Kernel}
+\graphFloat{yonah/valTBALTThReadValues}{Yonah: Transfer Volume of the Read
+Kernel} 
+
+\graphFloat{yonah/valTBThWriteValues}{Yonah: Transfer Volume of the Write
+Kernel}
+\graphFloat{yonah/valTBALTThWriteValues}{Yonah: Transfer Volume of the Write
+Kernel}
+
+\graphFloat{yonah/valTBThTriadValues}{Yonah: Transfer Volume of the Triad
+Kernel}
+\graphFloat{yonah/valTBALTThTriadValues}{Yonah: Transfer Volume of the Triad
+Kernel}
 
 \clearpage
 \section{Measurement Tool Architecture}

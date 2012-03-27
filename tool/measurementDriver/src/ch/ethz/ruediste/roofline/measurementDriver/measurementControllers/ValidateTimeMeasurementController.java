@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.apache.commons.exec.ExecuteException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.controllers.DistributionNoExpectationController;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
@@ -38,16 +38,16 @@ public class ValidateTimeMeasurementController extends
 
 	public void measure(String outputName) throws IOException {
 
-		instantiator.getInstance(ArithController.class).measure(
-				outputName + "ThAdd",
-				systemInfoService.getOnlineCPUs(),
-				createArithKernelCoordinate(
-						ArithmeticOperation.ArithmeticOperation_ADD,
-						InstructionSet.SSE));
+		measure(outputName, "Add", createArithKernelCoordinate(
+				ArithmeticOperation.ArithmeticOperation_ADD,
+				InstructionSet.SSE), ArithController.class);
 
-		measure(outputName, "Read", createReadKernelCoordinate());
-		measure(outputName, "Write", createWriteKernelCoordinate());
-		measure(outputName, "Triad", createTriadKernelCoordinate());
+		measure(outputName, "Read", createReadKernelCoordinate(),
+				MemController.class);
+		measure(outputName, "Write", createWriteKernelCoordinate(),
+				MemController.class);
+		measure(outputName, "Triad", createTriadKernelCoordinate(),
+				MemController.class);
 
 		instantiator.getInstance(ArithController.class).measure(
 				outputName,
@@ -65,19 +65,22 @@ public class ValidateTimeMeasurementController extends
 	 * @param outputName
 	 * @param name
 	 * @param kernelCoordinate
+	 * @param clazz
+	 *            TODO
 	 * @throws ExecuteException
 	 * @throws IOException
 	 */
 	protected void measure(String outputName, String name,
-			Coordinate kernelCoordinate)
+			Coordinate kernelCoordinate,
+			Class<? extends DistributionControllerBase<?>> clazz)
 			throws ExecuteException, IOException {
-		MemController thRead = instantiator.getInstance(MemController.class);
+		DistributionControllerBase<?> thRead = instantiator.getInstance(clazz);
 		thRead.measure(
 				outputName + "Th" + name,
 				systemInfoService.getOnlineCPUs(),
 				kernelCoordinate);
 
-		MemController read = instantiator.getInstance(MemController.class);
+		DistributionControllerBase<?> read = instantiator.getInstance(clazz);
 		read.measure(
 				outputName + name,
 				cpuSingletonList(),
