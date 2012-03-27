@@ -6,14 +6,14 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 import ch.ethz.ruediste.roofline.measurementDriver.util.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
-public abstract class CombiningQuantityCalculator<T extends Quantity<T>>
+public abstract class CombiningQuantityCalculator<T extends Quantity<T>, TLeft extends Quantity<TLeft>, TRight extends Quantity<TRight>>
 		extends QuantityCalculator<T> {
 
-	protected final QuantityCalculator<T> left;
-	protected final QuantityCalculator<T> right;
+	protected final QuantityCalculator<TLeft> left;
+	protected final QuantityCalculator<TRight> right;
 
-	public CombiningQuantityCalculator(QuantityCalculator<T> left,
-			QuantityCalculator<T> right) {
+	public CombiningQuantityCalculator(QuantityCalculator<TLeft> left,
+			QuantityCalculator<TRight> right) {
 		super();
 		this.left = left;
 		this.right = right;
