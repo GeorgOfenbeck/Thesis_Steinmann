@@ -59,6 +59,13 @@ public class ValidateTimeMeasurementController extends
 				cpuSingletonList(),
 				createMemKernelCoordinates());
 
+		measureHistogram(outputName);
+	}
+
+	private void measureHistogram(String outputName) {
+		HistogramPlot plot = new HistogramPlot();
+		plot.setOutputName(outputName + "Hist");
+
 	}
 
 	/**

@@ -1,10 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.*;
-import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
-
-public class HistogramPlot extends Plot<HistogramPlot> implements
-		IUnaryAction<Double> {
+public class HistogramPlot extends Plot2D<HistogramPlot> {
 	private final Histogram histogram;
 
 	public HistogramPlot() {
@@ -19,7 +15,7 @@ public class HistogramPlot extends Plot<HistogramPlot> implements
 		return histogram;
 	}
 
-	public void apply(Double v) {
+	public void addValue(Double v) {
 		histogram.apply(v);
 	}
 
