@@ -176,8 +176,8 @@ public class ValidateTimeMeasurementController extends
 				DistributionPlot plotValues) {
 			plotValues.setOutputName(outputName + "MemValues")
 					.setTitle("Time Values").setLog()
-					.setxLabel("expMemTransfer")
-					.setxUnit("bytes").setyLabel("time").setyUnit("cycles");
+					.setxLabel("Expected Memory Transfer")
+					.setxUnit("Bytes").setyLabel("time").setyUnit("Cycles");
 		}
 
 		@Override
@@ -185,16 +185,16 @@ public class ValidateTimeMeasurementController extends
 				DistributionPlot plotMinValues) {
 			plotMinValues.setOutputName(outputName + "MemMinValues")
 					.setTitle("Time Min Values").setLog()
-					.setxLabel("expMemTransfer").setxUnit("bytes")
-					.setyLabel("time10").setyUnit("cycles");
+					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
+					.setyLabel("time10").setyUnit("Cycles");
 		}
 
 		@Override
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "MemError")
 					.setTitle("Time Error").setLogX()
-					.setxLabel("expMemTransfer")
-					.setxUnit("bytes").setyLabel("err(time/min(time))")
+					.setxLabel("Expected Memory Transfer")
+					.setxUnit("Bytes").setyLabel("err(time/min(time))")
 					.setKeyPosition(KeyPosition.TopRight);
 
 		}
@@ -204,7 +204,7 @@ public class ValidateTimeMeasurementController extends
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "MemMinError")
 					.setTitle("Time Min Error").setLogX()
-					.setxLabel("expMemTransfer").setxUnit("bytes")
+					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
 					.setyLabel("err(time10/min(time10))").setyUnit("%")
 					.setKeyPosition(KeyPosition.TopRight);
 		}

@@ -80,6 +80,8 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 									kernel,
 									measurerSet);
 
+							workload.setCpu(i);
+
 							measurement.addWorkload(workload);
 						}
 

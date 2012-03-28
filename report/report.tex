@@ -3,6 +3,7 @@
 \usepackage{listings}
 \usepackage{calc}
 \usepackage{booktabs}
+\usepackage{subfig}
 
 \usepackage{makeidx}
 
@@ -50,6 +51,16 @@
 \vskip-0.5cm
 \caption{#2}
 \label{#1}
+\end{figure}
+}
+
+\newcommand{\graphFloatTwo}[5]
+{
+\begin{figure}[htbp]
+\subfloat[#3]{\graphNoVskip{#2}}\\
+\subfloat[#5]{\graphNoVskip{#4}}
+\caption{#1}
+\label{#2}
 \end{figure}
 }
 
@@ -320,8 +331,9 @@ DoublePrecisionFlop
 \end{description}
 
 We used two variants of measuring the memory transfer volume. The {\bf MemBus}
-variant uses 64*'coreduo::BUS\_TRANS\_MEM', the {\bf MemL2} variant uses the
-counters for the L2 cache misses and line eviction, namely
+variant uses 64*'coreduo::BUS\_TRANS\_MEM', which measures the transfers on the
+system bus. The {\bf MemL2} variant uses the counters for the L2 cache line
+allocation and eviction, namely
 64*('coreduo::L2\_LINES\_IN:SELF'+'coreduo::L2\_M\_LINES\_OUT:SELF')
 
 \subsection{Cache}
@@ -385,14 +397,22 @@ flush these buffers with the 'clflush' instruction, not affecting code which is
 already in the cache. This is implemented by the \method{flushBuffers()}
 method in the above code snippet.
 
+\section{Single Threaded Accuracy and Precision}
+First, let's recapitulate the definitions of accuracy and precision.
+\cite{accuracyAndPrecision} Accuracy of a measurement system is the closeness of
+the measurement results to the true value.
+Precision is the degree to which repeated measurements show the same result.
 
-\section{Single Threaded Validation and Reproducibility}
-To validate the results of single threaded measurements, and to evaluate the
-reproducibility, we designed three groups of measurements. Each group is focused
-on one specific quantity, namely time, transferred bytes and operation count. We
-measured on an idle system only. All measurements are executed with cold caches.
+A standard technique to increase precision is to repeat a measurement and use
+a measure of tendency. This generally increases the precision of the result, but
+does not improve the accuracy in presence of systematic errors.
 
-In each group, we measured with the following kernels:
+To analyze the results of single threaded measurements we designed three groups
+of measurements. Each group is focused on one specific quantity, namely time,
+transfer volume and operation count. We measured on an idle system. All
+measurements are executed with cold caches.
+
+In all groups we used the following kernels:
 \begin{description}
 \item[ADD] Repeat adding a constant to an accumulator. Everything is performed
 in registers. We use multiple accumulators and unroll the loop. 
@@ -402,9 +422,15 @@ in registers. We use multiple accumulators and unroll the loop.
 writing $a$ back.
 \end{description}
 
-\subsection{Transferred Bytes}
-\graphFloat{yonah/valTBValues}{Yonah: Transferred Bytes}
-\graphFloat{yonah/valTBError}{Yonah: Error of Transferred Bytes}
+\subsection{Transfer Volume}
+
+\graphFloatTwo{Transfer Volume}
+{yonah/valTBValues}{MemBus}
+{yonah/valTBALTValues}{MemL2}
+
+\graphFloatTwo{Error of Transferred Bytes}
+{yonah/valTBError}{MemBus}
+{yonah/valTBALTError}{MemL2}
 
 We tried to estimate the amount of memory that has to be transferred. For pure
 reading, we expect to observe the whole buffer beeing transferred to the core.
@@ -414,10 +440,16 @@ back caching, and one third of the cache for the triad kernel, since there are
 three buffers.
 
 Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
-of memory transfer. The errors (see fig. \ref{yonah/valTBError}) decrease for
-growing buffer sizes. 
+of memory transfer. Around an expected transfer volume of 2MB we underestimate
+the actual transfer volume. The CPU seems to write data back to the memory
+before the cache is completely filled. The BusMem and BusL2 variants produce
+similar result. Note that the BusL2 variant measures less than the expected
+memory tansfer for large buffer sizes.
 
-\graphFloat{yonah/valTBALTFlushValues}{Yonah: Memory Transfer during Cache
+The errors (see fig. \ref{yonah/valTBError}) of the BusL2 variant are
+smaller than those of the BusMem variant.
+
+\graphFloat{yonah/valTBALTFlushValues}{MemL2: Memory Transfer during Cache
 Flush after kernel execution}
 
 To validate our assumption on the write back cache, we measured the memory
@@ -434,18 +466,23 @@ half the buffer size for the write kernel, independent of the buffer size. We
 used the SSE intrinsics. Switching to the normal integer registers produced the
 expected results.
 
-\graphFloat{yonah/valTBArithTBValues}{Yonah: Transferred Bytes of the Arithmetic
-Kernel}
+\graphFloatTwo{Transferred Bytes of the Arithmetic Kernels}
+{yonah/valTBArithTBValues}{MemBus}
+{yonah/valTBALTArithTBValues}{MemL2}
 
 When measuring the memory transfer of the arithmetic kernels, we observe an
-overhead of around 1KB for for short running kernels. When the execution time
+overhead of around 2.5KB for for short running kernels. When the execution time
 exceeds 1ms to 10ms, the memory transfer starts to correlate with the execution
-time, at around one byte every 10 to 100 cycles. (see fig.
-\ref{yonah/valTBArithTBValues} and \ref{yonah/valTimeArithValues})
+time. There is a huge difference between the BusMem and BusL2 variants. The
+BusMem variant measures an overhed of around one byte every 20 cycles, while the
+BusL2 variant measures one byte every 300-1600 cycles (see fig.
+\ref{yonah/valTBArithTBValues} and \ref{yonah/valTimeArithValues}) This
+difference is plausible since the BusMem variant is likely to pick up any noise
+on the memory bus.
 
 \subsection{Time}
-\graphFloat{yonah/valTimeArithValues}{Yonah: Execution Time of the ADD kernel}
-\graphFloat{yonah/valTimeArithError}{Yonah: Error of the Execution Time of the
+\graphFloat{yonah/valTimeArithValues}{Execution Time of the ADD kernel}
+\graphFloat{yonah/valTimeArithError}{Error of the Execution Time of the
 ADD kernel}
 
 For the ADD kernels, figure \ref{yonah/valTimeArithValues} shows that the
@@ -464,13 +501,13 @@ but the errors far exceed those observed for the arithmetic kernels (fig.
 
 
 \subsection{Operation Count}
-\graphFloat{yonah/valOpValues}{Yonah: Operation Count}
-\graphFloat{yonah/valOpError}{Yonah: Operation Count Error}
-Figures \ref{yonah/valOpValues} and \ref{yonah/valOpError} show that we get
+\graphFloat{yonah/valOpValues}{Operation Count}
+Figure \ref{yonah/valOpValues} how that we get
 almost perfect results for measuring the operation count. The error for the x87
 ADD and MUL could be explained by an overhead of around 50 respectively
 500 floating point instructions.
 
+\clearpage
 \subsection{Handling the Variance}
 In the previous sections we saw that our measurements produce plausible results.
 But as soon as the kernels cause memory transfer, we observe a high variance. We
@@ -486,39 +523,32 @@ minimum value observed.
 Based othese considerations, we repeat each measurement $K$ times and
 discard all but the minimum value.
 
-\graphFloat{yonah/valTBMinError}{Yonah: Error of Transferred Bytes with $K=10$}
+\graphFloatTwo{Error of Transferred Bytes with $K=10$}
+{yonah/valTBMinError}{MemBus}
+{yonah/valTBALTMinError}{MemL2} 
+
+Using this scheme with $K=10$ for measuring the transfer volumes, the samples
+fall in a range of about 5\%. The bias is under 10\% except for transfer volumes
+under 20KB and with a peak of up to 40\% around 2MB for the kernels involving
+writes. The huge differece in precision between MemBus and MemL2 disappeared
+almost completely. For large transfer volumes, the accuracy of the MemBus
+variant is superior.
+
 \graphFloat{yonah/valTimeMemMinError}{Yonah: Error of Execution Time with
-$K=10$}
+$K=10$} 
+
+Applying the same scheme to the memory kernels does not yield good results. 
+(fig. \ref{yonah/valTimeMemMinError}) Revisiting figure
+\ref{yonah/valTimeMemValues}, 
+
+The execution time of the read kernel is scattered within about 15\% of the observed value. (fig. \ref{yonah/valTimeMemMinError}) For the write and the
+triad kernel, values are far more scattered.
+
 \graphFloat{yonah/valTimeArithMinError}{Yonah: Error of Execution Time with
 $K=10$}
+
 \graphFloat{yonah/valOpMinError}{Yonah: Error of Operation Count with
 $K=10$}
-
-Using this scheme with $K=10$ for measuring the transferred bytes, we get four
-error regions for different tranfer volumes: (fig. \ref{yonah/valTBMinError})
-\begin{center}
-\begin{tabular}{lrrrr}
-\toprule
-&\multicolumn{4}{c}{Region}\\
-&$<$10KB&10KB-500KB&500KB-10MB&$>$10MB\\
-\midrule
-Read&5-25\%&5-10\%&5-40\%&0-5\%\\
-Write&$>$5\%&5-30\%&10-50\%&5-10\%\\
-Triad&5-30\%&10-15\%&10-15\%&0-5\%\\
-\bottomrule
-\end{tabular}
-\end{center}
-
-The accuracy and precision strongly depends on the problem size and the kernel.
-For all kernels, the error lies under 5\% when the problem size exceeds 10MB.
-For smaller problem size, we generally measure an overhead of 10\% when memory
-writes are involved and 5\% for pure reading. When the transferred volume is
-about 2MB, the overhead for the write and the read kernel has a peak and the
-results are scattered.
-
-The execution time of the read kernel is scattered within about 15\% of the
-observed value. (fig. \ref{yonah/valTimeMemMinError}) For the write and the
-triad kernel, values are far more scattered.
 
 Finally, figures \ref{yonah/valTimeArithMinError} and \ref{yonah/valOpMinError}
 show that the arithmetic kernels do not pose any problems.
