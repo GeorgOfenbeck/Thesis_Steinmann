@@ -15,13 +15,14 @@ public class TriadKernel extends TriadKernelData {
 	}
 
 	@Override
-	public TransferredBytes getExpectedTransferredBytes() {
+	public TransferredBytes getExpectedTransferredBytes(
+			SystemInformation systemInformation) {
 		// 8: for double
 
 		long bufferSizeBytes = getBufferSize() * 8;
 
 		// divide by three, since we have three buffers
-		double cacheSize = SystemInformation.L2CacheSize / 3.;
+		double cacheSize = systemInformation.L2CacheSize / 3.;
 
 		// 4: two buffers reading, one buffer writing, which involves read+write
 		return new TransferredBytes(bufferSizeBytes * 2 // two buffers reading

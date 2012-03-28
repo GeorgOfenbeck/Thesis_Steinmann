@@ -29,7 +29,7 @@ public abstract class KernelBase extends KernelBaseData {
 		return kernelName;
 	}
 
-	public String getAdditionalLibraries() {
+	public String getAdditionalLibraries(SystemInformation systemInformation) {
 		return "";
 	}
 
@@ -37,7 +37,7 @@ public abstract class KernelBase extends KernelBaseData {
 		return "";
 	}
 
-	public TransferredBytes getExpectedTransferredBytes() {
+	public TransferredBytes getExpectedTransferredBytes(SystemInformation systemInformation) {
 		throw new NotImplementedException();
 	}
 

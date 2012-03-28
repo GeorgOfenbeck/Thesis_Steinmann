@@ -1,9 +1,11 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
+
 public class WhtKernel extends WhtKernelData {
 
 	@Override
-	public String getAdditionalLibraries() {
+	public String getAdditionalLibraries(SystemInformation systemInformation) {
 		return "-lwht";
 	}
 

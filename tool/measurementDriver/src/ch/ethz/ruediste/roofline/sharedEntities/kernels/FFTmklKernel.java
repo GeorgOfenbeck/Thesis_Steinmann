@@ -1,12 +1,12 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
-import ch.ethz.ruediste.roofline.sharedEntities.Operation;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class FFTmklKernel extends FFTmklKernelData {
 
 	@Override
-	public String getAdditionalLibraries() {
-		return LibraryHelper.getMklLibs(false);
+	public String getAdditionalLibraries(SystemInformation systemInformation) {
+		return LibraryHelper.getMklLibs(false, systemInformation);
 	}
 
 	@Override

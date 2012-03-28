@@ -1,9 +1,11 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
+
 public class FFTfftwKernel extends FFTfftwKernelData {
 
 	@Override
-	public String getAdditionalLibraries() {
+	public String getAdditionalLibraries(SystemInformation systemInformation) {
 		return "-lfftw3 -lm";
 	}
 

@@ -2,6 +2,7 @@ package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.matrixSizeAxis;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 
 public class DgemvKernel extends DgemvKernelData {
 
@@ -16,9 +17,9 @@ public class DgemvKernel extends DgemvKernelData {
 	}
 
 	@Override
-	public String getAdditionalLibraries() {
+	public String getAdditionalLibraries(SystemInformation systemInformation) {
 		if (useMkl)
-			return LibraryHelper.getMklLibs(false);
+			return LibraryHelper.getMklLibs(false, systemInformation);
 		return "-lblas";
 	}
 

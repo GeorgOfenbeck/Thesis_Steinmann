@@ -19,6 +19,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.SeriesPlot.
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.CommandService;
 import ch.ethz.ruediste.roofline.measurementDriver.util.BinaryPredicates;
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 
 import com.google.inject.Inject;
 
@@ -38,8 +39,12 @@ public class PlotService {
 	private static int lwMaxBound = 2;
 	private static int lwBound = 2;
 	private static int lwLine = 2;
+
 	@Inject
 	public CommandService commandService;
+
+	@Inject
+	public SystemInfoService systemInfoService;
 
 	static int pointTypes[] = { 5, 7, 9, 11, 13, };
 	static String lineColors[] = { "black", "red", "green", "blue", "#FFFF00" };
@@ -169,10 +174,12 @@ public class PlotService {
 		}
 
 		// set the scaling
-		Double xMin = (Double) plot.getXRange().getMinimum();
-		Double xMax = (Double) plot.getXRange().getMaximum();
-		Double yMin = (Double) plot.getYRange().getMinimum();
-		Double yMax = (Double) plot.getYRange().getMaximum();
+		SystemInformation systemInformation = systemInfoService
+				.getSystemInformation();
+		Double xMin = (Double) plot.getXRange(systemInformation).getMinimum();
+		Double xMax = (Double) plot.getXRange(systemInformation).getMaximum();
+		Double yMin = (Double) plot.getYRange(systemInformation).getMinimum();
+		Double yMax = (Double) plot.getYRange(systemInformation).getMaximum();
 
 		output.printf("set xrange [%s:%s]\n",
 				xMin == Double.NEGATIVE_INFINITY ? "" : xMin,
@@ -305,6 +312,9 @@ public class PlotService {
 	 * plot a roofline plot
 	 */
 	public void plot(RooflinePlot plot) throws ExecuteException, IOException {
+		SystemInformation systemInformation = systemInfoService
+				.getSystemInformation();
+
 		// print data file
 		final PrintStream outputFile = new PrintStream(plot.getOutputName()
 				+ ".data");
@@ -328,13 +338,15 @@ public class PlotService {
 			// add the ticks
 			output.printf(
 					"set xtics scale 0 (%s)\n",
-					getLogTicks(plot.getXRange().getMinimum(), plot.getXRange()
-							.getMaximum()));
+					getLogTicks(plot.getXRange(systemInformation).getMinimum(),
+							plot.getXRange(systemInformation)
+									.getMaximum()));
 
 			output.printf(
 					"set ytics scale 0 (%s)\n",
-					getLogTicks(plot.getYRange().getMinimum(), plot.getYRange()
-							.getMaximum()));
+					getLogTicks(plot.getYRange(systemInformation).getMinimum(),
+							plot.getYRange(systemInformation)
+									.getMaximum()));
 
 			// build the peak performance lines
 			List<String> plotLines = new ArrayList<String>();
@@ -395,10 +407,12 @@ public class PlotService {
 				double aspectRatio = (double) plotHeight / (double) plotWidth;
 				aspectRatio *= (tMargin - bMargin) / (rMargin - lMargin);
 
-				double opIntensityRatio = plot.getXRange().getMaximum()
-						/ plot.getXRange().getMinimum();
-				double performanceRatio = plot.getYRange().getMaximum()
-						/ plot.getYRange().getMinimum();
+				double opIntensityRatio = plot.getXRange(systemInformation)
+						.getMaximum()
+						/ plot.getXRange(systemInformation).getMinimum();
+				double performanceRatio = plot.getYRange(systemInformation)
+						.getMaximum()
+						/ plot.getYRange(systemInformation).getMinimum();
 
 				angle = Math.toDegrees(Math.atan(aspectRatio
 						* log(opIntensityRatio) / log(performanceRatio)));
@@ -406,9 +420,11 @@ public class PlotService {
 
 			// print the labels for the throughput borders
 			for (Pair<String, Throughput> peak : plot.getPeakBandwiths()) {
-				double performance = plot.getYRange().getMaximum() * 0.85;
+				double performance = plot.getYRange(systemInformation)
+						.getMaximum() * 0.85;
 				double bandwidth = peak.getRight().getValue();
-				double opIntens = plot.getXRange().getMaximum();
+				double opIntens = plot.getXRange(systemInformation)
+						.getMaximum();
 
 				double borderOpIntens = performance / bandwidth;
 				double borderPerformance = opIntens * bandwidth;

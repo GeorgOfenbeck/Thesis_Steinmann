@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot;
 
 import org.apache.commons.lang3.Range;
 
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
+
 /*
  * A 2D plot, specifies the axis names and units
  */
@@ -56,11 +58,11 @@ public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
 		return This();
 	}
 
-	public Range<Double> getYRange() {
+	public Range<Double> getYRange(SystemInformation systemInformation) {
 		return yRange;
 	}
 
-	public Range<Double> getXRange() {
+	public Range<Double> getXRange(SystemInformation systemInformation) {
 		return xRange;
 	}
 

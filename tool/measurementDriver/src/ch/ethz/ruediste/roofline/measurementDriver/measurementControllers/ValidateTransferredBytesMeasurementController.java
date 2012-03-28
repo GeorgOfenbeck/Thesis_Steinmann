@@ -163,14 +163,17 @@ public class ValidateTransferredBytesMeasurementController extends
 
 		@Override
 		protected double getX(KernelBase kernel, long problemSize) {
-			return kernel.getExpectedTransferredBytes().getValue();
+			return kernel.getExpectedTransferredBytes(
+					systemInfoService.getSystemInformation()).getValue();
 		}
 
 		@Override
 		protected boolean shouldContinue(double time, long problemSize,
 				Coordinate kernelCoordinate) {
 			double value = createKernel(kernelCoordinate, problemSize)
-					.getExpectedTransferredBytes().getValue();
+					.getExpectedTransferredBytes(
+							systemInfoService.getSystemInformation())
+					.getValue();
 			return value < 1e8;
 		}
 
@@ -254,7 +257,8 @@ public class ValidateTransferredBytesMeasurementController extends
 
 		@Override
 		protected TransferredBytes expected(KernelBase kernel) {
-			return kernel.getExpectedTransferredBytes();
+			return kernel.getExpectedTransferredBytes(systemInfoService
+					.getSystemInformation());
 		}
 
 		@Override

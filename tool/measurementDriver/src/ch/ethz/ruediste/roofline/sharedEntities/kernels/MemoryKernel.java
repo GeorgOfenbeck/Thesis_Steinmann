@@ -96,13 +96,19 @@ public class MemoryKernel extends MemoryKernelData {
 	}
 
 	@Override
-	public TransferredBytes getExpectedTransferredBytes() {
-		long bufferBytes = getBufferSize() * getUnroll() * getDlp() * 4;
+	public long getDataSize() {
+		return getBufferSize() * getUnroll() * getDlp() * 4;
+	}
+
+	@Override
+	public TransferredBytes getExpectedTransferredBytes(
+			SystemInformation systemInformation) {
+		long bufferBytes = getDataSize();
 		switch (getOperation()) {
 		case MemoryOperation_READ:
 			return new TransferredBytes(bufferBytes);
 		case MemoryOperation_WRITE:
-			long cacheSize = SystemInformation.L2CacheSize;
+			long cacheSize = systemInformation.L2CacheSize;
 			return new TransferredBytes(bufferBytes // read
 					+ Math.max(0, bufferBytes - cacheSize)); // write, taking write back into account
 		default:

@@ -102,7 +102,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 	}
 
 	@Override
-	public Range<Double> getXRange() {
+	public Range<Double> getXRange(SystemInformation systemInformation) {
 		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
 				.getRange(getOperationalIntensities());
 
@@ -112,7 +112,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 					.getValue() * 2);
 		}
 		else {
-			switch (SystemInformation.CpuType) {
+			switch (systemInformation.CpuType) {
 			case Core:
 				return Range.between(0.03, 100.);
 			case Yonah:
@@ -123,7 +123,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 	}
 
 	@Override
-	public Range<Double> getYRange() {
+	public Range<Double> getYRange(SystemInformation systemInformation) {
 		Range<Performance> performanceRange = IterableUtils
 				.getRange(getPerformances());
 
@@ -133,7 +133,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 					performanceRange.getMaximum().getValue() * 2);
 		}
 		else {
-			switch (SystemInformation.CpuType) {
+			switch (systemInformation.CpuType) {
 			case Core:
 				return Range.between(0.03, 20.);
 			case Yonah:

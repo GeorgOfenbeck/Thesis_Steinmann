@@ -31,6 +31,9 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 	@Inject
 	public PlotService plotService;
 
+	@Inject
+	public SystemInfoService systemInfoService;
+
 	double toError(double ratio) {
 		if (ratio < 1)
 			ratio = 1 / ratio;

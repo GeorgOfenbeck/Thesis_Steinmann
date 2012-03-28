@@ -211,7 +211,10 @@ public class ValidateTimeMeasurementController extends
 
 		@Override
 		protected double getX(KernelBase kernel, long problemSize) {
-			return kernel.getExpectedTransferredBytes().getValue();
+			SystemInformation systemInformation = systemInfoService
+					.getSystemInformation();
+			return kernel.getExpectedTransferredBytes(systemInformation)
+					.getValue();
 		}
 	}
 }

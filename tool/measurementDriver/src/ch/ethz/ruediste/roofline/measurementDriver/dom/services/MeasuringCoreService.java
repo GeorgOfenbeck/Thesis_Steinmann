@@ -40,6 +40,9 @@ public class MeasuringCoreService {
 	@Inject
 	public ReflectionRepository reflectionRepository;
 
+	@Inject
+	public SystemInfoService systemInfoService;
+
 	/**
 	 * runs the measuring core. it has to be built already
 	 * 
@@ -278,7 +281,9 @@ public class MeasuringCoreService {
 
 		HashSet<String> additionalLibSet = new HashSet<String>();
 		for (KernelBase kernel : measurement.getKernels()) {
-			additionalLibSet.add(kernel.getAdditionalLibraries());
+			additionalLibSet.add(kernel
+					.getAdditionalLibraries(systemInfoService
+							.getSystemInformation()));
 		}
 		String additionalLibs = StringUtils.join(additionalLibSet, " ");
 

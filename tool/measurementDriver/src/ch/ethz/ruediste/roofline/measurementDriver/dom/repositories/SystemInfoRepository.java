@@ -6,6 +6,7 @@ import java.util.*;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
+import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 import ch.ethz.ruediste.roofline.sharedEntities.measurers.PmuDescription;
 
 /**
@@ -19,6 +20,8 @@ public class SystemInfoRepository {
 	private Iterable<PmuDescription> presentPmus;
 	private List<Integer> possibleCPUs;
 	private Boolean is64Bit;
+
+	private SystemInformation systemInformation;
 
 	final private HashSet<BigInteger> observedFrequencies = new HashSet<BigInteger>();
 
@@ -56,5 +59,13 @@ public class SystemInfoRepository {
 
 	public void setIs64Bit(Boolean is64Bit) {
 		this.is64Bit = is64Bit;
+	}
+
+	public SystemInformation getSystemInformation() {
+		return systemInformation;
+	}
+
+	public void setSystemInformation(SystemInformation systemInformation) {
+		this.systemInformation = systemInformation;
 	}
 }

@@ -126,7 +126,8 @@ public class SystemInfoService {
 								return pmu.getIsPresent();
 							}
 						}));
-			} else {
+			}
+			else {
 				// only retrieve the present pmus
 				systemInfoRepository.setPresentPmus(readPMUs(true));
 			}
@@ -216,7 +217,8 @@ public class SystemInfoService {
 				for (int i = start; i <= stop; i++) {
 					result.add(i);
 				}
-			} else {
+			}
+			else {
 				result.add(Integer.getInteger(part));
 			}
 		}
@@ -251,10 +253,10 @@ public class SystemInfoService {
 	}
 
 	public boolean is64Bit() {
-		if (systemInfoRepository.getIs64Bit()==null){
-			systemInfoRepository.setIs64Bit(measureIs64Bit());	
+		if (systemInfoRepository.getIs64Bit() == null) {
+			systemInfoRepository.setIs64Bit(measureIs64Bit());
 		}
-		
+
 		return systemInfoRepository.getIs64Bit();
 	}
 
@@ -275,10 +277,16 @@ public class SystemInfoService {
 		MeasurementResult result = measureRaw(measurement);
 		return single(result.getMeasurerOutputs(measurer)).getIsIa64();
 	}
-	
-	public void InitializeSystemInformation(){
-		SystemInformation.CpuType=getCpuType();
-		SystemInformation.Is64Bit=is64Bit();
-		SystemInformation.L2CacheSize=getL2CacheSize();
+
+	public void InitializeSystemInformation() {
+		SystemInformation systemInformation = new SystemInformation();
+		systemInformation.CpuType = getCpuType();
+		systemInformation.Is64Bit = is64Bit();
+		systemInformation.L2CacheSize = getL2CacheSize();
+		systemInfoRepository.setSystemInformation(systemInformation);
+	}
+
+	public SystemInformation getSystemInformation() {
+		return systemInfoRepository.getSystemInformation();
 	}
 }

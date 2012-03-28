@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver;
 
-import java.io.*;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
@@ -28,7 +28,7 @@ public class LibraryMain {
 
 	@Inject
 	public MainHelper mainHelper;
-	
+
 	@Inject
 	public SystemInfoService systemInfoService;
 
