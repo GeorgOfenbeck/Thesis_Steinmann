@@ -2,6 +2,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang3.Range;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
@@ -23,6 +24,10 @@ public class Histogram implements IUnaryAction<Double> {
 
 	public double[] getBinCenters(int binCount) {
 		return getBinCenters(binCount, statistics.getMin(), statistics.getMax());
+	}
+
+	public int[] getCounts(int binCount, Range<Double> range) {
+		return getCounts(binCount, range.getMinimum(), range.getMaximum());
 	}
 
 	public int[] getCounts(int binCount, double min, double max) {
@@ -50,6 +55,10 @@ public class Histogram implements IUnaryAction<Double> {
 		}
 
 		return counts;
+	}
+
+	public double[] getBinCenters(int binCount, Range<Double> range) {
+		return getBinCenters(binCount, range.getMinimum(), range.getMaximum());
 	}
 
 	public double[] getBinCenters(int binCount, double min, double max) {

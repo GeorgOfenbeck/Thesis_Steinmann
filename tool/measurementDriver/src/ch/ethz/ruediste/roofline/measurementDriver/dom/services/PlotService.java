@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.*;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
@@ -50,33 +50,53 @@ public class PlotService {
 	static String lineColors[] = { "black", "red", "green", "blue", "#FFFF00" };
 
 	public void plot(HistogramPlot plot) throws ExecuteException, IOException {
-		Histogram hist = plot.getHistogram();
+		// retrieve bin count
+		int binCount = plot.getBinCount();
 
-		// retrieve histogram data
-		int binCount = 200;
-		int[] counts = hist.getCounts(binCount);
-		double[] binCenters = hist.getBinCenters(binCount);
+		List<Entry<String, Histogram>> histograms = toList(plot.getHistograms()
+				.entrySet());
+
+		Range<Double> range = plot.getXRange(systemInfoService
+				.getSystemInformation());
 
 		// write data
 		PrintStream outputFile = new PrintStream(plot.getOutputName() + ".data");
-		for (int i = 0; i < binCount; i++) {
-			outputFile.printf("%e\t%d\n", binCenters[i], counts[i]);
+		for (Entry<String, Histogram> entry : histograms) {
+			// get histogram data
+			int[] counts = entry.getValue().getCounts(binCount, range);
+			double[] binCenters = entry.getValue().getBinCenters(binCount,
+					range);
+
+			for (int i = 0; i < binCount; i++) {
+				outputFile.printf("%e\t%d\n", binCenters[i], counts[i]);
+			}
+			outputFile.printf("\n\n");
 		}
+
 		outputFile.close();
 
 		// write gnuplot files
-		{
-			PrintStream output = new PrintStream(plot.getOutputName()
-					+ ".gnuplot");
-			output.printf("set title '%s'\n", plot.getTitle());
-			output.printf("set terminal postscript color\n");
-			output.printf("set output '%s.ps'\n", plot.getOutputName());
-			output.printf("plot '%s.data' using 1:2 with histeps\n",
-					plot.getOutputName());
-			// output.printf("pause mouse\n");
+		PrintStream output = new PrintStream(plot.getOutputName()
+				+ ".gnuplot");
+		preparePlot(output, plot);
 
-			output.close();
+		// generate plot command
+		List<String> plotLines = new ArrayList<String>();
+		for (int histNr = 0; histNr < plot.getHistograms().size(); histNr++) {
+			Entry<String, Histogram> hist = histograms.get(histNr);
+
+			plotLines
+					.add(String
+							.format("'%s.data' index %d using 1:2 title '%s' with histeps lw %d lt -1 lc rgb\"%s\"",
+									plot.getOutputName(), histNr,
+									hist.getKey(),
+									lwLine,
+									getLineColor(histNr)));
 		}
+
+		output.println("plot \\");
+		output.print(StringUtils.join(plotLines, ",\\\n"));
+		output.close();
 
 		// show output
 		commandService.runCommand(new File("."), "gnuplot",

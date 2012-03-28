@@ -27,17 +27,27 @@ public abstract class DistributionNoExpectationController<TQuantity extends Quan
 			for (Entry<Long, DescriptiveStatistics> entry : series
 					.getStatisticsMap().entrySet()) {
 
-				// get the minimum of teh current distribution
-				double min = entry.getValue().getMin();
+				// get the minimum of the current distribution
+				DescriptiveStatistics statistcs = entry.getValue();
+
+				double min = getReference(statistcs);
 
 				// iterate over all values in the distribution
-				for (double value : entry.getValue().getValues()) {
+				for (double value : statistcs.getValues()) {
 					// add the value to the error plot
 					errorPlot.addValue(series.getName(), entry.getKey(),
 							toError(value / min));
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param statistcs
+	 * @return
+	 */
+	protected double getReference(DescriptiveStatistics statistcs) {
+		return statistcs.getMin();
 	}
 
 	/**
@@ -58,7 +68,7 @@ public abstract class DistributionNoExpectationController<TQuantity extends Quan
 			stats.addValue(actual.getValue());
 			if (stats.getN() >= 10) {
 				plotMinValues
-						.addValue(kernelName, (long) x, stats.getMin());
+						.addValue(kernelName, (long) x, getReference(stats));
 				stats.clear();
 			}
 		}

@@ -405,6 +405,15 @@ public class QuantityMeasuringService {
 			return Collections.unmodifiableList(result);
 		}
 
+		public <T extends Quantity<T>> DescriptiveStatistics getStatistics(
+				QuantityCalculator<T> calc) {
+			DescriptiveStatistics result = new DescriptiveStatistics();
+			for (T q : get(calc)) {
+				result.addValue(q.getValue());
+			}
+			return result;
+		}
+
 		public <T extends Quantity<T>> T min(QuantityCalculator<T> calc) {
 			return IterableUtils.min(get(calc), Quantity.<T> lessThan());
 		}

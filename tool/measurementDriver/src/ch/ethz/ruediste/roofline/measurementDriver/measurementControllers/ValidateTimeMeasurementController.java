@@ -5,6 +5,7 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.bufferSizeAxis;
 import java.io.IOException;
 
 import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
@@ -13,9 +14,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Time;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
-import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
-import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel;
 
 import com.google.inject.Inject;
 
@@ -38,7 +39,7 @@ public class ValidateTimeMeasurementController extends
 
 	public void measure(String outputName) throws IOException {
 
-		measure(outputName, "Add", createArithKernelCoordinate(
+		/*measure(outputName, "Add", createArithKernelCoordinate(
 				ArithmeticOperation.ArithmeticOperation_ADD,
 				InstructionSet.SSE), ArithController.class);
 
@@ -52,20 +53,58 @@ public class ValidateTimeMeasurementController extends
 		instantiator.getInstance(ArithController.class).measure(
 				outputName,
 				cpuSingletonList(),
-				createArithKernelCoordinates());
+				createArithKernelCoordinates());*/
 
 		instantiator.getInstance(MemController.class).measure(
 				outputName,
 				cpuSingletonList(),
 				createMemKernelCoordinates());
 
-		measureHistogram(outputName);
+		measureHistogram(outputName, createTriadKernelCoordinate());
 	}
 
-	private void measureHistogram(String outputName) {
-		HistogramPlot plot = new HistogramPlot();
-		plot.setOutputName(outputName + "Hist");
+	@Inject
+	public QuantityMeasuringService quantityMeasuringService;
 
+	private void measureHistogram(String outputName,
+			Coordinate... kernelCoordinates) throws ExecuteException,
+			IOException {
+		HistogramPlot plot = new HistogramPlot();
+		plot.setOutputName(outputName + "Hist").setTitle("Hist")
+				.setBinCount(40).setXRange(0.8, 1.2);
+
+		for (Coordinate kernelCoordinate : kernelCoordinates) {
+			double time = 0;
+			long problemSizes[] = new long[] { 1024L * 100, 1024L * 500,
+					1024 * 1000L };
+
+			//while (time < 1e2) {
+			for (long problemSize : problemSizes) {
+				KernelBase kernel = KernelBase.create(
+						kernelCoordinate.getExtendedPoint(bufferSizeAxis,
+								problemSize));
+
+				QuantityCalculator<Time> calcCycle = quantityMeasuringService
+						.getExecutionTimeCalculator(ClockType.CoreCycles);
+				QuantityCalculator<Time> calcUSecs = quantityMeasuringService
+						.getExecutionTimeCalculator(ClockType.uSecs);
+
+				QuantityMap result = quantityMeasuringService
+						.measureQuantities(kernel, 200, calcCycle, calcUSecs);
+
+				DescriptiveStatistics stats = result.getStatistics(calcCycle);
+
+				for (Time cycles : result.get(calcCycle)) {
+					plot.addValue(kernel.getLabel() + problemSize,
+							cycles.getValue() / stats.getMean());
+				}
+
+				time = result.min(calcUSecs).getValue();
+				problemSize *= 2;
+			}
+		}
+
+		plotService.plot(plot);
 	}
 
 	/**
@@ -164,6 +203,11 @@ public class ValidateTimeMeasurementController extends
 
 	static class MemController extends
 			DistributionNoExpectationController<Time> {
+
+		@Override
+		protected double getReference(DescriptiveStatistics statistcs) {
+			return statistcs.getPercentile(50);
+		}
 
 		@Override
 		protected KernelBase createKernel(Coordinate kernelCoordinate,
