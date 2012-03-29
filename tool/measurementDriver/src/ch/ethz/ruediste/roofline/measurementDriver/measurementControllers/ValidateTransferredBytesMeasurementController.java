@@ -73,7 +73,7 @@ public class ValidateTransferredBytesMeasurementController extends
 				systemInfoService.getOnlineCPUs(),
 				createReadKernelCoordinate());
 
-		instantiator.getInstance(MemController.class)
+		/*instantiator.getInstance(MemController.class)
 				.measure(outputName + "ThWrite",
 						systemInfoService.getOnlineCPUs(),
 						createWriteKernelCoordinate());
@@ -81,16 +81,16 @@ public class ValidateTransferredBytesMeasurementController extends
 		instantiator.getInstance(MemController.class)
 				.measure(outputName + "ThTriad",
 						systemInfoService.getOnlineCPUs(),
-						createTriadKernelCoordinate());
+						createTriadKernelCoordinate());*/
 
-		instantiator.getInstance(ArithController.class).measure(outputName,
+		/*instantiator.getInstance(ArithController.class).measure(outputName,
 				cpuSingletonList(), createArithKernelCoordinates());
 
 		instantiator.getInstance(MemController.class).measure(outputName,
 				cpuSingletonList(), createMemKernelCoordinates());
 
 		instantiator.getInstance(MemFlushController.class).measure(outputName,
-				cpuSingletonList(), createMemKernelCoordinates());
+				cpuSingletonList(), createMemKernelCoordinates());*/
 	}
 
 	private static class ArithController extends

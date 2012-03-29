@@ -18,7 +18,6 @@ public class TriadKernel extends TriadKernelData {
 	public TransferredBytes getExpectedTransferredBytes(
 			SystemInformation systemInformation) {
 		// 8: for double
-
 		long bufferSizeBytes = getBufferSize() * 8;
 
 		// divide by three, since we have three buffers

@@ -8,7 +8,7 @@
 \usepackage{makeidx}
 
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
-\usepackage{graphicx} 
+\usepackage{graphicx}
 \newlength{\imgwidth}
 \newlength{\imgleftoverhang}
 \newcommand{\umlDiagram}[1]{%
@@ -532,17 +532,15 @@ fall in a range of about 5\%. The bias is under 10\% except for transfer volumes
 under 20KB and with a peak of up to 40\% around 2MB for the kernels involving
 writes. The huge differece in precision between MemBus and MemL2 disappeared
 almost completely. For large transfer volumes, the accuracy of the MemBus
-variant is superior.
+variant is superior. (fig. \ref{yonah/valTBMinError})
 
 \graphFloat{yonah/valTimeMemMinError}{Yonah: Error of Execution Time with
 $K=10$} 
 
-Applying the same scheme to the memory kernels does not yield good results. 
-(fig. \ref{yonah/valTimeMemMinError}) Revisiting figure
-\ref{yonah/valTimeMemValues}, 
-
-The execution time of the read kernel is scattered within about 15\% of the observed value. (fig. \ref{yonah/valTimeMemMinError}) For the write and the
-triad kernel, values are far more scattered.
+Applying the same scheme to measuring the execution time of the memory kernels
+yields a precision of about 10\%. Since we cannot derive an expected value, we
+chose the minimum observed value as reference.
+(fig. \ref{yonah/valTimeMemMinError})
 
 \graphFloat{yonah/valTimeArithMinError}{Yonah: Error of Execution Time with
 $K=10$}
@@ -556,7 +554,8 @@ show that the arithmetic kernels do not pose any problems.
 Summarizing our results, using the minimum of $K$ scheme with $K=10$ the
 arithmetic kernels can be measured with high precision and accuracy. The results
 of measuring execution time and memory transfer of memory intensive kernels are
-generally offset by about 10\% and scattered up to twice the minimum value.
+scattered within 10\% of the reference value. The memory tranfer volume
+is overestimated by about 10\% for transfer volumes under 10MB
 
 \section{Multi Threaded Validation and Reproducibility}
 For the validation of multithreaded measurements, we use the same measurements
@@ -565,19 +564,17 @@ each core. Since the Yonah does not utilize HyperThreading, we don't expect
 an arithmetic kernel running on one core affecting a memory intensive kernel on
 the other core. Therefore the workloads run in parallel are not mixed.
 
-\graphFloat{yonah/valTBThReadValues}{Yonah: Transfer Volume of the Read Kernel}
-\graphFloat{yonah/valTBALTThReadValues}{Yonah: Transfer Volume of the Read
-Kernel} 
+\graphFloatTwo{Transfer Volume of the Read Kernel}
+{yonah/valTBThReadValues}{MemBus}
+{yonah/valTBALTThReadValues}{MemL2} 
 
-\graphFloat{yonah/valTBThWriteValues}{Yonah: Transfer Volume of the Write
-Kernel}
-\graphFloat{yonah/valTBALTThWriteValues}{Yonah: Transfer Volume of the Write
-Kernel}
+\graphFloatTwo{Transfer Volume of the Write Kernel}
+{yonah/valTBThWriteValues}{MemBus}
+{yonah/valTBALTThWriteValues}{MemL2} 
 
-\graphFloat{yonah/valTBThTriadValues}{Yonah: Transfer Volume of the Triad
-Kernel}
-\graphFloat{yonah/valTBALTThTriadValues}{Yonah: Transfer Volume of the Triad
-Kernel}
+\graphFloatTwo{Transfer Volume of the Triad Kernel}
+{yonah/valTBThTriadValues}{MemBus}
+{yonah/valTBALTThTriadValues}{MemL2} 
 
 \clearpage
 \section{Measurement Tool Architecture}

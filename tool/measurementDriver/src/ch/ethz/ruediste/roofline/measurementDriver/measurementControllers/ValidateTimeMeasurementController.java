@@ -16,7 +16,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Time;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
-import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 
 import com.google.inject.Inject;
 
@@ -39,7 +40,7 @@ public class ValidateTimeMeasurementController extends
 
 	public void measure(String outputName) throws IOException {
 
-		/*measure(outputName, "Add", createArithKernelCoordinate(
+		measure(outputName, "Add", createArithKernelCoordinate(
 				ArithmeticOperation.ArithmeticOperation_ADD,
 				InstructionSet.SSE), ArithController.class);
 
@@ -53,18 +54,21 @@ public class ValidateTimeMeasurementController extends
 		instantiator.getInstance(ArithController.class).measure(
 				outputName,
 				cpuSingletonList(),
-				createArithKernelCoordinates());*/
+				createArithKernelCoordinates());
 
 		instantiator.getInstance(MemController.class).measure(
 				outputName,
 				cpuSingletonList(),
 				createMemKernelCoordinates());
 
-		measureHistogram(outputName, createTriadKernelCoordinate());
+		//measureHistogram(outputName, createTriadKernelCoordinate());
 	}
 
 	@Inject
 	public QuantityMeasuringService quantityMeasuringService;
+
+	@Inject
+	public SystemInfoService systemInfoService;
 
 	private void measureHistogram(String outputName,
 			Coordinate... kernelCoordinates) throws ExecuteException,
@@ -75,8 +79,8 @@ public class ValidateTimeMeasurementController extends
 
 		for (Coordinate kernelCoordinate : kernelCoordinates) {
 			double time = 0;
-			long problemSizes[] = new long[] { 1024L * 100, 1024L * 500,
-					1024 * 1000L };
+			long problemSizes[] = new long[] { 1024L * 16, 1024L * 128,
+					1024 * 256L };
 
 			//while (time < 1e2) {
 			for (long problemSize : problemSizes) {
@@ -93,10 +97,21 @@ public class ValidateTimeMeasurementController extends
 						.measureQuantities(kernel, 200, calcCycle, calcUSecs);
 
 				DescriptiveStatistics stats = result.getStatistics(calcCycle);
+				String label = String.format("%s%.0f", kernel.getLabel(),
+						+kernel.getExpectedTransferredBytes(
+								systemInfoService
+										.getSystemInformation())
+								.getValue());
 
+				DescriptiveStatistics stat = new DescriptiveStatistics();
 				for (Time cycles : result.get(calcCycle)) {
-					plot.addValue(kernel.getLabel() + problemSize,
+					/*stat.addValue(cycles.getValue() / stats.getMean());
+					if (stat.getN() >= 10) {
+						plot.addValue(label, stat.getMin());
+					}*/
+					plot.addValue(label,
 							cycles.getValue() / stats.getMean());
+
 				}
 
 				time = result.min(calcUSecs).getValue();
@@ -206,7 +221,7 @@ public class ValidateTimeMeasurementController extends
 
 		@Override
 		protected double getReference(DescriptiveStatistics statistcs) {
-			return statistcs.getPercentile(50);
+			return statistcs.getMin();
 		}
 
 		@Override
