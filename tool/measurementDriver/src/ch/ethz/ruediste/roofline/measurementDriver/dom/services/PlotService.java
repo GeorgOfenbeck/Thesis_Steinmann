@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.PointPlot.Point;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.SeriesPlot.SeriesPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.CommandService;
@@ -26,12 +27,12 @@ import com.google.inject.Inject;
 public class PlotService {
 	private final static Logger log = Logger.getLogger(PlotService.class);
 
-	private static final double plotWidth = 14;
+	private static final double plotWidth = 14.337;
 	private static final double plotHeight = plotWidth * 16. / 28.;
 
 	private static double bMargin = 0.1;
 	private static double tMargin = 0.93;
-	private static double lMargin = 0.1;
+	private static double lMargin = 0.12;
 	private static double rMargin = 0.95;
 
 	private static int lwTic = 2;
@@ -50,6 +51,8 @@ public class PlotService {
 	static String lineColors[] = { "black", "red", "green", "blue", "#FFFF00" };
 
 	public void plot(HistogramPlot plot) throws ExecuteException, IOException {
+		if (plot.getHistograms().size() == 0)
+			return;
 		// retrieve bin count
 		int binCount = plot.getBinCount();
 
@@ -104,6 +107,9 @@ public class PlotService {
 	}
 
 	public void plot(SimplePlot plot) throws ExecuteException, IOException {
+		if (isEmpty(plot.getValues()))
+			return;
+
 		// print data file
 		final PrintStream outputFile = new PrintStream(plot.getOutputName()
 				+ ".data");
@@ -118,11 +124,10 @@ public class PlotService {
 		{
 			PrintStream output = new PrintStream(plot.getOutputName()
 					+ ".gnuplot");
-			output.printf("set title '%s'\n", plot.getTitle());
-			output.printf("set terminal postscript color\n");
-			output.printf("set output '%s.ps'\n", plot.getOutputName());
+			preparePlot(output, plot);
 
-			output.printf("plot '%s.data' with points \n", plot.getOutputName());
+			output.printf("plot '%s.data' notitle with linespoints \n",
+					plot.getOutputName());
 			// output.printf("pause mouse\n");
 
 			output.close();
@@ -576,5 +581,53 @@ public class PlotService {
 
 		String tickString = StringUtils.join(ticks, ",");
 		return tickString;
+	}
+
+	public void plot(PointPlot plot) throws ExecuteException, IOException {
+		if (plot.series.size() == 0)
+			return;
+
+		// write data
+		PrintStream outputFile = new PrintStream(plot.getOutputName() + ".data");
+		for (Entry<String, LinkedList<Point>> entry : plot.series.entrySet()) {
+			// get histogram data
+			for (Point p : entry.getValue()) {
+				outputFile.printf("%e\t%e\n", p.x, p.y);
+			}
+			outputFile.printf("\n\n");
+		}
+
+		outputFile.close();
+
+		// write gnuplot files
+		PrintStream output = new PrintStream(plot.getOutputName()
+				+ ".gnuplot");
+		preparePlot(output, plot);
+
+		List<Entry<String, LinkedList<Point>>> series = toList(plot.series
+				.entrySet());
+
+		// generate plot command
+		List<String> plotLines = new ArrayList<String>();
+
+		for (int seriesNr = 0; seriesNr < series.size(); seriesNr++) {
+			Entry<String, LinkedList<Point>> ser = series.get(seriesNr);
+
+			plotLines
+					.add(String
+							.format("'%s.data' index %d using 1:2 title '%s' with points pt %s lc rgb\"%s\"",
+									plot.getOutputName(), seriesNr,
+									ser.getKey(),
+									getPointType(seriesNr),
+									getLineColor(seriesNr)));
+		}
+
+		output.println("plot \\");
+		output.print(StringUtils.join(plotLines, ",\\\n"));
+		output.close();
+
+		// show output
+		commandService.runCommand(new File("."), "gnuplot",
+				new String[] { plot.getOutputName() + ".gnuplot" });
 	}
 }
