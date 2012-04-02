@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	baseType="ActionBase"
+	cSuffix="Data"
+	javaSuffix="Data"
+	comment="action waiting for a pressure barrier">
+
+	<field name="pressure" type="int" comment="pressure to add to the barrier"/>
+	<field name="barrier" type="PressureBarrier" comment="barrier wat for"/>
+</derivedClass>
