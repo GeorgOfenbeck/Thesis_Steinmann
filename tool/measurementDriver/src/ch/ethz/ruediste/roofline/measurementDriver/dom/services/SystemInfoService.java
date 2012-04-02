@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 /**
  * Service providing information about the system
  */
-public class SystemInfoService {
+public class    SystemInfoService {
 	private static Logger log = Logger.getLogger(SystemInfoService.class);
 
 	@Inject
@@ -238,7 +238,14 @@ public class SystemInfoService {
 		if (isPMUPresent("coreduo"))
 			return CpuType.Yonah;
 
-		throw new Error("CPU not supported");
+        if (isPMUPresent("snb"))
+            return CpuType.SandyBridge;
+
+        String pmus="";
+        for (PmuDescription pmu: getPresentPmus()){
+            pmus+=pmu.getPmuName()+" ";
+        }
+		throw new Error("CPU not supported, available PMUs: "+pmus);
 	}
 
 	public long getL2CacheSize() {
@@ -248,8 +255,15 @@ public class SystemInfoService {
 			return 1024L * 1024L * 2L;
 		case Core:
 			return 1024L * 1024L * 4L;
-		}
-		throw new Error("CPU not supported");
+        case SandyBridge:
+            return 1024L * 1024L * 12L;
+        }
+
+        String pmus="";
+        for (PmuDescription pmu: getPresentPmus()){
+            pmus+=pmu.getPmuName()+" ";
+        }
+		throw new Error("CPU not supported, available PMUs: "+pmus);
 	}
 
 	public boolean is64Bit() {
