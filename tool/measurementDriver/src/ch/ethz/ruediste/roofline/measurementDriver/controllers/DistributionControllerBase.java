@@ -7,7 +7,7 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.lang3.Range;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
@@ -15,6 +15,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasurin
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPredicate.WorkloadEventEnum;
 
 import com.google.inject.Inject;
 
@@ -24,6 +27,8 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 	private final DistributionPlot plotMinValues = new DistributionPlot();
 	private final DistributionPlot plotError = new DistributionPlot();
 	private final DistributionPlot plotMinError = new DistributionPlot();
+	private final HistogramPlot plotHist = new HistogramPlot();
+	private final HistogramPlot plotMinHist = new HistogramPlot();
 
 	@Inject
 	public QuantityMeasuringService quantityMeasuringService;
@@ -43,12 +48,13 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 	public void measure(String outputName, final List<Integer> cpus,
 			Coordinate... kernelCoordinates)
 			throws ExecuteException, IOException {
+		measureEnter(outputName, cpus, kernelCoordinates);
 
 		// initialize plot
-
 		setupValuesPlot(outputName, getPlotValues());
-
 		setupMinValuesPlot(outputName, getPlotMinValues());
+		setupHistogramPlot(outputName, plotHist);
+		setupMinHistogramPlot(outputName, plotMinHist);
 
 		// iterate over kernels to be measured
 		for (Coordinate kernelCoordinate : kernelCoordinates)
@@ -72,6 +78,9 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 							measurement.setOverallMeasurerSet(sets
 									.get("execTime"));
 
+						PressureBarrier barrier = new PressureBarrier(
+								cpus.size());
+
 						for (int i : cpus) {
 							KernelBase kernel = kernels.get(i);
 							MeasurerSet measurerSet = sets.get(i);
@@ -80,9 +89,18 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 									kernel,
 									measurerSet);
 
-							workload.setCpu(i);
+							workload.setCpu(cpus.get(i));
 
 							measurement.addWorkload(workload);
+
+							measurement
+									.addRule(new Rule(
+											new WorkloadEventPredicate(
+													workload,
+													WorkloadEventEnum.KernelStart),
+											new WaitForPressureBarrierAction(
+													barrier, 1)));
+
 						}
 
 						return measurement;
@@ -113,20 +131,27 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 				// run the measurement
 				QuantityMap result = argBuilder.get();
 
+				additionalResultProcessing(problemSize, result, kernels, calcs,
+						cpus);
+
 				// add the results to the output
 				for (int i : cpus) {
 					KernelBase kernel = kernels.get(i);
 
 					String kernelName = kernel.getLabel();
+					String histogramName = getHistogramName(kernel, problemSize);
 					if (cpus.size() > 1) {
 						kernelName += i;
+						if (histogramName != null)
+							histogramName += "-" + i;
 					}
-
 					double expected = getX(kernel, problemSize);
 
 					fillDistributionPlots(kernelName, expected,
 							getPlotValues(),
-							getPlotMinValues(), result, calcs.get(i));
+							getPlotMinValues(), plotHist, plotMinHist,
+							histogramName, result,
+							calcs.get(i));
 				}
 
 				// book keeping
@@ -149,6 +174,28 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 		plotService.plot(getPlotMinValues());
 		plotService.plot(getPlotError());
 		plotService.plot(getPlotMinError());
+		if (plotHist.getOutputName() != null)
+			plotService.plot(plotHist);
+		if (plotMinHist.getOutputName() != null)
+			plotService.plot(plotMinHist);
+
+		measureLeave();
+	}
+
+	protected void measureEnter(String outputName, List<Integer> cpus,
+			Coordinate[] kernelCoordinates) {
+
+	}
+
+	protected void measureLeave() throws ExecuteException, IOException {
+
+	}
+
+	protected void additionalResultProcessing(long problemSize,
+			QuantityMap result,
+			ArrayList<KernelBase> kernels,
+			ArrayList<QuantityCalculator<TQuantity>> calcs, List<Integer> cpus) {
+
 	}
 
 	private Range<Double> yErrorRange() {
@@ -207,10 +254,24 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 	public abstract void setupMinErrorPlot(String outputName,
 			DistributionPlot plotMinError);
 
+	public void setupHistogramPlot(String outputName,
+			HistogramPlot plotHist) {
+	}
+
+	public void setupMinHistogramPlot(String outputName,
+			HistogramPlot plotMinHist) {
+	}
+
+	public String getHistogramName(KernelBase kernel, long problemSize) {
+		return null;
+	}
+
 	public abstract void fillDistributionPlots(String kernelName,
 			double expected,
 			DistributionPlot plotValues, DistributionPlot plotMinValues,
-			QuantityMap result, QuantityCalculator<TQuantity> calc);
+			HistogramPlot plotHist, HistogramPlot plotMinHist,
+			String histogramName, QuantityMap result,
+			QuantityCalculator<TQuantity> calc);
 
 	public abstract void fillErrorPlot(DistributionPlot valuesPlot,
 			DistributionPlot errorPlot);

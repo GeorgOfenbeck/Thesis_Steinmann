@@ -44,8 +44,9 @@ public abstract class DistributionWithExpectationController<TQuantity extends Qu
 	public void fillDistributionPlots(
 			String kernelName, double expected,
 			DistributionPlot plotValues,
-			DistributionPlot plotMinValues, QuantityMap result,
-			QuantityCalculator<TQuantity> calc) {
+			DistributionPlot plotMinValues, HistogramPlot plotHist,
+			HistogramPlot plotMinHist, String histogramName,
+			QuantityMap result, QuantityCalculator<TQuantity> calc) {
 		DescriptiveStatistics stats = new DescriptiveStatistics();
 		for (RunQuantityMap runOutput : result.getRunMaps()) {
 			TQuantity actual = runOutput.get(calc);
@@ -55,11 +56,16 @@ public abstract class DistributionWithExpectationController<TQuantity extends Qu
 			plotValues.addValue(kernelName, (long) expected,
 					actual.getValue()
 							/ expected);
+			if (histogramName != null)
+				plotHist.addValue(histogramName, actual.getValue());// expected);
 
 			stats.addValue(actual.getValue());
 			if (stats.getN() >= 10) {
 				plotMinValues.addValue(kernelName, (long) expected,
 						stats.getMin() / expected);
+				if (histogramName != null)
+					plotMinHist.addValue(histogramName, stats.getMin()
+							);// / expected);
 				stats.clear();
 			}
 		}

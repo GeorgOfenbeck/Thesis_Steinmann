@@ -56,19 +56,24 @@ public abstract class DistributionNoExpectationController<TQuantity extends Quan
 	@Override
 	public void fillDistributionPlots(
 			String kernelName, double x, DistributionPlot plotValues,
-			DistributionPlot plotMinValues, QuantityMap result,
-			QuantityCalculator<TQuantity> calc) {
+			DistributionPlot plotMinValues, HistogramPlot plotHist,
+			HistogramPlot plotMinHist, String histogramName,
+			QuantityMap result, QuantityCalculator<TQuantity> calc) {
 		DescriptiveStatistics stats = new DescriptiveStatistics();
 		for (RunQuantityMap runOutput : result.getRunMaps()) {
 			TQuantity actual = runOutput.get(calc);
 
 			addedValue(kernelName, x, actual);
 			plotValues.addValue(kernelName, (long) x, actual.getValue());
+			if (histogramName != null)
+				plotHist.addValue(histogramName, actual.getValue());
 
 			stats.addValue(actual.getValue());
 			if (stats.getN() >= 10) {
 				plotMinValues
 						.addValue(kernelName, (long) x, getReference(stats));
+				if (histogramName != null)
+					plotMinHist.addValue(histogramName, getReference(stats));
 				stats.clear();
 			}
 		}

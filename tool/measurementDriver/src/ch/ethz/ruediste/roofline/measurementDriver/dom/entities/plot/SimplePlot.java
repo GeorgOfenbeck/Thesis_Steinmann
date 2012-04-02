@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryAction;
 
-public class SimplePlot extends Plot<SimplePlot> implements
+public class SimplePlot extends Plot2D<SimplePlot> implements
 		IUnaryAction<Double> {
 	ArrayList<Double> values = new ArrayList<Double>();
 

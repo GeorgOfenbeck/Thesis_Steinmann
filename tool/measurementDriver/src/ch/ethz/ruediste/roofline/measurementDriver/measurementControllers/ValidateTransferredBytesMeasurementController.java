@@ -1,10 +1,13 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
+import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.*;
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import java.io.IOException;
+import java.util.*;
 
 import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
@@ -16,10 +19,13 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.RunQuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPredicate.WorkloadEventEnum;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel;
 
 import com.google.inject.Inject;
 
@@ -68,29 +74,47 @@ public class ValidateTransferredBytesMeasurementController extends
 	protected void measureImp(String outputName) throws ExecuteException,
 			IOException {
 
-		instantiator.getInstance(MemController.class).measure(
-				outputName + "ThRead",
-				systemInfoService.getOnlineCPUs(),
-				createReadKernelCoordinate());
-
-		/*instantiator.getInstance(MemController.class)
-				.measure(outputName + "ThWrite",
-						systemInfoService.getOnlineCPUs(),
-						createWriteKernelCoordinate());
-
-		instantiator.getInstance(MemController.class)
-				.measure(outputName + "ThTriad",
-						systemInfoService.getOnlineCPUs(),
-						createTriadKernelCoordinate());*/
-
-		/*instantiator.getInstance(ArithController.class).measure(outputName,
-				cpuSingletonList(), createArithKernelCoordinates());
+		measureThreadedMem(outputName, "ThRead", createReadKernelCoordinate());
+		measureThreadedMem(outputName, "ThWrite", createWriteKernelCoordinate());
+		measureThreadedMem(outputName, "ThTriad", createTriadKernelCoordinate());
 
 		instantiator.getInstance(MemController.class).measure(outputName,
 				cpuSingletonList(), createMemKernelCoordinates());
 
+		instantiator.getInstance(ArithController.class).measure(outputName,
+				cpuSingletonList(), createArithKernelCoordinates());
+
 		instantiator.getInstance(MemFlushController.class).measure(outputName,
-				cpuSingletonList(), createMemKernelCoordinates());*/
+				cpuSingletonList(), createMemKernelCoordinates());
+	}
+
+	/**
+	 * @param outputName
+	 * @param name
+	 * @param kernelCoordinate
+	 * @throws ExecuteException
+	 * @throws IOException
+	 */
+	protected void measureThreadedMem(String outputName, String name,
+			Coordinate kernelCoordinate) throws ExecuteException, IOException {
+		MemController thCtrl = instantiator.getInstance(MemController.class);
+		thCtrl.measure(
+				outputName + name,
+				systemInfoService.getOnlineCPUs(),
+				kernelCoordinate);
+
+		MemController ctrl = instantiator.getInstance(MemController.class);
+		ctrl.measure(
+				outputName + name,
+				toList(head(systemInfoService.getOnlineCPUs())),
+				kernelCoordinate);
+
+		thCtrl.getPlotValues().addSeries(ctrl.getPlotValues().getAllSeries());
+		thCtrl.getPlotMinValues().addSeries(
+				ctrl.getPlotMinValues().getAllSeries());
+		plotService.plot(thCtrl.getPlotValues());
+		plotService.plot(thCtrl.getPlotMinValues());
+
 	}
 
 	private static class ArithController extends
@@ -255,6 +279,79 @@ public class ValidateTransferredBytesMeasurementController extends
 	private static class MemController extends
 			DistributionWithExpectationController<TransferredBytes> {
 
+		long sz = 1024 * 1024;
+		PointPlot plotPoint = new PointPlot();
+		SimplePlot plotSimple = new SimplePlot();
+
+		@Override
+		protected void measureEnter(String outputName, List<Integer> cpus,
+				Coordinate[] kernelCoordinates) {
+			plotPoint.setOutputName(outputName + "Point")
+					.setTitle("Results Threaded Read")
+					.setxLabel("Transfer Volume Core 0").setxUnit("Bytes")
+					.setyLabel("Transfer Volume Core 1").setyUnit("Bytes");
+			plotSimple.setOutputName(outputName + "Raw")
+					.setTitle("Raw Results Threaded Read")
+					.setxLabel("Measurement Run Number").setxUnit("1")
+					.setyLabel("Transfer Volume").setyUnit("Bytes");
+		}
+
+		@Override
+		protected void additionalResultProcessing(long problemSize,
+				QuantityMap result,
+				ArrayList<KernelBase> kernels,
+				ArrayList<QuantityCalculator<TransferredBytes>> calcs,
+				List<Integer> cpus) {
+			if (cpus.size() != 2)
+				return;
+			if (problemSize == sz) {
+				String name = getHistogramName(kernels.get(0), problemSize);
+
+				double last = Double.NaN;
+				double th;
+				{
+					DescriptiveStatistics stat = result.getStatistics(calcs
+							.get(0));
+					th = (stat.getMax() + stat.getMin()) / 2;
+				}
+
+				int hh = 0;
+				int hl = 0;
+				int ll = 0;
+				int lh = 0;
+				for (RunQuantityMap runMap : result.getRunMaps()) {
+					plotPoint.addValue(name, runMap.get(calcs.get(0))
+							.getValue(), runMap.get(calcs.get(1)).getValue());
+					plotSimple.apply(runMap.get(calcs.get(0)).getValue());
+
+					double cur = runMap.get(calcs.get(0)).getValue();
+					if (last != Double.NaN) {
+						if (last > th && cur > th)
+							hh++;
+						if (last > th && cur <= th)
+							hl++;
+						if (last <= th && cur > th)
+							lh++;
+						if (last <= th && cur <= th)
+							ll++;
+					}
+					last = cur;
+				}
+				double h = hh + hl;
+				double l = ll + lh;
+				System.out.printf("\t0\t1\n");
+				System.out.printf("0\t%e\t%e\n", ll / l, lh / l);
+				System.out.printf("1\t%e\t%e\n", hl / h, hh / h);
+				System.out.printf("x\t%e\t%e\n", l / (h + l), h / (h + l));
+			}
+		}
+
+		@Override
+		protected void measureLeave() throws ExecuteException, IOException {
+			plotService.plot(plotPoint);
+			plotService.plot(plotSimple);
+		}
+
 		@Override
 		protected TransferredBytes expected(KernelBase kernel) {
 			return kernel.getExpectedTransferredBytes(systemInfoService
@@ -315,6 +412,28 @@ public class ValidateTransferredBytesMeasurementController extends
 					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
 					.setyLabel("err(actualMemTransfer10/expMemTransfer)")
 					.setyUnit("%");
+		}
+
+		@Override
+		public void setupHistogramPlot(String outputName, HistogramPlot plotHist) {
+			plotHist.setOutputName(outputName + "Hist")
+					.setTitle(
+							"Transfer Volume Histogram")
+					//.setXRange(0.9, 2.5)
+					.setBinCount(20).setxLabel("Transfer Volume")
+					.setxUnit("Bytes").setyLabel("Number of Results")
+					.setyUnit("1");
+		}
+
+		@Override
+		public String getHistogramName(KernelBase kernel, long problemSize) {
+			if (problemSize == sz && kernel instanceof MemoryKernel) {
+				return String.format("%s %.0f",
+						kernel.getLabel(),
+						kernel.getExpectedTransferredBytes(systemInfoService
+								.getSystemInformation()).getValue());
+			}
+			return null;
 		}
 	}
 }
