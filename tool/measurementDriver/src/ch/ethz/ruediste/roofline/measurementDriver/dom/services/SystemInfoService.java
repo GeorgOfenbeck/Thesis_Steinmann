@@ -19,7 +19,7 @@ import com.google.inject.Inject;
 /**
  * Service providing information about the system
  */
-public class    SystemInfoService {
+public class SystemInfoService {
 	private static Logger log = Logger.getLogger(SystemInfoService.class);
 
 	@Inject
@@ -138,6 +138,17 @@ public class    SystemInfoService {
 	}
 
 	/**
+	 * concatenate the names of the present PMUs with commas
+	 */
+	public String getPresentPmuStringList() {
+		ArrayList<String> pmus = new ArrayList<String>();
+		for (PmuDescription pmu : getPresentPmus()) {
+			pmus.add(pmu.getPmuName());
+		}
+		return StringUtils.join(pmus, ",");
+	}
+
+	/**
 	 * get the list of online CPUs
 	 */
 	public List<Integer> getOnlineCPUs() {
@@ -159,6 +170,9 @@ public class    SystemInfoService {
 
 	}
 
+	/**
+	 * perform a measurement to read the specified file using the core
+	 */
 	private String readFileUsingCore(String fileName) {
 		// setup measurer
 		FileMeasurer measurer = new FileMeasurer();
@@ -183,6 +197,9 @@ public class    SystemInfoService {
 		return fileContent;
 	}
 
+	/**
+	 * perform a measurement without any additional preprocessing
+	 */
 	private MeasurementResult measureRaw(Measurement measurement) {
 		// make a raw measurement
 		configuration.push();
@@ -238,34 +255,32 @@ public class    SystemInfoService {
 		if (isPMUPresent("coreduo"))
 			return CpuType.Yonah;
 
-        if (isPMUPresent("snb"))
-            return CpuType.SandyBridge;
+		if (isPMUPresent("snb"))
+			return CpuType.SandyBridge;
 
-        String pmus="";
-        for (PmuDescription pmu: getPresentPmus()){
-            pmus+=pmu.getPmuName()+" ";
-        }
-		throw new Error("CPU not supported, available PMUs: "+pmus);
+		throw new Error("CPU not supported, available PMUs: "
+				+ getPresentPmuStringList());
 	}
 
+	/**
+	 * return the Last Level Cache size
+	 */
 	public long getLLCCacheSize() {
 		switch (getCpuType()) {
 		case Yonah:
-			// two megabyte cache size
 			return 1024L * 1024L * 2L;
 		case Core:
 			return 1024L * 1024L * 4L;
-        case SandyBridge:
-            return 1024L * 1024L * 12L;
-        }
+		case SandyBridge:
+			return 1024L * 1024L * 12L;
+		}
 
-        String pmus="";
-        for (PmuDescription pmu: getPresentPmus()){
-            pmus+=pmu.getPmuName()+" ";
-        }
-		throw new Error("CPU not supported, available PMUs: "+pmus);
+		throw new Error("CPU not supported. CpuType: " + getCpuType());
 	}
 
+	/**
+	 * Tests if the measurements are performed on a 64Bit system
+	 */
 	public boolean is64Bit() {
 		if (systemInfoRepository.getIs64Bit() == null) {
 			systemInfoRepository.setIs64Bit(measureIs64Bit());
@@ -274,6 +289,9 @@ public class    SystemInfoService {
 		return systemInfoRepository.getIs64Bit();
 	}
 
+	/**
+	 * measures if the system is a 64Bit system
+	 */
 	private boolean measureIs64Bit() {
 		// setup measurer
 		Ia64Measurer measurer = new Ia64Measurer();
@@ -292,6 +310,9 @@ public class    SystemInfoService {
 		return single(result.getMeasurerOutputs(measurer)).getIsIa64();
 	}
 
+	/**
+	 * initialize the sytem information stored n the systemInfoRepository
+	 */
 	public void InitializeSystemInformation() {
 		SystemInformation systemInformation = new SystemInformation();
 		systemInformation.CpuType = getCpuType();
@@ -300,7 +321,25 @@ public class    SystemInfoService {
 		systemInfoRepository.setSystemInformation(systemInformation);
 	}
 
+	/**
+	 * retrieve the system information from the repository.
+	 * InitializeSystemInformation() has to be called first (done during system
+	 * initialization)
+	 */
 	public SystemInformation getSystemInformation() {
 		return systemInfoRepository.getSystemInformation();
+	}
+
+	public boolean isFrequencyScalingAvailable() {
+		switch (getCpuType()) {
+		case Yonah:
+			return true;
+		case Core:
+			return true;
+		case SandyBridge:
+			return false;
+		}
+
+		throw new Error("CPU not supported. CpuType: " + getCpuType());
 	}
 }

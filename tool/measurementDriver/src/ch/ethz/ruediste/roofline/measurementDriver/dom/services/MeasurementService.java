@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.services;
 import java.io.File;
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
@@ -37,8 +38,9 @@ public class MeasurementService {
 	static private Logger log = Logger.getLogger(MeasurementService.class);
 
 	public final static ConfigurationKey<String> measurementFrequencyGovernorKey = ConfigurationKey
-			.Create(String.class, "measurementFrequencyGovernor",
-					"governor that should be used during measurements",
+			.Create(String.class,
+					"measurementFrequencyGovernor",
+					"governor that should be used during measurements. Disabled if set to null or empty",
 					"performance");
 
 	public final static ConfigurationKey<String> defaultFrequencyGovernorKey = ConfigurationKey
@@ -67,9 +69,15 @@ public class MeasurementService {
 	public void prepareMeasurement(Measurement measurement) {
 		measurement.setIds();
 		// add the measurementBuilder setting the frequency scaling if desired
-		if (!configuration.get(measureRawKey)
-				&& configuration.get(measurementFrequencyGovernorKey) != null) {
-			addMeasurementFrequencyConfigurator(measurement);
+		if (!configuration.get(measureRawKey))
+		{
+			if ( // check if a governor is specified
+			StringUtils.isNotEmpty(configuration
+					.get(measurementFrequencyGovernorKey))
+					// check if frequency scaling is available
+					&& systemInfoService.isFrequencyScalingAvailable()) {
+				addMeasurementFrequencyConfigurator(measurement);
+			}
 		}
 	}
 
