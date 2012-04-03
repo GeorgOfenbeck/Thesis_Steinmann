@@ -2,7 +2,6 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	name="FFTfftwKernel" 
 	baseType="FFTKernelBase"
 	cSuffix="Data"
 	javaSuffix="Data"
