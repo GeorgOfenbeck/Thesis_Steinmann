@@ -30,7 +30,7 @@
 {
 	\settowidth{\imgwidth}{\includegraphics{graphs/#1.pdf}}
 	\setlength{\imgleftoverhang}{0.1\textwidth}
-	\setlength{\imgwidth}{1.2048\textwidth}
+	\setlength{\imgwidth}{1.18\textwidth}
 	\hfuzz50pt
 	\noindent\hskip-\imgleftoverhang
 	\hskip-0.1in\includegraphics[width=\imgwidth]{graphs/#1.pdf}
@@ -225,73 +225,6 @@ other option is to use the counters for bus transfers. Measuring the operation c
 depends heavily on the definition of operation, but is typically measurable with
 the performance counters, too.
 
-\section{Effects Affecting the Measurement of Multiple Quantities}
-While each of the measurements required to produce a roofline plot has it's own
-subtleties, there are some effects affecting multiple measurements, which we
-will discuss in the following sections.
-
-\subsection{Context Switches}
-Unless a special operating system is used, we have to deal with context switches
-during measurement. On current operating systems, a context switch typically
-occurs every 10ms due to the timer interrupt. Following the lines of
-\cite{ComSysProgPersp}, there are two ways to deal with them:
-
-If the execution time of the kernel is small, the operating system will
-eventually execute the whole kernel without interruption. This can be exploited
-using the best k measurement scheme. The kernel is repeatedly executed until the
-k measurements with the smallest execution times show a variation below a
-certain threshold. These executions were apparently not affected by a context
-switch, since a context switch would have increased execution time. The
-HW\_INT\_RCV performance counter could possibly be used as well to detect
-context switches.
-
-If a single execution of the kernel takes longer than the period of time between
-two timer interrupts, it will always be affected by a context switch. In this
-case, the proposed solution is to execute the kernel in a loop until many
-context switches occurred. The effect of the context switches can be compensated
-for by reducing the measured time be a certain factor. The factor depends on the
-actual system.
-
-The linux kernel offers the possibility to count performance events only during
-the time a thread actually executes, omitting events happening during kernel
-execution or while other threads run. This was not treated in the book above,
-and offers interesting new options.
-
-
-
-\subsection{System Load}
-Specially if the measurement includes context switches, the system load has a
-big impact on the measurement result. But due to caching effects, even the k
-best measurement scheme might be affected by the system load. Since we can
-control the system the measurements are performed on, we can control system
-load. But none the less, it should be recorded along with the measurement, in
-case something goes wrong with the measurement system setup.
-
-\subsection{Multi Threading}
-Our kernels and benchmarks will use multi threading. This has to be supported by
-the measurement tool. Since some caches as well as part of the memory bandwidth
-might be shared among different cores, multi threading can have various effects
-on the amount of transferred memory and the available bandwidth.
-
-In case of hyper threading, some functional units of a processor core are shared
-among two threads. This influences the peak performance of the core.
-
-It is possible that the operating system moves a thread from one core to
-another. Since the overhead of a switching the core is large, it is generally
-avoided by the scheduler of the operating system. But it can occur, and we have
-to be prepared for it.
-
-\subsection{Frequency Scaling}
-The core frequency is not constant in current processors. Since the memory
-latencies and throughputs do not scale with the core frequency, a lower core
-frequency will generally cause a higher percentage of the peak performance to be
-reached by the kernel.
-
-On Linux, frequency scaling is controlled so called governors. They can be set
-through the sys file system. The tool offers the possibility to set the
-governor. In addition, it is possible to read the current frequency. If the
-frequency changes during a measurement, this is recored as well.
-
 \section{Measurement Setup}
 All measurements are performed on an IBM X60 Thinkpad, featuring an Intel
 CoreDuo CPU (Family 6, Model 14). The CPU is based on the Yonah
@@ -397,6 +330,16 @@ flush these buffers with the 'clflush' instruction, not affecting code which is
 already in the cache. This is implemented by the \method{flushBuffers()}
 method in the above code snippet.
 
+\subsection{Frequency Scaling}
+The core frequency is not constant in current processors. Since the memory
+latencies and throughputs do not scale with the core frequency, a lower core
+frequency will generally cause a higher percentage of the peak performance to be
+reached by the kernel.
+
+On Linux, frequency scaling is controlled so called governors. We used the
+'performance' governor for all our measurements, which fixes the core frequency
+to the maximum.
+
 \section{Single Threaded Accuracy and Precision}
 First, let's recapitulate the definitions of accuracy and precision.
 \cite{accuracyAndPrecision} Accuracy of a measurement system is the closeness of
@@ -442,12 +385,12 @@ three buffers.
 Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
 of memory transfer. Around an expected transfer volume of 2MB we underestimate
 the actual transfer volume. The CPU seems to write data back to the memory
-before the cache is completely filled. The BusMem and BusL2 variants produce
-similar result. Note that the BusL2 variant measures less than the expected
+before the cache is completely filled. The MemBus and MemL2 variants produce
+similar result. Note that the MemL2 variant measures less than the expected
 memory tansfer for large buffer sizes.
 
-The errors (see fig. \ref{yonah/valTBError}) of the BusL2 variant are
-smaller than those of the BusMem variant.
+The errors (see fig. \ref{yonah/valTBError}) of the MemL2 variant are
+smaller than those of the MemBus variant.
 
 \graphFloat{yonah/valTBALTFlushValues}{MemL2: Memory Transfer during Cache
 Flush after kernel execution}
@@ -557,13 +500,20 @@ of measuring execution time and memory transfer of memory intensive kernels are
 scattered within 10\% of the reference value. The memory tranfer volume
 is overestimated by about 10\% for transfer volumes under 10MB
 
+\clearpage
 \section{Multi Threaded Validation and Reproducibility}
 For the validation of multithreaded measurements, we use the same measurements
 as for the single threaded validation, but run a separate workload instance on
-each core. Since the Yonah does not utilize HyperThreading, we don't expect
+each core. Using a barrier, we make sure the two kernels start at the same time. 
+
+Since the Yonah does not utilize HyperThreading, we don't expect
 an arithmetic kernel running on one core affecting a memory intensive kernel on
 the other core. Therefore the workloads run in parallel are not mixed.
 
+
+\subsection{Transferred Volume}
+The MemBus variant measures all transfers on the bus. Therefore, the measurer of
+each workload should see the traffic of both kernels. The MemL2 variant 
 \graphFloatTwo{Transfer Volume of the Read Kernel}
 {yonah/valTBThReadValues}{MemBus}
 {yonah/valTBALTThReadValues}{MemL2} 
@@ -957,52 +907,6 @@ value of all fields are read from the input and set on the created instance,
 including all fields declared in a base class. If a reference is encountered,
 the deserialization method is called recursively with the same input, and the
 returned instance is used as field value.
-
-\subsection{How To}
-\subsubsection{Install}
-see INSTALL file in tool directory
-
-\subsubsection{Create New Kernels}
-\begin{itemize}
-\item create the xml description of your kernel description in
-multiLanguageClasses/definitions/kernels
-\item run "rmt help" to generate the multi language code from you description
-\item create your kernel implementation in measuringCore/kernels. Subclass
-"Kernel", parameterized to the description class you've created. Implement
-"initialize()", "run()" and "dispose()".
-\item register your kernel class. In the cpp file of your kernel implementation,
-include "typeRegistry/TypeRegisterer.h" and instantiate a static global variable
-of type "TypeRegisterer", parameterized to your kernel implementation.
-\item use your kernel from a measurement
-\end{itemize}
-
-\subsubsection{Create New Measurement}
-\begin{itemize}
-\item create new class in measurementDriver/measurements
-\item implement IMeasurement
-\end{itemize}
-
-\subsubsection{Add Configuration Key}
-The configuration is used to set various flags in the measurement driver.
-\begin{itemize}
-\item add public static field of type ConfigurationKey to any class within the
-measurement driver.
-\end{itemize}
-
-\subsubsection{Generate Annotated Assembly}
-\begin{itemize}
-\item in Eclipse, hit build (Ctrl+B)
-\item change the kernel header file (make it recompile)
-\item build again
-\item from the console window, copy the compiler invocation for
-MeasurementSchemeRegistration.cpp
-\item open a terminal and go to tool/measuringCore/Debug.
-\item paste the compiler invocation
-\item insert "-Wa,-ahl=ass.s", check optimization flags
-\item issue command
-\item the annotated assembly code can be found in tool/measuringCore/Debug/ass.s
-\item open the annotated assembly code in Eclipse
-\end{itemize}
 
 \subsection{Frontend}
 The measurement tool is a console tool controlled using command line options.
@@ -1614,6 +1518,84 @@ Whenever a SystemInitializer is instantiated, the instance is registered in a
 static global list. On system startup and shutdown, the start() respective
 stop() method of all registered SystemInitializers is called.
 
+\section{How To}
+\subsection{Installation}
+see INSTALL file in tool directory
+
+\subsection{Create a New Kernel}
+First, you have to create an XML description of the new kernel in
+sharedEntities/definitions/kernels. Look at some of the other files in that
+directory and choose one as starting point for your own. Copy the chosen file
+and give it the name of your kernel. It must end with 'Kernel'. The file name is
+taken as class name for your kernel description.
+
+Next, run 'rot help' to generate the source code from your XML description. In
+case your class defines a 'javaSuffix', the compilation following the source
+generation will fail. Create the Java code of your kernel class in
+measurementDriver/src/ch/ethz/ruediste/roofline/sharedEntities/Kernel and make
+it inherit from the generated class with the suffix. (see other kernels for
+examples)
+
+The Java part of your kernel is now ready. You can use it in a measurement. But
+we are still missing the implementation in the measuring core. To implement the
+kernel, it is indispensable to specify a 'cSuffix' in your kernel description.
+
+Create a class in measuringCore/src/sharedEntities/kernels, include the
+generated header file (filename contains the suffix) and derive from the
+generated class. Add fields for all the data buffers you plan to use
+(if any). Override and implement the following methods:
+\begin{description}
+\item[\method{initialize()}] Allocate and initialize the required buffers.
+\item[\method{getBuffers()}] Return the list of all buffers along with their
+size. This is used to automatically clear or warm the caches.
+\item[\method{run()}] Run the kernel.
+\item[\method{dispose()}] Free all buffers
+\end{description}
+
+In case you have additional code, you can place it in a subdirectory with the
+same name as your kernel, without the 'Kernel' suffix. All '.cpp' files will be
+compiled and linked with the measuring core.
+
+\subsection{Use the Driver as a Library}
+You can use the measurement driver as a library. First, run './gradlew
+--daemon measurementDriver:runnableJar' to create a jar containing the driver
+together with all dependencies. It will be located in
+'measurementDriver/build/distributions/measurementDriver.jar'. Include the jar
+in your project.
+
+During the startup of your application, call LibraryMain.initialize(). Now you
+can use the driver. You can directly instantiate entities and use
+\method{Instantiator.instance.getInstance()} to retrieve service instances.
+
+\subsection{Create New Measurement}
+\begin{itemize}
+\item create new class in measurementDriver/measurements
+\item implement IMeasurement
+\end{itemize}
+
+\subsection{Add Configuration Key}
+The configuration is used to set various flags in the measurement driver.
+\begin{itemize}
+\item add public static field of type ConfigurationKey to any class within the
+measurement driver.
+\end{itemize}
+
+\subsection{Generate Annotated Assembly}
+\begin{itemize}
+\item in Eclipse, hit build (Ctrl+B)
+\item change the kernel header file (make it recompile)
+\item build again
+\item from the console window, copy the compiler invocation for
+MeasurementSchemeRegistration.cpp
+\item open a terminal and go to tool/measuringCore/Debug.
+\item paste the compiler invocation
+\item insert "-Wa,-ahl=ass.s", check optimization flags
+\item issue command
+\item the annotated assembly code can be found in tool/measuringCore/Debug/ass.s
+\item open the annotated assembly code in Eclipse
+\end{itemize}
+
+\section{===WORK IN PROGRESS===}
 \section{Measuring Execution Time}
 \begin{itemize}
 \item 0x40000000   UNHALTED\_CORE\_CYCLES 30Ah CPU\_CLK\_UNHALTED.CORE
@@ -1799,16 +1781,68 @@ We measure with any core combination.
 same core / +core2
 core 0 1 2 3
 
-\section{Mesuring Operation Count}
-\begin{itemize}
-\item 0x40000156   SIMD\_UOP\_TYPE\_EXEC B3h 01h/20h
-\end{itemize}
+
+
+\section{Effects Affecting the Measurement of Multiple Quantities}
+While each of the measurements required to produce a roofline plot has it's own
+subtleties, there are some effects affecting multiple measurements, which we
+will discuss in the following sections.
+
+\subsection{Context Switches}
+Unless a special operating system is used, we have to deal with context switches
+during measurement. On current operating systems, a context switch typically
+occurs every 10ms due to the timer interrupt. Following the lines of
+\cite{ComSysProgPersp}, there are two ways to deal with them:
+
+If the execution time of the kernel is small, the operating system will
+eventually execute the whole kernel without interruption. This can be exploited
+using the best k measurement scheme. The kernel is repeatedly executed until the
+k measurements with the smallest execution times show a variation below a
+certain threshold. These executions were apparently not affected by a context
+switch, since a context switch would have increased execution time. The
+HW\_INT\_RCV performance counter could possibly be used as well to detect
+context switches.
+
+If a single execution of the kernel takes longer than the period of time between
+two timer interrupts, it will always be affected by a context switch. In this
+case, the proposed solution is to execute the kernel in a loop until many
+context switches occurred. The effect of the context switches can be compensated
+for by reducing the measured time be a certain factor. The factor depends on the
+actual system.
+
+The linux kernel offers the possibility to count performance events only during
+the time a thread actually executes, omitting events happening during kernel
+execution or while other threads run. This was not treated in the book above,
+and offers interesting new options.
 
 
 
+\subsection{System Load}
+Specially if the measurement includes context switches, the system load has a
+big impact on the measurement result. But due to caching effects, even the k
+best measurement scheme might be affected by the system load. Since we can
+control the system the measurements are performed on, we can control system
+load. But none the less, it should be recorded along with the measurement, in
+case something goes wrong with the measurement system setup.
 
+\subsection{Multi Threading}
+Our kernels and benchmarks will use multi threading. This has to be supported by
+the measurement tool. Since some caches as well as part of the memory bandwidth
+might be shared among different cores, multi threading can have various effects
+on the amount of transferred memory and the available bandwidth.
+
+In case of hyper threading, some functional units of a processor core are shared
+among two threads. This influences the peak performance of the core.
+
+It is possible that the operating system moves a thread from one core to
+another. Since the overhead of a switching the core is large, it is generally
+avoided by the scheduler of the operating system. But it can occur, and we have
+to be prepared for it.
+
+\section{Figures}
 \listoffigures
 
+\section{Bibliography}
 \bibliographystyle{abbrv}
 \bibliography{report}
 
