@@ -3,6 +3,7 @@ package ch.ethz.ruediste.roofline.sharedEntities;
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
@@ -37,7 +38,8 @@ public abstract class KernelBase extends KernelBaseData {
 		return "";
 	}
 
-	public TransferredBytes getExpectedTransferredBytes(SystemInformation systemInformation) {
+	public TransferredBytes getExpectedTransferredBytes(
+			SystemInformation systemInformation) {
 		throw new NotImplementedException();
 	}
 
@@ -56,7 +58,9 @@ public abstract class KernelBase extends KernelBaseData {
 		throw new NotImplementedException();
 	}
 
-	public abstract String getLabel();
+	public String getLabel() {
+		return StringUtils.removeEnd(getClass().getSimpleName(), "Kernel");
+	}
 
 	public void setOptimizationFromInstructionSet(InstructionSet set) {
 		switch (set) {
