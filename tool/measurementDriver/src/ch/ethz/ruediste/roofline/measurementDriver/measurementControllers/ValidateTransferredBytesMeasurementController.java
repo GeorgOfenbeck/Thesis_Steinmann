@@ -97,16 +97,16 @@ public class ValidateTransferredBytesMeasurementController extends
 	 */
 	protected void measureThreadedMem(String outputName, String name,
 			Coordinate kernelCoordinate) throws ExecuteException, IOException {
-		MemController thCtrl = instantiator.getInstance(MemController.class);
-		thCtrl.measure(
-				outputName + name,
-				systemInfoService.getOnlineCPUs(),
-				kernelCoordinate);
-
 		MemController ctrl = instantiator.getInstance(MemController.class);
 		ctrl.measure(
 				outputName + name,
 				toList(head(systemInfoService.getOnlineCPUs())),
+				kernelCoordinate);
+
+		MemController thCtrl = instantiator.getInstance(MemController.class);
+		thCtrl.measure(
+				outputName + name,
+				systemInfoService.getOnlineCPUs(),
 				kernelCoordinate);
 
 		thCtrl.getPlotValues().addSeries(ctrl.getPlotValues().getAllSeries());
@@ -279,7 +279,7 @@ public class ValidateTransferredBytesMeasurementController extends
 	private static class MemController extends
 			DistributionWithExpectationController<TransferredBytes> {
 
-		long sz = 1024 * 1024;
+		long sz = 1024 * 256;
 		PointPlot plotPoint = new PointPlot();
 		SimplePlot plotSimple = new SimplePlot();
 
