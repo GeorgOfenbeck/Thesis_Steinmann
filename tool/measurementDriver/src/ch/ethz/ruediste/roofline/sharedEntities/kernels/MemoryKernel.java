@@ -108,7 +108,7 @@ public class MemoryKernel extends MemoryKernelData {
 		case MemoryOperation_READ:
 			return new TransferredBytes(bufferBytes);
 		case MemoryOperation_WRITE:
-			long cacheSize = systemInformation.L2CacheSize;
+			long cacheSize = systemInformation.LLCCacheSize;
 			return new TransferredBytes(bufferBytes // read
 					+ Math.max(0, bufferBytes - cacheSize)); // write, taking write back into account
 		default:

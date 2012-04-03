@@ -5,5 +5,5 @@ public class SystemInformation {
 
 	public boolean Is64Bit;
 
-	public long L2CacheSize;
+	public long LLCCacheSize;
 }

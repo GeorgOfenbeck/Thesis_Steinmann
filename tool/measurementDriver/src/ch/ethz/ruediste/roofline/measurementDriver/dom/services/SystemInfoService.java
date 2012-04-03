@@ -248,7 +248,7 @@ public class    SystemInfoService {
 		throw new Error("CPU not supported, available PMUs: "+pmus);
 	}
 
-	public long getL2CacheSize() {
+	public long getLLCCacheSize() {
 		switch (getCpuType()) {
 		case Yonah:
 			// two megabyte cache size
@@ -296,7 +296,7 @@ public class    SystemInfoService {
 		SystemInformation systemInformation = new SystemInformation();
 		systemInformation.CpuType = getCpuType();
 		systemInformation.Is64Bit = is64Bit();
-		systemInformation.L2CacheSize = getL2CacheSize();
+		systemInformation.LLCCacheSize = getLLCCacheSize();
 		systemInfoRepository.setSystemInformation(systemInformation);
 	}
 
