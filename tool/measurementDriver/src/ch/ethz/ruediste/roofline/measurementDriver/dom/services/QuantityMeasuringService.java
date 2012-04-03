@@ -297,6 +297,29 @@ public class QuantityMeasuringService {
 				}
 			};
 		}
+		case TSC: {
+			final TscMeasurer measurer = new TscMeasurer();
+			return new TerminalQuantityCalculator<Time>(measurer) {
+				{
+					setCombination(Combination.Min);
+				}
+
+				@Override
+				public Time getResult(Iterable<MeasurerOutputBase> outputs) {
+					DescriptiveStatistics stats = new DescriptiveStatistics();
+					for (MeasurerOutputBase output : outputs) {
+						stats.addValue(output.cast(measurer).getTics()
+								.doubleValue());
+					}
+
+					if (stats.getN() == 0) {
+						throw new Error("no outputs");
+					}
+
+					return new Time(getValueRespectingCombination(stats));
+				}
+			};
+		}
 		default:
 			throw new Error("Should not happen");
 		}
