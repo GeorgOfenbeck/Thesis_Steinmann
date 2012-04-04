@@ -25,7 +25,6 @@ import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.actions.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
 import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPredicate.WorkloadEventEnum;
-import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel;
 
 import com.google.inject.Inject;
 
@@ -287,11 +286,11 @@ public class ValidateTransferredBytesMeasurementController extends
 		protected void measureEnter(String outputName, List<Integer> cpus,
 				Coordinate[] kernelCoordinates) {
 			plotPoint.setOutputName(outputName + "Point")
-					.setTitle("Results Threaded Read")
+					.setTitle("Result Distribution")
 					.setxLabel("Transfer Volume Core 0").setxUnit("Bytes")
 					.setyLabel("Transfer Volume Core 1").setyUnit("Bytes");
 			plotSimple.setOutputName(outputName + "Raw")
-					.setTitle("Raw Results Threaded Read")
+					.setTitle("Raw Results")
 					.setxLabel("Measurement Run Number").setxUnit("1")
 					.setyLabel("Transfer Volume").setyUnit("Bytes");
 		}
@@ -411,6 +410,7 @@ public class ValidateTransferredBytesMeasurementController extends
 					.setTitle("Transfer Volume Min Error").setLogX()
 					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
 					.setyLabel("err(actualMemTransfer10/expMemTransfer)")
+					.setKeyPosition(KeyPosition.TopRight)
 					.setyUnit("%");
 		}
 
@@ -427,7 +427,7 @@ public class ValidateTransferredBytesMeasurementController extends
 
 		@Override
 		public String getHistogramName(KernelBase kernel, long problemSize) {
-			if (problemSize == sz && kernel instanceof MemoryKernel) {
+			if (problemSize == sz) {
 				return String.format("%s %.0f",
 						kernel.getLabel(),
 						kernel.getExpectedTransferredBytes(systemInfoService

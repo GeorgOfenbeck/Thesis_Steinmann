@@ -11,7 +11,8 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.Distributio
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.OperationCount;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
-import ch.ethz.ruediste.roofline.sharedEntities.KernelBase;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
 
 import com.google.inject.Inject;
 
@@ -36,6 +37,13 @@ public class ValidateOpCountMeasurementController extends
 	PlotService plotService;
 
 	public void measure(String outputName) throws IOException {
+		instantiator.getInstance(OpCountController.class).measure(
+				outputName + "Th",
+				systemInfoService.getOnlineCPUs(),
+				createArithKernelCoordinate(
+						ArithmeticOperation.ArithmeticOperation_ADD,
+						InstructionSet.x87));
+
 		instantiator.getInstance(OpCountController.class).measure(
 				outputName,
 				cpuSingletonList(),

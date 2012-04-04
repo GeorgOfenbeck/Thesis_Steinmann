@@ -4,7 +4,7 @@
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
 	baseType="ActionBase"
 	cSuffix="Data"
-	comment="Action flushing the buffers of a kernel">
+	comment="Action stopping a measurer set">
 
-	<field name="measurerSet" type="MeasurerSet" comment="measurer to be stopped"/>
+	<field name="measurerSet" type="MeasurerSet" comment="measurer set to be stopped"/>
 </derivedClass>

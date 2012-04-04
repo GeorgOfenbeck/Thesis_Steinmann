@@ -81,6 +81,10 @@ public class Measurement extends MeasurementData {
 		getRules().add(rule);
 	}
 
+	public void addRule(EventPredicateBase predicate, ActionBase action) {
+		getRules().add(new Rule(predicate, action));
+	}
+
 	public Iterable<KernelBase> getKernels() {
 		return getAll(KernelBase.class);
 	}

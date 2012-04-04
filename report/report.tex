@@ -1,4 +1,5 @@
 \documentclass[a4paper,12pt]{article}
+\usepackage[top=2cm]{geometry}
 \usepackage{color}
 \usepackage{listings}
 \usepackage{calc}
@@ -452,6 +453,7 @@ ADD and MUL could be explained by an overhead of around 50 respectively
 
 \clearpage
 \subsection{Handling the Variance}
+\label{sec:SingleThreadedHandlingTheVariance}
 In the previous sections we saw that our measurements produce plausible results.
 But as soon as the kernels cause memory transfer, we observe a high variance. We
 presume this is due to various activities happening in the background during the
@@ -466,18 +468,18 @@ minimum value observed.
 Based othese considerations, we repeat each measurement $K$ times and
 discard all but the minimum value.
 
-\graphFloatTwo{Error of Transferred Bytes with $K=10$}
+\graphFloatTwo{Error of the Transfer Volume with $K=10$}
 {yonah/valTBMinError}{MemBus}
 {yonah/valTBALTMinError}{MemL2} 
 
 Using this scheme with $K=10$ for measuring the transfer volumes, the samples
 fall in a range of about 5\%. The bias is under 10\% except for transfer volumes
 under 20KB and with a peak of up to 40\% around 2MB for the kernels involving
-writes. The huge differece in precision between MemBus and MemL2 disappeared
+writes. The differece in precision between MemBus and MemL2 disappeared
 almost completely. For large transfer volumes, the accuracy of the MemBus
 variant is superior. (fig. \ref{yonah/valTBMinError})
 
-\graphFloat{yonah/valTimeMemMinError}{Yonah: Error of Execution Time with
+\graphFloat{yonah/valTimeMemMinError}{Yonah: Error of the Execution Time with
 $K=10$} 
 
 Applying the same scheme to measuring the execution time of the memory kernels
@@ -501,7 +503,7 @@ scattered within 10\% of the reference value. The memory tranfer volume
 is overestimated by about 10\% for transfer volumes under 10MB
 
 \clearpage
-\section{Multi Threaded Validation and Reproducibility}
+\section{Multi Threaded Accuracy and Precision}
 For the validation of multithreaded measurements, we use the same measurements
 as for the single threaded validation, but run a separate workload instance on
 each core. Using a barrier, we make sure the two kernels start at the same time. 
@@ -512,8 +514,6 @@ the other core. Therefore the workloads run in parallel are not mixed.
 
 
 \subsection{Transferred Volume}
-The MemBus variant measures all transfers on the bus. Therefore, the measurer of
-each workload should see the traffic of both kernels. The MemL2 variant 
 \graphFloatTwo{Transfer Volume of the Read Kernel}
 {yonah/valTBThReadValues}{MemBus}
 {yonah/valTBALTThReadValues}{MemL2} 
@@ -525,6 +525,119 @@ each workload should see the traffic of both kernels. The MemL2 variant
 \graphFloatTwo{Transfer Volume of the Triad Kernel}
 {yonah/valTBThTriadValues}{MemBus}
 {yonah/valTBALTThTriadValues}{MemL2} 
+
+\graphFloat{yonah/valTBThReadPoint}{Distribution of the Results of the Read
+Kernel using MemBus} 
+
+\graphFloat{yonah/valTBThWritePoint}{Distribution of the Results of the Write
+Kernel using MemBus}
+
+\graphFloat{yonah/valTBThTriadPoint}{Distribution of the Results of the Triad
+Kernel using MemBus} 
+
+The MemBus variant measures all transfers on the bus. Therefore, the
+measurer of each workload should see the traffic of both kernels. The MemL2 variant
+should separate the traffic of the two cores. On figures
+\ref{yonah/valTBThReadValues},
+\ref{yonah/valTBThWriteValues} and
+\ref{yonah/valTBThTriadValues} we see the expected results for the MemL2
+variant. The precision is comparable to the single threaded measurements, the
+overhead is slightly higher.
+
+In contrast, the MemBus variant shows a huge variation. Choosing 4MB as
+representive buffer size, figures \ref{yonah/valTBThReadPoint},
+\ref{yonah/valTBThWritePoint} and \ref{yonah/valTBThTriadPoint} show the
+distribution of the results. There is a cluster around the expected result of
+twice the expected transfer volume (each workload seeing the transfer of both
+cores), but also a cluster around once the expected transfer volume. It seems
+that in about half of the measurement runs, the kernel only see their own
+traffic. 
+
+\subsection{Time}
+\graphFloat{yonah/valTimeThAddArithValues}{Execution Time of two ADD Kernels
+running at the same time} As expected, running two arithmetic kernels in
+parallel does not affect the measured execution time (fig. \ref{yonah/valTimeThAddArithValues}).
+
+\graphFloat{yonah/valTimeThReadMemValues}{Execution Time of two Read Kernels
+running at the same time}
+
+\graphFloat{yonah/valTimeThWriteMemValues}{Execution Time of two Write Kernels
+running at the same time}
+
+\graphFloat{yonah/valTimeThTriadMemValues}{Execution Time of two Triad Kernels
+running at the same time}
+
+For the memory kernels we don't see much difference in execution time between
+the single threaded and the multithreaded results for expected transfer volumes
+below 1MB. We expected to observe a larger difference. For larger buffers the
+expected difference of about a factor of two can be observed, although outliers
+are frequent. (fig. \ref{yonah/valTimeThReadMemValues} and
+\ref{yonah/valTimeThWriteMemValues})
+
+For the triad kernel there is almost no
+difference. (fig. \ref{yonah/valTimeThTriadMemValues})
+
+\subsection{Operation Count}
+
+\graphFloat{yonah/valOpThValues}{Operation Count}
+
+As for the single threaded case, measuring the operation count does not pose any
+problems. (fig. \ref{yonah/valOpThValues})
+
+\clearpage
+\subsection{Handling the Variance}
+We again use the minimum of $K=10$ scheme. (see
+\ref{sec:SingleThreadedHandlingTheVariance})
+
+\graphFloatTwo{Error of the Transfer Volume of the Read Kernel with $K=10$}
+{yonah/valTBThReadMinError}{MemBus}
+{yonah/valTBALTThReadMinError}{MemL2} 
+
+\graphFloatTwo{Error of the Transfer Volume of the Write Kernel with $K=10$}
+{yonah/valTBThWriteMinError}{MemBus}
+{yonah/valTBALTThWriteMinError}{MemL2} 
+
+\graphFloatTwo{Error of the Transfer Volume of the Triad Kernel with $K=10$}
+{yonah/valTBThTriadMinError}{MemBus}
+{yonah/valTBALTThTriadMinError}{MemL2} 
+
+When measuring the transfer volume we achieve a variation below 10\%. The
+overhead is around 20\% for small buffers, and goes towards zero for transfer
+volumes exceeding 10MB. (figs \ref{yonah/valTBThReadMinError},
+\ref{yonah/valTBThWriteMinError} and \ref{yonah/valTBThTriadMinError})
+
+\graphFloat{yonah/valTimeThReadMemMinError}{Error of the Execution Time of two
+Read Kernels running at the same time with $K=10$}
+
+\graphFloat{yonah/valTimeThWriteMemMinError}{Error of the Execution Time of two
+Write Kernels running at the same time with $K=10$}
+
+\graphFloat{yonah/valTimeThTriadMemMinError}{Error of the Execution Time of two
+Triad Kernels running at the same time with $K=10$}
+
+For the execution time, we observe huge variations for small buffer sizes. If
+the expected transfer volume exceeds 20KB, the variations drop to around 10\%
+and become large again for transfer volumes exceeding 10MB. (figs.
+\ref{yonah/valTimeThReadMemMinError}, \ref{yonah/valTimeThWriteMemMinError} and
+\ref{yonah/valTimeThTriadMemMinError})
+
+\graphFloat{yonah/valTimeThAddArithMinError}{Error of the Execution Time of two
+ADD Kernels running at the same time with $K=10$}
+
+The variations observed when running two ADD kernels in parallel are small
+except for iteration counts below 100000. (fig.
+\ref{yonah/valTimeThAddArithMinError})
+
+\graphFloat{yonah/valOpThMinError}{Error of the Operation Count with $K=10$}
+As expected, the results for the operation count are perfect (fig. \ref{yonah/valOpThMinError})
+
+Summarizing our results, using the minimum of $K$ scheme with $K=10$ the
+arithmetic kernels can be measured with high precision and accuracy. 
+
+The results of measuring the transfer volume of memory intensive kernels are
+scattered within 10\% of the reference value and overestimated by about 20\% for
+transfer volumes below 10MB. The results of measuring the execution time have
+generally a high variance, except for transfer volumes between 20KB and 10MB.
 
 \clearpage
 \section{Measurement Tool Architecture}

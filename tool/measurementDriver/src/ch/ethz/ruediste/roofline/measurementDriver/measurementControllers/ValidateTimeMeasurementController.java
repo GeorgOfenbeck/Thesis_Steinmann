@@ -70,6 +70,51 @@ public class ValidateTimeMeasurementController extends
 	@Inject
 	public SystemInfoService systemInfoService;
 
+	/*private void measure2(String outputName) {
+		final List<Integer> cpus = systemInfoService.getOnlineCPUs();
+		final Coordinate kernelCoordinate = createReadKernelCoordinate();
+		long problemSize = 256;
+		DistributionPlot plotValues = new DistributionPlot();
+
+		plotValues.setOutputName(outputName + "Mem2Values")
+				.setTitle("Time Values").setLog()
+				.setxLabel("Expected Transfer Volume")
+				.setxUnit("Bytes").setyLabel("time").setyUnit("Cycles");
+
+		ArrayList<QuantityCalculator<Time>> calcs = new ArrayList<QuantityCalculator<Time>>();
+		for (int cpu : cpus) {
+			calcs.add(quantityMeasuringService
+					.getExecutionTimeCalculator(ClockType.CoreCycles));
+		}
+
+		QuantityCalculator<Time> timeCalc = quantityMeasuringService
+				.getExecutionTimeCalculator(ClockType.uSecs);
+		double time = 0;
+
+		while (time < 1e5) {
+			IMeasurementBuilder builder = new IMeasurementBuilder() {
+
+				public Measurement build(Map<Object, MeasurerSet> sets) {
+					Measurement measurement = new Measurement();
+					for (int cpu : cpus) {
+						Workload workload = new Workload();
+						measurement.addWorkload(workload);
+
+						KernelBase kernel = KernelBase
+								.create(kernelCoordinate.getExtendedPoint(
+										bufferSizeAxis, problemSize));
+						workload.setKernel(kernel);
+					}
+					return measurement;
+				}
+			};
+
+			QuantityMap result = quantityMeasuringService
+					.measureQuantities(builder, 10).with("main", calc).get();
+		}
+		plotService.plot(plotValues);
+	}*/
+
 	private void measureHistogram(String outputName,
 			Coordinate... kernelCoordinates) throws ExecuteException,
 			IOException {
@@ -178,7 +223,8 @@ public class ValidateTimeMeasurementController extends
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "ArithError")
 					.setTitle("Time Error").setLogX().setxLabel("expOpCount")
-					.setKeyPosition(KeyPosition.TopLeft).setxUnit("operations")
+					.setKeyPosition(KeyPosition.TopRight)
+					.setxUnit("operations")
 					.setyLabel("err(time/min(time))").setyUnit("%");
 		}
 
@@ -242,7 +288,7 @@ public class ValidateTimeMeasurementController extends
 				DistributionPlot plotValues) {
 			plotValues.setOutputName(outputName + "MemValues")
 					.setTitle("Time Values").setLog()
-					.setxLabel("Expected Memory Transfer")
+					.setxLabel("Expected Transfer Volume")
 					.setxUnit("Bytes").setyLabel("time").setyUnit("Cycles");
 		}
 
@@ -251,7 +297,7 @@ public class ValidateTimeMeasurementController extends
 				DistributionPlot plotMinValues) {
 			plotMinValues.setOutputName(outputName + "MemMinValues")
 					.setTitle("Time Min Values").setLog()
-					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
+					.setxLabel("Expected Transfer Volume").setxUnit("Bytes")
 					.setyLabel("time10").setyUnit("Cycles");
 		}
 
@@ -259,7 +305,7 @@ public class ValidateTimeMeasurementController extends
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "MemError")
 					.setTitle("Time Error").setLogX()
-					.setxLabel("Expected Memory Transfer")
+					.setxLabel("Expected Transfer Volume")
 					.setxUnit("Bytes").setyLabel("err(time/min(time))")
 					.setKeyPosition(KeyPosition.TopRight);
 
@@ -270,7 +316,7 @@ public class ValidateTimeMeasurementController extends
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "MemMinError")
 					.setTitle("Time Min Error").setLogX()
-					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
+					.setxLabel("Expected Transfer Volume").setxUnit("Bytes")
 					.setyLabel("err(time10/min(time10))").setyUnit("%")
 					.setKeyPosition(KeyPosition.TopRight);
 		}

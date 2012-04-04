@@ -5,7 +5,7 @@
 	baseType="ActionBase"
 	cSuffix="Data"
 	javaSuffix="Data"
-	comment="Action stopping a kernel">
+	comment="Action waiting for a workload to exit">
 
 	<field name="waitForWorkload" type="Workload" comment="workload to wait for"/>
 </derivedClass>

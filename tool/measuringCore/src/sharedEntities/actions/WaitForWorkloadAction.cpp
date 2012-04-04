@@ -11,6 +11,7 @@
 #include <string.h>
 #include <cstdio>
 #include <cstdlib>
+#include "baseClasses/events/WorkloadEvent.h"
 
 WaitForWorkloadAction::~WaitForWorkloadAction() {
 	// TODO Auto-generated destructor stub
@@ -21,7 +22,9 @@ void WaitForWorkloadAction::executeImp(EventBase *event) {
 }
 
 void WaitForWorkloadAction::handleEvent(EventBase *event) {
-	workloadStartedBarrier->open();
+	if (workloadStartEventPredicate.doesMatch(event)){
+		workloadStartedBarrier->open();
+	}
 }
 
 void WaitForWorkloadAction::initialize() {
@@ -30,6 +33,7 @@ void WaitForWorkloadAction::initialize() {
 
 	// listen for start events
 	workloadStartEventPredicate.setWorkload(getWaitForWorkload());
+	workloadStartEventPredicate.setEventNr(WorkloadEvent_KernelStop);
 	Locator::addEventListener(this);
 }
 

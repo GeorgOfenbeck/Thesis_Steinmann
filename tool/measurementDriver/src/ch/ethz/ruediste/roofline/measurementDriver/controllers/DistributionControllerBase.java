@@ -78,7 +78,7 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 							measurement.setOverallMeasurerSet(sets
 									.get("execTime"));
 
-						PressureBarrier barrier = new PressureBarrier(
+						PressureBarrier startBarrier = new PressureBarrier(
 								cpus.size());
 
 						for (int i : cpus) {
@@ -99,8 +99,7 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 													workload,
 													WorkloadEventEnum.KernelStart),
 											new WaitForPressureBarrierAction(
-													barrier, 1)));
-
+													startBarrier, 1)));
 						}
 
 						return measurement;
@@ -141,7 +140,7 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 					String kernelName = kernel.getLabel();
 					String histogramName = getHistogramName(kernel, problemSize);
 					if (cpus.size() > 1) {
-						kernelName += i;
+						kernelName += "-" + i;
 						if (histogramName != null)
 							histogramName += "-" + i;
 					}

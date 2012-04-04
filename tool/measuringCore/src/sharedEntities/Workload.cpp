@@ -111,13 +111,7 @@ void Workload::startInThread() {
 		size_t size = CPU_ALLOC_SIZE(getCpu());
 		CPU_ZERO_S(size, mask);
 		CPU_SET_S(getCpu(), size, mask);
-		sched_setaffinity(0, size, mask);
-	}
-
-	LTRACE("raise start event")
-	{
-		WorkloadEvent *event = new WorkloadEvent(this, WorkloadEvent_Start);
-		Locator::dispatchEvent(event);
+		sched_setaffinity(tid, size, mask);
 	}
 
 	LTRACE("initializing Kernel");
@@ -125,6 +119,12 @@ void Workload::startInThread() {
 
 	LTRACE("initializing Measurer Set");
 	getMeasurerSet()->initialize();
+
+	LTRACE("raise start event")
+	{
+		WorkloadEvent *event = new WorkloadEvent(this, WorkloadEvent_Start);
+		Locator::dispatchEvent(event);
+	}
 
 	LTRACE("starting validation measurers")
 	getMeasurerSet()->startValidationMeasurers();
