@@ -11,7 +11,6 @@ import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
-import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
@@ -51,58 +50,64 @@ public class ValidateTransferredBytesMeasurementController extends
 	@Inject
 	PlotService plotService;
 
-	@Inject
-	Configuration configuration;
-
 	public void measure(String outputName) throws IOException {
-		measureImp(outputName);
+		measureImp(outputName, MemoryTransferBorder.LlcRamBus);
 
 		log.info("Measuring ALT");
-		configuration.push();
-		configuration.set(QuantityMeasuringService.useAltTBKey, true);
-		measureImp(outputName + "ALT");
+		measureImp(outputName + "ALT", MemoryTransferBorder.LlcRamLines);
 
-		configuration.pop();
 	}
 
 	/**
 	 * @param outputName
+	 * @param mtb
 	 * @throws ExecuteException
 	 * @throws IOException
 	 */
-	protected void measureImp(String outputName) throws ExecuteException,
+	protected void measureImp(String outputName, MemoryTransferBorder mtb)
+			throws ExecuteException,
 			IOException {
 
-		measureThreadedMem(outputName, "ThRead", createReadKernelCoordinate());
-		measureThreadedMem(outputName, "ThWrite", createWriteKernelCoordinate());
-		measureThreadedMem(outputName, "ThTriad", createTriadKernelCoordinate());
+		measureThreadedMem(outputName, "ThRead", createReadKernelCoordinate(),
+				mtb);
+		measureThreadedMem(outputName, "ThWrite",
+				createWriteKernelCoordinate(), mtb);
+		measureThreadedMem(outputName, "ThTriad",
+				createTriadKernelCoordinate(), mtb);
 
-		instantiator.getInstance(MemController.class).measure(outputName,
-				cpuSingletonList(), createMemKernelCoordinates());
+		instantiator.getInstance(MemController.class)
+				.setMemoryTransferBorder(mtb).measure(outputName,
+						cpuSingletonList(), createMemKernelCoordinates());
 
-		instantiator.getInstance(ArithController.class).measure(outputName,
-				cpuSingletonList(), createArithKernelCoordinates());
+		instantiator.getInstance(ArithController.class)
+				.setMemoryTransferBorder(mtb).measure(outputName,
+						cpuSingletonList(), createArithKernelCoordinates());
 
-		instantiator.getInstance(MemFlushController.class).measure(outputName,
-				cpuSingletonList(), createMemKernelCoordinates());
+		instantiator.getInstance(MemFlushController.class)
+				.setMemoryTransferBorder(mtb).measure(outputName,
+						cpuSingletonList(), createMemKernelCoordinates());
 	}
 
 	/**
 	 * @param outputName
 	 * @param name
 	 * @param kernelCoordinate
+	 * @param mtb
 	 * @throws ExecuteException
 	 * @throws IOException
 	 */
 	protected void measureThreadedMem(String outputName, String name,
-			Coordinate kernelCoordinate) throws ExecuteException, IOException {
+			Coordinate kernelCoordinate, MemoryTransferBorder mtb)
+			throws ExecuteException, IOException {
 		MemController ctrl = instantiator.getInstance(MemController.class);
+		ctrl.setMemoryTransferBorder(mtb);
 		ctrl.measure(
 				outputName + name,
 				toList(head(systemInfoService.getOnlineCPUs())),
 				kernelCoordinate);
 
 		MemController thCtrl = instantiator.getInstance(MemController.class);
+		thCtrl.setMemoryTransferBorder(mtb);
 		thCtrl.measure(
 				outputName + name,
 				systemInfoService.getOnlineCPUs(),
@@ -119,9 +124,17 @@ public class ValidateTransferredBytesMeasurementController extends
 	private static class ArithController extends
 			DistributionNoExpectationController<TransferredBytes> {
 
+		private MemoryTransferBorder mtb;
+
 		@Override
 		protected double getX(KernelBase kernel, long problemSize) {
 			return kernel.getExpectedOperationCount().getValue();
+		}
+
+		public ArithController setMemoryTransferBorder(
+				MemoryTransferBorder mtb) {
+			this.mtb = mtb;
+			return this;
 		}
 
 		@Override
@@ -135,7 +148,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		protected QuantityCalculator<TransferredBytes> createCalculator(
 				KernelBase kernel) {
 			return quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+					.getTransferredBytesCalculator(mtb);
 		}
 
 		@Override
@@ -184,10 +197,18 @@ public class ValidateTransferredBytesMeasurementController extends
 	private static class MemFlushController extends
 			DistributionNoExpectationController<TransferredBytes> {
 
+		private MemoryTransferBorder mtb;
+
 		@Override
 		protected double getX(KernelBase kernel, long problemSize) {
 			return kernel.getExpectedTransferredBytes(
 					systemInfoService.getSystemInformation()).getValue();
+		}
+
+		public MemFlushController setMemoryTransferBorder(
+				MemoryTransferBorder mtb) {
+			this.mtb = mtb;
+			return this;
 		}
 
 		@Override
@@ -211,7 +232,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		protected QuantityCalculator<TransferredBytes> createCalculator(
 				KernelBase kernel) {
 			return quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+					.getTransferredBytesCalculator(mtb);
 		}
 
 		@Override
@@ -281,6 +302,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		long sz = 1024 * 256;
 		PointPlot plotPoint = new PointPlot();
 		SimplePlot plotSimple = new SimplePlot();
+		private MemoryTransferBorder mtb;
 
 		@Override
 		protected void measureEnter(String outputName, List<Integer> cpus,
@@ -293,6 +315,11 @@ public class ValidateTransferredBytesMeasurementController extends
 					.setTitle("Raw Results")
 					.setxLabel("Measurement Run Number").setxUnit("1")
 					.setyLabel("Transfer Volume").setyUnit("Bytes");
+		}
+
+		public MemController setMemoryTransferBorder(MemoryTransferBorder mtb) {
+			this.mtb = mtb;
+			return this;
 		}
 
 		@Override
@@ -368,7 +395,7 @@ public class ValidateTransferredBytesMeasurementController extends
 		protected QuantityCalculator<TransferredBytes> createCalculator(
 				KernelBase kernel) {
 			return quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+					.getTransferredBytesCalculator(mtb);
 		}
 
 		@Override

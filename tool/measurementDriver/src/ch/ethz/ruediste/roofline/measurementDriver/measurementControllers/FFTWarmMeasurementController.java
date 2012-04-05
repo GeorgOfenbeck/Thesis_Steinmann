@@ -180,7 +180,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		IMeasurementBuilder builder = getBuilder(c);
 
 		QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
-				.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+				.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
 		QuantityMap quantities = quantityMeasuringService
 				.measureQuantities(builder, 20).with("main", calc).get();
 
@@ -242,7 +242,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 			IMeasurementBuilder builder = getBuilder(coordinate);
 
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
 
 			QuantityMap quantities = quantityMeasuringService
 					.measureQuantities(builder, 10).with("main", calc).get();
@@ -269,7 +269,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 					.addRooflinePoint(name,
 							matrixSize.toString(), builder,
 							kernel.getSuggestedOperation(),
-							MemoryTransferBorder.LlcRam);
+							MemoryTransferBorder.LlcRamBus);
 		}
 		configuration.pop();
 

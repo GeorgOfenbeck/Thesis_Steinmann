@@ -43,7 +43,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		System.out.printf("peak tp: %f\n", rooflineService
 				.measurePeakThroughput(PeakAlgorithm.Load,
-						MemoryTransferBorder.LlcRam, ClockType.CoreCycles)
+						MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles)
 				.getValue());
 
 		Axis<Long> prefetchDistanceAxis = new Axis<Long>(
@@ -93,11 +93,11 @@ public class MemoryMeasurementController implements IMeasurementController {
 			kernel.initialize(coordinate);
 
 			Throughput throughput = quantityMeasuringService.measureThroughput(
-					kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
+					kernel, MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles);
 
 			TransferredBytes transferredBytes = quantityMeasuringService
 					.measureTransferredBytes(kernel,
-							MemoryTransferBorder.LlcRam);
+							MemoryTransferBorder.LlcRamBus);
 
 			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
 					coordinate.toString(),

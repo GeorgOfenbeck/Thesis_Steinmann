@@ -5,10 +5,10 @@ import java.io.IOException;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.sharedEntities.Operation;
-import ch.ethz.ruediste.roofline.sharedEntities.kernels.DgemvKernel;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 
 import com.google.inject.Inject;
 
@@ -21,6 +21,9 @@ public class DgemvMeasurementController implements IMeasurementController {
 	public String getDescription() {
 		return "run Matrix-Vector multiplication";
 	}
+
+	@Inject
+	public SystemInfoService systemInfoService;
 
 	@Inject
 	QuantityMeasuringService quantityMeasuringService;
@@ -36,17 +39,25 @@ public class DgemvMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
-		addRooflinePoints(rooflineController, true);
-		addRooflinePoints(rooflineController, false);
+		ParameterSpace space = new ParameterSpace();
+		space.add(DaxpyKernel.useMklAxis, true);
+		space.add(DaxpyKernel.useMklAxis, false);
+		space.add(DaxpyKernel.numThreadsAxis, 1);
+		space.add(DaxpyKernel.numThreadsAxis, systemInfoService.getOnlineCPUs()
+				.size());
+
+		for (Coordinate coord : space) {
+			addRooflinePoints(rooflineController, coord);
+		}
 		rooflineController.plot();
 	}
 
 	/**
 	 * @param rooflineController
-	 * @param useMkl
+	 * @param coord
 	 */
 	public void addRooflinePoints(RooflineController rooflineController,
-			boolean useMkl) {
+			Coordinate coord) {
 		configuration.push();
 		for (long matrixSize = 500; matrixSize <= 10000; matrixSize += 500) {
 			if (matrixSize > 2000) {
@@ -56,14 +67,15 @@ public class DgemvMeasurementController implements IMeasurementController {
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
 			}
 			DgemvKernel kernel = new DgemvKernel();
+			kernel.initialize(coord);
 			kernel.setOptimization("-O3");
 			kernel.setMatrixSize(matrixSize);
-			kernel.setUseMkl(useMkl);
 
-			rooflineController.addRooflinePoint(useMkl ? "MVM-Mkl"
-					: "MVM-OpenBlas", Long.toString(matrixSize), kernel,
-					useMkl ? Operation.DoublePrecisionFlop
-							: Operation.CompInstr, MemoryTransferBorder.LlcRam);
+			rooflineController
+					.addRooflinePoint(kernel.getLabel(),
+							Long.toString(matrixSize), kernel,
+							kernel.getSuggestedOperation(),
+							MemoryTransferBorder.LlcRamLines);
 		}
 		configuration.pop();
 	}

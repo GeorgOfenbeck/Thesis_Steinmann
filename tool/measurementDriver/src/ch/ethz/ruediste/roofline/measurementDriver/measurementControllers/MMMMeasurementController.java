@@ -1,16 +1,14 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
-import static ch.ethz.ruediste.roofline.sharedEntities.Axes.matrixSizeAxis;
-
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.KeyPosition;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
-import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
@@ -27,85 +25,59 @@ public class MMMMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	QuantityMeasuringService quantityMeasuringService;
+	public QuantityMeasuringService quantityMeasuringService;
 
 	@Inject
-	RooflineController rooflineController;
+	public RooflineController rooflineController;
 
 	@Inject
-	Configuration configuration;
+	public Configuration configuration;
+
+	@Inject
+	public SystemInfoService systemInfoService;
 
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Matrix-Matrix-Multiplication");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
+		rooflineController.getPlot().setKeyPosition(KeyPosition.BottomRight);
 
-		addSeries(rooflineController, false,
-				MMMAlgorithm.MMMAlgorithm_TrippleLoop,
-				MMMAlgorithm.MMMAlgorithm_Blas_Openblas,
-				MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
+		{
+			ParameterSpace space = new ParameterSpace();
 
-		addBlockedSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_Blocked);
-		//addBlockedSeries(rooflineController, MMMAlgorithm.MMMAlgorithm_Blocked_Restrict);
+			space.add(MMMKernel.MMMAlgorithmAxis,
+					MMMAlgorithm.MMMAlgorithm_TrippleLoop);
+			space.add(MMMKernel.MMMAlgorithmAxis,
+					MMMAlgorithm.MMMAlgorithm_Blocked);
+			space.add(MMMKernel.MMMAlgorithmAxis,
+					MMMAlgorithm.MMMAlgorithm_Blocked_Restrict);
+
+			space.add(BlasKernelBase.numThreadsAxis, 1);
+
+			for (Coordinate coordinate : space) {
+				addSeries(rooflineController, coordinate);
+			}
+		}
+
+		{
+			ParameterSpace space = new ParameterSpace();
+
+			space.add(MMMKernel.MMMAlgorithmAxis,
+					MMMAlgorithm.MMMAlgorithm_Blas);
+
+			space.add(BlasKernelBase.numThreadsAxis, 1);
+			space.add(BlasKernelBase.numThreadsAxis, systemInfoService
+					.getOnlineCPUs().size());
+
+			space.add(BlasKernelBase.useMklAxis, false);
+			space.add(BlasKernelBase.useMklAxis, true);
+
+			for (Coordinate coordinate : space) {
+				addSeries(rooflineController, coordinate);
+			}
+		}
 
 		rooflineController.plot();
-	}
-
-	/**
-	 * @param rooflineController
-	 */
-	public void addBlockedSeries(RooflineController rooflineController,
-			MMMAlgorithm algorithm) {
-		{
-			configuration.push();
-			for (long i = 100; i <= 1200; i += 100) {
-				if (i < 400) {
-					configuration.set(QuantityMeasuringService.numberOfRunsKey,
-							10);
-				}
-				else {
-					configuration.set(QuantityMeasuringService.numberOfRunsKey,
-							1);
-				}
-
-				MMMKernel kernel = new MMMKernel();
-				kernel.setMatrixSize(i);
-				kernel.setMu(2);
-				kernel.setNu(2);
-				kernel.setKu(2);
-				kernel.setNb(50);
-				kernel.setNoCheck(true);
-				kernel.setAlgorithm(algorithm);
-				kernel.setOptimization("-O3");
-
-				String label = Long.toString(i);
-				System.out.printf("Measuring %s\n", label);
-
-				Operation operation = Operation.CompInstr;
-
-				rooflineController
-						.addRooflinePoint(
-								algorithm == MMMAlgorithm.MMMAlgorithm_Blocked_Restrict ? "MMM-Blocked-Restrict"
-										: "MMM-Blocked", label, kernel,
-								operation, MemoryTransferBorder.LlcRam);
-
-				/*Performance performance = quantityMeasuringService
-				.measurePerformance(kernel, operation, ClockType.CoreCycles);
-				System.out.printf("Performance %s: %s\n", coordinate, performance);*/
-
-				/*OperationCount operationCount = quantityMeasuringService
-						.measureOperationCount(kernel, operation);
-				System.out.printf("Operations Blocked %d: %s\n", i,
-						operationCount);*/
-
-				/*TransferredBytes bytes = quantityMeasuringService
-						.measureTransferredBytes(kernel,
-								MemoryTransferBorder.LlcRam);*/
-
-				// System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
-			}
-			configuration.pop();
-		}
 	}
 
 	/**
@@ -115,30 +87,15 @@ public class MMMMeasurementController implements IMeasurementController {
 	 *            TODO
 	 */
 	public void addSeries(RooflineController rooflineController,
-			boolean multiThreaded, MMMAlgorithm... algorithms) {
+			Coordinate coordinate) {
 		{
+			// save configuration
 			configuration.push();
-			ParameterSpace space = new ParameterSpace();
-			for (long i = 100; i <= 2000; i += 100) {
-				space.add(Axes.matrixSizeAxis, i);
-			}
 
-			space.add(Axes.optimizationAxis, "-O3");
-			Axis<MMMKernel.MMMAlgorithm> algorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
-					"742250a7-5ea2-4a39-b0c6-7145d0c4b292", "algorithm");
+			for (long matrixSize = 100; matrixSize <= 2000; matrixSize += 100) {
 
-			// add supplied algorithms to the space
-			for (MMMAlgorithm algorithm : algorithms) {
-				if (algorithm == MMMAlgorithm.MMMAlgorithm_Blocked) {
-					throw new Error(
-							"use addBlockedSeries for Blocked algorithm");
-				}
-				space.add(algorithmAxis, algorithm);
-			}
-
-			for (Coordinate coordinate : space
-					.getAllPoints(algorithmAxis, null)) {
-				if (coordinate.get(matrixSizeAxis) < 400) {
+				// set number of runs dependant on matrix size
+				if (matrixSize < 400) {
 					configuration.set(QuantityMeasuringService.numberOfRunsKey,
 							10);
 				}
@@ -146,43 +103,39 @@ public class MMMMeasurementController implements IMeasurementController {
 					configuration.set(QuantityMeasuringService.numberOfRunsKey,
 							1);
 				}
+
 				// skip large sizes for tripple loop
-				if (coordinate.get(algorithmAxis) == MMMAlgorithm.MMMAlgorithm_TrippleLoop
-						&& coordinate.get(Axes.matrixSizeAxis) > 704) {
+				if (coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_TrippleLoop
+						&& matrixSize > 704) {
 					continue;
 				}
-				MMMKernel kernel = new MMMKernel();
-				kernel.setNoCheck(true);
-				kernel.setAlgorithm(coordinate.get(algorithmAxis));
-				kernel.setMultiThreaded(multiThreaded);
-				kernel.initialize(coordinate);
 
-				// get the name of the series
-				String seriesName;
-				switch (coordinate.get(algorithmAxis)) {
-				case MMMAlgorithm_Blas_Mkl:
-					seriesName = "MMM-Mkl";
-				break;
-				case MMMAlgorithm_Blas_Openblas:
-					seriesName = "MMM-OpenBlas";
-				break;
-				case MMMAlgorithm_TrippleLoop:
-					seriesName = "MMM-TripleLoop";
-				break;
-				default:
-					throw new Error("Should not happen");
-
+				// skip large sizes for blocked
+				if (coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_Blocked
+						&& matrixSize > 1200) {
+					continue;
 				}
 
-				if (multiThreaded)
-					seriesName += "-MultiThreaded";
+				// skip large sizes for blocked restrict
+				if (coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_Blocked_Restrict
+						&& matrixSize > 1200) {
+					continue;
+				}
 
-				// get the label for the point
-				String label = coordinate.get(Axes.matrixSizeAxis).toString();
+				MMMKernel kernel = new MMMKernel();
+				kernel.initialize(coordinate);
+				kernel.setMu(2);
+				kernel.setNu(2);
+				kernel.setKu(2);
+				kernel.setNb(50);
+				kernel.setOptimization("-O3");
+				kernel.setNoCheck(true);
+				kernel.setMatrixSize(matrixSize);
 
-				rooflineController.addRooflinePoint(seriesName, label, kernel,
+				rooflineController.addRooflinePoint(kernel.getLabel(),
+						Long.toString(matrixSize), kernel,
 						kernel.getSuggestedOperation(),
-						MemoryTransferBorder.LlcRam);
+						MemoryTransferBorder.LlcRamLines);
 
 				/*Performance performance = quantityMeasuringService
 				.measurePerformance(kernel, operation, ClockType.CoreCycles);
@@ -195,7 +148,7 @@ public class MMMMeasurementController implements IMeasurementController {
 
 				/*TransferredBytes bytes = quantityMeasuringService
 						.measureTransferredBytes(kernel,
-								MemoryTransferBorder.LlcRam);*/
+								MemoryTransferBorder.LlcRamBus);*/
 
 				// System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);
 			}

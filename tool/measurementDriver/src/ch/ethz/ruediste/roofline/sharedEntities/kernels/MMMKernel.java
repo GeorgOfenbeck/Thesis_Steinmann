@@ -1,28 +1,18 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.Coordinate;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class MMMKernel extends MMMKernelData {
+	public final static Axis<MMMAlgorithm> MMMAlgorithmAxis = new Axis<MMMKernel.MMMAlgorithm>(
+			"329738cc-61c3-4223-a627-3858048809da", "MMMAlgorithm");
+
 	private static final MacroKey algorithmMacro = MacroKey.Create(
 			"RMT_MMM_Algorithm", "specifies the algorithm to be used",
 			"MMMAlgorithm_TrippleLoop");
 
 	public enum MMMAlgorithm {
-		MMMAlgorithm_TrippleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blocked_Restrict, MMMAlgorithm_Blas_Openblas, MMMAlgorithm_Blas_Mkl
-	}
-
-	@Override
-	public String getAdditionalLibraries(SystemInformation systemInformation) {
-		if (getAlgorithm() == MMMAlgorithm.MMMAlgorithm_Blas_Mkl) {
-			return LibraryHelper.getMklLibs(getMultiThreaded(), systemInformation);
-		}
-
-		if (getAlgorithm() == MMMAlgorithm.MMMAlgorithm_Blas_Openblas) {
-			return "-lblas";
-		}
-
-		return super.getAdditionalLibraries(systemInformation);
+		MMMAlgorithm_TrippleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blocked_Restrict, MMMAlgorithm_Blas
 	}
 
 	public void setAlgorithm(MMMAlgorithm algorithm) {
@@ -81,6 +71,9 @@ public class MMMKernel extends MMMKernelData {
 	public void initialize(Coordinate coordinate) {
 		super.initialize(coordinate);
 
+		if (coordinate.contains(MMMAlgorithmAxis))
+			setAlgorithm(coordinate.get(MMMAlgorithmAxis));
+
 		if (coordinate.contains(Axes.matrixSizeAxis))
 			setMatrixSize(coordinate.get(Axes.matrixSizeAxis));
 		if (coordinate.contains(Axes.blockSizeAxis))
@@ -89,10 +82,11 @@ public class MMMKernel extends MMMKernelData {
 
 	@Override
 	public Operation getSuggestedOperation() {
-		switch (getAlgorithm()) {
-		case MMMAlgorithm_Blas_Mkl:
+		if (getAlgorithm() == MMMAlgorithm.MMMAlgorithm_Blas && isUseMkl())
 			return Operation.DoublePrecisionFlop;
-		case MMMAlgorithm_Blas_Openblas:
+
+		switch (getAlgorithm()) {
+		case MMMAlgorithm_Blas:
 		case MMMAlgorithm_Blocked:
 		case MMMAlgorithm_Blocked_Restrict:
 		case MMMAlgorithm_TrippleLoop:
@@ -104,18 +98,16 @@ public class MMMKernel extends MMMKernelData {
 
 	@Override
 	public String getLabel() {
+
 		switch (getAlgorithm()) {
-		case MMMAlgorithm_Blas_Mkl:
-			return "MMM-MKL";
-		case MMMAlgorithm_Blas_Openblas:
-			return "MMM-OpenBlas";
+		case MMMAlgorithm_Blas:
+			return "MMM" + getLabelSuffix();
 		case MMMAlgorithm_Blocked:
 			return "MMM-Blocked";
 		case MMMAlgorithm_Blocked_Restrict:
 			return "MMM-Restrict";
 		case MMMAlgorithm_TrippleLoop:
 			return "MMM-Tripple";
-
 		}
 		throw new Error("should not happen");
 	}

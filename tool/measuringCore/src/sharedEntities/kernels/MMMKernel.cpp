@@ -15,6 +15,8 @@
 #include "Exception.h"
 
 void MMMKernel::initialize() {
+	BlasKernelBase::initialize();
+
 	srand48(0);
 	size_t size = getMatrixSize();
 	// square the size
@@ -59,7 +61,7 @@ void MMMKernel::initialize() {
 }
 
 void MMMKernel::blas(double *a, double *b, double *c) {
-#if RMT_MMM_Algorithm__MMMAlgorithm_Blas_Openblas || RMT_MMM_Algorithm__MMMAlgorithm_Blas_Mkl
+#if RMT_MMM_Algorithm__MMMAlgorithm_Blas
 	LENTER
 	int size = getMatrixSize();
 	cblas_dgemm(

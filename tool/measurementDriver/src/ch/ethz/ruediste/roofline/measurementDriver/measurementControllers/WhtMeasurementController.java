@@ -36,7 +36,7 @@ public class WhtMeasurementController implements IMeasurementController {
 			WhtKernel kernel = new WhtKernel();
 			kernel.setBufferSizeExp(size);
 			rooflineController.addRooflinePoint("WHT", Integer.toString(size),
-					kernel, Operation.CompInstr, MemoryTransferBorder.LlcRam);
+					kernel, Operation.CompInstr, MemoryTransferBorder.LlcRamBus);
 		}
 		rooflineController.plot();
 	}

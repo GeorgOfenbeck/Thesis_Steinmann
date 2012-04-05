@@ -39,13 +39,13 @@ public class DiskIoMeasurementController implements IMeasurementController {
 
 			kernel.setFileSize(1024L * 1024L * size);
 			kernel.setIterations(iterations);
+			kernel.setWarmData(true);
+			kernel.setWarmCode(true);
 
 			MeasurerSet measurerSet = new MeasurerSet();
 			ExecutionTimeMeasurer measurer = new ExecutionTimeMeasurer();
 			measurerSet.setMainMeasurer(measurer);
 			workload.setMeasurerSet(measurerSet);
-			workload.setWarmData(true);
-			workload.setWarmCode(true);
 
 			MeasurementResult result = measurementService.measure(measurement,
 					1);

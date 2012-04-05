@@ -2,7 +2,7 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	baseType="KernelBase"
+	baseType="BlasKernelBase"
 	javaSuffix="Data"
 	cSuffix="Data"
 	comment="Kernel doing Matrix-Vector multiplications"> 

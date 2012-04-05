@@ -26,10 +26,6 @@ public class QuantityMeasuringService {
 					"number of runs the QuantityMeasuringService should perform to get reliable results",
 					10);
 
-	public static ConfigurationKey<Boolean> useAltTBKey = ConfigurationKey
-			.Create(Boolean.class, "altTB", "use alternative TB measurer",
-					false);
-
 	private static Logger log = Logger
 			.getLogger(QuantityMeasuringService.class);
 
@@ -46,7 +42,7 @@ public class QuantityMeasuringService {
 			"0cbbc641-c59d-4027-bd5b-e0144da82227", "operation");
 
 	public enum MemoryTransferBorder {
-		CpuL1, L1L2, L2L3, LlcRam,
+		CpuL1, L1L2, L2L3, LlcRamBus, LlcRamLines,
 	}
 
 	public static final Axis<MemoryTransferBorder> memoryTransferBorderAxis = new Axis<MemoryTransferBorder>(
@@ -114,7 +110,8 @@ public class QuantityMeasuringService {
 	 * can be passed. The single available event is measured.
 	 */
 	private <T extends Quantity<T>> TerminalQuantityCalculator<T> createPerfEventQuantityCalculator(
-			final Class<T> clazz, Combination combination, String... events) {
+			final Class<T> clazz, final Combination combination,
+			String... events) {
 		final PerfEventMeasurer measurer = new PerfEventMeasurer();
 
 		final String eventDefinition = systemInfoService
@@ -122,6 +119,9 @@ public class QuantityMeasuringService {
 		measurer.addEvent("count", eventDefinition);
 
 		return new TerminalQuantityCalculator<T>(measurer) {
+			{
+				setCombination(combination);
+			}
 
 			@Override
 			public T getResult(Iterable<MeasurerOutputBase> outputs) {
@@ -226,28 +226,25 @@ public class QuantityMeasuringService {
 		case L1L2:
 		case L2L3:
 			throw new Error("Not Supported");
-		case LlcRam:
-			if (configuration.get(useAltTBKey)) {
-				return new MultiplyingQuantityCalculator<TransferredBytes>(
-						new AddingQuantityCalculator<TransferredBytes>(
-								createPerfEventQuantityCalculator(
-										TransferredBytes.class,
-										Combination.Sum,
-										"coreduo::L2_LINES_IN:SELF",
-										"core::L2_LINES_IN:SELF"),
-								createPerfEventQuantityCalculator(
-										TransferredBytes.class,
-										Combination.Sum,
-										"coreduo::L2_M_LINES_OUT:SELF",
-										"core::L2_M_LINES_OUT:SELF")), 64);
-			}
-			else {
-				return new MultiplyingQuantityCalculator<TransferredBytes>(
-						createPerfEventQuantityCalculator(
-								TransferredBytes.class, Combination.Sum,
-								"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM"),
-						64);
-			}
+		case LlcRamLines:
+			return new MultiplyingQuantityCalculator<TransferredBytes>(
+					new AddingQuantityCalculator<TransferredBytes>(
+							createPerfEventQuantityCalculator(
+									TransferredBytes.class,
+									Combination.Sum,
+									"coreduo::L2_LINES_IN:SELF",
+									"core::L2_LINES_IN:SELF"),
+							createPerfEventQuantityCalculator(
+									TransferredBytes.class,
+									Combination.Sum,
+									"coreduo::L2_M_LINES_OUT:SELF",
+									"core::L2_M_LINES_OUT:SELF")), 64);
+		case LlcRamBus:
+			return new MultiplyingQuantityCalculator<TransferredBytes>(
+					createPerfEventQuantityCalculator(
+							TransferredBytes.class, Combination.Sum,
+							"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM"),
+					64);
 
 		default:
 			throw new Error("should not happen");
@@ -269,17 +266,17 @@ public class QuantityMeasuringService {
 
 		case CoreCycles:
 			return createPerfEventQuantityCalculator(Time.class,
-					Combination.Min,
+					Combination.Max,
 					"core::UNHALTED_CORE_CYCLES",
 					"coreduo::UNHALTED_CORE_CYCLES");
 		case ReferenceCycles:
 			return createPerfEventQuantityCalculator(Time.class,
-					Combination.Min, "perf::PERF_COUNT_HW_BUS_CYCLES");
+					Combination.Max, "perf::PERF_COUNT_HW_BUS_CYCLES");
 		case uSecs: {
 			final ExecutionTimeMeasurer measurer = new ExecutionTimeMeasurer();
 			return new TerminalQuantityCalculator<Time>(measurer) {
 				{
-					setCombination(Combination.Min);
+					setCombination(Combination.Max);
 				}
 
 				@Override
@@ -301,7 +298,7 @@ public class QuantityMeasuringService {
 			final TscMeasurer measurer = new TscMeasurer();
 			return new TerminalQuantityCalculator<Time>(measurer) {
 				{
-					setCombination(Combination.Min);
+					setCombination(Combination.Max);
 				}
 
 				@Override

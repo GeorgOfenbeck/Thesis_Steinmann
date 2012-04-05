@@ -11,9 +11,14 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 public abstract class KernelBase extends KernelBaseData {
 
 	public void initialize(Coordinate coordinate) {
-		if (coordinate.contains(optimizationAxis)) {
+		if (coordinate.contains(optimizationAxis))
 			setOptimization(coordinate.get(optimizationAxis));
-		}
+
+		if (coordinate.contains(warmCodeAxis))
+			setWarmCode(coordinate.get(warmCodeAxis));
+
+		if (coordinate.contains(warmDataAxis))
+			setWarmData(coordinate.get(warmDataAxis));
 	}
 
 	public KernelBase() {
@@ -60,6 +65,15 @@ public abstract class KernelBase extends KernelBaseData {
 
 	public String getLabel() {
 		return StringUtils.removeEnd(getClass().getSimpleName(), "Kernel");
+	}
+
+	public String getLabelSuffix() {
+		String suffix = "";
+		if (getWarmData())
+			suffix += "-Data";
+		if (getWarmData())
+			suffix += "-Code";
+		return suffix;
 	}
 
 	public void setOptimizationFromInstructionSet(InstructionSet set) {

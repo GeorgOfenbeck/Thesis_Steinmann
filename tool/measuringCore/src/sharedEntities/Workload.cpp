@@ -198,13 +198,13 @@ void Workload::warmOrClearCaches() {
 	}
 
 	// should the code cache be warm?
-	if (getWarmCode()) {
+	if (getKernel()->getWarmCode()) {
 		// Tell the kernel to warm the code cache, which usually
 		// results in the kernel beeing executed once.
 		getKernel()->warmCodeCache();
 
 		// Should we clear the data?
-		if (!getWarmData()) {
+		if (!getKernel()->getWarmData()) {
 			getKernel()->flushBuffers();
 		}
 	} else { // Code cache should be cold.
@@ -213,7 +213,7 @@ void Workload::warmOrClearCaches() {
 		clearCaches();
 
 		// Should the data be warm?
-		if (getWarmData()) {
+		if (getKernel()->getWarmData()) {
 			// Warm the data cache by accessing each cache line of the
 			// data buffer(s).
 			getKernel()->warmDataCache();

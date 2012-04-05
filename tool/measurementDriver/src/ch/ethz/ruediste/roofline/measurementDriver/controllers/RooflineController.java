@@ -223,14 +223,14 @@ public class RooflineController {
 		switch (systemInfoService.getCpuType()) {
 		case Core:
 			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
-					MemoryTransferBorder.LlcRam);
+					MemoryTransferBorder.LlcRamBus);
 		break;
 		case Yonah:
 			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
-					MemoryTransferBorder.LlcRam);
+					MemoryTransferBorder.LlcRamBus);
 
 			addPeakThroughput("MemRand", PeakAlgorithm.RandomLoad,
-					MemoryTransferBorder.LlcRam);
+					MemoryTransferBorder.LlcRamBus);
 		break;
 		}
 	}

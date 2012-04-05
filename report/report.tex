@@ -640,6 +640,38 @@ transfer volumes below 10MB. The results of measuring the execution time have
 generally a high variance, except for transfer volumes between 20KB and 10MB.
 
 \clearpage
+
+\section{Experimental Results}
+We used our tool to measure various kernels. For each kernel we describe the
+kernel and the measurement setup and show the resulting roofline plot.
+
+\subsection{BLAS}
+Basic Linear Algebra Subprograms (BLAS) is a standard API for basic linear
+algebra operations. The functionality is divided into three levels:
+
+\begin{description}
+\item[Level 1] Vector-Vector Multiplication $\bf y \leftarrow \alpha
+\bf x + \bf y$
+\item[Level 2] Matrix-Vector Multiplication $\mathbf y \leftarrow \alpha 
+A \mathbf x  + \beta \bf{y}$
+\item[Level 3] Matrix-Matrix Multiplication $C \leftarrow \alpha A B + \beta C $
+\end{description}
+
+There are various implementations available. We chose the Intel Math Kernel
+Library (MKL) and the OpenBlas implementation. For each operation, figures
+\ref{yonah/daxpy}, \ref{yonah/dgemv} and \ref{yonah/mmm} show the results for
+both libraries, both single and multi threaded. For the matrix-matrix
+multiplication we also show the results of the tripple loop, blocking with
+$Nb=50$ and $Nu=Mu=Ku=2$ and blocking with scalar replacement (MMM-Restrict).
+
+TODO: exact definitions, what is tripple loop, blocking, sizes of the matrices
+and vectors, data types, Warm/Cold
+
+\graphFloat{yonah/daxpy}{Roofline Plot of the Vector-Vector Multiplication}
+\graphFloat{yonah/dgemv}{Roofline Plot of the Matrix-Vector Multiplication}
+\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication}
+
+\clearpage
 \section{Measurement Tool Architecture}
 The tool consists of two main components: The Measuring Core, which performs the
 actual measurements, and the Measurement Driver, which controls the core.

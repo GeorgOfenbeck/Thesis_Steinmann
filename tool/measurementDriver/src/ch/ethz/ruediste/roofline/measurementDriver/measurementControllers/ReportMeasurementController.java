@@ -12,7 +12,7 @@ import com.google.inject.Inject;
 
 public class ReportMeasurementController implements IMeasurementController {
 	private static final Logger log = Logger
-			.getLogger(RooflineMeasurementController.class);
+			.getLogger(ReportMeasurementController.class);
 
 	public String getName() {
 		return "report";

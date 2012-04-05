@@ -123,7 +123,7 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		IMeasurementBuilder builder = getBuilder(c);
 
 		QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
-				.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+				.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
 		QuantityMap quantities = quantityMeasuringService
 				.measureQuantities(builder, 20).with("main", calc).get();
 
@@ -170,7 +170,7 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 			IMeasurementBuilder builder = getBuilder(coordinate);
 
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRam);
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
 
 			QuantityMap quantities = quantityMeasuringService
 					.measureQuantities(builder, 10).with("main", calc).get();
@@ -197,7 +197,7 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 					.addRooflinePoint(name,
 							matrixSize.toString(), builder,
 							kernel.getSuggestedOperation(),
-							MemoryTransferBorder.LlcRam);
+							MemoryTransferBorder.LlcRamBus);
 		}
 		configuration.pop();
 
@@ -253,7 +253,8 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		{
 			MMMKernel kernel = new MMMKernel();
 			kernel.setOptimization("-O3");
-			kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
+			kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blas);
+			kernel.setUseMkl(true);
 			space.add(kernelAxis, kernel);
 			kernelNames.put(kernel, "MMM-Mkl");
 		}

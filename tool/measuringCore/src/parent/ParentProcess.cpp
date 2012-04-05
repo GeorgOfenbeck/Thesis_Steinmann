@@ -413,7 +413,7 @@ int ParentProcess::traceLoop() {
 			if (ptrace(PTRACE_SYSCALL, stoppedPid, 0, sendSig) < 0) {
 				LERROR("error on PTRACE_SYSCALL")
 				perror("cont: error on ptrace syscall");
-				exit(1);
+				//exit(1);
 			}
 		}
 	}

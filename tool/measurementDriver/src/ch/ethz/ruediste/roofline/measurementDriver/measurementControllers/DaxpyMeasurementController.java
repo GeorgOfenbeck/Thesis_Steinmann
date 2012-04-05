@@ -8,7 +8,6 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.KeyPosition
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
-import ch.ethz.ruediste.roofline.sharedEntities.Operation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.DaxpyKernel;
 
 import com.google.inject.Inject;
@@ -57,9 +56,11 @@ public class DaxpyMeasurementController implements IMeasurementController {
 			kernel.setOptimization("-O3");
 			kernel.setVectorSize(vectorSize);
 
-			rooflineController.addRooflinePoint(kernel.getLabel(),
-					Long.toString(vectorSize), kernel,
-					Operation.DoublePrecisionFlop, MemoryTransferBorder.LlcRam);
+			rooflineController
+					.addRooflinePoint(kernel.getLabel(),
+							Long.toString(vectorSize), kernel,
+							kernel.getSuggestedOperation(),
+							MemoryTransferBorder.LlcRamLines);
 		}
 	}
 

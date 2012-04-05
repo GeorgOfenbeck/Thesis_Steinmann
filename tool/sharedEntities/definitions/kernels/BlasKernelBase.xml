@@ -2,9 +2,10 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	baseType="BlasKernelBase"
+	baseType="KernelBase"
 	javaSuffix="Data"
 	cSuffix="Data"
-	comment="Kernel doing Vector-Vector multiplications"> 
-	<field name="vectorSize" type="long" comment="size of the vectors to be multiplied"/>
+	isAbstract="true"
+	comment="base class for kernels using BLAS via MKL or openblas"> 
+	<field name="numThreads" type="int" comment="number of threads to be used"/>
 </derivedClass>

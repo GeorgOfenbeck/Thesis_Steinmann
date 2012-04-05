@@ -7,7 +7,6 @@
 
 #include "DaxpyKernel.h"
 #include <cblas.h>
-#include "macros/RMT_DAXPY_USEMKL.h"
 
 std::vector<std::pair<void*, long> > DaxpyKernel::getBuffers() {
 	std::vector<std::pair<void*, long> > result;
@@ -20,14 +19,11 @@ std::vector<std::pair<void*, long> > DaxpyKernel::getBuffers() {
 DaxpyKernel::~DaxpyKernel() {
 }
 
-#ifdef RMT_DAXPY_USEMKL__0
-extern "C"
-{
-void openblas_set_num_threads(int num_threads);
-}
-#endif
+
 
 void DaxpyKernel::initialize() {
+	BlasKernelBase::initialize();
+
 	// seed random number generator for reproduceability
 	srand48(0);
 
@@ -49,9 +45,7 @@ void DaxpyKernel::initialize() {
 		y[i]=drand48();
 	}
 
-#ifdef RMT_DAXPY_USEMKL__0
-	openblas_set_num_threads(getNumThreads());
-#endif
+
 
 }
 

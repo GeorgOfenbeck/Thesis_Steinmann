@@ -4,7 +4,8 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.CoordinateBuilder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
@@ -35,21 +36,28 @@ public class OverviewMeasurementController implements IMeasurementController {
 	@Inject
 	FFTMeasurementController fftMeasurementController;
 
+	@Inject
+	SystemInfoService systemInfoService;
+
 	@SuppressWarnings("unchecked")
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Overview");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
-		daxpyMeasurementController.addPoints(
-				rooflineController,
-				CoordinateBuilder.createCoordinate()
-						.set(DaxpyKernel.useMklAxis, true).build());
-		dgemvMeasurementController.addRooflinePoints(rooflineController, true);
-		mmmMeasurementController.addSeries(rooflineController,
-				false, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);
-		/*mmmMeasurementController.addSeries(rooflineController,
-				true, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);*/
+		Coordinate blasCoordinate = CoordinateBuilder
+				.createCoordinate()
+				.set(DaxpyKernel.useMklAxis, true)
+				.set(BlasKernelBase.numThreadsAxis,
+						systemInfoService.getOnlineCPUs().size()).build();
+
+		daxpyMeasurementController
+				.addPoints(rooflineController, blasCoordinate);
+		dgemvMeasurementController.addRooflinePoints(rooflineController,
+				blasCoordinate);
+		mmmMeasurementController.addSeries(rooflineController, blasCoordinate
+				.getExtendedPoint(MMMKernel.MMMAlgorithmAxis,
+						MMMAlgorithm.MMMAlgorithm_Blas));
 
 		fftMeasurementController.addPoints(rooflineController,
 				FFTmklKernel.class);

@@ -2,11 +2,10 @@
 <derivedClass
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="../shared.xsd"
-	baseType="KernelBase"
+	baseType="BlasKernelBase"
 	javaSuffix="Data"
 	cSuffix="Data"
 	comment="empty kernel">
 	<field name="matrixSize" type="long" comment="Size of the two matrices to multiply"/>
 	<field name="noCheck" type="bool" comment="if true, don't check the multiplication"/>
-	<field name="multiThreaded" type="bool" comment="if true, use multiple threads" />
 </derivedClass>

@@ -21,6 +21,9 @@ DgemvKernel::~DgemvKernel() {
 }
 
 void DgemvKernel::initialize() {
+	BlasKernelBase::initialize();
+
+
 	// seed random number generator for reproduceability
 	srand48(0);
 

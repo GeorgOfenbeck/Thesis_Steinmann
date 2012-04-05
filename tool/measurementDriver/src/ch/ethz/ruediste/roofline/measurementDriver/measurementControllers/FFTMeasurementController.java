@@ -138,14 +138,14 @@ public class FFTMeasurementController implements IMeasurementController {
 
 			/*TransferredBytes bytes = quantityMeasuringService
 					.measureTransferredBytes(kernel,
-							MemoryTransferBorder.LlcRam);
+							MemoryTransferBorder.LlcRamBus);
 
 			System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);*/
 
 			rooflineController.addRooflinePoint(
 					algorithmName.get(kernel.getClass()),
 					coordinate.get(bufferSizeAxis).toString(), kernel,
-					operation, MemoryTransferBorder.LlcRam);
+					operation, MemoryTransferBorder.LlcRamBus);
 		}
 		configuration.pop();
 	}

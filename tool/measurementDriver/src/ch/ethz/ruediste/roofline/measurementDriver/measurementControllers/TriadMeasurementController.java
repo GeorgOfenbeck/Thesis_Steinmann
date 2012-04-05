@@ -39,10 +39,10 @@ public class TriadMeasurementController implements IMeasurementController {
 			kernel.setOptimization("-O3");
 
 			rooflineController.addRooflinePoint("Triad", Long.toString(size),
-					kernel, Operation.CompInstr, MemoryTransferBorder.LlcRam);
+					kernel, Operation.CompInstr, MemoryTransferBorder.LlcRamBus);
 
 			Throughput throughput = quantityMeasuringService.measureThroughput(
-					kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
+					kernel, MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles);
 
 			OperationCount operations = quantityMeasuringService
 					.measureOperationCount(kernel, Operation.CompInstr);
