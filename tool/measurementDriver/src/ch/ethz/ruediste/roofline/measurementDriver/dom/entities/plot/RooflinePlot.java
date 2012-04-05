@@ -16,7 +16,8 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 	private final HashMap<String, RooflineSeries> allSeries = new LinkedHashMap<String, RooflineSeries>();
 	private RooflineSeries currentSeries;
 
-	private boolean autoscale;
+	private boolean autoscaleX;
+	private boolean autoscaleY;
 
 	public RooflinePlot() {
 		setLogX(true);
@@ -92,21 +93,12 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 		return result;
 	}
 
-	public boolean isAutoscale() {
-		return autoscale;
-	}
-
-	public RooflinePlot setAutoscale(boolean autoscale) {
-		this.autoscale = autoscale;
-		return this;
-	}
-
 	@Override
 	public Range<Double> getXRange(SystemInformation systemInformation) {
 		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
 				.getRange(getOperationalIntensities());
 
-		if (isAutoscale()) {
+		if (isAutoscaleX()) {
 			return Range.between(operationalIntensityRange.getMinimum()
 					.getValue() / 2, operationalIntensityRange.getMaximum()
 					.getValue() * 2);
@@ -128,7 +120,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 				.getRange(getPerformances());
 
 		// set the scaling
-		if (isAutoscale()) {
+		if (isAutoscaleY()) {
 			return Range.between(performanceRange.getMinimum().getValue() / 2,
 					performanceRange.getMaximum().getValue() * 2);
 		}
@@ -145,5 +137,23 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 
 	public Collection<RooflineSeries> getAllSeries() {
 		return allSeries.values();
+	}
+
+	public boolean isAutoscaleX() {
+		return autoscaleX;
+	}
+
+	public RooflinePlot setAutoscaleX(boolean autoscaleX) {
+		this.autoscaleX = autoscaleX;
+		return This();
+	}
+
+	public boolean isAutoscaleY() {
+		return autoscaleY;
+	}
+
+	public RooflinePlot setAutoscaleY(boolean autoscaleY) {
+		this.autoscaleY = autoscaleY;
+		return This();
 	}
 }

@@ -15,6 +15,9 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasurin
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.RooflineService.PeakAlgorithm;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
+import ch.ethz.ruediste.roofline.sharedEntities.actions.CreateMeasurerOnThreadAction;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.*;
+import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPredicate.WorkloadEventEnum;
 
 import com.google.inject.Inject;
 
@@ -75,6 +78,28 @@ public class RooflineController {
 				workload.setKernel(kernel);
 				workload.setMeasurerSet(sets.get("main"));
 				measurement.addWorkload(workload);
+
+				// create predicates
+				WorkloadEventPredicate startPredicate = new WorkloadEventPredicate(
+						workload,
+						WorkloadEventEnum.KernelStart);
+
+				WorkloadEventPredicate stopPredicate = new WorkloadEventPredicate(
+						workload,
+						WorkloadEventEnum.KernelStop);
+
+				// configure create measurer action
+				{
+					CreateMeasurerOnThreadAction action = new CreateMeasurerOnThreadAction();
+					measurement.addRule(new Rule(startPredicate, action));
+
+					action.setMeasurerSet(sets.get("main"));
+
+					action.setStartPredicate(null);
+					action.setStopPredicate(stopPredicate);
+					action.setReadPredicate(stopPredicate);
+					action.setDisposePredicate(stopPredicate);
+				}
 				return measurement;
 			}
 		};
@@ -213,5 +238,9 @@ public class RooflineController {
 	public void setOutputName(String outputName) {
 		plot.setOutputName(outputName);
 
+	}
+
+	public RooflinePlot getPlot() {
+		return plot;
 	}
 }

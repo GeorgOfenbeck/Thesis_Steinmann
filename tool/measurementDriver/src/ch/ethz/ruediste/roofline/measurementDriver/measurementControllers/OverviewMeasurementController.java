@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.CoordinateBuilder;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
@@ -40,7 +41,10 @@ public class OverviewMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 
-		daxpyMeasurementController.addPoints(rooflineController, true);
+		daxpyMeasurementController.addPoints(
+				rooflineController,
+				CoordinateBuilder.createCoordinate()
+						.set(DaxpyKernel.useMklAxis, true).build());
 		dgemvMeasurementController.addRooflinePoints(rooflineController, true);
 		mmmMeasurementController.addSeries(rooflineController,
 				false, MMMAlgorithm.MMMAlgorithm_Blas_Mkl);

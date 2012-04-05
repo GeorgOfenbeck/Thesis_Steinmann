@@ -7,4 +7,5 @@
 	cSuffix="Data"
 	comment="Kernel doing Vector-Vector multiplications"> 
 	<field name="vectorSize" type="long" comment="size of the vectors to be multiplied"/>
+	<field name="numThreads" type="int" comment="number of threads to be used for OpenBlas"/>
 </derivedClass>

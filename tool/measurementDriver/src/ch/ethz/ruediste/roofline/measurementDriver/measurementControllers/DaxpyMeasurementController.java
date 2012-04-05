@@ -4,7 +4,10 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.KeyPosition;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.sharedEntities.Operation;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.DaxpyKernel;
 
@@ -21,31 +24,41 @@ public class DaxpyMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
+	public SystemInfoService systemInfoService;
+
+	@Inject
 	RooflineController rooflineController;
 
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Vector-Vector Multiplication");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
+		rooflineController.getPlot().setAutoscaleY(true)
+				.setKeyPosition(KeyPosition.BottomRight);
 
-		addPoints(rooflineController, true);
-		addPoints(rooflineController, false);
+		ParameterSpace space = new ParameterSpace();
+		space.add(DaxpyKernel.useMklAxis, true);
+		space.add(DaxpyKernel.useMklAxis, false);
+		space.add(DaxpyKernel.numThreadsAxis, 1);
+		space.add(DaxpyKernel.numThreadsAxis, systemInfoService.getOnlineCPUs()
+				.size());
+
+		for (Coordinate coord : space) {
+			addPoints(rooflineController, coord);
+		}
 		rooflineController.plot();
 	}
 
-	/**
-	 * @param rooflineController
-	 * @param useMkl
-	 */
-	public void addPoints(RooflineController rooflineController, boolean useMkl) {
+	public void addPoints(RooflineController rooflineController,
+			Coordinate coord) {
 		for (long vectorSize = 500; vectorSize <= 20000; vectorSize += 500) {
 			DaxpyKernel kernel = new DaxpyKernel();
+			kernel.initialize(coord);
 			kernel.setOptimization("-O3");
 			kernel.setVectorSize(vectorSize);
-			kernel.setUseMkl(useMkl);
 
-			rooflineController.addRooflinePoint(useMkl ? "VVM-Mkl"
-					: "VVM-OpenBlas", Long.toString(vectorSize), kernel,
+			rooflineController.addRooflinePoint(kernel.getLabel(),
+					Long.toString(vectorSize), kernel,
 					Operation.DoublePrecisionFlop, MemoryTransferBorder.LlcRam);
 		}
 	}
