@@ -92,7 +92,7 @@ public class MMMMeasurementController implements IMeasurementController {
 			// save configuration
 			configuration.push();
 
-			for (long matrixSize = 100; matrixSize <= 2000; matrixSize += 100) {
+			for (long matrixSize = 100; matrixSize <= /*2000*/500; matrixSize += 100) {
 
 				// set number of runs dependant on matrix size
 				if (matrixSize < 400) {
@@ -127,7 +127,11 @@ public class MMMMeasurementController implements IMeasurementController {
 				kernel.setMu(2);
 				kernel.setNu(2);
 				kernel.setKu(2);
-				kernel.setNb(50);
+				if (coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_Blocked
+						|| coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_Blocked_Restrict)
+					kernel.setNb(4);
+				else
+					kernel.setNb(50);
 				kernel.setOptimization("-O3");
 				kernel.setNoCheck(true);
 				kernel.setMatrixSize(matrixSize);

@@ -14,6 +14,7 @@
 #include "macros/RMT_MEMORY_OPERATION.h"
 #include "macros/RMT_MEMORY_PREFETCH_DIST.h"
 #include "macros/RMT_MEMORY_PREFETCH_TYPE.h"
+#include "macros/RMT_MEMORY_USE_STREAMING_OPERATIONS.h"
 #include "ctime"
 #include <stdint.h>
 
@@ -130,8 +131,13 @@ void MemoryKernel::run() {
 		for (long i = 0; i < bufferSize; i += 4) {
 			for (int j = 0; j < UNROLL; j++) {
 				for (int p = 0; p < DLP; p++) {
+#ifdef RMT_MEMORY_USE_STREAMING_OPERATIONS__false
 					_mm_store_ps(&(buffer[p*bufferSize*UNROLL+i * UNROLL + j * 4]),
 							tmp);
+#else
+					_mm_stream_ps(&(buffer[p*bufferSize*UNROLL+i * UNROLL + j * 4]),
+												tmp);
+#endif
 				}
 			}
 		}

@@ -227,18 +227,32 @@ public class QuantityMeasuringService {
 		case L2L3:
 			throw new Error("Not Supported");
 		case LlcRamLines:
-			return new MultiplyingQuantityCalculator<TransferredBytes>(
-					new AddingQuantityCalculator<TransferredBytes>(
-							createPerfEventQuantityCalculator(
-									TransferredBytes.class,
-									Combination.Sum,
-									"coreduo::L2_LINES_IN:SELF",
-									"core::L2_LINES_IN:SELF"),
-							createPerfEventQuantityCalculator(
-									TransferredBytes.class,
-									Combination.Sum,
-									"coreduo::L2_M_LINES_OUT:SELF",
-									"core::L2_M_LINES_OUT:SELF")), 64);
+			TerminalQuantityCalculator<TransferredBytes> linesInCalc = createPerfEventQuantityCalculator(
+					TransferredBytes.class,
+					Combination.Sum,
+					"coreduo::L2_LINES_IN:SELF",
+					"core::L2_LINES_IN:SELF");
+
+			TerminalQuantityCalculator<TransferredBytes> linesOutCalc = createPerfEventQuantityCalculator(
+					TransferredBytes.class,
+					Combination.Sum,
+					"coreduo::L2_M_LINES_OUT:SELF",
+					"core::L2_M_LINES_OUT:SELF");
+
+			TerminalQuantityCalculator<TransferredBytes> streamingStoreCalc = createPerfEventQuantityCalculator(
+					TransferredBytes.class,
+					Combination.Sum,
+					"coreduo::SSE_NTSTORES_RET");
+
+			return new AddingQuantityCalculator<TransferredBytes>(
+					new MultiplyingQuantityCalculator<TransferredBytes>(
+							new AddingQuantityCalculator<TransferredBytes>(
+									linesInCalc, // lines in
+									linesOutCalc), // lines out 
+							64), // multiply with line length
+					new MultiplyingQuantityCalculator<TransferredBytes>(
+							streamingStoreCalc, 16) // add streaming stores multiplied with 16 (two doubles)
+			);
 		case LlcRamBus:
 			return new MultiplyingQuantityCalculator<TransferredBytes>(
 					createPerfEventQuantityCalculator(

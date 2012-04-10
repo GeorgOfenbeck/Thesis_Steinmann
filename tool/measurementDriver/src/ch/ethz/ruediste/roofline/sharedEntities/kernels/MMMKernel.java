@@ -76,6 +76,7 @@ public class MMMKernel extends MMMKernelData {
 
 		if (coordinate.contains(Axes.matrixSizeAxis))
 			setMatrixSize(coordinate.get(Axes.matrixSizeAxis));
+
 		if (coordinate.contains(Axes.blockSizeAxis))
 			setNb(coordinate.get(Axes.blockSizeAxis));
 	}

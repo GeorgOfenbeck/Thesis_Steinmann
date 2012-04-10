@@ -650,16 +650,53 @@ Basic Linear Algebra Subprograms (BLAS) is a standard API for basic linear
 algebra operations. The functionality is divided into three levels:
 
 \begin{description}
-\item[Level 1] Vector-Vector Multiplication $\bf y \leftarrow \alpha
-\bf x + \bf y$
-\item[Level 2] Matrix-Vector Multiplication $\mathbf y \leftarrow \alpha 
-A \mathbf x  + \beta \bf{y}$
-\item[Level 3] Matrix-Matrix Multiplication $C \leftarrow \alpha A B + \beta C $
+\item[Level 1] Vector-Vector Operations 
+\item[Level 2] Matrix-Vector Operations 
+\item[Level 3] Matrix-Matrix Operations 
 \end{description}
 
-There are various implementations available. We chose the Intel Math Kernel
-Library (MKL) and the OpenBlas implementation. For each operation, figures
-\ref{yonah/daxpy}, \ref{yonah/dgemv} and \ref{yonah/mmm} show the results for
+For each level, we chose a representative operation and generated roofline plots
+using the Intel Math Kernel Library (MKL) and the OpenBlas implementations.
+
+\graphFloat{yonah/daxpy}{Roofline Plot of the Vector-Vector Multiplication
+(MemL2, DoublePrecisionFlop)}
+For level 1, we chose the 'daxpy' operation, defined as $\bf y \leftarrow \alpha
+\bf x + \bf y$ with double vectors. There is no reuse in this kernel. For every
+vector element tripple, two operations are performed. Since the vector sizes
+we measure fits into the last level cache, we don't have to take the write
+backs into account. The maximal operational intensity is $2/(2*8)=1/8=0.125$
+which is confirmed by figure \ref{yonah/daxpy}.
+
+\graphFloat{yonah/dgemv}{Roofline Plot of the Matrix-Vector Multiplication
+(MemL2, DoublePrecisionFlop)} 
+For level 2, we chose the 'dgemv' operation,
+defined as $\mathbf y \leftarrow \alpha A \mathbf x  + \beta \bf{y}$ with double
+vectors and matrices. For an $n\times n$ matrix and vectors of size $n$, the
+operation count is $2n$ for the vector scaling and $2n^2$ for the multiplication of the matrix with the vecor and the
+vector addition, totaling in $2n^2+2n$. The vector $\mathbf x$ can be reused.
+Since the vector sizes we measure fit into the last level cache, the write backs
+are cached. The memory transfer is $2n*8$ bytes to load the vectors and $n^2*8$
+bytes to load the matrix. This results in a maximal operational intensity for
+large matrices of $\approx 2/8=0.25$ which is confirmed by figure \ref{yonah/dgemv}
+
+\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication}
+For level 3, we chose the 'dgemm' operation,
+defined as $C \leftarrow \alpha A B + \beta C $ with double matrices. For an
+$n\times n$ matrix, the operation count is $2n$ for the two scale operations
+and $2n^3$ for the matrix-matrix multiplication and the addition to $C$.
+
+The minimal memory transfer volume is $3n^2*8$ bytes to load the matrices and
+$\max(n^2*8-k,0)$ bytes to store the result, where $k$ is the size of the last
+level cache. 
+
+The maximal operational intensity is $(2n^3+2n)/(3n^2*8+\max(n^2*8-k,0))$.
+For large $n$ this becomes $(2n^3+2n)/(4n^2*8)\approx n/16$.
+
+This operational intensity cannot be reached since reuse is bound by the cache
+size. For the tripple loop, if the matrix fits completely into the cache the
+operational intensity is the optimal 
+
+\ref{yonah/mmm} show the results for
 both libraries, both single and multi threaded. For the matrix-matrix
 multiplication we also show the results of the tripple loop, blocking with
 $Nb=50$ and $Nu=Mu=Ku=2$ and blocking with scalar replacement (MMM-Restrict).
@@ -667,9 +704,8 @@ $Nb=50$ and $Nu=Mu=Ku=2$ and blocking with scalar replacement (MMM-Restrict).
 TODO: exact definitions, what is tripple loop, blocking, sizes of the matrices
 and vectors, data types, Warm/Cold
 
-\graphFloat{yonah/daxpy}{Roofline Plot of the Vector-Vector Multiplication}
-\graphFloat{yonah/dgemv}{Roofline Plot of the Matrix-Vector Multiplication}
-\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication}
+
+
 
 \clearpage
 \section{Measurement Tool Architecture}

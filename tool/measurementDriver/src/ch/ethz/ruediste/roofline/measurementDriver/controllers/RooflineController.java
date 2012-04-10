@@ -142,14 +142,19 @@ public class RooflineController {
 			KernelBase kernel, OperationCount operationCount,
 			MemoryTransferBorder border) {
 
-		TransferredBytes transferredBytes = quantityMeasuringService
-				.measureTransferredBytes(kernel, border);
-		Time time = quantityMeasuringService.measureExecutionTime(kernel,
-				clockType);
+		QuantityCalculator<TransferredBytes> tbCalculator = quantityMeasuringService
+				.getTransferredBytesCalculator(border);
+		QuantityCalculator<Time> timeCalc = quantityMeasuringService
+				.getExecutionTimeCalculator(clockType);
+
+		// measure
+		QuantityMap result = quantityMeasuringService
+				.measureQuantities(kernel, timeCalc, tbCalculator);
 
 		RooflinePoint point = new RooflinePoint(label,
-				new OperationalIntensity(transferredBytes, operationCount),
-				new Performance(operationCount, time));
+				new OperationalIntensity(result.min(tbCalculator),
+						operationCount),
+				new Performance(operationCount, result.min(timeCalc)));
 
 		addRooflinePoint(seriesName, point);
 	}

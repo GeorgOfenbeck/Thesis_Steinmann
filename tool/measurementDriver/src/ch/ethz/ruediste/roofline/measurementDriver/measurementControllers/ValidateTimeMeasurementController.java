@@ -46,7 +46,10 @@ public class ValidateTimeMeasurementController extends
 
 		measure(outputName, "Read", createReadKernelCoordinate(),
 				MemController.class);
-		measure(outputName, "Write", createWriteKernelCoordinate(),
+		measure(outputName, "Write", createWriteKernelCoordinate(true, false),
+				MemController.class);
+		measure(outputName, "WriteStream",
+				createWriteKernelCoordinate(true, true),
 				MemController.class);
 		measure(outputName, "Triad", createTriadKernelCoordinate(),
 				MemController.class);

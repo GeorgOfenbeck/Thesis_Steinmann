@@ -45,12 +45,14 @@ public class ValidationMeasurementControllerBase {
 		return coord.build();
 	}
 
-	public Coordinate createWriteKernelCoordinate() {
+	public Coordinate createWriteKernelCoordinate(boolean useSSE,
+			boolean useStreamingStore) {
 		CoordinateBuilder coord = new CoordinateBuilder();
 		coord.set(kernelClassAxis, MemoryKernel.class);
 		coord.set(unrollAxis, 2);
 		coord.set(dlpAxis, 1);
-		coord.set(optimizationAxis, "-O3");
+		coord.set(MemoryKernel.useStreamingStoreAxis, useStreamingStore);
+		coord.set(optimizationAxis, useSSE ? "-O3 -msse2" : "-O3");
 		coord.set(MemoryKernel.memoryOperationAxis,
 				MemoryOperation.MemoryOperation_WRITE);
 		return coord.build();
@@ -96,7 +98,8 @@ public class ValidationMeasurementControllerBase {
 	public Coordinate[] createMemKernelCoordinates() {
 		return new Coordinate[] {
 				createReadKernelCoordinate(),
-				createWriteKernelCoordinate(),
+				createWriteKernelCoordinate(true, false),
+				createWriteKernelCoordinate(true, true),
 				createTriadKernelCoordinate() };
 	}
 

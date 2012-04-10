@@ -59,7 +59,7 @@ public class DgemvMeasurementController implements IMeasurementController {
 	public void addRooflinePoints(RooflineController rooflineController,
 			Coordinate coord) {
 		configuration.push();
-		for (long matrixSize = 500; matrixSize <= 10000; matrixSize += 500) {
+		for (long matrixSize = 500; matrixSize <= 6000; matrixSize += 500) {
 			if (matrixSize > 2000) {
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
 			}
@@ -76,6 +76,12 @@ public class DgemvMeasurementController implements IMeasurementController {
 							Long.toString(matrixSize), kernel,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamLines);
+			/*rooflineController
+					.addRooflinePoint(kernel.getLabel(),
+							Long.toString(matrixSize), kernel,
+							new OperationCount(2 * Math.pow(matrixSize, 2) + 3
+									* matrixSize),
+							MemoryTransferBorder.LlcRamLines);*/
 		}
 		configuration.pop();
 	}

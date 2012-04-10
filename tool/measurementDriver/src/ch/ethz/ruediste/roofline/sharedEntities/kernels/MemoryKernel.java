@@ -8,6 +8,22 @@ import ch.ethz.ruediste.roofline.sharedEntities.*;
 /** Kernel just loading a memory block into memory */
 public class MemoryKernel extends MemoryKernelData {
 
+	private static final MacroKey useStreamingOperationsMacro = MacroKey
+			.Create(
+					"RMT_MEMORY_USE_STREAMING_OPERATIONS",
+					"true if streaming operations are to be used", "false");
+	public static final Axis<Boolean> useStreamingStoreAxis = new Axis<Boolean>(
+			"1a052056-f77f-4b36-ac13-3d517f7cb282", "streamingStore");
+
+	public boolean getUseStreamingOperations() {
+		return Boolean
+				.parseBoolean(getMacroDefinition(useStreamingOperationsMacro));
+	}
+
+	public void setUseStreamingOperations(boolean b) {
+		setMacroDefinition(useStreamingOperationsMacro, Boolean.toString(b));
+	}
+
 	private static final MacroKey dlpMacro = MacroKey.Create("RMT_MEMORY_DLP",
 			"DataLevelParallelism: buffers to work on concurrently", "2");
 	public static final Axis<MemoryOperation> memoryOperationAxis = new Axis<MemoryOperation>(
@@ -81,6 +97,9 @@ public class MemoryKernel extends MemoryKernelData {
 
 		if (coordinate.contains(unrollAxis))
 			setUnroll(coordinate.get(unrollAxis));
+
+		if (coordinate.contains(useStreamingStoreAxis))
+			setUseStreamingOperations(coordinate.get(useStreamingStoreAxis));
 	}
 
 	public enum MemoryOperation {
@@ -109,8 +128,11 @@ public class MemoryKernel extends MemoryKernelData {
 			return new TransferredBytes(bufferBytes);
 		case MemoryOperation_WRITE:
 			long cacheSize = systemInformation.LLCCacheSize;
-			return new TransferredBytes(bufferBytes // read
-					+ Math.max(0, bufferBytes - cacheSize)); // write, taking write back into account
+			if (getUseStreamingOperations())
+				return new TransferredBytes(bufferBytes); // write
+			else
+				return new TransferredBytes(bufferBytes // read
+						+ Math.max(0, bufferBytes - cacheSize)); // write, taking write back into account
 		default:
 			throw new Error("Should not happen");
 
@@ -126,7 +148,10 @@ public class MemoryKernel extends MemoryKernelData {
 		case MemoryOperation_RandomRead:
 			return "Random";
 		case MemoryOperation_WRITE:
-			return "Write";
+			if (getUseStreamingOperations())
+				return "WriteStream";
+			else
+				return "Write";
 		}
 		throw new Error("should not happen");
 	}
