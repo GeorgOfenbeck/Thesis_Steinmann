@@ -129,7 +129,7 @@ public class MMMMeasurementController implements IMeasurementController {
 				kernel.setKu(2);
 				if (coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_Blocked
 						|| coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_Blocked_Restrict)
-					kernel.setNb(4);
+					kernel.setNb(50);
 				else
 					kernel.setNb(50);
 				kernel.setOptimization("-O3");

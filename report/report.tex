@@ -268,7 +268,8 @@ We used two variants of measuring the memory transfer volume. The {\bf MemBus}
 variant uses 64*'coreduo::BUS\_TRANS\_MEM', which measures the transfers on the
 system bus. The {\bf MemL2} variant uses the counters for the L2 cache line
 allocation and eviction, namely
-64*('coreduo::L2\_LINES\_IN:SELF'+'coreduo::L2\_M\_LINES\_OUT:SELF')
+64*('coreduo::L2\_LINES\_IN:SELF'+'coreduo::L2\_M\_LINES\_OUT:SELF'), combined
+with 8*'coreduo::SSE\_NTSTORES\_RET' to take non temporal stores into account.
 
 \subsection{Cache}
 \graphFloat{yonah/FFTwarm}{Yonah: Influence of the initial cache state}
@@ -362,6 +363,8 @@ In all groups we used the following kernels:
 in registers. We use multiple accumulators and unroll the loop. 
 \item[Read] Read a buffer from memory
 \item[Write] Overwrite a buffer in memory
+\item[WriteStream] Overwrite a buffer in memory, using non temporal store
+instructions
 \item[Triad] Perform $a_i=b_i+k*c_i$. This involves reading $a$, $b$ and $c$ and
 writing $a$ back.
 \end{description}
@@ -384,11 +387,11 @@ back caching, and one third of the cache for the triad kernel, since there are
 three buffers.
 
 Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
-of memory transfer. Around an expected transfer volume of 2MB we underestimate
-the actual transfer volume. The CPU seems to write data back to the memory
-before the cache is completely filled. The MemBus and MemL2 variants produce
-similar result. Note that the MemL2 variant measures less than the expected
-memory tansfer for large buffer sizes.
+of memory transfer. Around an expected transfer volume of 2MB we overestimate
+the influence of the write back cache. The CPU seems to write data back to the
+memory before the cache is completely filled. The MemBus and MemL2 variants
+produce similar result. Note that the MemL2 variant measures less than the
+expected memory tansfer for large buffer sizes.
 
 The errors (see fig. \ref{yonah/valTBError}) of the MemL2 variant are
 smaller than those of the MemBus variant.
@@ -691,15 +694,57 @@ level cache.
 
 The maximal operational intensity is $(2n^3+2n)/(3n^2*8+\max(n^2*8-k,0))$.
 For large $n$ this becomes $(2n^3+2n)/(4n^2*8)\approx n/16$.
-
 This operational intensity cannot be reached since reuse is bound by the cache
-size. For the tripple loop, if the matrix fits completely into the cache the
-operational intensity is the optimal 
+size. The intensity achieved in practice depends on the algorithm. In the
+following paragraphs we will analyze the tripple loop and the blocked version.
+To simplify matters, we will ignore minor effects.
 
-\ref{yonah/mmm} show the results for
+The tripple loop uses the following algorithm:
+
+\begin{lstlisting}[language=C] 
+for (long i = 0; i < size; i++) 
+for (long j = 0; j < size; j++) 
+for (long k = 0; k < size; k++) 
+c[i * size + j] += a[i * size + k] * b[k * size + j]
+\end{lstlisting}
+
+If $B$ fits into the cache, all matrices have to be loaded exactly once. In this
+case the transfer volume is $3n^2*8$ to load the matrices. Since the space
+occupied by the reused matrix is not available for writeback caching,
+$\max(n^2*8-\max(k-n^2*8,0),0)=$ bytes are written. Dropping lower order terms,
+the operational intensity is optimal ($n/16$). As soon as $B$ does not fit into
+the cache it loaded over and over. In addition, this trashes the the write
+back cache. The resulting memory transfer volume is $(n^3+3n^2)*8$ and, for
+large matrices, the operational intensity is of $1/4$. This bound is nicely
+visible on figure \ref{yonah/mmm}.
+
+
+The blocked version uses the following algorithm:
+
+\begin{lstlisting}[language=C] 
+for (long i = 0; i < size; i += Nb)
+for (long j = 0; j < size; j += Nb)
+for (long k = 0; k < size; k += Nb)
+
+for (long id = i; id < i + Nb; id += Mu)
+for (long jd = j; jd < j + Nb; jd += Nu)
+for (long kd = k; kd < k + Nb; kd += Ku)
+
+for (long kdd = kd; kdd < kd + Ku; kdd++)
+for (long idd = id; idd < id + Mu; idd++)
+for (long jdd = jd; jdd < jd + Nu; jdd++)
+
+c[idd * size + jdd] += 
+  a[idd * size + kdd] * b[kdd * size + jdd];
+\end{lstlisting}
+
+We chose $Nb=50$ and $Nu=Mu=Ku=2$.
+For our discussion, only the blocking for $Nb$ is relevant.
+
+  
 both libraries, both single and multi threaded. For the matrix-matrix
 multiplication we also show the results of the tripple loop, blocking with
-$Nb=50$ and $Nu=Mu=Ku=2$ and blocking with scalar replacement (MMM-Restrict).
+ and blocking with scalar replacement (MMM-Restrict).
 
 TODO: exact definitions, what is tripple loop, blocking, sizes of the matrices
 and vectors, data types, Warm/Cold
