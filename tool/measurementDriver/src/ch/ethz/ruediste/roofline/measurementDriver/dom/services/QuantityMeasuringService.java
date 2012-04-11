@@ -66,6 +66,20 @@ public class QuantityMeasuringService {
 				result.min(opCountCalculator));
 	}
 
+	public OperationalIntensity measureOperationalIntensity(KernelBase kernel,
+			int numberOfRuns,
+			MemoryTransferBorder border, Operation operation) {
+		QuantityCalculator<TransferredBytes> tbCalculator = getTransferredBytesCalculator(border);
+		QuantityCalculator<OperationCount> opCountCalculator = getOperationCountCalculator(operation);
+
+		QuantityMap result = measureQuantities(kernel, numberOfRuns,
+				opCountCalculator,
+				tbCalculator);
+
+		return new OperationalIntensity(result.min(tbCalculator),
+				result.min(opCountCalculator));
+	}
+
 	public Performance measurePerformance(KernelBase kernel,
 			Operation operation, ClockType clockType) {
 		QuantityCalculator<Performance> calc = getPerformanceCalculator(
@@ -211,6 +225,15 @@ public class QuantityMeasuringService {
 			MemoryTransferBorder border) {
 		QuantityCalculator<TransferredBytes> calculator = getTransferredBytesCalculator(border);
 		QuantityMap result = measureQuantities(kernel, calculator);
+
+		return result.min(calculator);
+	}
+
+	public TransferredBytes measureTransferredBytes(KernelBase kernel,
+			int numberOfRuns,
+			MemoryTransferBorder border) {
+		QuantityCalculator<TransferredBytes> calculator = getTransferredBytesCalculator(border);
+		QuantityMap result = measureQuantities(kernel, numberOfRuns, calculator);
 
 		return result.min(calculator);
 	}

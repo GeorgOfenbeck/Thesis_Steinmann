@@ -665,7 +665,7 @@ using the Intel Math Kernel Library (MKL) and the OpenBlas implementations.
 (MemL2, DoublePrecisionFlop)}
 For level 1, we chose the 'daxpy' operation, defined as $\bf y \leftarrow \alpha
 \bf x + \bf y$ with double vectors. There is no reuse in this kernel. For every
-vector element tripple, two operations are performed. Since the vector sizes
+vector element triple, two operations are performed. Since the vector sizes
 we measure fits into the last level cache, we don't have to take the write
 backs into account. The maximal operational intensity is $2/(2*8)=1/8=0.125$
 which is confirmed by figure \ref{yonah/daxpy}.
@@ -683,6 +683,7 @@ bytes to load the matrix. This results in a maximal operational intensity for
 large matrices of $\approx 2/8=0.25$ which is confirmed by figure \ref{yonah/dgemv}
 
 \graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication}
+
 For level 3, we chose the 'dgemm' operation,
 defined as $C \leftarrow \alpha A B + \beta C $ with double matrices. For an
 $n\times n$ matrix, the operation count is $2n$ for the two scale operations
@@ -690,16 +691,17 @@ and $2n^3$ for the matrix-matrix multiplication and the addition to $C$.
 
 The minimal memory transfer volume is $3n^2*8$ bytes to load the matrices and
 $\max(n^2*8-k,0)$ bytes to store the result, where $k$ is the size of the last
-level cache. 
+level cache. In our measurement system $k$ is 2MB.
 
 The maximal operational intensity is $(2n^3+2n)/(3n^2*8+\max(n^2*8-k,0))$.
 For large $n$ this becomes $(2n^3+2n)/(4n^2*8)\approx n/16$.
 This operational intensity cannot be reached since reuse is bound by the cache
 size. The intensity achieved in practice depends on the algorithm. In the
-following paragraphs we will analyze the tripple loop and the blocked version.
-To simplify matters, we will ignore minor effects.
+following paragraphs we will analyze the triple loop and the blocked version.
+To simplify matters, we will ignore the effect of code and small parts of
+the working set on the cache.
 
-The tripple loop uses the following algorithm:
+The triple loop uses the following algorithm:
 
 \begin{lstlisting}[language=C] 
 for (long i = 0; i < size; i++) 
@@ -711,11 +713,11 @@ c[i * size + j] += a[i * size + k] * b[k * size + j]
 If $B$ fits into the cache, all matrices have to be loaded exactly once. In this
 case the transfer volume is $3n^2*8$ to load the matrices. Since the space
 occupied by the reused matrix is not available for writeback caching,
-$\max(n^2*8-\max(k-n^2*8,0),0)=$ bytes are written. Dropping lower order terms,
+$\max(n^2*8-\max(k-n^2*8,0),0)$ bytes are written. Dropping lower order terms,
 the operational intensity is optimal ($n/16$). As soon as $B$ does not fit into
-the cache it loaded over and over. In addition, this trashes the the write
-back cache. The resulting memory transfer volume is $(n^3+3n^2)*8$ and, for
-large matrices, the operational intensity is of $1/4$. This bound is nicely
+the cache ($n^2*8>k;n>512$) it is loaded over and over. In addition, this
+trashes the the write back cache. The resulting memory transfer volume is $(n^3+3n^2)*8$ and,
+for large matrices, the operational intensity is $1/4$. This bound is nicely
 visible on figure \ref{yonah/mmm}.
 
 
@@ -738,15 +740,38 @@ c[idd * size + jdd] +=
   a[idd * size + kdd] * b[kdd * size + jdd];
 \end{lstlisting}
 
-We chose $Nb=50$ and $Nu=Mu=Ku=2$.
-For our discussion, only the blocking for $Nb$ is relevant.
+We chose $N_b=50$ and $N_u=M_u=K_u=2$.
+For our discussion, only the blocking with $Nb$ is relevant. It is presumed that
+$N_b$ divides $n$. 
 
-  
+If the matrix $B$ fits completely into the cache ($n^2*8>k;n>512$), we again
+have a memory transfer volume of $3n^2*8+\max(n^2*8-\max(k-n^2*8,0),0)$. 
+
+The blocking divides the matrices into block lines and block columns, each
+containing $\frac{n}{N_b}$ blocks.
+
+If the cache cannot hold the whole matrix but a whole block line fits
+into the cache ($\frac{n}{N_b}N_b^2*8=nN_b*8<k;n<5243$), the blocks of $A$ are
+reused.
+Thus $A$ is loaded once while each block of $B$ is loaded $\frac{n}{N_b}$ times,
+thus the memory transfers due to the loads is
+$(2n^2+\frac{n}{N_b}n^2)*8=(2n^2+n^3/N_b)*8$. The effect of the write back cache
+can be neglected. The writes cause an additional $n^2*8$ bytes to be
+transferred. Dropping lower order terms, the operational intensity becomes
+$2n^3/(n^3/N_b*8)=N_b/4=12.5$
+
+For large matrices the block lines of $A$ do not fit into the cache ($n>5243$).
+Each block of $A$ is loaded once per block column of $B$ and each block of $B$ is loaded
+once per block row of $A$. Thus the memory transfer to load $A$ and $B$ is
+$2\frac{n}{N_b}n^2*8=2\frac{n^3}{N_b}*8$ and $2*n^2*8$ to load and store $C$.
+The resulting operational intensity is $N_B/8=6.25$.
+
+
 both libraries, both single and multi threaded. For the matrix-matrix
-multiplication we also show the results of the tripple loop, blocking with
+multiplication we also show the results of the triple loop, blocking with
  and blocking with scalar replacement (MMM-Restrict).
 
-TODO: exact definitions, what is tripple loop, blocking, sizes of the matrices
+TODO: exact definitions, what is triple loop, blocking, sizes of the matrices
 and vectors, data types, Warm/Cold
 
 

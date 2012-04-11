@@ -46,7 +46,7 @@ public class MMMMeasurementController implements IMeasurementController {
 			ParameterSpace space = new ParameterSpace();
 
 			space.add(MMMKernel.MMMAlgorithmAxis,
-					MMMAlgorithm.MMMAlgorithm_TrippleLoop);
+					MMMAlgorithm.MMMAlgorithm_TripleLoop);
 			space.add(MMMKernel.MMMAlgorithmAxis,
 					MMMAlgorithm.MMMAlgorithm_Blocked);
 			space.add(MMMKernel.MMMAlgorithmAxis,
@@ -105,7 +105,7 @@ public class MMMMeasurementController implements IMeasurementController {
 				}
 
 				// skip large sizes for tripple loop
-				if (coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_TrippleLoop
+				if (coordinate.get(MMMKernel.MMMAlgorithmAxis) == MMMAlgorithm.MMMAlgorithm_TripleLoop
 						&& matrixSize > 704) {
 					continue;
 				}

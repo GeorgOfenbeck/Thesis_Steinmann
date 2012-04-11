@@ -31,7 +31,7 @@ public class SeriesPlot extends Plot2D<SeriesPlot> {
 
 	private final HashMap<String, SeriesPlotSeries> allSeries = new LinkedHashMap<String, SeriesPlotSeries>();
 
-	public void setValue(String seriesName, long x, double y) {
+	public void addValue(String seriesName, long x, double y) {
 		getSeries(seriesName).setValue(x, y);
 	}
 

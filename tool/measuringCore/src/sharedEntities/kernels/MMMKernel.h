@@ -21,7 +21,7 @@
 #define Ku RMT_MMM_Ku
 
 enum MMMAlgorithm {
-	MMMAlgorithm_TrippleLoop,
+	MMMAlgorithm_TripleLoop,
 	MMMAlgorithm_Blocked,
 	MMMAlgorithm_Blocked_Restrict,
 	MMMAlgorithm_Blas,
@@ -72,7 +72,7 @@ public:
 
 	void initialize();
 	void run() {
-#ifdef  RMT_MMM_Algorithm__MMMAlgorithm_TrippleLoop
+#ifdef  RMT_MMM_Algorithm__MMMAlgorithm_TripleLoop
 			tripleLoop(a, b, c);
 #endif
 

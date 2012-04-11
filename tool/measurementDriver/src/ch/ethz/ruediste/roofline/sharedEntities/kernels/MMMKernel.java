@@ -9,10 +9,10 @@ public class MMMKernel extends MMMKernelData {
 
 	private static final MacroKey algorithmMacro = MacroKey.Create(
 			"RMT_MMM_Algorithm", "specifies the algorithm to be used",
-			"MMMAlgorithm_TrippleLoop");
+			"MMMAlgorithm_TripleLoop");
 
 	public enum MMMAlgorithm {
-		MMMAlgorithm_TrippleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blocked_Restrict, MMMAlgorithm_Blas
+		MMMAlgorithm_TripleLoop, MMMAlgorithm_Blocked, MMMAlgorithm_Blocked_Restrict, MMMAlgorithm_Blas
 	}
 
 	public void setAlgorithm(MMMAlgorithm algorithm) {
@@ -90,7 +90,7 @@ public class MMMKernel extends MMMKernelData {
 		case MMMAlgorithm_Blas:
 		case MMMAlgorithm_Blocked:
 		case MMMAlgorithm_Blocked_Restrict:
-		case MMMAlgorithm_TrippleLoop:
+		case MMMAlgorithm_TripleLoop:
 			return Operation.CompInstr;
 
 		}
@@ -107,8 +107,8 @@ public class MMMKernel extends MMMKernelData {
 			return "MMM-Blocked";
 		case MMMAlgorithm_Blocked_Restrict:
 			return "MMM-Restrict";
-		case MMMAlgorithm_TrippleLoop:
-			return "MMM-Tripple";
+		case MMMAlgorithm_TripleLoop:
+			return "MMM-Triple";
 		}
 		throw new Error("should not happen");
 	}
