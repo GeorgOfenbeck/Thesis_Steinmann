@@ -42,7 +42,7 @@ public class QuantityMeasuringService {
 			"0cbbc641-c59d-4027-bd5b-e0144da82227", "operation");
 
 	public enum MemoryTransferBorder {
-		CpuL1, L1L2, L2L3, LlcRamBus, LlcRamLines,
+		CpuL1, L1L2, L2L3, LlcRamBus, LlcRamLines, LlcRamLinesWrite,
 	}
 
 	public static final Axis<MemoryTransferBorder> memoryTransferBorderAxis = new Axis<MemoryTransferBorder>(
@@ -249,13 +249,7 @@ public class QuantityMeasuringService {
 		case L1L2:
 		case L2L3:
 			throw new Error("Not Supported");
-		case LlcRamLines:
-			TerminalQuantityCalculator<TransferredBytes> linesInCalc = createPerfEventQuantityCalculator(
-					TransferredBytes.class,
-					Combination.Sum,
-					"coreduo::L2_LINES_IN:SELF",
-					"core::L2_LINES_IN:SELF");
-
+		case LlcRamLinesWrite:
 			TerminalQuantityCalculator<TransferredBytes> linesOutCalc = createPerfEventQuantityCalculator(
 					TransferredBytes.class,
 					Combination.Sum,
@@ -269,13 +263,22 @@ public class QuantityMeasuringService {
 
 			return new AddingQuantityCalculator<TransferredBytes>(
 					new MultiplyingQuantityCalculator<TransferredBytes>(
-							new AddingQuantityCalculator<TransferredBytes>(
-									linesInCalc, // lines in
-									linesOutCalc), // lines out 
-							64), // multiply with line length
+							linesOutCalc, 64), // lines out, multiplied with line length 
 					new MultiplyingQuantityCalculator<TransferredBytes>(
-							streamingStoreCalc, 16) // add streaming stores multiplied with 16 (two doubles)
-			);
+							streamingStoreCalc, 16)); // add streaming stores multiplied with 16 (two doubles)
+
+		case LlcRamLines:
+			TerminalQuantityCalculator<TransferredBytes> linesInCalc = createPerfEventQuantityCalculator(
+					TransferredBytes.class,
+					Combination.Sum,
+					"coreduo::L2_LINES_IN:SELF",
+					"core::L2_LINES_IN:SELF");
+
+			return new AddingQuantityCalculator<TransferredBytes>(
+					new MultiplyingQuantityCalculator<TransferredBytes>(
+							linesInCalc, 64), // lines in, multiplied with line length
+					getTransferredBytesCalculator(MemoryTransferBorder.LlcRamLinesWrite));
+
 		case LlcRamBus:
 			return new MultiplyingQuantityCalculator<TransferredBytes>(
 					createPerfEventQuantityCalculator(

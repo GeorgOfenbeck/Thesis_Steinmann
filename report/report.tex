@@ -384,7 +384,7 @@ reading, we expect to observe the whole buffer beeing transferred to the core.
 When writing is involved, we expect some of the writes to be held back in the
 cache. For the write kernel we presume that the whole cache is used for write
 back caching, and one third of the cache for the triad kernel, since there are
-three buffers.
+three buffers. The streaming write kernel should write the whole buffer once.
 
 Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
 of memory transfer. Around an expected transfer volume of 2MB we overestimate
