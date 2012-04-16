@@ -14,7 +14,7 @@ BASE_DIR=$(shell pwd)
 LATEX=pdflatex
 FLAGS=-interaction=nonstopmode
 
-.PHONY: report clean quick graphs
+.PHONY: report clean quick graphs plots
 report: report.pdf
 
 clean:
@@ -27,6 +27,8 @@ quick:
 out:
 	mkdir out
 	mkdir out/diagrams
+
+plots:  $(PLOT_IMAGES)
 
 graphs:
 	cd graphs && rot measure -checkCore report

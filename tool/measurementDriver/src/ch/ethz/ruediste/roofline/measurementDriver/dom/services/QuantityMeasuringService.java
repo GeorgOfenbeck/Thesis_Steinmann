@@ -78,6 +78,11 @@ public class QuantityMeasuringService {
 
 		return new OperationalIntensity(result.min(tbCalculator),
 				result.min(opCountCalculator));
+	public QuantityCalculator<TLBMisses> getTLBMissesCalculator() {
+		return createPerfEventQuantityCalculator(
+				TLBMisses.class,
+				Combination.Sum,
+				"coreduo::DTLB_MISS");
 	}
 
 	public Performance measurePerformance(KernelBase kernel,

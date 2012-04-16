@@ -35,12 +35,32 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 			return name;
 		}
 
+		public void addValues(long x, DescriptiveStatistics values) {
+			DescriptiveStatistics stats = getStatistics(x);
+			for (double d : values.getValues()) {
+				stats.addValue(d);
+			}
+		}
+
+		public long maxN() {
+			long max = 0;
+			for (DescriptiveStatistics s : statisticsMap.values())
+				max = Math.max(s.getN(), max);
+			return max;
+		}
 	}
 
 	private final HashMap<String, DistributionPlotSeries> allSeries = new LinkedHashMap<String, DistributionPlotSeries>();
 
+	private double boxWidth = Double.NaN;
+
 	public void addValue(String seriesName, long x, double y) {
 		getSeries(seriesName).addValue(x, y);
+	}
+
+	public void addValues(String seriesName, long x,
+			DescriptiveStatistics values) {
+		getSeries(seriesName).addValues(x, values);
 	}
 
 	private DistributionPlotSeries getSeries(String seriesName) {
@@ -63,12 +83,14 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 			allSeries.put(s.getName(), s);
 	}
 
-	public DescriptiveStatistics getStatisticsOfN() {
+	private DescriptiveStatistics getStatisticsOfN() {
 		DescriptiveStatistics result = new DescriptiveStatistics();
 		for (DistributionPlotSeries series : getAllSeries()) {
 			for (DescriptiveStatistics seriesStats : series.getStatisticsMap()
 					.values()) {
-				result.addValue(seriesStats.getN());
+				long n = seriesStats.getN();
+				if (n > 1)
+					result.addValue(n);
 			}
 		}
 		return result;
@@ -77,6 +99,9 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 	@Override
 	public String getTitle() {
 		DescriptiveStatistics statisticsOfN = getStatisticsOfN();
+		if (statisticsOfN.getN() == 0)
+			return super.getTitle();
+
 		if (Math.abs(statisticsOfN.getMin() - statisticsOfN.getMax()) < 0.1) {
 			return String.format("%s (n=%.0f)", super.getTitle(),
 					statisticsOfN.getMax());
@@ -85,5 +110,16 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 			return String.format("%s (n=%.0f...%.0f)", super.getTitle(),
 					statisticsOfN.getMin(), statisticsOfN.getMax());
 		}
+	}
+
+	public double getBoxWidth() {
+		if (boxWidth == Double.NaN && isLogX())
+			return 0.1;
+		return boxWidth;
+	}
+
+	public DistributionPlot setBoxWidth(double boxWidth) {
+		this.boxWidth = boxWidth;
+		return This();
 	}
 }

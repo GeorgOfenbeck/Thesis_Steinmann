@@ -7,7 +7,7 @@ public class OperationalIntensity extends Quantity<OperationalIntensity> {
 		super(operations.getValue() / transferredBytes.getValue());
 	}
 
-	private OperationalIntensity(double d) {
+	public OperationalIntensity(double d) {
 		super(d);
 	}
 

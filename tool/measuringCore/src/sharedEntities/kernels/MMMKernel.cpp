@@ -22,16 +22,16 @@ void MMMKernel::initialize() {
 	// square the size
 	size *= size;
 
-	if (posix_memalign((void**) (&a), 16, size * sizeof(double)) != 0) {
+	if (posix_memalign((void**) (&a), 4*1024, size * sizeof(double)) != 0) {
 		throw "could not allocate memory";
 	}
-	if (posix_memalign((void**) (&b), 16, size * sizeof(double)) != 0) {
+	if (posix_memalign((void**) (&b), 4*1024, size * sizeof(double)) != 0) {
 		throw "could not allocate memory";
 	}
-	if (posix_memalign((void**) (&c), 16, size * sizeof(double)) != 0) {
+	if (posix_memalign((void**) (&c), 4*1024, size * sizeof(double)) != 0) {
 		throw "could not allocate memory";
 	}
-	if (posix_memalign((void**) (&check), 16, size * sizeof(double)) != 0) {
+	if (posix_memalign((void**) (&check), 4*1024, size * sizeof(double)) != 0) {
 		throw "could not allocate memory";
 	}
 

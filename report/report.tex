@@ -686,15 +686,15 @@ large matrices of $\approx 2/8=0.25$ which is confirmed by figure \ref{yonah/dge
 
 For level 3, we chose the 'dgemm' operation,
 defined as $C \leftarrow \alpha A B + \beta C $ with double matrices. For an
-$n\times n$ matrix, the operation count is $2n$ for the two scale operations
+$n\times n$ matrix, the operation count is $2n^2$ for the two scale operations
 and $2n^3$ for the matrix-matrix multiplication and the addition to $C$.
 
 The minimal memory transfer volume is $3n^2*8$ bytes to load the matrices and
-$\max(n^2*8-k,0)$ bytes to store the result, where $k$ is the size of the last
-level cache. In our measurement system $k$ is 2MB.
+$\max(n^2*8-k,0)$ bytes to store the result (write back caching), where $k$ is
+the size of the last level cache. In our measurement system $k$ is 2MB.
 
-The maximal operational intensity is $(2n^3+2n)/(3n^2*8+\max(n^2*8-k,0))$.
-For large $n$ this becomes $(2n^3+2n)/(4n^2*8)\approx n/16$.
+The maximal operational intensity is $(2n^3+2n^2)/(3n^2*8+\max(n^2*8-k,0))$.
+For large $n$ this becomes $(2n^3)/(4n^2*8)\approx n/16$.
 This operational intensity cannot be reached since reuse is bound by the cache
 size. The intensity achieved in practice depends on the algorithm. In the
 following paragraphs we will analyze the triple loop and the blocked version.
@@ -714,13 +714,17 @@ If $B$ fits into the cache, all matrices have to be loaded exactly once. In this
 case the transfer volume is $3n^2*8$ to load the matrices. Since the space
 occupied by the reused matrix is not available for writeback caching,
 $\max(n^2*8-\max(k-n^2*8,0),0)$ bytes are written. Dropping lower order terms,
-the operational intensity is optimal ($n/16$). As soon as $B$ does not fit into
-the cache ($n^2*8>k;n>512$) it is loaded over and over. In addition, this
-trashes the the write back cache. The resulting memory transfer volume is $(n^3+3n^2)*8$ and,
-for large matrices, the operational intensity is $1/4$. This bound is nicely
-visible on figure \ref{yonah/mmm}.
+the operational intensity is optimal ($n/16$). 
 
+As soon as $B$ does not fit into the cache ($n^2*8>k;n>512$) it is loaded over
+and over. In addition, this trashes the the write back cache. The resulting
+memory transfer volume is $(n^3+3n^2)*8$ and, for large matrices, the
+operational intensity is $1/4$.
+This bound is nicely visible on figure \ref{yonah/mmm}.
 
+For very large matrices, the lines of $A$ do not fit into the cache 
+($n*8>k;n>262144$). 
+ 
 The blocked version uses the following algorithm:
 
 \begin{lstlisting}[language=C] 
@@ -744,19 +748,18 @@ We chose $N_b=50$ and $N_u=M_u=K_u=2$.
 For our discussion, only the blocking with $Nb$ is relevant. It is presumed that
 $N_b$ divides $n$. 
 
-If the matrix $B$ fits completely into the cache ($n^2*8>k;n>512$), we again
+If the matrix $B$ fits completely into the cache ($n^2*8<k;n<512$), we again
 have a memory transfer volume of $3n^2*8+\max(n^2*8-\max(k-n^2*8,0),0)$. 
 
 The blocking divides the matrices into block lines and block columns, each
 containing $\frac{n}{N_b}$ blocks.
 
-If the cache cannot hold the whole matrix but a whole block line fits
-into the cache ($\frac{n}{N_b}N_b^2*8=nN_b*8<k;n<5243$), the blocks of $A$ are
-reused.
+If the cache cannot hold the whole matrix but a whole block line fits into the
+cache ($\frac{n}{N_b}N_b^2*8=nN_b*8<k;n<5243$), the blocks of $A$ are reused.
 Thus $A$ is loaded once while each block of $B$ is loaded $\frac{n}{N_b}$ times,
-thus the memory transfers due to the loads is
-$(2n^2+\frac{n}{N_b}n^2)*8=(2n^2+n^3/N_b)*8$. The effect of the write back cache
-can be neglected. The writes cause an additional $n^2*8$ bytes to be
+once per block line of $A$. The memory transfers due to the loads is
+$(2n^2+\frac{n}{N_b}n^2)*8=(2n^2+\frac{n^3}{N_b})*8$. The effect of outstanding
+writes can be neglected. The writes cause an additional $n^2*8$ bytes to be
 transferred. Dropping lower order terms, the operational intensity becomes
 $2n^3/(n^3/N_b*8)=N_b/4=12.5$
 
@@ -766,6 +769,7 @@ once per block row of $A$. Thus the memory transfer to load $A$ and $B$ is
 $2\frac{n}{N_b}n^2*8=2\frac{n^3}{N_b}*8$ and $2*n^2*8$ to load and store $C$.
 The resulting operational intensity is $N_B/8=6.25$.
 
+With this model we can 
 
 both libraries, both single and multi threaded. For the matrix-matrix
 multiplication we also show the results of the triple loop, blocking with

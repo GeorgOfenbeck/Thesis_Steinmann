@@ -251,19 +251,23 @@ public class PlotService {
 					+ ".gnuplot");
 			preparePlot(output, plot);
 
-			if (plot.isLogX())
-				output.printf("set boxwidth 0.1\n");
+			if (plot.getBoxWidth() != Double.NaN) {
+				output.printf("set boxwidth %f\n", plot.getBoxWidth());
+			}
 
 			List<String> plotLines = new ArrayList<String>();
 
 			for (int seriesNr = 0; seriesNr < allSeries.size(); seriesNr++) {
 				DistributionPlotSeries series = allSeries.get(seriesNr);
 
-				plotLines
-						.add(String
-								.format("'%s.data' index %d using 1:2:3:4:5 notitle  with candlesticks whiskerbars lw %d lc rgb\"%s\"",
-										plot.getOutputName(), seriesNr, lwLine,
-										getLineColor(seriesNr)));
+				if (series.maxN() > 1) {
+					plotLines
+							.add(String
+									.format("'%s.data' index %d using 1:2:3:4:5 notitle  with candlesticks whiskerbars lw %d lc rgb\"%s\"",
+											plot.getOutputName(), seriesNr,
+											lwLine,
+											getLineColor(seriesNr)));
+				}
 				plotLines
 						.add(String
 								.format("'%s.data' index %d using 1:6 title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
