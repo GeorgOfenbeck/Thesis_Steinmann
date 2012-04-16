@@ -1,9 +1,6 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator;
 
-import java.util.ArrayList;
-
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
-import ch.ethz.ruediste.roofline.sharedEntities.MeasurerOutputBase;
 
 public class DividingQuantityCalculator<T extends Quantity<T>, TLeft extends Quantity<TLeft>, TRight extends Quantity<TRight>>
 		extends
@@ -19,10 +16,10 @@ public class DividingQuantityCalculator<T extends Quantity<T>, TLeft extends Qua
 	}
 
 	@Override
-	protected T combineResults(ArrayList<MeasurerOutputBase> leftOutputs,
-			ArrayList<MeasurerOutputBase> rightOutputs) {
-		return Quantity.construct(clazz, left.getResult(leftOutputs).getValue()
-				/ right.getResult(rightOutputs).getValue());
+	protected T combineResult(TLeft leftResult, TRight rightResult) {
+		return Quantity.construct(clazz, leftResult
+				.getValue()
+				/ rightResult.getValue());
 	}
 
 	public static <T extends Quantity<T>, TLeft extends Quantity<TLeft>, TRight extends Quantity<TRight>>

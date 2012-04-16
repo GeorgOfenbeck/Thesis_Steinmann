@@ -116,7 +116,7 @@ public class RooflineController {
 		QuantityCalculator<OperationCount> opCountCalculator = quantityMeasuringService
 				.getOperationCountCalculator(operation);
 		QuantityCalculator<Time> timeCalc = quantityMeasuringService
-				.getExecutionTimeCalculator(clockType);
+				.getTimeCalculator(clockType);
 
 		// measure
 		QuantityMap result = quantityMeasuringService
@@ -145,7 +145,7 @@ public class RooflineController {
 		QuantityCalculator<TransferredBytes> tbCalculator = quantityMeasuringService
 				.getTransferredBytesCalculator(border);
 		QuantityCalculator<Time> timeCalc = quantityMeasuringService
-				.getExecutionTimeCalculator(clockType);
+				.getTimeCalculator(clockType);
 
 		// measure
 		QuantityMap result = quantityMeasuringService
@@ -162,10 +162,16 @@ public class RooflineController {
 	public void addRooflinePoint(String seriesName, String label,
 			KernelBase kernel, Operation operation,
 			TransferredBytes transferredBytes) {
-		Time time = quantityMeasuringService.measureExecutionTime(kernel,
-				clockType);
-		OperationCount operationCount = quantityMeasuringService
-				.measureOperationCount(kernel, operation);
+		QuantityCalculator<Time> timeCalc = quantityMeasuringService
+				.getTimeCalculator(clockType);
+		QuantityCalculator<OperationCount> opCountCalc = quantityMeasuringService
+				.getOperationCountCalculator(operation);
+
+		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,
+				opCountCalc, timeCalc);
+		OperationCount operationCount = result.min(opCountCalc);
+		Time time = result.min(timeCalc);
+
 		RooflinePoint point = new RooflinePoint(label,
 				new OperationalIntensity(transferredBytes, operationCount),
 				new Performance(operationCount, time));

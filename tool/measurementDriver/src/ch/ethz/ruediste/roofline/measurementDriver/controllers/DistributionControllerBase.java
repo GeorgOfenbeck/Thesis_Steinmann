@@ -65,7 +65,7 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 			// repeat until execution time exceed a certain value
 			while (shouldContinue(time, problemSize, kernelCoordinate)) {
 				QuantityCalculator<Time> execTimeCalc = quantityMeasuringService
-						.getExecutionTimeCalculator(ClockType.uSecs);
+						.getTimeCalculator(ClockType.uSecs);
 
 				// space to store the kernel for each CPU
 				final ArrayList<KernelBase> kernels = new ArrayList<KernelBase>();

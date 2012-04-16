@@ -6,10 +6,12 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.RooflineService.PeakAlgorithm;
 import ch.ethz.ruediste.roofline.sharedEntities.ClockType;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
@@ -91,13 +93,16 @@ public class MemoryMeasurementController implements IMeasurementController {
 			//kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));
 
 			kernel.initialize(coordinate);
+			QuantityCalculator<Throughput> calc = quantityMeasuringService.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
+					ClockType.CoreCycles);
+			
+			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 
-			Throughput throughput = quantityMeasuringService.measureThroughput(
-					kernel, MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles);
+			Throughput throughput = result.min(calc);
+			QuantityCalculator<TransferredBytes> calculator = quantityMeasuringService.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
+			QuantityMap result1 = quantityMeasuringService.measureQuantities(kernel, calculator);
 
-			TransferredBytes transferredBytes = quantityMeasuringService
-					.measureTransferredBytes(kernel,
-							MemoryTransferBorder.LlcRamBus);
+			TransferredBytes transferredBytes = result1.min(calculator);
 
 			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
 					coordinate.toString(),

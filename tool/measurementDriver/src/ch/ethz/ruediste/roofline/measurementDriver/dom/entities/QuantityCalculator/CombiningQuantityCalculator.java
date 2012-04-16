@@ -28,10 +28,26 @@ public abstract class CombiningQuantityCalculator<T extends Quantity<T>, TLeft e
 	}
 
 	@Override
-	final public T getResult(Iterable<MeasurerOutputBase> outputs) {
+	final public T getSingleResult(Iterable<MeasurerOutputBase> outputs) {
 		ArrayList<MeasurerOutputBase> leftOutputs = new ArrayList<MeasurerOutputBase>();
 		ArrayList<MeasurerOutputBase> rightOutputs = new ArrayList<MeasurerOutputBase>();
 
+		splitMeasurerOutputs(outputs, leftOutputs, rightOutputs);
+
+		// combine the results of the two calculators
+		return combineResult(left.getSingleResult(leftOutputs),
+				right.getSingleResult(rightOutputs));
+	}
+
+	/**
+	 * @param outputs
+	 * @param leftOutputs
+	 * @param rightOutputs
+	 * @throws Error
+	 */
+	protected void splitMeasurerOutputs(Iterable<MeasurerOutputBase> outputs,
+			ArrayList<MeasurerOutputBase> leftOutputs,
+			ArrayList<MeasurerOutputBase> rightOutputs) throws Error {
 		// assing all provided outputs to the left or the right calculator
 		for (final MeasurerOutputBase output : outputs) {
 			// predicate indicating a measurer was used to generate the current output
@@ -53,13 +69,31 @@ public abstract class CombiningQuantityCalculator<T extends Quantity<T>, TLeft e
 				rightOutputs.add(output);
 			}
 		}
-
-		// combine the results of the two calculators
-		return combineResults(leftOutputs, rightOutputs);
 	}
 
-	protected abstract T combineResults(
-			ArrayList<MeasurerOutputBase> leftOutputs,
-			ArrayList<MeasurerOutputBase> rightOutputs);
+	protected abstract T combineResult(
+			TLeft leftResult,
+			TRight rightResult);
 
+	@Override
+	public T getBestResult(
+			Iterable<Iterable<MeasurerOutputBase>> runOutputs) {
+
+		// split the outputs into outputs for the left and the right child calculator
+		ArrayList<Iterable<MeasurerOutputBase>> leftOutputs = new ArrayList<Iterable<MeasurerOutputBase>>();
+		ArrayList<Iterable<MeasurerOutputBase>> rightOutputs = new ArrayList<Iterable<MeasurerOutputBase>>();
+		for (Iterable<MeasurerOutputBase> outputs : runOutputs) {
+			ArrayList<MeasurerOutputBase> leftRunOutputs = new ArrayList<MeasurerOutputBase>();
+			ArrayList<MeasurerOutputBase> rightRunOutputs = new ArrayList<MeasurerOutputBase>();
+
+			splitMeasurerOutputs(outputs, leftRunOutputs, rightRunOutputs);
+
+			leftOutputs.add(leftRunOutputs);
+			rightOutputs.add(rightRunOutputs);
+		}
+
+		// combine the two best results
+		return combineResult(left.getBestResult(leftOutputs),
+				right.getBestResult(rightOutputs));
+	}
 }

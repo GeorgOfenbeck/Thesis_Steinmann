@@ -97,6 +97,7 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 
 			plot.addValue(kernel.getLabel(), size, opCount
 					/ result.min(tbCalc).getValue());
+
 			plot.addValue("Blocked Theoretical", size,
 					thOpIntBlocked(size, 0));
 

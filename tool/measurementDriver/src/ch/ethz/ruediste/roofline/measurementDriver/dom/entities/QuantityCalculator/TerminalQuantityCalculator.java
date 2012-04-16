@@ -5,7 +5,7 @@ import java.util.*;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
-import ch.ethz.ruediste.roofline.sharedEntities.MeasurerBase;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public abstract class TerminalQuantityCalculator<T extends Quantity<T>> extends
 		QuantityCalculator<T> {
@@ -67,5 +67,21 @@ public abstract class TerminalQuantityCalculator<T extends Quantity<T>> extends
 		default:
 			throw new Error("should not happen");
 		}
+	}
+
+	@Override
+	public T getSingleResult(Iterable<MeasurerOutputBase> runOutputs) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public T getBestResult(Iterable<Iterable<MeasurerOutputBase>> runOutputs) {
+		T minValue = null;
+		for (T value : getResult(runOutputs)) {
+			if (minValue == null || minValue.getValue() > value.getValue())
+				minValue = value;
+		}
+		return minValue;
 	}
 }

@@ -68,16 +68,16 @@ public class ValidateTransferredBytesMeasurementController extends
 			throws ExecuteException,
 			IOException {
 
-		/*measureThreadedMem(outputName, "ThRead", createReadKernelCoordinate(),
-				mtb);
-		measureThreadedMem(outputName, "ThWrite",
-				createWriteKernelCoordinate(false), mtb);
-		measureThreadedMem(outputName, "ThTriad",
-				createTriadKernelCoordinate(), mtb);*/
+		measureThreadedMem(outputName, "ThRead", createReadKernelCoordinate(),
+				mtb);/*
+						measureThreadedMem(outputName, "ThWrite",
+						createWriteKernelCoordinate(false), mtb);
+						measureThreadedMem(outputName, "ThTriad",
+						createTriadKernelCoordinate(), mtb);*/
 
-		instantiator.getInstance(MemController.class)
+		/*instantiator.getInstance(MemController.class)
 				.setMemoryTransferBorder(mtb).measure(outputName,
-						cpuSingletonList(), createMemKernelCoordinates());
+						cpuSingletonList(), createMemKernelCoordinates());*/
 
 		/*instantiator.getInstance(ArithController.class)
 				.setMemoryTransferBorder(mtb).measure(outputName,

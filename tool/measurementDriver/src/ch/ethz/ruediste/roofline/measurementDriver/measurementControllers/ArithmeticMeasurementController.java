@@ -9,9 +9,11 @@ import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
@@ -85,17 +87,17 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 			kernel.setMulAddMix("MUL ADD ADD MUL ADD ADD MUL ADD");
 
 			if (true) {
-				Performance performance = quantityMeasuringService
-						.measurePerformance(kernel,
-								operationMap.get(instructionSet),
-								ClockType.CoreCycles);
+				QuantityCalculator<Performance> calc = quantityMeasuringService.getPerformanceCalculator(
+						operationMap.get(instructionSet), ClockType.CoreCycles);
+				QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
+				Performance performance = result.min(calc);
 				System.out.printf("Performance %s: %s\n", coordinate,
 						performance);
 			}
+			QuantityCalculator<OperationCount> calculator = quantityMeasuringService.getOperationCountCalculator(operationMap.get(instructionSet));
+			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calculator);
 
-			OperationCount count = quantityMeasuringService
-					.measureOperationCount(kernel,
-							operationMap.get(instructionSet));
+			OperationCount count = result.min(calculator);
 			System.out.printf("Operations %s: %s\n", coordinate, count);
 		}
 

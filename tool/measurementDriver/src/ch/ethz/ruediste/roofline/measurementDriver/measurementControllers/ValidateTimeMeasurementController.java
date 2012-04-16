@@ -137,9 +137,9 @@ public class ValidateTimeMeasurementController extends
 								problemSize));
 
 				QuantityCalculator<Time> calcCycle = quantityMeasuringService
-						.getExecutionTimeCalculator(ClockType.CoreCycles);
+						.getTimeCalculator(ClockType.CoreCycles);
 				QuantityCalculator<Time> calcUSecs = quantityMeasuringService
-						.getExecutionTimeCalculator(ClockType.uSecs);
+						.getTimeCalculator(ClockType.uSecs);
 
 				QuantityMap result = quantityMeasuringService
 						.measureQuantities(kernel, 200, calcCycle, calcUSecs);
@@ -252,7 +252,7 @@ public class ValidateTimeMeasurementController extends
 		@Override
 		protected QuantityCalculator<Time> createCalculator(KernelBase kernel) {
 			return quantityMeasuringService
-					.getExecutionTimeCalculator(ClockType.CoreCycles);
+					.getTimeCalculator(ClockType.CoreCycles);
 		}
 
 		@Override
@@ -283,7 +283,7 @@ public class ValidateTimeMeasurementController extends
 		@Override
 		protected QuantityCalculator<Time> createCalculator(KernelBase kernel) {
 			return quantityMeasuringService
-					.getExecutionTimeCalculator(ClockType.CoreCycles);
+					.getTimeCalculator(ClockType.CoreCycles);
 		}
 
 		@Override

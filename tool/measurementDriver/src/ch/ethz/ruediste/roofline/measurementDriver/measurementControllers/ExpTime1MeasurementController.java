@@ -123,7 +123,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 	public Time measureTime(final long iterations, ClockType clockType,
 			final SystemLoad systemLoad) {
 		QuantityCalculator<Time> timeCalc = quantityMeasuringService
-				.getExecutionTimeCalculator(clockType);
+				.getTimeCalculator(clockType);
 
 		IMeasurementBuilder builder = new IMeasurementBuilder() {
 

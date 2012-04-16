@@ -4,9 +4,11 @@ import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.TriadKernel;
 
@@ -40,12 +42,16 @@ public class TriadMeasurementController implements IMeasurementController {
 
 			rooflineController.addRooflinePoint("Triad", Long.toString(size),
 					kernel, Operation.CompInstr, MemoryTransferBorder.LlcRamBus);
+			QuantityCalculator<Throughput> calc = quantityMeasuringService.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
+					ClockType.CoreCycles);
+			
+			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 
-			Throughput throughput = quantityMeasuringService.measureThroughput(
-					kernel, MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles);
+			Throughput throughput = result.min(calc);
+			QuantityCalculator<OperationCount> calculator = quantityMeasuringService.getOperationCountCalculator(Operation.CompInstr);
+			QuantityMap result1 = quantityMeasuringService.measureQuantities(kernel, calculator);
 
-			OperationCount operations = quantityMeasuringService
-					.measureOperationCount(kernel, Operation.CompInstr);
+			OperationCount operations = result1.min(calculator);
 
 			System.out.printf("size %d: throughput: %s operations: %s\n", size,
 					throughput, operations);

@@ -1,6 +1,8 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator;
 
-import java.util.List;
+import java.util.*;
+
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.Quantity;
 import ch.ethz.ruediste.roofline.measurementDriver.util.IUnaryPredicate;
@@ -15,10 +17,36 @@ import ch.ethz.ruediste.roofline.sharedEntities.*;
 public abstract class QuantityCalculator<TQuantity extends Quantity<TQuantity>> {
 
 	/**
-	 * when called with the outputs of the required measurers, returns the
-	 * quantity
+	 * Returns the quantity for each run, given the outputs.
+	 * 
+	 * @param runOutputs
+	 *            for each measurement run, the measurer outputs for the
+	 *            calculator
+	 * @return the resulting quantity for each run
 	 */
-	abstract public TQuantity getResult(Iterable<MeasurerOutputBase> outputs);
+	public List<TQuantity> getResult(
+			Iterable<Iterable<MeasurerOutputBase>> runOutputs) {
+		ArrayList<TQuantity> result = new ArrayList<TQuantity>();
+		for (Iterable<MeasurerOutputBase> outputs : runOutputs) {
+			result.add(getSingleResult(outputs));
+		}
+		return result;
+	}
+
+	public DescriptiveStatistics getStatistics(
+			Iterable<Iterable<MeasurerOutputBase>> runOutputs) {
+		DescriptiveStatistics result = new DescriptiveStatistics();
+		for (TQuantity value : getResult(runOutputs)) {
+			result.addValue(value.getValue());
+		}
+		return result;
+	}
+
+	abstract public TQuantity getSingleResult(
+			Iterable<MeasurerOutputBase> runOutputs);
+
+	abstract public TQuantity getBestResult(
+			Iterable<Iterable<MeasurerOutputBase>> runOutputs);
 
 	/**
 	 * returns the list of measurers which have to be measured in order to

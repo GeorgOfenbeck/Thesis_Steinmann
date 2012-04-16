@@ -4,9 +4,11 @@ import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import org.apache.log4j.Logger;
 
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
@@ -111,13 +113,14 @@ public class RooflineService {
 
 		// apply the best parameters
 		kernel.initialize(maximum);
+		QuantityCalculator<Performance> calc = quantityMeasuringService.getPerformanceCalculator(
+				measurementCoordinate
+										.get(QuantityMeasuringService.operationAxis), measurementCoordinate
+										.get(QuantityMeasuringService.clockTypeAxis));
+		QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 
 		// measure the performance
-		Performance performance = quantityMeasuringService.measurePerformance(
-				kernel, measurementCoordinate
-						.get(QuantityMeasuringService.operationAxis),
-				measurementCoordinate
-						.get(QuantityMeasuringService.clockTypeAxis));
+		Performance performance = result.min(calc);
 
 		log.info(String.format(
 				"peak performance for %s %s %s: parameters: %s value: %f",
@@ -154,10 +157,13 @@ public class RooflineService {
 
 		// initialize the kernel
 		kernel.initialize(kernelParameters.build());
+		QuantityCalculator<Throughput> calc = quantityMeasuringService.getThroughputCalculator(border,
+				clockType);
+		
+		QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 
 		// measure the throughput
-		Throughput throughput = quantityMeasuringService.measureThroughput(
-				kernel, border, clockType);
+		Throughput throughput = result.min(calc);
 		return throughput;
 	}
 }
