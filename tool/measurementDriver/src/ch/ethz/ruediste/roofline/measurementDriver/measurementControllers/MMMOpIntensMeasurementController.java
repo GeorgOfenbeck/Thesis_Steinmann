@@ -37,32 +37,31 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 
 	public void measure(String outputName) throws IOException {
 		DistributionPlot plot = new DistributionPlot();
-		plot.setOutputName(outputName).setxLabel("Matrix Size")
-				.setxUnit("Doubles").setyLabel("Operational Intensity")
-				.setyUnit("Operations/Byte").setLog().setBoxWidth(0.03);
-
-		DistributionPlot plotMin = new DistributionPlot();
-		plotMin.setOutputName(outputName + "Min").setxLabel("Matrix Size")
+		plot.setOutputName(outputName).setTitle("MMM Opertational Intensity")
+				.setxLabel("Matrix Size")
 				.setxUnit("Doubles").setyLabel("Operational Intensity")
 				.setyUnit("Operations/Byte").setLog().setBoxWidth(0.03);
 
 		DistributionPlot tlbMissPlot = new DistributionPlot();
-		tlbMissPlot.setOutputName(outputName + "Tlb").setxLabel("Matrix Size")
+		tlbMissPlot.setOutputName(outputName + "Tlb")
+				.setTitle("MMM TLB Misses").setxLabel("Matrix Size")
 				.setxUnit("Doubles").setyLabel("TLB Misses")
 				.setyUnit("1").setLog().setBoxWidth(0.03);
 
 		addTriplePoints(plot, tlbMissPlot);
-		addBlockedPoints(plot);
+		addBlockedPoints(plot, tlbMissPlot);
 		plotService.plot(plot);
 		plotService.plot(tlbMissPlot);
 	}
 
 	/**
 	 * @param plot
+	 * @param tlbMissPlot
 	 * @throws ExecuteException
 	 * @throws IOException
 	 */
-	protected void addBlockedPoints(DistributionPlot plot)
+	protected void addBlockedPoints(DistributionPlot plot,
+			DistributionPlot tlbMissPlot)
 			throws ExecuteException,
 			IOException {
 		ArrayList<Integer> sizes = new ArrayList<Integer>();
@@ -77,7 +76,7 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 			System.out.println(size);
 			MMMKernel kernel = new MMMKernel();
 			kernel.setOptimization("-O3");
-			kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blocked_Restrict);
+			kernel.setAlgorithm(MMMAlgorithm.MMMAlgorithm_Blocked);
 			kernel.setMatrixSize(size);
 			kernel.setNb(50);
 			kernel.setNu(2);
@@ -95,8 +94,16 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 
 			double opCount = 2 * Math.pow(size, 3);
 
-			plot.addValue(kernel.getLabel(), size, opCount
-					/ result.min(tbCalc).getValue());
+			for (TransferredBytes tb : result.get(tbCalc))
+				plot.addValue(kernel.getLabel(), size, opCount
+						/ tb.getValue());
+
+			tlbMissPlot.addValues(kernel.getLabel(), size,
+					result.getStatistics(tlbCalc));
+
+			if (size >= 512)
+				tlbMissPlot.addValue("Blocked Theoretical", size,
+						thTlbMissesBlocked(size));
 
 			plot.addValue("Blocked Theoretical", size,
 					thOpIntBlocked(size, 0));
@@ -156,11 +163,19 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 	}
 
 	double thTlbMissesTriple(double size) {
-		double pagesPerColumn = Math.min(size * size * 8 / (4 * 1024), size);
+		double pagesPerMatrix = size * size * 8 / (4 * 1024);
+		double pagesPerColumn = Math.min(pagesPerMatrix, size);
 		if (pagesPerColumn < 128) {
-			return 0;
+			return 3 * pagesPerMatrix;
 		}
 		return Math.pow(size, 2) * pagesPerColumn;
+	}
+
+	double thTlbMissesBlocked(double size) {
+		if (size < 512) {
+			return 0;
+		}
+		return 3 * Math.pow(size, 3) / Math.pow(50, 2);
 	}
 
 	/**
@@ -170,7 +185,8 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 	protected void addTriplePoints(DistributionPlot plot,
 			DistributionPlot tlbMissPlot) {
 		ArrayList<Integer> sizes = new ArrayList<Integer>();
-		addAll(sizes, 20, 50, 70, 75, 100, 105, 150, 200, 225, 250, 275, 280,
+		addAll(sizes, 20, 50, 70, 75, 100, 105, 150, 200, 225, 250, 260, 275,
+				280,
 				285, 290,
 				300,
 				325,
@@ -202,8 +218,9 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 					result.min(tlbCalc)
 							.getValue());
 			double opCount = 2 * Math.pow(size, 3);
-			plot.addValue(kernel.getLabel(), size, opCount
-					/ result.min(tbCalc).getValue());
+			for (TransferredBytes tb : result.get(tbCalc))
+				plot.addValue(kernel.getLabel(), size, opCount
+						/ tb.getValue());
 
 			plot.addValue("Triple Theoretical", size, thOpIntTriple(size, 0));
 

@@ -31,10 +31,10 @@
 {
 	\settowidth{\imgwidth}{\includegraphics{graphs/#1.pdf}}
 	\setlength{\imgleftoverhang}{0.1\textwidth}
-	\setlength{\imgwidth}{1.18\textwidth}
+	\setlength{\imgwidth}{1.205\textwidth}
 	\hfuzz50pt
 	\noindent\hskip-\imgleftoverhang
-	\hskip-0.1in\includegraphics[width=\imgwidth]{graphs/#1.pdf}
+	\hskip-0.25in\includegraphics[width=\imgwidth]{graphs/#1.pdf}
 	\hfuzz0.1pt
 }
 	
@@ -659,7 +659,8 @@ algebra operations. The functionality is divided into three levels:
 \end{description}
 
 For each level, we chose a representative operation and generated roofline plots
-using the Intel Math Kernel Library (MKL) and the OpenBlas implementations.
+using the Intel Math Kernel Library (MKL) \cite{MKL} and the OpenBlas
+\cite{OpenBlas} implementations.
 
 \graphFloat{yonah/daxpy}{Roofline Plot of the Vector-Vector Multiplication
 (MemL2, DoublePrecisionFlop)}
@@ -681,8 +682,6 @@ Since the vector sizes we measure fit into the last level cache, the write backs
 are cached. The memory transfer is $2n*8$ bytes to load the vectors and $n^2*8$
 bytes to load the matrix. This results in a maximal operational intensity for
 large matrices of $\approx 2/8=0.25$ which is confirmed by figure \ref{yonah/dgemv}
-
-\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication}
 
 For level 3, we chose the 'dgemm' operation,
 defined as $C \leftarrow \alpha A B + \beta C $ with double matrices. For an
@@ -720,7 +719,6 @@ As soon as $B$ does not fit into the cache ($n^2*8>k;n>512$) it is loaded over
 and over. In addition, this trashes the the write back cache. The resulting
 memory transfer volume is $(n^3+3n^2)*8$ and, for large matrices, the
 operational intensity is $1/4$.
-This bound is nicely visible on figure \ref{yonah/mmm}.
 
 For very large matrices, the lines of $A$ do not fit into the cache 
 ($n*8>k;n>262144$). 
@@ -769,17 +767,62 @@ once per block row of $A$. Thus the memory transfer to load $A$ and $B$ is
 $2\frac{n}{N_b}n^2*8=2\frac{n^3}{N_b}*8$ and $2*n^2*8$ to load and store $C$.
 The resulting operational intensity is $N_B/8=6.25$.
 
-With this model we can 
+\graphFloat{yonah/mmmOp}{Matrix Matrix Multiplication: Operational Intensity}
+When comparing these models for the operational intensity of the triple loop and
+the blocked version, we observe a good match for matrix sizes up to $n=200$.
+Past this size, the operational intensity of the triple loop rapidly falls to
+the value predicted for large matrices, but the drop begins too early. We
+predicted the fall when a single matrice occupies more memory than the L2 cache
+size, but the measured drop begins at half the cache size. (fig \ref{yonah/mmmOp}).
 
-both libraries, both single and multi threaded. For the matrix-matrix
-multiplication we also show the results of the triple loop, blocking with
- and blocking with scalar replacement (MMM-Restrict).
+The model for the blocked version overestimates the measurement results as
+well. The initial drop begins too early. The operational intensity for large
+matrices is about half the predicted value. 
 
-TODO: exact definitions, what is triple loop, blocking, sizes of the matrices
-and vectors, data types, Warm/Cold
+In attempt to find the reason for the observed behavior we analyzed the TLB
+misses. The TLB has 128 entries. For the triple loop we predict
+$3*\frac{n^2*8}{4KB}$ TLB misses as long as one matrix fits into 128 pages
+($\frac{n^2*8}{4KB}<128;n<\sqrt{128*4KB/8}=256$). If the matrices are larger,
+calculating a single element of the result requires reading one element of every
+row of $B$. If the rows of $B$ are smaller than one page, multiple accessed
+elements will lie in the same page. If the rows are larger, one page is accessed
+per row. Thus the number of pages accessed to compute one element of the result
+is $\min(n, n^2*8/KB)$. Since the TLB is trashed during accessing a column of
+$B$, there are $n^2\min(n, n^2*8/KB)$ TLB misses to compute the $n^2$ result
+elements, ignoring the TLB misses due to accessing $A$ and $C$.
 
+For the blocked version, we provide an analysis for a very restricted range
+only. If one line of a matrix is larger than one page ($n*8>4KB; n>512$), each
+row within a block will lie in it's own page. If each block line fits within one page
+($N_b*8<4KB;N_b<512$) and the TLB is trashed during each block multiplication,
+there will be $3*N_b$ TLB misses per block multiplication,
+$3(\frac{n}{N_b})^3N_b=3\frac{n^3}{N_b^2}$ in total.
 
+\graphFloat{yonah/mmmOpTlb}{Matrix Matrix Multiplication: TLB Misses}
+Figure \ref{yonah/mmmOpTlb} shows that the measurement results follow our
+predictions.
 
+\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication}
+Figure \ref{yonah/mmm} shows the roofline plot of the triple loop, the blocked
+version and the two libraries. 
+
+In addition we included the blocked version with
+scalar replacement. The scalar replacement has been implemented by specifying
+the matrices as 'restrict' pointers to the compiler, hence the name.
+
+\subsection{FFT}
+Fast Fourier Transform algorithms 'are of great importance in a variety of
+fields, from digital signal processing and solving partial differential
+equations to algorithms for quick multiplication of large integers.'
+(\cite{FastFourierTransform})
+
+Apart from the simple implementation found in 'Numerical Recipes 3rd Edition:
+The Art of Scientific Computing' \cite{Press:2007:NRE:1403886} on page 608, we
+used the implementations from the MKL \cite{MKL} , FFTW \cite{FFTW}
+and Spiral \cite{Spiral}.
+
+\graphFloat{yonah/fft}{Roofline Plot of four FFT implementations}
+Figure \ref{yonah/fft} shows the roofline plot of these four implementations.
 
 \clearpage
 \section{Measurement Tool Architecture}

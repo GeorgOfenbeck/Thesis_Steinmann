@@ -9,7 +9,7 @@ public class Throughput extends Quantity<Throughput> {
 		super(transferredBytes.getValue() / time.getValue());
 	}
 
-	private Throughput(double value) {
+	public Throughput(double value) {
 		super(value);
 	}
 

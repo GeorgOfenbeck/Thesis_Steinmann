@@ -8,6 +8,7 @@ import java.util.HashMap;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.KeyPosition;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
@@ -44,6 +45,8 @@ public class FFTMeasurementController implements IMeasurementController {
 		rooflineController.setTitle("Fast Fourier Transformation");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
+		rooflineController.getPlot().setAutoscaleY(true)
+				.setKeyPosition(KeyPosition.BottomRight);
 
 		addPoints(rooflineController, FFTnrKernel.class, FFTmklKernel.class,
 				FFTfftwKernel.class, FFTSpiralKernel.class);
