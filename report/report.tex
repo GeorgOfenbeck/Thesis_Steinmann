@@ -816,13 +816,19 @@ fields, from digital signal processing and solving partial differential
 equations to algorithms for quick multiplication of large integers.'
 (\cite{FastFourierTransform})
 
-Apart from the simple implementation found in 'Numerical Recipes 3rd Edition:
-The Art of Scientific Computing' \cite{Press:2007:NRE:1403886} on page 608, we
-used the implementations from the MKL \cite{MKL} , FFTW \cite{FFTW}
-and Spiral \cite{Spiral}.
+Apart from the simple implementation found in 'Numerical Recipes' (NR)
+\cite{Press:2007:NRE:1403886} on page 608, we used the implementations from the MKL \cite{MKL} , FFTW \cite{FFTW}
+and Spiral \cite{Spiral}. All four implementations operate on a linear buffer
+containing $n$ complex numbers, each represented by two doubles. The
+transformation is performed in-place.
 
 \graphFloat{yonah/fft}{Roofline Plot of four FFT implementations}
-Figure \ref{yonah/fft} shows the roofline plot of these four implementations.
+Figure \ref{yonah/fft} shows the roofline plot of the four implementations. We
+see that all except the NR implementation reach a point around
+an operational intensity of 0.3 Operations per Byte and a performance  0.4
+Operations per Cycle for large input sizes. The NR implementation performs well
+initially, but the operational intensity and the performance significantly drop
+for large input sizes.
 
 \clearpage
 \section{Measurement Tool Architecture}
