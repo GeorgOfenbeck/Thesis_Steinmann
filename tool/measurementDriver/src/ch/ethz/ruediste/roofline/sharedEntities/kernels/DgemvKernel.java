@@ -14,7 +14,7 @@ public class DgemvKernel extends DgemvKernelData {
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 		return "MVM" + getLabelSuffix();
 	}
 

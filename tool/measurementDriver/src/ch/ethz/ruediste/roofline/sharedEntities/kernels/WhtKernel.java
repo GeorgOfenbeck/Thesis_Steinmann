@@ -10,7 +10,7 @@ public class WhtKernel extends WhtKernelData {
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 		return "WHT";
 	}
 }

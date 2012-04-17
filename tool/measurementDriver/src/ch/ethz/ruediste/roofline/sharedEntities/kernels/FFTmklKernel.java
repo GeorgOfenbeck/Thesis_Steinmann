@@ -6,7 +6,7 @@ public class FFTmklKernel extends FFTmklKernelData {
 
 	@Override
 	public String getAdditionalLibraries(SystemInformation systemInformation) {
-		return LibraryHelper.getMklLibs(false, systemInformation);
+		return LibraryHelper.getMklLibs(true, systemInformation);
 	}
 
 	@Override
@@ -20,7 +20,7 @@ public class FFTmklKernel extends FFTmklKernelData {
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 		return "FFT-MKL";
 	}
 

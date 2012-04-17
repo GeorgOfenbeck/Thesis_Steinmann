@@ -4,7 +4,7 @@ import ch.ethz.ruediste.roofline.sharedEntities.Operation;
 
 public class FFTSpiralKernel extends FFTSpiralKernelData {
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 		return "FFT-Spiral";
 	}
 

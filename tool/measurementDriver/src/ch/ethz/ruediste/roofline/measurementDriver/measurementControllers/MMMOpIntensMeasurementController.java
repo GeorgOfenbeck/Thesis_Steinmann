@@ -95,10 +95,10 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 			double opCount = 2 * Math.pow(size, 3);
 
 			for (TransferredBytes tb : result.get(tbCalc))
-				plot.addValue(kernel.getLabel(), size, opCount
+				plot.addValue(kernel.getLabelOverride(), size, opCount
 						/ tb.getValue());
 
-			tlbMissPlot.addValues(kernel.getLabel(), size,
+			tlbMissPlot.addValues(kernel.getLabelOverride(), size,
 					result.getStatistics(tlbCalc));
 
 			if (size >= 512)
@@ -210,7 +210,7 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 					kernel, size < 400 ? 10 : 1,
 					tbCalc, tlbCalc);
 
-			tlbMissPlot.addValues(kernel.getLabel(), size,
+			tlbMissPlot.addValues(kernel.getLabelOverride(), size,
 					result.getStatistics(tlbCalc));
 			tlbMissPlot.addValue("Theoretical", size, thTlbMissesTriple(size));
 
@@ -219,7 +219,7 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 							.getValue());
 			double opCount = 2 * Math.pow(size, 3);
 			for (TransferredBytes tb : result.get(tbCalc))
-				plot.addValue(kernel.getLabel(), size, opCount
+				plot.addValue(kernel.getLabelOverride(), size, opCount
 						/ tb.getValue());
 
 			plot.addValue("Triple Theoretical", size, thOpIntTriple(size, 0));

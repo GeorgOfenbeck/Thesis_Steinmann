@@ -12,11 +12,18 @@
 
 using namespace std;
 
+extern "C"
+{
+void MKL_Set_Num_Threads(int num_threads);
+}
+
 FFTmklKernel::~FFTmklKernel() {
 	// TODO Auto-generated destructor stub
 }
 
 void FFTmklKernel::initialize() {
+	MKL_Set_Num_Threads(getNumThreads());
+
 	srand48(0);
 	MKL_LONG status;
 

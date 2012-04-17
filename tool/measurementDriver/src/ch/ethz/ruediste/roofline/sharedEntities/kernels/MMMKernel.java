@@ -98,11 +98,11 @@ public class MMMKernel extends MMMKernelData {
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 
 		switch (getAlgorithm()) {
 		case MMMAlgorithm_Blas:
-			return "MMM" + getLabelSuffix();
+			return "MMM";
 		case MMMAlgorithm_Blocked:
 			return "MMM-Blocked";
 		case MMMAlgorithm_Blocked_Restrict:

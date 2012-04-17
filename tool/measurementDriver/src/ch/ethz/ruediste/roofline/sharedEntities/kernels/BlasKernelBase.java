@@ -52,9 +52,6 @@ public abstract class BlasKernelBase extends BlasKernelBaseData {
 		else
 			labelSuffix += "-OpenBlas";
 
-		if (getNumThreads() > 1)
-			labelSuffix += "-Threaded";
-
 		return labelSuffix + super.getLabelSuffix();
 	}
 }

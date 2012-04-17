@@ -14,7 +14,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementContr
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
@@ -53,8 +53,8 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 	public void measure(String outputName) throws IOException {
 		measureRoofline(outputName);
-		measureDifferences(outputName);
-		measurePerformance(outputName);
+		//measureDifferences(outputName);
+		//measurePerformance(outputName);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -213,6 +213,9 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.setTitle("FFT - Warm and Cold Caches");
 		rooflineController.addDefaultPeaks();
+		rooflineController.getPlot()//.setAutoscaleX(true)
+				.setAutoscaleY(true)
+				.setKeyPosition(KeyPosition.BottomRight);
 
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "tb")
@@ -235,7 +238,12 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 		configuration.push();
 		for (final Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
-			configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
+			if (coordinate.get(bufferSizeAxis) > 512 * 1024)
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 20);
+			else
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 20);
+
+			System.out.println(coordinate);
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 
@@ -249,24 +257,18 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 			Long matrixSize = coordinate.get(bufferSizeAxis);
 
-			String name = kernelNames.get(kernel);
-			if (coordinate.get(warmDataAxis))
-				name += "-Data";
-			if (coordinate.get(warmCodeAxis))
-				name += "-Code";
-
 			DescriptiveStatistics stats = new DescriptiveStatistics();
 			for (TransferredBytes tb : quantities.get(calc)) {
 				stats.addValue(tb.getValue());
 				if (stats.getN() >= 10) {
-					plot.addValue(name, matrixSize,
+					plot.addValue(kernel.getLabel(), matrixSize,
 							stats.getMin());
 					stats.clear();
 				}
 			}
 
 			rooflineController
-					.addRooflinePoint(name,
+					.addRooflinePoint(kernel.getLabel(),
 							matrixSize.toString(), builder,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamBus);
@@ -326,6 +328,6 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		FFTmklKernel kernel = new FFTmklKernel();
 		kernel.setOptimization("-O3");
 		space.add(kernelAxis, kernel);
-		kernelNames.put(kernel, "FFT-Mkl");
+		kernelNames.put(kernel, kernel.getLabel());
 	}
 }

@@ -810,6 +810,13 @@ In addition we included the blocked version with
 scalar replacement. The scalar replacement has been implemented by specifying
 the matrices as 'restrict' pointers to the compiler, hence the name.
 
+\graphFloat{yonah/MMMwarm}{Roofline Plot of the Matrix-Matrix Multiplication
+with Different Initial Cache States}
+
+Figure \ref{yonah/MMMwarm} shows the influence of the initial cache state. Due
+to the small code size it does not matter much if the code is initially in
+cache. If the data is in cache matters for matrix sizes up to about 200.
+
 \subsection{FFT}
 Fast Fourier Transform algorithms 'are of great importance in a variety of
 fields, from digital signal processing and solving partial differential
@@ -823,12 +830,13 @@ containing $n$ complex numbers, each represented by two doubles. The
 transformation is performed in-place.
 
 \graphFloat{yonah/fft}{Roofline Plot of four FFT implementations}
-Figure \ref{yonah/fft} shows the roofline plot of the four implementations. We
-see that all except the NR implementation reach a point around
-an operational intensity of 0.3 Operations per Byte and a performance  0.4
-Operations per Cycle for large input sizes. The NR implementation performs well
-initially, but the operational intensity and the performance significantly drop
-for large input sizes.
+Figure \ref{yonah/fft} shows the roofline plot of the four implementations. The
+NR implementation performs well initially, but the operational intensity and the
+performance significantly drop for large input sizes.
+
+\graphFloat{yonah/FFTwarm}{Roofline Plot of the Fast Fourier Transformation
+with Different Initial Cache States}
+Figure \ref{yonah/FFTwarm}  shows the influence of the initial cache state. 
 
 \clearpage
 \section{Measurement Tool Architecture}

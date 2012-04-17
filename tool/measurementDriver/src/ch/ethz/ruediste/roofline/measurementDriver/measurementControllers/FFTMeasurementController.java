@@ -27,13 +27,16 @@ public class FFTMeasurementController implements IMeasurementController {
 	}
 
 	@Inject
-	QuantityMeasuringService quantityMeasuringService;
+	public QuantityMeasuringService quantityMeasuringService;
 
 	@Inject
-	RooflineController rooflineController;
+	public RooflineController rooflineController;
 
 	@Inject
-	Configuration configuration;
+	public Configuration configuration;
+
+	@Inject
+	public SystemInfoService systemInfoService;
 
 	private boolean IsPowerOfTwo(long x) {
 		return (x & (x - 1)) == 0;
@@ -47,8 +50,12 @@ public class FFTMeasurementController implements IMeasurementController {
 		rooflineController.getPlot().setAutoscaleY(true)
 				.setKeyPosition(KeyPosition.BottomRight);
 
-		addPoints(rooflineController, FFTnrKernel.class, FFTmklKernel.class,
+		addPoints(rooflineController, 1, FFTnrKernel.class, FFTmklKernel.class,
 				FFTfftwKernel.class, FFTSpiralKernel.class);
+
+		addPoints(rooflineController, systemInfoService.getOnlineCPUs().size(),
+				FFTmklKernel.class, FFTfftwKernel.class);
+
 		rooflineController.plot();
 	}
 
@@ -56,6 +63,7 @@ public class FFTMeasurementController implements IMeasurementController {
 	 * @param rooflineController
 	 */
 	public void addPoints(RooflineController rooflineController,
+			int numThreads,
 			Class<? extends FFTKernelBase>... clazzes) {
 		ParameterSpace space = new ParameterSpace();
 		for (long i = 32; i <= 10000 * 1024L; i *= 2) {
@@ -86,6 +94,7 @@ public class FFTMeasurementController implements IMeasurementController {
 			else {
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
 			}
+
 			// skip non-power of two sizes for the NR kernel
 			if (coordinate.get(kernelAxis) instanceof FFTnrKernel
 					&& !IsPowerOfTwo(coordinate.get(bufferSizeAxis))) {
@@ -100,7 +109,7 @@ public class FFTMeasurementController implements IMeasurementController {
 
 			// skip large buffer sizes for the FFTW kernel
 			if (coordinate.get(kernelAxis) instanceof FFTfftwKernel
-					&& coordinate.get(bufferSizeAxis) > 128 * 1024L) {
+					&& coordinate.get(bufferSizeAxis) > 1024 * 1024L) {
 				continue;
 			}
 
@@ -109,14 +118,16 @@ public class FFTMeasurementController implements IMeasurementController {
 					&& coordinate.get(bufferSizeAxis) > 8192L) {
 				continue;
 			}
+
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
+			kernel.setNumThreads(numThreads);
 
 			rooflineController.addRooflinePoint(
 					kernel.getLabel(),
 					coordinate.get(bufferSizeAxis).toString(), kernel,
 					kernel.getSuggestedOperation(),
-					MemoryTransferBorder.LlcRamBus);
+					MemoryTransferBorder.LlcRamLines);
 		}
 		configuration.pop();
 	}

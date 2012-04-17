@@ -27,6 +27,7 @@ public abstract class KernelBase extends KernelBaseData {
 
 	public KernelBase() {
 		setOptimization("-O3");
+		setNumThreads(1);
 	}
 
 	/**
@@ -67,16 +68,22 @@ public abstract class KernelBase extends KernelBaseData {
 		throw new NotImplementedException();
 	}
 
-	public String getLabel() {
+	protected String getLabelOverride() {
 		return StringUtils.removeEnd(getClass().getSimpleName(), "Kernel");
 	}
 
-	public String getLabelSuffix() {
+	public final String getLabel() {
+		return getLabelOverride() + getLabelSuffix();
+	}
+
+	protected String getLabelSuffix() {
 		String suffix = "";
 		if (getWarmData())
 			suffix += "-Data";
-		if (getWarmData())
+		if (getWarmCode())
 			suffix += "-Code";
+		if (getNumThreads() > 1)
+			suffix += "-Threaded";
 		return suffix;
 	}
 

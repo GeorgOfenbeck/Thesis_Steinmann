@@ -31,7 +31,7 @@ public class TriadKernel extends TriadKernelData {
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 		return "Triad";
 	}
 }

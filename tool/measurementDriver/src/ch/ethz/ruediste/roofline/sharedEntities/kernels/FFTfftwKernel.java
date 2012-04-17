@@ -6,11 +6,11 @@ public class FFTfftwKernel extends FFTfftwKernelData {
 
 	@Override
 	public String getAdditionalLibraries(SystemInformation systemInformation) {
-		return "-lfftw3 -lm";
+		return "-lfftw3_threads -lfftw3 -lm";
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 		return "FFT-FFTW";
 	}
 

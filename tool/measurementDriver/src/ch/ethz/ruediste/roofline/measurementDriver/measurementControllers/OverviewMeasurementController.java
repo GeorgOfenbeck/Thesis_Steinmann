@@ -60,7 +60,7 @@ public class OverviewMeasurementController implements IMeasurementController {
 				.getExtendedPoint(MMMKernel.MMMAlgorithmAxis,
 						MMMAlgorithm.MMMAlgorithm_Blas));
 
-		fftMeasurementController.addPoints(rooflineController,
+		fftMeasurementController.addPoints(rooflineController, 1,
 				FFTmklKernel.class);
 		rooflineController.plot();
 	}

@@ -8,12 +8,15 @@
 #ifndef FFTFFTWKERNEL_H_
 #define FFTFFTWKERNEL_H_
 
+#include <fftw3.h>
 #include "sharedEntities/kernels/FFTfftwKernelData.h"
 
 class FFTfftwKernel: public  FFTfftwKernelData{
 	double dummy;
 	protected:
 	std::vector<std::pair<void*,long> > getBuffers();
+	fftw_plan fftwPlan;
+	fftw_complex *fftwData;
 
 public:
 	virtual ~FFTfftwKernel();

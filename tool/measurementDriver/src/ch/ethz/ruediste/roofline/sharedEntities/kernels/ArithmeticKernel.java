@@ -202,7 +202,7 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 		String kernelName = null;
 		switch (getOperation()) {
 		case ArithmeticOperation_ADD:

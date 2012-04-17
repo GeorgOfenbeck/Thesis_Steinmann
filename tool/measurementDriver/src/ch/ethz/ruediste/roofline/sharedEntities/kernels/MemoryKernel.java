@@ -141,7 +141,7 @@ public class MemoryKernel extends MemoryKernelData {
 	}
 
 	@Override
-	public String getLabel() {
+	public String getLabelOverride() {
 		switch (getOperation()) {
 		case MemoryOperation_READ:
 			return "Read";
