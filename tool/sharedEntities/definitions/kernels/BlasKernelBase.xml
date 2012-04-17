@@ -7,5 +7,4 @@
 	cSuffix="Data"
 	isAbstract="true"
 	comment="base class for kernels using BLAS via MKL or openblas"> 
-	<field name="numThreads" type="int" comment="number of threads to be used"/>
 </derivedClass>

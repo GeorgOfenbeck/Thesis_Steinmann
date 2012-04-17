@@ -1,6 +1,6 @@
 package ch.ethz.ruediste.roofline.sharedEntities.kernels;
 
-import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
+import ch.ethz.ruediste.roofline.sharedEntities.*;
 
 public class FFTfftwKernel extends FFTfftwKernelData {
 
@@ -12,6 +12,11 @@ public class FFTfftwKernel extends FFTfftwKernelData {
 	@Override
 	public String getLabel() {
 		return "FFT-FFTW";
+	}
+
+	@Override
+	public Operation getSuggestedOperation() {
+		return Operation.DoublePrecisionFlop;
 	}
 
 }

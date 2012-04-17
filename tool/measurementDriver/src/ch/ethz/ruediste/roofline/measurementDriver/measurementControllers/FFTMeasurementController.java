@@ -3,7 +3,6 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
@@ -76,21 +75,6 @@ public class FFTMeasurementController implements IMeasurementController {
 			}
 		}
 
-		HashMap<Class<?>, String> algorithmName = new HashMap<Class<?>, String>();
-		algorithmName.put(FFTfftwKernel.class, "FFT-FFTW");
-		algorithmName.put(FFTnrKernel.class, "FFT-NR");
-		algorithmName.put(FFTmklKernel.class, "FFT-MKL");
-		algorithmName.put(FFTSpiralKernel.class, "FFT-Spiral");
-
-		HashMap<Class<?>, Operation> algorithmOperation = new HashMap<Class<?>, Operation>();
-		algorithmOperation.put(FFTnrKernel.class, Operation.CompInstr);
-		algorithmOperation.put(FFTmklKernel.class,
-				Operation.DoublePrecisionFlop);
-		algorithmOperation.put(FFTfftwKernel.class,
-				Operation.DoublePrecisionFlop);
-		algorithmOperation.put(FFTSpiralKernel.class,
-				Operation.DoublePrecisionFlop);
-
 		space.add(Axes.optimizationAxis, "-O3 -msse2");
 
 		configuration.push();
@@ -128,27 +112,11 @@ public class FFTMeasurementController implements IMeasurementController {
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 
-			Operation operation = algorithmOperation.get(kernel.getClass());
-			/*
-						Performance performance = quantityMeasuringService
-								.measurePerformance(kernel, operation, ClockType.CoreCycles);
-						System.out.printf("Performance %s: %s\n", coordinate, performance);
-
-						OperationCount operationCount = quantityMeasuringService
-								.measureOperationCount(kernel, operation);
-						System.out
-						.printf("Operations %s: %s\n", coordinate, operationCount);*/
-
-			/*TransferredBytes bytes = quantityMeasuringService
-					.measureTransferredBytes(kernel,
-							MemoryTransferBorder.LlcRamBus);
-
-			System.out.printf("Transferred Bytes %s: %s\n", coordinate, bytes);*/
-
 			rooflineController.addRooflinePoint(
-					algorithmName.get(kernel.getClass()),
+					kernel.getLabel(),
 					coordinate.get(bufferSizeAxis).toString(), kernel,
-					operation, MemoryTransferBorder.LlcRamBus);
+					kernel.getSuggestedOperation(),
+					MemoryTransferBorder.LlcRamBus);
 		}
 		configuration.pop();
 	}

@@ -19,6 +19,10 @@ public abstract class KernelBase extends KernelBaseData {
 
 		if (coordinate.contains(warmDataAxis))
 			setWarmData(coordinate.get(warmDataAxis));
+
+		if (coordinate.contains(numThreadsAxis)) {
+			setNumThreads(coordinate.get(numThreadsAxis));
+		}
 	}
 
 	public KernelBase() {

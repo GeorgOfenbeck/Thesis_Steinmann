@@ -7,9 +7,6 @@ public abstract class BlasKernelBase extends BlasKernelBaseData {
 	public static final Axis<Boolean> useMklAxis = new Axis<Boolean>(
 			"651cc552-2772-4d29-969a-dad85024e965", "useMKL");
 
-	public static final Axis<Integer> numThreadsAxis = new Axis<Integer>(
-			"a4a46f4b-6a0d-468a-98a2-bdf4edad2ff3", "numThreads");
-
 	private static final MacroKey useMklMacro = MacroKey.Create(
 			"RMT_BLAS_KERNEL_BASE_USEMKL",
 			"if set to 1, the mkl library is used", "0");
@@ -29,10 +26,6 @@ public abstract class BlasKernelBase extends BlasKernelBaseData {
 
 		if (coordinate.contains(useMklAxis)) {
 			setUseMkl(coordinate.get(useMklAxis));
-		}
-
-		if (coordinate.contains(numThreadsAxis)) {
-			setNumThreads(coordinate.get(numThreadsAxis));
 		}
 	}
 

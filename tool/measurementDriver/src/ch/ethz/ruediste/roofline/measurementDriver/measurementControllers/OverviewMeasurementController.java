@@ -6,6 +6,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementContr
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
+import ch.ethz.ruediste.roofline.sharedEntities.Axes;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
@@ -48,7 +49,7 @@ public class OverviewMeasurementController implements IMeasurementController {
 		Coordinate blasCoordinate = CoordinateBuilder
 				.createCoordinate()
 				.set(DaxpyKernel.useMklAxis, true)
-				.set(BlasKernelBase.numThreadsAxis,
+				.set(Axes.numThreadsAxis,
 						systemInfoService.getOnlineCPUs().size()).build();
 
 		daxpyMeasurementController

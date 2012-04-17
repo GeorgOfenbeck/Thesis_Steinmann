@@ -9,6 +9,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.KeyPosition
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.sharedEntities.Axes;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.MMMKernel.MMMAlgorithm;
 
@@ -52,7 +53,7 @@ public class MMMMeasurementController implements IMeasurementController {
 			space.add(MMMKernel.MMMAlgorithmAxis,
 					MMMAlgorithm.MMMAlgorithm_Blocked_Restrict);
 
-			space.add(BlasKernelBase.numThreadsAxis, 1);
+			space.add(Axes.numThreadsAxis, 1);
 
 			for (Coordinate coordinate : space) {
 				addSeries(rooflineController, coordinate);
@@ -65,8 +66,8 @@ public class MMMMeasurementController implements IMeasurementController {
 			space.add(MMMKernel.MMMAlgorithmAxis,
 					MMMAlgorithm.MMMAlgorithm_Blas);
 
-			space.add(BlasKernelBase.numThreadsAxis, 1);
-			space.add(BlasKernelBase.numThreadsAxis, systemInfoService
+			space.add(Axes.numThreadsAxis, 1);
+			space.add(Axes.numThreadsAxis, systemInfoService
 					.getOnlineCPUs().size());
 
 			space.add(BlasKernelBase.useMklAxis, false);

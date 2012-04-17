@@ -37,7 +37,7 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 
 	public void measure(String outputName) throws IOException {
 		DistributionPlot plot = new DistributionPlot();
-		plot.setOutputName(outputName).setTitle("MMM Opertational Intensity")
+		plot.setOutputName(outputName).setTitle("MMM Operational Intensity")
 				.setxLabel("Matrix Size")
 				.setxUnit("Doubles").setyLabel("Operational Intensity")
 				.setyUnit("Operations/Byte").setLog().setBoxWidth(0.03);

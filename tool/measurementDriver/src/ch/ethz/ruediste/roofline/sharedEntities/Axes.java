@@ -52,5 +52,7 @@ public class Axes {
 			"f34ff279-faa1-46ac-b284-868ac0e62843", "warmCode");
 	public static final Axis<Boolean> warmDataAxis = new Axis<Boolean>(
 			"fc1fc977-5ab4-4ac5-8a04-991fbd8554ac", "warmData");
+	public static final Axis<Integer> numThreadsAxis = new Axis<Integer>(
+			"a4a46f4b-6a0d-468a-98a2-bdf4edad2ff3", "numThreads");
 
 }

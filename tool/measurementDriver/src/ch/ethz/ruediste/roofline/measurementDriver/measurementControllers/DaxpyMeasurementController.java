@@ -8,6 +8,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.KeyPosition
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
+import ch.ethz.ruediste.roofline.sharedEntities.Axes;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.DaxpyKernel;
 
 import com.google.inject.Inject;
@@ -38,8 +39,8 @@ public class DaxpyMeasurementController implements IMeasurementController {
 		ParameterSpace space = new ParameterSpace();
 		space.add(DaxpyKernel.useMklAxis, true);
 		space.add(DaxpyKernel.useMklAxis, false);
-		space.add(DaxpyKernel.numThreadsAxis, 1);
-		space.add(DaxpyKernel.numThreadsAxis, systemInfoService.getOnlineCPUs()
+		space.add(Axes.numThreadsAxis, 1);
+		space.add(Axes.numThreadsAxis, systemInfoService.getOnlineCPUs()
 				.size());
 
 		for (Coordinate coord : space) {
