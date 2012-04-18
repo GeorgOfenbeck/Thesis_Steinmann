@@ -137,7 +137,7 @@ public class MMMMeasurementController implements IMeasurementController {
 				kernel.setNoCheck(true);
 				kernel.setMatrixSize(matrixSize);
 
-				rooflineController.addRooflinePoint(kernel.getLabelOverride(),
+				rooflineController.addRooflinePoint(kernel.getLabel(),
 						Long.toString(matrixSize), kernel,
 						kernel.getSuggestedOperation(),
 						MemoryTransferBorder.LlcRamLines);

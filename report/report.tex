@@ -119,20 +119,38 @@ easy-to-understand performance model would be of high value.
  
 The roofline model \cite{Roofline} premises to fulfill these criteria. The key
 observation which led to this model is that, for the forseable future, the
-transfer bandwidth between CPU and Memory will often be the limiting factor of
-system performance. 
+transfer bandwidth between CPU and memory will often be the limiting factor of
+system performance. This is called the memory bottleneck.
 
-If an algorithm manages to largely operate on data which can be held in the CPU
-caches, off-chip bandwith will not be an issue, in contrast to an algorithm 
-excessively accessing data directly from memory. The balance betweeen memory 
-transfer and floating point computation is described by the 'operational
-intensity', measuring the number of performed operations per transferred byte.
+In order to use the arithmetic units found in the CPU close to their peak
+performance, some of the data loaded from memory has to be used in multiple
+operations. This is enabled by the caches found in all modern computer
+sustems. A cache is a relatively small memory area which has a low access
+latency and a high bandwidth. All data loaded from memory is saved in the cache,
+evicting the least recently used data present in the cache. 
+
+If the implementation of an algorithm manages to largely operate on data which
+can be held in the CPU caches, off-chip bandwith will not be an issue. 
+Unfortunately it is often difficult to organize the data access
+pattern of an algorithm in such a way that repeatedly accessed data is not
+squeezed out of the cache by intermediate data accesses.
+
+During the optimization of an algorithm, many changes have an effect on both
+performance and data access pattern. It is therefore beneficial for a
+performance model to capture both aspects.
+
+Towards this goal, the roofline model introduces the term 'operational
+intensity' to mean number of performed operations per byte transferred between
+CPU and memory. The exact definition of operation is problem specific, but
+floating point operation is often used.
 
 \graphFloat{yonah/overview}{Yonah: Overview of different Kernels}
 The roofline model combines the operational intensity with the performance in a
 2D graph (fig. \ref{yonah/overview}). Each measurement results in a point on the
 plot. Multiple points are connected with a line to a series. The graph is on a
 log-log scale.
+
+
 
 The peak floating point performance appears as a horizontal line. There can be
 different bounds depending on the technology or the number of cores used. The
