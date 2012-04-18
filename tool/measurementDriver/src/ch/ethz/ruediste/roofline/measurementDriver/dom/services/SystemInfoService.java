@@ -35,6 +35,7 @@ public class SystemInfoService {
 	 * Take a list of event and return the one available on the system
 	 */
 	public String getAvailableEvent(String... events) {
+		try{
 		return IterableUtils.single(events, new IUnaryPredicate<String>() {
 			public Boolean apply(String event) {
 				// split the event name
@@ -44,6 +45,10 @@ public class SystemInfoService {
 				return getPresentPMU(eventParts[0]) != null;
 			}
 		});
+		}
+		catch (Throwable e){
+			throw new Error("None of the following events was available: "+StringUtils.join(events));
+		}
 	}
 
 	/**

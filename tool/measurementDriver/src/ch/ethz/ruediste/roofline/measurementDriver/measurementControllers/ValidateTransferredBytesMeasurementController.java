@@ -69,23 +69,23 @@ public class ValidateTransferredBytesMeasurementController extends
 			IOException {
 
 		measureThreadedMem(outputName, "ThRead", createReadKernelCoordinate(),
-				mtb);/*
+				mtb);
 						measureThreadedMem(outputName, "ThWrite",
-						createWriteKernelCoordinate(false), mtb);
+						createWriteKernelCoordinate(false,false), mtb);
 						measureThreadedMem(outputName, "ThTriad",
-						createTriadKernelCoordinate(), mtb);*/
+						createTriadKernelCoordinate(), mtb);
 
-		/*instantiator.getInstance(MemController.class)
+		instantiator.getInstance(MemController.class)
 				.setMemoryTransferBorder(mtb).measure(outputName,
-						cpuSingletonList(), createMemKernelCoordinates());*/
+						cpuSingletonList(), createMemKernelCoordinates());
 
-		/*instantiator.getInstance(ArithController.class)
+		instantiator.getInstance(ArithController.class)
 				.setMemoryTransferBorder(mtb).measure(outputName,
 						cpuSingletonList(), createArithKernelCoordinates());
 
 		instantiator.getInstance(MemFlushController.class)
 				.setMemoryTransferBorder(mtb).measure(outputName,
-						cpuSingletonList(), createMemKernelCoordinates());*/
+						cpuSingletonList(), createMemKernelCoordinates());
 	}
 
 	/**

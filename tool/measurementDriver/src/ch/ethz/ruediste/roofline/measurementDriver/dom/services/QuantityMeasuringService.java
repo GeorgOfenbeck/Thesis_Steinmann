@@ -202,7 +202,7 @@ public class QuantityMeasuringService {
 			TerminalQuantityCalculator<TransferredBytes> streamingStoreCalc = createPerfEventQuantityCalculator(
 					TransferredBytes.class,
 					Combination.Sum,
-					"coreduo::SSE_NTSTORES_RET");
+					"coreduo::SSE_NTSTORES_RET","core::SSE_PRE_EXEC:STORES");
 
 			return new AddingQuantityCalculator<TransferredBytes>(
 					new MultiplyingQuantityCalculator<TransferredBytes>(
@@ -312,7 +312,7 @@ public class QuantityMeasuringService {
 		return createPerfEventQuantityCalculator(
 				TLBMisses.class,
 				Combination.Sum,
-				"coreduo::DTLB_MISS");
+				"coreduo::DTLB_MISS","core::DTLB_MISSES");
 	}
 
 	public Quantity<?> measure(KernelBase kernel, Coordinate measurementPoint) {

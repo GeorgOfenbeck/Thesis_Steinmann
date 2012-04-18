@@ -251,7 +251,7 @@ public class PlotService {
 					+ ".gnuplot");
 			preparePlot(output, plot);
 
-			if (plot.getBoxWidth() != Double.NaN) {
+			if (!Double.isNaN(plot.getBoxWidth())) {
 				output.printf("set boxwidth %f\n", plot.getBoxWidth());
 			}
 
