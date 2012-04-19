@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	baseType="KernelBase"
+	cSuffix="Data"
+	comment="kernel used in the sample of the introduction">
+	<field name="m" type="int"/>
+	<field name="n" type="int"/>
+	<field name="variant" type="int" comment="0: first variant, 1: second variant"/>
+</derivedClass>

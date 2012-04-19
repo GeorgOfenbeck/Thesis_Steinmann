@@ -145,10 +145,34 @@ CPU and memory. The exact definition of operation is problem specific, but
 floating point operation is often used.
 
 \graphFloat{yonah/overview}{Yonah: Overview of different Kernels}
-The roofline model combines the operational intensity with the performance in a
-2D graph (fig. \ref{yonah/overview}). Each measurement results in a point on the
-plot. Multiple points are connected with a line to a series. The graph is on a
-log-log scale.
+The roofline model combines the operational intensity on the $x$ axis with the
+performance on the $y$ axis in a 2D graph (fig. \ref{yonah/overview}). Each
+measurement results in a point on the plot. Multiple points are connected with a
+line to a series. The graph is on a log-log scale.
+
+The power of the model comes from the ability to show performance and
+effects of the data access pattern at the same time. To illustrate the point,
+we will try to solve the following problem: Given a matrix $M$ of size
+$n\times m$ ($m$ rows, $n$ columns), we would like to perform the following
+transformantion: $M_{ij}=3j^2M_{ij}$.
+
+The straight forward approach is to use the following loop:
+\begin{lstlisting}[language=C] 
+for (int i = 0; i < m; i++) 
+for (int j = 0; j < n; j++)
+M[i*n + j] = 3*j*j*M[i*n + j];
+\end{lstlisting}
+
+In an attempt to optimize the algorithm, we could switch the order of the loops
+to avoid repeated computations of the term $3j^2$:
+
+\begin{lstlisting}[language=C] 
+for (int j = 0; j < n; j++) {
+  int tmp = 3*j*j;
+  for (int i = 0; i < m; i++) 
+    M[i*n + j] = tmp*M[i*n + j];
+}
+\end{lstlisting}
 
 
 
@@ -158,7 +182,7 @@ memory bandwith forms a line of unit slope. There can again be multiple bounds,
 depending on the number of cores or the access pattern (random vs. linear).
 
 The horizontal and diagonal lines give the roofline model it's name. The point
-where the lines intersect is called the ridge point. 
+where the lines intersect is called the ridge point.
 
 A roofline graph contains useful information for performance optimization. If
 the operational intensity of a kernel lies to the left of the ridge point, the
