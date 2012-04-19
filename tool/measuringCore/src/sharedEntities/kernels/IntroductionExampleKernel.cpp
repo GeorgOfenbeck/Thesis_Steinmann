@@ -8,6 +8,7 @@
 #include "IntroductionExampleKernel.h"
 #include <utility>
 #include <stdlib.h>
+#include <cmath>
 
 std::vector<std::pair<void*, long> > IntroductionExampleKernel::getBuffers() {
 	std::vector<std::pair<void*, long> > result;

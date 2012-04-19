@@ -187,6 +187,9 @@ public class PlotService {
 			output.println("set key right top");
 		break;
 
+		case NoKey:
+			output.println("unset key");
+		break;
 		}
 
 		// set logarithmic axes
