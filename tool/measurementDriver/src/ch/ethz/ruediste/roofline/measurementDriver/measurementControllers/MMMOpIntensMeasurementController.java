@@ -215,7 +215,7 @@ public class MMMOpIntensMeasurementController implements IMeasurementController 
 			tlbMissPlot.addValue("Theoretical", size, thTlbMissesTriple(size));
 
 			System.out.printf("Triple: %d TLBMisses: %e\n", size,
-					result.min(tlbCalc)
+					result.best(tlbCalc)
 							.getValue());
 			double opCount = 2 * Math.pow(size, 3);
 			for (TransferredBytes tb : result.get(tbCalc))

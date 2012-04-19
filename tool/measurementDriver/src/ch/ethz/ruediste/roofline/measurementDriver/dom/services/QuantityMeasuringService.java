@@ -323,7 +323,7 @@ public class QuantityMeasuringService {
 					.get(clockTypeAxis));
 			QuantityMap result = measureQuantities(kernel, calculator);
 
-			return result.min(calculator);
+			return result.best(calculator);
 		}
 
 		if (quantity == Throughput.class) {
@@ -333,7 +333,7 @@ public class QuantityMeasuringService {
 
 			QuantityMap result = measureQuantities(kernel, calc);
 
-			return result.min(calc);
+			return result.best(calc);
 		}
 
 		if (quantity == TransferredBytes.class) {
@@ -341,7 +341,7 @@ public class QuantityMeasuringService {
 					.get(memoryTransferBorderAxis));
 			QuantityMap result = measureQuantities(kernel, calculator);
 
-			return result.min(calculator);
+			return result.best(calculator);
 		}
 
 		if (quantity == OperationCount.class) {
@@ -349,7 +349,7 @@ public class QuantityMeasuringService {
 					.get(operationAxis));
 			QuantityMap result = measureQuantities(kernel, calculator);
 
-			return result.min(calculator);
+			return result.best(calculator);
 		}
 
 		if (quantity == Performance.class) {
@@ -357,7 +357,7 @@ public class QuantityMeasuringService {
 					measurementPoint.get(operationAxis),
 					measurementPoint.get(clockTypeAxis));
 			QuantityMap result = measureQuantities(kernel, calc);
-			return result.min(calc);
+			return result.best(calc);
 		}
 
 		throw new Error("should not happen");
@@ -391,7 +391,7 @@ public class QuantityMeasuringService {
 			return calc.getStatistics(super.get(calc));
 		}
 
-		public <T extends Quantity<T>> T min(QuantityCalculator<T> calc) {
+		public <T extends Quantity<T>> T best(QuantityCalculator<T> calc) {
 			return calc.getBestResult(super.get(calc));
 		}
 

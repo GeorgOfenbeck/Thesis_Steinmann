@@ -126,10 +126,10 @@ public class RooflineController {
 
 		// build derived quantities
 		OperationalIntensity operationalIntensity = new OperationalIntensity(
-				result.min(tbCalculator), result.min(opCountCalculator));
+				result.best(tbCalculator), result.best(opCountCalculator));
 
 		Performance performance = new Performance(
-				result.min(opCountCalculator), result.min(timeCalc));
+				result.best(opCountCalculator), result.best(timeCalc));
 
 		// create point
 		RooflinePoint point = new RooflinePoint(label, operationalIntensity,
@@ -152,9 +152,9 @@ public class RooflineController {
 				.measureQuantities(kernel, timeCalc, tbCalculator);
 
 		RooflinePoint point = new RooflinePoint(label,
-				new OperationalIntensity(result.min(tbCalculator),
+				new OperationalIntensity(result.best(tbCalculator),
 						operationCount),
-				new Performance(operationCount, result.min(timeCalc)));
+				new Performance(operationCount, result.best(timeCalc)));
 
 		addRooflinePoint(seriesName, point);
 	}
@@ -169,8 +169,8 @@ public class RooflineController {
 
 		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,
 				opCountCalc, timeCalc);
-		OperationCount operationCount = result.min(opCountCalc);
-		Time time = result.min(timeCalc);
+		OperationCount operationCount = result.best(opCountCalc);
+		Time time = result.best(timeCalc);
 
 		RooflinePoint point = new RooflinePoint(label,
 				new OperationalIntensity(transferredBytes, operationCount),

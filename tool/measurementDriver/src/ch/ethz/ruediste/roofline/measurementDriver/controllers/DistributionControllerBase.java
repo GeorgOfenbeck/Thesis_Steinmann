@@ -154,7 +154,7 @@ public abstract class DistributionControllerBase<TQuantity extends Quantity<TQua
 				}
 
 				// book keeping
-				time = result.min(execTimeCalc).getValue();
+				time = result.best(execTimeCalc).getValue();
 				problemSize = grownProblemSize(problemSize);
 			}
 		}

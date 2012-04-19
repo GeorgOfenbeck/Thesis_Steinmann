@@ -98,11 +98,11 @@ public class MemoryMeasurementController implements IMeasurementController {
 			
 			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 
-			Throughput throughput = result.min(calc);
+			Throughput throughput = result.best(calc);
 			QuantityCalculator<TransferredBytes> calculator = quantityMeasuringService.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
 			QuantityMap result1 = quantityMeasuringService.measureQuantities(kernel, calculator);
 
-			TransferredBytes transferredBytes = result1.min(calculator);
+			TransferredBytes transferredBytes = result1.best(calculator);
 
 			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
 					coordinate.toString(),

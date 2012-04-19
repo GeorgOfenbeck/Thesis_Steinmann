@@ -40,8 +40,8 @@ public class IntroductionExampleMeasurementController implements
 		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,
 				10, perfCalc);
 
-		System.out.printf("Variant: %i. Performance: %e\n",
-				kernel.getVariant(), result.min(perfCalc).getValue());
+		System.out.printf("Variant: %d. Performance: %e\n",
+				kernel.getVariant(), result.best(perfCalc).getValue());
 	}
 
 }

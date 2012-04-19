@@ -90,14 +90,14 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 				QuantityCalculator<Performance> calc = quantityMeasuringService.getPerformanceCalculator(
 						operationMap.get(instructionSet), ClockType.CoreCycles);
 				QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
-				Performance performance = result.min(calc);
+				Performance performance = result.best(calc);
 				System.out.printf("Performance %s: %s\n", coordinate,
 						performance);
 			}
 			QuantityCalculator<OperationCount> calculator = quantityMeasuringService.getOperationCountCalculator(operationMap.get(instructionSet));
 			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calculator);
 
-			OperationCount count = result.min(calculator);
+			OperationCount count = result.best(calculator);
 			System.out.printf("Operations %s: %s\n", coordinate, count);
 		}
 

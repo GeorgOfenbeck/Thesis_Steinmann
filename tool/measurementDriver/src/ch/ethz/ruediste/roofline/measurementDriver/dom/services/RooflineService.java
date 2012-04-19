@@ -120,7 +120,7 @@ public class RooflineService {
 		QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 
 		// measure the performance
-		Performance performance = result.min(calc);
+		Performance performance = result.best(calc);
 
 		log.info(String.format(
 				"peak performance for %s %s %s: parameters: %s value: %f",
@@ -163,7 +163,7 @@ public class RooflineService {
 		QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 
 		// measure the throughput
-		Throughput throughput = result.min(calc);
+		Throughput throughput = result.best(calc);
 		return throughput;
 	}
 }

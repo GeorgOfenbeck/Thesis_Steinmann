@@ -47,11 +47,11 @@ public class TriadMeasurementController implements IMeasurementController {
 			
 			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 
-			Throughput throughput = result.min(calc);
+			Throughput throughput = result.best(calc);
 			QuantityCalculator<OperationCount> calculator = quantityMeasuringService.getOperationCountCalculator(Operation.CompInstr);
 			QuantityMap result1 = quantityMeasuringService.measureQuantities(kernel, calculator);
 
-			OperationCount operations = result1.min(calculator);
+			OperationCount operations = result1.best(calculator);
 
 			System.out.printf("size %d: throughput: %s operations: %s\n", size,
 					throughput, operations);

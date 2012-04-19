@@ -136,7 +136,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 		QuantityMap quantityMap = quantityMeasuringService
 				.measureQuantities(builder, 10).with("main", timeCalc).get();
 
-		return quantityMap.min(timeCalc);
+		return quantityMap.best(timeCalc);
 
 	}
 
@@ -163,7 +163,7 @@ public class ExpTime1MeasurementController implements IMeasurementController {
 					.get();
 
 			// take minimum
-			Interrupts interrupts = quantityMap.min(interruptsCalc);
+			Interrupts interrupts = quantityMap.best(interruptsCalc);
 
 			// check if there were any context switches
 			if (interrupts.getValue() > 0.1) {

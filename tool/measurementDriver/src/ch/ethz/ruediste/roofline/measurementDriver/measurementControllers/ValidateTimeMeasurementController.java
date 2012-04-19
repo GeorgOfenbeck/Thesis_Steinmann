@@ -162,7 +162,7 @@ public class ValidateTimeMeasurementController extends
 
 				}
 
-				time = result.min(calcUSecs).getValue();
+				time = result.best(calcUSecs).getValue();
 				problemSize *= 2;
 			}
 		}
