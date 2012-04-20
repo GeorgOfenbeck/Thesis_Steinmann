@@ -33,6 +33,14 @@ void IntroductionExampleKernel::initialize() {
 			buffer[i * getM() + j] = drand48();
 }
 
+template<int exp>
+double pow(double d){
+	return d*pow<exp-1>(d);
+}
+
+template<>
+double pow<1>(double d){return d;}
+
 void IntroductionExampleKernel::run() {
 	if (getVariant() == 0) {
 		for (int i = 0; i < getM(); i++)

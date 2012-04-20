@@ -210,11 +210,11 @@ public class PlotService {
 		Double yMax = (Double) plot.getYRange(systemInformation).getMaximum();
 
 		output.printf("set xrange [%s:%s]\n",
-				xMin == Double.NEGATIVE_INFINITY ? "" : xMin,
-				xMax == Double.POSITIVE_INFINITY ? "" : xMax);
+				xMin.isNaN() ? "" : xMin,
+				xMax.isNaN() ? "" : xMax);
 		output.printf("set yrange [%s:%s]\n",
-				yMin == Double.NEGATIVE_INFINITY ? "" : yMin,
-				yMax == Double.POSITIVE_INFINITY ? "" : yMax);
+				yMin.isNaN() ? "" : yMin,
+				yMax.isNaN() ? "" : yMax);
 
 		output.printf("set xlabel '%s [%s]' font 'Gill Sans, 6'\n",
 				plot.getxLabel(), plot.getxUnit());

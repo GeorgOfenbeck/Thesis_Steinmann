@@ -8,10 +8,10 @@ import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
  * A 2D plot, specifies the axis names and units
  */
 public abstract class Plot2D<T extends Plot2D<?>> extends Plot<T> {
-	private Range<Double> yRange = Range.between(Double.NEGATIVE_INFINITY,
-			Double.POSITIVE_INFINITY);
-	private Range<Double> xRange = Range.between(Double.NEGATIVE_INFINITY,
-			Double.POSITIVE_INFINITY);
+	private Range<Double> yRange = Range.between(Double.NaN,
+			Double.NaN);
+	private Range<Double> xRange = Range.between(Double.NaN,
+			Double.NaN);
 
 	private String xLabel;
 	private String xUnit;

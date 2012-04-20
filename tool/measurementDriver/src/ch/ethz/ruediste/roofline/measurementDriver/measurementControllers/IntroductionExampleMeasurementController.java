@@ -41,11 +41,14 @@ public class IntroductionExampleMeasurementController implements
 		configuration.set(QuantityMeasuringService.numberOfRunsKey, 20);
 
 		rooflineController.setOutputName(outputName);
+		rooflineController.getPlot().addPeakPerformance("Peak Performance",
+				new Performance(1));
 		rooflineController.addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 				MemoryTransferBorder.LlcRamBus);
-		rooflineController.setTitle("Intro");
-		rooflineController.getPlot().setAutoscaleX(true).setAutoscaleY(true)
-				.setKeyPosition(KeyPosition.NoKey);
+		//rooflineController.addDefaultPeaks();
+		rooflineController.setTitle("Introductory Example");
+		rooflineController.getPlot().setKeyPosition(KeyPosition.NoKey)
+				.setYRange(0.01, Double.NaN).setXRange(0.01, Double.NaN);
 		measure(0);
 		measure(1);
 		rooflineController.plot();

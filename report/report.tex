@@ -5,7 +5,9 @@
 \usepackage{calc}
 \usepackage{booktabs}
 \usepackage{subfig}
-
+\usepackage{amsmath}
+\usepackage{dblfnote}
+\usepackage{pfnote}
 \usepackage{makeidx}
 
 \usepackage[colorlinks,bookmarks,pagebackref]{hyperref}
@@ -117,7 +119,7 @@ complexity made performance observations harder to understand. Since the trend
 to more complex CPUs is likely to continue in the future, an insightfule and
 easy-to-understand performance model would be of high value.
  
-The roofline model \cite{Roofline} premises to fulfill these criteria. The key
+The roofline model \cite{Roofline} promises to fulfill these criteria. The key
 observation which led to this model is that, for the forseable future, the
 transfer bandwidth between CPU and memory will often be the limiting factor of
 system performance. This is called the memory bottleneck.
@@ -153,15 +155,65 @@ measurement results in a point on the plot. Multiple points are connected with a
 line to a series. The graph is on a log-log scale.
 
 The peak floating point performance appears as a horizontal line. There can be
-different bounds depending on the technology or the number of cores used. The
-memory bandwith forms a line of unit slope. There can again be multiple bounds,
-depending on the number of cores or the access pattern (random vs. linear).
+different bounds depending on the technology or the number of cores used. 
+
+What about memory bandwidth? If the implementation of an algorithm transfers $v$
+bytes (transfer volume) and performs $\Omega$ operations within $t$ cycles (the
+unit of time does not matter, could be seconds as well), it will be placed at
+$x=\Omega/v$ (operational intensity) and $y=\Omega/t$ (performance). The data
+throughput between CPU and memory is $\tau=v/t$, which {\bf can be derived from
+performance and operational intensity}: 
+
+$$
+\tau=\frac{v}{t}
+=\frac{\Omega v}{\Omega t}
+=\frac{\Omega}{t}\frac{v}{\Omega}
+=\frac{\Omega}{t}(\frac{\Omega}{v})^{-1}
+=yx^{-1}
+=\frac{y}{x}
+$$
+
+The throughput is bound by the bandwidth ($\tau<\beta$), which leads to the
+following limit for performance and operational intensity:
+
+\begin{align*}
+\tau=\frac{y}{x}&<\beta\\
+y&<x\beta 
+\end{align*}
+
+Since roofline plots are on a log-log scale, the bandwidth line appears as a
+line of unit slope, offset towards the top left of the graph proportional to the
+logarithm of the memory bandwidth.
+\footnote{ In order to grasp the appearance of the bandwidth line, we have to
+map the line to a cartesian coordinate system .
+The coordinates $x'$ and $y'$ in the cartesian coordinate system are in the
+following relationship to the log-log coordinates:
+
+\begin{align*}
+x'=\ln(x)&;\; e^{x'}=x\\
+y'=\ln(y)&;\; e^{y'}=y\\
+\end{align*}
+
+The line becomes:
+
+\begin{align*}
+y&=\beta x\\
+e^{y'}&=\beta e^{x'}\\
+y'&=\ln(\beta e^{x'})\\
+&=\ln(\beta) + \ln(e^{x'})\\
+y'&=\ln(\beta) + x'\\
+\end{align*}
+}
+
+As for the peak performance, there can be multiple bounds, depending for example
+on the number of cores used, the memory type or the access pattern (random vs.
+linear).
 
 The horizontal and diagonal lines give the roofline model it's name. The point
 where the lines intersect is called the ridge point.
-	
+
 The power of the model comes from the ability to show performance and
-effects of the data access pattern at the same time. To illustrate the point,
+effects of the data access pattern at the same time. To illustrate this point,
 we will try to solve the following problem: Given a matrix $M$ of size
 $n\times m$ ($m$ rows, $n$ columns), we would like to perform the following
 transformantion: $M_{ij}=3j^2M_{ij}$.
@@ -201,27 +253,27 @@ Using just this information we have no clue why our modification degraded
 performance. 
 
 \graphFloat{yonah/intro}{Roofline Plot of the Introduction Example}
-Using the roofline model we get figure \ref{yonah/intro}. We see
-that the operational intensity decreased by an order of magnitude. Reviewing our
-modification, we can see that we moved from a row major to a column major access
-pattern which is well known to potentially reduce operational intensity. This in
-turn 
+Using the roofline model we get figure \ref{yonah/intro}. We see that the
+operational intensity decreased by an order of magnitude for variant 1.
+Since both variants operate close to the peak memory bandwith, it is clear that
+the performance has to fall together with the operational intensity. In addition
+the plot makes clear that the only way to get a substantial speed improvement is
+to increase the operational intensity. Reviewing our modification, we can see
+that we moved from a row major to a column major access pattern which is well
+known to potentially reduce operational intensity.
 
-This is a first example of how the
+Generally, if the roofline point of an algorithm lies to the left of the
+ridge point, the only way to reach peak performance is to increase the
+operational intensity. On the other hand, if a point lies to the right of the
+ridge point,  memory bandwith is not the limiting factor. If the kernel does not
+reach the peak performance, there must be other performance limiting factors.
 
-
-
-A roofline graph contains useful information for performance optimization. If
-the operational intensity of a kernel lies to the left of the ridge point, the
-kernel is memory bound. Peak floating point performance can only be reached by
-increasing the operational intensity. If the kernel lies to the right of the
-ridge point, memory bandwith is no limiting factor. If the kernel does not reach
-the peak performance, there must be other performance limiting factors.
-
-When comparing the roofline graphs of different machines, the position of the
-ridge point is an important clue of how difficult it is to reach a good
-performance. The further the ridge point lies to the right, the higher is the
-operational intensity required to achieve peak performance. 
+Apart from guiding the optimization process, the roofline model can be used to
+analyze different computer systems. When comparing the roofline graphs of
+different machines, the position of the ridge point is an important clue of how
+difficult it is to reach a good performance. The further the ridge point lies to
+the right, the higher is the operational intensity required to achieve peak
+performance.
 
 \subsection{Goals for the Master Thesis}
 Since we did not find a tool capable of easily creating roofline plots, we

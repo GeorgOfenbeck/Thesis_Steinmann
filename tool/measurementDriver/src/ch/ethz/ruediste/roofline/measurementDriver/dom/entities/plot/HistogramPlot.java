@@ -48,11 +48,11 @@ public class HistogramPlot extends Plot2D<HistogramPlot> {
 		double min = superRange.getMinimum();
 		double max = superRange.getMaximum();
 
-		if (min == Double.NEGATIVE_INFINITY) {
+		if (Double.isNaN(min)) {
 			min = totalStats.getMin();
 		}
 
-		if (max == Double.POSITIVE_INFINITY) {
+		if (Double.isNaN(max)) {
 			max = totalStats.getMax();
 		}
 

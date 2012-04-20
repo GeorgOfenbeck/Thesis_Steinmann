@@ -98,41 +98,84 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 		Range<OperationalIntensity> operationalIntensityRange = IterableUtils
 				.getRange(getOperationalIntensities());
 
+		// get the default range
+		Range<Double> defaultRange;
+
 		if (isAutoscaleX()) {
-			return Range.between(operationalIntensityRange.getMinimum()
+			// if in autoscale mode, the default range is determined by autoscaling
+			defaultRange = Range.between(operationalIntensityRange.getMinimum()
 					.getValue() / 2, operationalIntensityRange.getMaximum()
 					.getValue() * 2);
 		}
 		else {
+			// otherwise there are constants
 			switch (systemInformation.CpuType) {
 			case Core:
-				return Range.between(0.03, 100.);
+				defaultRange = Range.between(0.03, 100.);
+			break;
 			case Yonah:
-				return Range.between(0.03, 50.);
+				defaultRange = Range.between(0.03, 50.);
+			break;
+			default:
+				throw new Error("Cpu Type not supported");
 			}
-			throw new Error("Cpu Type not supported");
 		}
+
+		// combine default range with range set on the plot
+		return combineRanges(super.getXRange(systemInformation), defaultRange);
+	}
+
+	/**
+	 * Combine two ranges
+	 * 
+	 * @param definedRange
+	 *            if min or max is set to NaN, use default range instead
+	 * @param defaultRange
+	 *            range to use if min or max of defined range are NaN
+	 * @return
+	 */
+	private Range<Double> combineRanges(Range<Double> definedRange,
+			Range<Double> defaultRange) {
+		double min = definedRange.getMinimum();
+		if (Double.isNaN(min))
+			min = defaultRange.getMinimum();
+
+		double max = definedRange.getMaximum();
+		if (Double.isNaN(max))
+			max = defaultRange.getMaximum();
+
+		return Range.between(min, max);
 	}
 
 	@Override
 	public Range<Double> getYRange(SystemInformation systemInformation) {
 		Range<Performance> performanceRange = IterableUtils
 				.getRange(getPerformances());
+		// get the default range
+		Range<Double> defaultRange;
 
-		// set the scaling
 		if (isAutoscaleY()) {
-			return Range.between(performanceRange.getMinimum().getValue() / 2,
+			// if in autoscale mode, the default range is determined by autoscaling
+			defaultRange = Range.between(performanceRange.getMinimum()
+					.getValue() / 2,
 					performanceRange.getMaximum().getValue() * 2);
 		}
 		else {
+			// otherwise there are constants
 			switch (systemInformation.CpuType) {
 			case Core:
-				return Range.between(0.03, 20.);
+				defaultRange = Range.between(0.03, 20.);
+			break;
 			case Yonah:
-				return Range.between(0.1, 4.5);
+				defaultRange = Range.between(0.1, 4.5);
+			break;
+			default:
+				throw new Error("Cpu Type not supported");
 			}
-			throw new Error("Cpu Type not supported");
 		}
+
+		// combine default range with range set on the plot
+		return combineRanges(super.getYRange(systemInformation), defaultRange);
 	}
 
 	public Collection<RooflineSeries> getAllSeries() {
