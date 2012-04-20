@@ -116,23 +116,23 @@ and more complex.
 
 From the perspective of software performance optimization, the increased
 complexity made performance observations harder to understand. Since the trend
-to more complex CPUs is likely to continue in the future, an insightfule and
+to more complex CPUs is likely to continue in the future, an insightful and
 easy-to-understand performance model would be of high value.
  
 The roofline model \cite{Roofline} promises to fulfill these criteria. The key
-observation which led to this model is that, for the forseable future, the
+observation which led to this model is that, for the foreseeable future, the
 transfer bandwidth between CPU and memory will often be the limiting factor of
 system performance. This is called the memory bottleneck.
 
 In order to use the arithmetic units found in the CPU close to their peak
 performance, some of the data loaded from memory has to be used in multiple
 operations. This is enabled by the caches found in all modern computer
-sustems. A cache is a relatively small memory area which has a low access
+systems. A cache is a relatively small memory area which has a low access
 latency and a high bandwidth. All data loaded from memory is saved in the cache,
 evicting the least recently used data present in the cache. 
 
 If the implementation of an algorithm manages to largely operate on data which
-can be held in the CPU caches, off-chip bandwith will not be an issue. 
+can be held in the CPU caches, off-chip bandwidth will not be an issue. 
 Unfortunately it is often difficult to organize the data access
 pattern of an algorithm in such a way that repeatedly accessed data is not
 squeezed out of the cache by intermediate data accesses.
@@ -216,7 +216,7 @@ The power of the model comes from the ability to show performance and
 effects of the data access pattern at the same time. To illustrate this point,
 we will try to solve the following problem: Given a matrix $M$ of size
 $n\times m$ ($m$ rows, $n$ columns), we would like to perform the following
-transformantion: $M_{ij}=3j^2M_{ij}$.
+transformation: $M_{ij}=3j^2M_{ij}$.
 
 The straight forward approach is to use the following loop: (Variant 0)
 \begin{lstlisting}[language=C] 
@@ -255,7 +255,7 @@ performance.
 \graphFloat{yonah/intro}{Roofline Plot of the Introduction Example}
 Using the roofline model we get figure \ref{yonah/intro}. We see that the
 operational intensity decreased by an order of magnitude for variant 1.
-Since both variants operate close to the peak memory bandwith, it is clear that
+Since both variants operate close to the peak memory bandwidth, it is clear that
 the performance has to fall together with the operational intensity. In addition
 the plot makes clear that the only way to get a substantial speed improvement is
 to increase the operational intensity. Reviewing our modification, we can see
@@ -265,7 +265,7 @@ known to potentially reduce operational intensity.
 Generally, if the roofline point of an algorithm lies to the left of the
 ridge point, the only way to reach peak performance is to increase the
 operational intensity. On the other hand, if a point lies to the right of the
-ridge point,  memory bandwith is not the limiting factor. If the kernel does not
+ridge point,  memory bandwidth is not the limiting factor. If the kernel does not
 reach the peak performance, there must be other performance limiting factors.
 
 Apart from guiding the optimization process, the roofline model can be used to
@@ -275,53 +275,93 @@ difficult it is to reach a good performance. The further the ridge point lies to
 the right, the higher is the operational intensity required to achieve peak
 performance.
 
-\subsection{Goals for the Master Thesis}
-Since we did not find a tool capable of easily creating roofline plots, we
-decided to create one our selves during this thesis. It should be able to
-measure the performance and operational intensity of a program, and to compose
-the results of different measurements into one roofline plot.
-  
+\subsection{Goals of the Thesis}
+{\bf This thesis aims to create a tool capable of easily creating roofline
+plots. In addition it should provide a measuring infrastructure which can be
+used in a broader context.}
+
 Code to be measured can come either in the form of a relatively isolated
 routine, typically containing a single kernel, or in the form of a larger
 program, containing multiple different kernels. While routines are treated as
 atomic units, it is desirable to split the larger program into it's different
 algorithms and do the analysis for each algorithm separately. In the rest of
-this paper, we will use the term kernel for a routine or part of a program which
-is analyzed on it's own.
+this thesis, we will use the term kernel for a routine or part of a program
+which is analyzed on it's own.
 
-To obtain the peak performance lines for the roofline model, we need to run
-micro benchmarks. To get the data points for a kernel, we need to measure the
-performance and the operational intensity. 
+Multi threaded kernels should be supported.
 
-Performance is defined as amount of work per unit of time. The amount of work
-and how it is defined is determined by the actual kernel and may not be need to
-be measured directly by the measurement tool. The time required to do the work
-has to be measured.
+To get the data points for a kernel, we need to measure the performance and the
+operational intensity.
+
+Performance is defined as amount of work per unit of time. The time required to
+do the work has to be measured. The amount of work and how it is defined is
+determined by the actual kernel. 
+
+For example, if different implementations of an algorithm solve the same problem
+with a different number of floating point operations, their floating point
+performances are not comparable. It would make more sense to derive the
+theoretical floating point operation count given the problem size and use the
+result instead of measuring the actual operation count.
+Otherwise just including dummy operations would increase the apparent
+performance, which is certainly not desirable.
 
 Operational intensity is defined as operations per byte of data traffic. Since
 the operational intensity cannot be measured directly, we have to measure the
-operation count and the data traffic. Depending on the problem, different
-definitions of operation and data traffic make sense.
-
-An operation could be a floating point operation, resulting int the well known
-"flops" unit, either single or double precision. But an operation could as well
-be defined as machine instruction, integer operation or others.
+operation count and the data traffic.
 
 The point where data traffic is measured is typically between the last level
 cache of the processor and the DRAM, but it could be measured as well between
 the different cache levels or between L1 cache and processor.
 
-The micro benchmarks are typically designed to either transfer as much data per
-unit of time or to execute as may operations per unit of time. Thus the
-measurement capabilities needed to evaluate the actual problems can be reused
-for the benchmarks. 
+To obtain the peak performance and memory bandwidth lines for the roofline model
+we need to create micro benchmarks. They are typically designed to transfer as
+much data per unit of time or to execute as may operations per unit of time as
+possible. Thus the measurement capabilities needed to evaluate the actual
+problems can be reused for the benchmarks.
 
-In summary, we need to measure the following quantities:
+In summary, the following quantities need to be measured:
 \begin{itemize}
-\item execution time
-\item memory traffic
-\item operation count
+\item Execution Time
+\item Memory Traffic
+\item Operation Count
 \end{itemize}
+
+The accuracy and precision of the measurement results will be evaluated and
+possibly improved by statistical techniques.
+
+The results will be used to automatically generate roofline plots. The
+results of different kernels and sizes can be combined into a single plot.
+
+The tool is written for the x86 platform and should support different
+processors. 
+ 
+\subsection{Related Work}
+{\bf Domain: Measuring execution time, operation count and memory transfer
+volume.} Multitasking operation systems may interrupt a program at any time and
+perform a context switch. When a measurement run is interrupted the result can
+be affected. We used the techniques presented in \cite{ComSysProgPersp} to deal
+with this problem.
+
+In addition, the initial state of the caches can have an influence on the
+measurement results. It is therefore important to warm or flush the caches.
+(\cite{Whaley:2008:AAC:1462062.1462065})
+
+{\bf Domain: Software engineering.} For this thesis a substantial amount of code
+has been written with the intent to be reused in the future. We followed the
+concepts outlined in \cite{evans2004domain} to improve code quality.
+
+\subsection{Contribution of the Thesis}
+The main contribution of this thesis is of practical nature. We built a tool
+which simplifies performance measurements and in particular the generation of
+roofline plots.
+
+In addition we will present detailed low level measurement results, which could
+be used as a reference for future work.
+
+Finally, we implemented a variety of kernels (in many cases using libraries) and
+present their roofline plots.
+
+\section{Measurement Setup}
 
 \subsection{Performance Counters}
 Recent x86 CPUs contain typically two performance counters. Each can be
@@ -339,7 +379,7 @@ configured and read using a kernel API. The kernel takes care of isolating
 different processes, such that each process can configure and use the counters
 according to the specific requirements, without interfering with other processes.
 
-Using the perfomance counters, it is possible to measure execution time, memory
+Using the performance counters, it is possible to measure execution time, memory
 traffic and operation count. For the execution time either the cycle counter or
 the system timer can be used. The memory traffic can be determined using the
 performance counters for counting cache misses and write back operations. An
@@ -347,16 +387,16 @@ other option is to use the counters for bus transfers. Measuring the operation c
 depends heavily on the definition of operation, but is typically measurable with
 the performance counters, too.
 
-\section{Measurement Setup}
+\subsection{Measurement Machine}
 All measurements are performed on an IBM X60 Thinkpad, featuring an Intel
 CoreDuo CPU (Family 6, Model 14). The CPU is based on the Yonah
-microarchitecture, which similar to the Pentium-M. The CPU contains two cores,
-each having a 32KB instruction and a 32KB data L1 cache, 8 ways set associative,
+micro architecture, which is similar to the Pentium-M. The CPU contains two
+cores, each having a 32KB instruction and a 32KB data L1 cache, 8 ways set associative,
 with 64 bytes line size. The two cores share a 2MB unified L2 cache, again 8
 ways set associative and with 64 bytes line size. The core frequency can scale
 between 1GHz and 1.83GHz. The bus frequency is 167MHz. 
 
-The main memory consits of two 2GB DDR2 modules, totaling in 4GB available
+The main memory consists of two 2GB DDR2 modules, totaling in 4GB available
 memory. The theoretical throughput of the memory is 5.12 GB/s, which is 2.80
 Bytes per core cycle, if the CPU runs at 1.83GHz.
 
@@ -401,7 +441,7 @@ Specially for short running kernels, the initial state of the cache can have a
 big impact on the memory traffic and execution time.  The impact can be
 controlled by making sure the caches are either warm or cold.
 
-In our tool, it is possible to specify the desired inital state of the code and
+In our tool, it is possible to specify the desired initial state of the code and
 the data separately. We used the fast fourier transformation implementation of
 the Intel Math Kernel Libraries as showcase. Figures \ref{yonah/FFTwarm} and
 \ref{yonah/FFTwarmPerformance} show the results when the cache is cold
@@ -445,7 +485,7 @@ Getting cold caches can be quite tricky. See
 \cite{Whaley:2008:AAC:1462062.1462065} section '3.
 CACHE FLUSHING METHODS WHEN TIMING ONE INVOCATION' for details.
 
-To clear the code cache, we use the traditiona method of accessing a large
+To clear the code cache, we use the traditional method of accessing a large
 memory buffer and executing more than 32KB code to flush the L1 code cache.
 
 In addition, the kernels report the buffers they allocated. This is used to
@@ -501,7 +541,7 @@ writing $a$ back.
 {yonah/valTBALTError}{MemL2}
 
 We tried to estimate the amount of memory that has to be transferred. For pure
-reading, we expect to observe the whole buffer beeing transferred to the core.
+reading, we expect to observe the whole buffer being transferred to the core.
 When writing is involved, we expect some of the writes to be held back in the
 cache. For the write kernel we presume that the whole cache is used for write
 back caching, and one third of the cache for the triad kernel, since there are
@@ -512,7 +552,7 @@ of memory transfer. Around an expected transfer volume of 2MB we overestimate
 the influence of the write back cache. The CPU seems to write data back to the
 memory before the cache is completely filled. The MemBus and MemL2 variants
 produce similar result. Note that the MemL2 variant measures less than the
-expected memory tansfer for large buffer sizes.
+expected memory transfer for large buffer sizes.
 
 The errors (see fig. \ref{yonah/valTBError}) of the MemL2 variant are
 smaller than those of the MemBus variant.
@@ -528,7 +568,7 @@ whole 2MB 2nd level cache is used for write back caching. For the Triad kernel
 one could suspect that each buffer receives about one third of the cache, which
 is affirmed by the data.
 
-When measuring on an Intel Core, we observed a strange behaviour. While the Read
+When measuring on an Intel Core, we observed a strange behavior. While the Read
 and the Triad kernels behaved as expected, the we observed a memory transfer of
 half the buffer size for the write kernel, independent of the buffer size. We
 used the SSE intrinsics. Switching to the normal integer registers produced the
@@ -589,7 +629,7 @@ measured execution time, memory transfer or operation count. Ideally, at least
 one execution does not include any overhead. In this case the true value is the
 minimum value observed.
 
-Based othese considerations, we repeat each measurement $K$ times and
+Based on these considerations, we repeat each measurement $K$ times and
 discard all but the minimum value.
 
 \graphFloatTwo{Error of the Transfer Volume with $K=10$}
@@ -628,7 +668,7 @@ is overestimated by about 10\% for transfer volumes under 10MB
 
 \clearpage
 \section{Multi Threaded Accuracy and Precision}
-For the validation of multithreaded measurements, we use the same measurements
+For the validation of multi threaded measurements, we use the same measurements
 as for the single threaded validation, but run a separate workload instance on
 each core. Using a barrier, we make sure the two kernels start at the same time. 
 
@@ -669,7 +709,7 @@ variant. The precision is comparable to the single threaded measurements, the
 overhead is slightly higher.
 
 In contrast, the MemBus variant shows a huge variation. Choosing 4MB as
-representive buffer size, figures \ref{yonah/valTBThReadPoint},
+representative buffer size, figures \ref{yonah/valTBThReadPoint},
 \ref{yonah/valTBThWritePoint} and \ref{yonah/valTBThTriadPoint} show the
 distribution of the results. There is a cluster around the expected result of
 twice the expected transfer volume (each workload seeing the transfer of both
@@ -692,7 +732,7 @@ running at the same time}
 running at the same time}
 
 For the memory kernels we don't see much difference in execution time between
-the single threaded and the multithreaded results for expected transfer volumes
+the single threaded and the multi threaded results for expected transfer volumes
 below 1MB. We expected to observe a larger difference. For larger buffers the
 expected difference of about a factor of two can be observed, although outliers
 are frequent. (fig. \ref{yonah/valTimeThReadMemValues} and
