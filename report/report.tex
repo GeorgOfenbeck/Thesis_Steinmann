@@ -362,11 +362,28 @@ Finally, we implemented a variety of kernels (in many cases using libraries) and
 present their roofline plots.
 
 \section{Measurement Setup}
+In this section we first introduce the performance counters, which are
+used to measure most of the quantities required to generate a roofline
+plot. Altough the performance counters are available on all newer x86 CPUs,
+they differ between processors. Therefore we describe our measurement
+machine and how we measured on that particular machine.
 
+Finally, we present our method of cache initialization and how we handle
+frequency scaling.
+ 
 \subsection{Performance Counters}
-Recent x86 CPUs contain typically two performance counters. Each can be
-configured to measure one performance event. There are many events, 119 on a
-CoreDuo. Examples are:
+One of the key features of a CPU is it's speed. But that speed can only be
+shown if the software running on the CPU is properly optimized. Since
+optimization often requires detailed understanding of the CPU's internal
+behavior, performance events and counters were incorporated directly into the
+CPU. 
+
+Using special control registers, each counter can be configured to increment
+when a performance event occurs. Since the counters are implemented in hardware,
+enabling them does not have any effect on program execution (no overhead). 
+
+Recent x86 CPUs typically contain two performance counters and support a large
+number of performance events, 119 on a CoreDuo. Examples are:
 \begin{description}
   \item[INSTRUCTION RETIRED] occurs for every retired instruction
   \item[DBUS BUSY] occurs for every cycle during which data bus is busy

@@ -13,7 +13,7 @@
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="ch.ethz.ruediste.roofline.measurementDriver.Main"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="measure mmmOp -checkCore"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="measure FFTwarm -checkCore"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="measurementDriver"/>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="/home/ruedi/test"/>
 </launchConfiguration>

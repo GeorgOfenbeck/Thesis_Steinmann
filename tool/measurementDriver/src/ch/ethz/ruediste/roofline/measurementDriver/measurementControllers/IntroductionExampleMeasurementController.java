@@ -78,8 +78,8 @@ public class IntroductionExampleMeasurementController implements
 
 		String name = String.format("Variant %d", variant);
 		rooflineController.addRooflinePoint(name,
-				name, kernel,
-				operation, MemoryTransferBorder.LlcRamLines);
+				variant, kernel,
+				operation, MemoryTransferBorder.LlcRamLines).setLabel(name);
 
 		System.out.printf("Variant: %d. Performance: %f\n",
 				kernel.getVariant(), result.best(perfCalc).getValue());

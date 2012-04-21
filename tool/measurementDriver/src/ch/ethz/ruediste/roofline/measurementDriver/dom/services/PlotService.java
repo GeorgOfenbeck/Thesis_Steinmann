@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.PointPlot.Point;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.RooflinePlot.SameSizeConnection;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.SeriesPlot.SeriesPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.infrastructure.services.CommandService;
@@ -359,6 +360,59 @@ public class PlotService {
 			outputFile.printf("\n\n");
 		}
 
+		// print data for connecting points with same problem size
+		{
+			for (long problemSize : plot.getProblemSizes()) {
+				// get all points with the problem size
+				List<RooflinePoint> points = toList(plot
+						.getPointsForProblemSize(problemSize));
+
+				// sort the points by operational intensity or performance
+				switch (plot.getSameSizeConnection()) {
+				case ByOperationalIntensity:
+					Collections.sort(points,
+							new Comparator<RooflinePoint>() {
+
+								public int compare(RooflinePoint o1,
+										RooflinePoint o2) {
+									return Double.compare(o1
+											.getOperationalIntensity()
+											.getValue(), o2
+											.getOperationalIntensity()
+											.getValue());
+								}
+							});
+				break;
+				case ByPerformance:
+					Collections.sort(points,
+							new Comparator<RooflinePoint>() {
+
+								public int compare(RooflinePoint o1,
+										RooflinePoint o2) {
+									return Double.compare(o1
+											.getPerformance()
+											.getValue(), o2
+											.getPerformance()
+											.getValue());
+								}
+							});
+				break;
+				case None:
+				break;
+
+				}
+
+				// output the sorted points to the data file
+				if (plot.getSameSizeConnection() != SameSizeConnection.None) {
+					outputFile.printf("# %d\n", problemSize);
+					for (RooflinePoint point : points)
+						outputFile.printf("%e %e\n", point
+								.getOperationalIntensity()
+								.getValue(), point.getPerformance().getValue());
+					outputFile.printf("\n\n");
+				}
+			}
+		}
 		outputFile.close();
 
 		// write gnuplot file
@@ -491,8 +545,23 @@ public class PlotService {
 										getLineColor(i)));
 
 				// add label for the first and the last point
-				printLabel(output, first(series.getPoints()));
-				printLabel(output, last(series.getPoints()));
+				{
+					ArrayList<RooflinePoint> points = series.getPoints();
+					for (int idx = 0; idx < points.size(); idx++)
+						printLabel(output, points.get(idx), idx == 0
+								|| idx == points.size() - 1);
+				}
+			}
+
+			// connect the points of same problem size
+			if (plot.getSameSizeConnection() != SameSizeConnection.None) {
+				for (long problemSize : plot.getProblemSizes()) {
+					plotLines
+							.add(String
+									.format("'%s.data' index '%d' notitle with lines lw %d lt 0 lc rgb\"#000000\"",
+											plot.getOutputName(), problemSize,
+											lwLine));
+				}
 			}
 
 			output.println("plot \\");
@@ -510,11 +579,17 @@ public class PlotService {
 	 * @param output
 	 * @param point
 	 */
-	public void printLabel(PrintStream output, RooflinePoint point) {
-		output.printf(
-				"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02 front\n",
-				point.getLabel(), point.getOperationalIntensity().getValue(),
-				point.getPerformance().getValue());
+	public void printLabel(PrintStream output, RooflinePoint point,
+			boolean useProblemSizeIfNoLabel) {
+		String label = point.getLabel();
+		if (StringUtils.isEmpty(label) && useProblemSizeIfNoLabel)
+			label = Long.toString(point.getProblemSize());
+		if (!StringUtils.isEmpty(label)) {
+			output.printf(
+					"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02 front\n",
+					label, point.getOperationalIntensity().getValue(),
+					point.getPerformance().getValue());
+		}
 	}
 
 	private int getPointType(int index) {

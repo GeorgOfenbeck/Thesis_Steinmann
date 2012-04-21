@@ -59,7 +59,7 @@ public class DaxpyMeasurementController implements IMeasurementController {
 
 			rooflineController
 					.addRooflinePoint(kernel.getLabelOverride(),
-							Long.toString(vectorSize), kernel,
+							vectorSize, kernel,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamLines);
 

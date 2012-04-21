@@ -15,6 +15,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.RooflinePlot.SameSizeConnection;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
@@ -215,7 +216,8 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		rooflineController.addDefaultPeaks();
 		rooflineController.getPlot()//.setAutoscaleX(true)
 				.setAutoscaleY(true)
-				.setKeyPosition(KeyPosition.BottomRight);
+				.setKeyPosition(KeyPosition.BottomRight).setSameSizeConnection(
+						SameSizeConnection.ByOperationalIntensity);
 
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "tb")
@@ -239,9 +241,9 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		configuration.push();
 		for (final Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
 			if (coordinate.get(bufferSizeAxis) > 512 * 1024)
-				configuration.set(QuantityMeasuringService.numberOfRunsKey, 20);
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
 			else
-				configuration.set(QuantityMeasuringService.numberOfRunsKey, 20);
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
 
 			System.out.println(coordinate);
 			KernelBase kernel = coordinate.get(kernelAxis);
@@ -269,7 +271,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 			rooflineController
 					.addRooflinePoint(kernel.getLabel(),
-							matrixSize.toString(), builder,
+							matrixSize, builder,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamBus);
 		}
@@ -327,6 +329,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 		FFTmklKernel kernel = new FFTmklKernel();
 		kernel.setOptimization("-O3");
+		kernel.setNumThreads(1);
 		space.add(kernelAxis, kernel);
 		kernelNames.put(kernel, kernel.getLabel());
 	}

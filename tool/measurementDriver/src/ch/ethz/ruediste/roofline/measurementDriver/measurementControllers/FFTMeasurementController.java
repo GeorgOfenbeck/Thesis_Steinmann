@@ -47,7 +47,9 @@ public class FFTMeasurementController implements IMeasurementController {
 		rooflineController.setTitle("Fast Fourier Transformation");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
-		rooflineController.getPlot().setAutoscaleY(true)
+		rooflineController
+				.getPlot()
+				.setAutoscaleY(true)
 				.setKeyPosition(KeyPosition.BottomRight);
 
 		addPoints(rooflineController, 1, FFTnrKernel.class, FFTmklKernel.class,
@@ -125,7 +127,7 @@ public class FFTMeasurementController implements IMeasurementController {
 
 			rooflineController.addRooflinePoint(
 					kernel.getLabel(),
-					coordinate.get(bufferSizeAxis).toString(), kernel,
+					coordinate.get(bufferSizeAxis), kernel,
 					kernel.getSuggestedOperation(),
 					MemoryTransferBorder.LlcRamLines);
 		}

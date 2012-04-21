@@ -3,20 +3,21 @@ package ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 
 public class RooflinePoint {
-	final private String label;
+	final private long problemSize;
 	final private OperationalIntensity operationalIntensity;
 	final private Performance performance;
+	private String label;
 
-	public RooflinePoint(String label,
+	public RooflinePoint(long problemSize,
 			OperationalIntensity operationalIntensity, Performance performance) {
 		super();
-		this.label = label;
+		this.problemSize = problemSize;
 		this.operationalIntensity = operationalIntensity;
 		this.performance = performance;
 	}
 
-	public String getLabel() {
-		return label;
+	public long getProblemSize() {
+		return problemSize;
 	}
 
 	public OperationalIntensity getOperationalIntensity() {
@@ -31,5 +32,13 @@ public class RooflinePoint {
 	public String toString() {
 		return String.format("Point: [%s : %s]", getOperationalIntensity(),
 				getPerformance());
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 }

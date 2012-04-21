@@ -66,7 +66,7 @@ public class RooflineController {
 		plot.addPeakThroughput(name, throughput);
 	}
 
-	public void addRooflinePoint(String seriesName, String label,
+	public RooflinePoint addRooflinePoint(String seriesName, long problemSize,
 			final KernelBase kernel, Operation operation,
 			MemoryTransferBorder border) {
 
@@ -104,10 +104,11 @@ public class RooflineController {
 			}
 		};
 
-		addRooflinePoint(seriesName, label, builder, operation, border);
+		return addRooflinePoint(seriesName, problemSize, builder, operation,
+				border);
 	}
 
-	public void addRooflinePoint(String seriesName, String label,
+	public RooflinePoint addRooflinePoint(String seriesName, long problemSize,
 			IMeasurementBuilder builder, Operation operation,
 			MemoryTransferBorder border) {
 		// get required calculators
@@ -132,13 +133,15 @@ public class RooflineController {
 				result.best(opCountCalculator), result.best(timeCalc));
 
 		// create point
-		RooflinePoint point = new RooflinePoint(label, operationalIntensity,
+		RooflinePoint point = new RooflinePoint(problemSize,
+				operationalIntensity,
 				performance);
 
 		addRooflinePoint(seriesName, point);
+		return point;
 	}
 
-	public void addRooflinePoint(String seriesName, String label,
+	public RooflinePoint addRooflinePoint(String seriesName, long problemSize,
 			KernelBase kernel, OperationCount operationCount,
 			MemoryTransferBorder border) {
 
@@ -151,15 +154,16 @@ public class RooflineController {
 		QuantityMap result = quantityMeasuringService
 				.measureQuantities(kernel, timeCalc, tbCalculator);
 
-		RooflinePoint point = new RooflinePoint(label,
+		RooflinePoint point = new RooflinePoint(problemSize,
 				new OperationalIntensity(result.best(tbCalculator),
 						operationCount),
 				new Performance(operationCount, result.best(timeCalc)));
 
 		addRooflinePoint(seriesName, point);
+		return point;
 	}
 
-	public void addRooflinePoint(String seriesName, String label,
+	public RooflinePoint addRooflinePoint(String seriesName, long problemSize,
 			KernelBase kernel, Operation operation,
 			TransferredBytes transferredBytes) {
 		QuantityCalculator<Time> timeCalc = quantityMeasuringService
@@ -172,21 +176,23 @@ public class RooflineController {
 		OperationCount operationCount = result.best(opCountCalc);
 		Time time = result.best(timeCalc);
 
-		RooflinePoint point = new RooflinePoint(label,
+		RooflinePoint point = new RooflinePoint(problemSize,
 				new OperationalIntensity(transferredBytes, operationCount),
 				new Performance(operationCount, time));
 
 		addRooflinePoint(seriesName, point);
+		return point;
 	}
 
-	public void addRooflinePoint(String seriesName, String label,
+	public RooflinePoint addRooflinePoint(String seriesName, long problemSize,
 			OperationCount opCount,
 			TransferredBytes transferredBytes, Time executionTime) {
 
-		RooflinePoint point = new RooflinePoint(label,
+		RooflinePoint point = new RooflinePoint(problemSize,
 				new OperationalIntensity(transferredBytes, opCount),
 				new Performance(opCount, executionTime));
 		addRooflinePoint(seriesName, point);
+		return point;
 	}
 
 	/**
@@ -195,7 +201,7 @@ public class RooflineController {
 	 */
 	public void addRooflinePoint(String seriesName, RooflinePoint point) {
 		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
-				point.getLabel(), point));
+				point.getProblemSize(), point));
 		plot.addPoint(seriesName, point);
 	}
 

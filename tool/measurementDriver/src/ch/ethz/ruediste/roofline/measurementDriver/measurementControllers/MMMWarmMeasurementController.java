@@ -114,7 +114,7 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 
 			rooflineController
 					.addRooflinePoint(kernel.getLabel(),
-							matrixSize.toString(), builder,
+							matrixSize, builder,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamBus);
 		}

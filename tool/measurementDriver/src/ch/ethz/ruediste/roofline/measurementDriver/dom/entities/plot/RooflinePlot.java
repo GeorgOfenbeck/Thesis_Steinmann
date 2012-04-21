@@ -1,5 +1,7 @@
 package ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot;
 
+import static ch.ethz.ruediste.roofline.measurementDriver.util.IterableUtils.where;
+
 import java.util.*;
 
 import org.apache.commons.lang3.Range;
@@ -11,6 +13,10 @@ import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 
 public class RooflinePlot extends Plot2D<RooflinePlot> {
 
+	public enum SameSizeConnection {
+		None, ByPerformance, ByOperationalIntensity
+	}
+
 	private final ArrayList<Pair<String, Throughput>> peakBandwidths = new ArrayList<Pair<String, Throughput>>();
 	private final ArrayList<Pair<String, Performance>> peakPerformances = new ArrayList<Pair<String, Performance>>();
 	private final HashMap<String, RooflineSeries> allSeries = new LinkedHashMap<String, RooflineSeries>();
@@ -18,6 +24,8 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 
 	private boolean autoscaleX;
 	private boolean autoscaleY;
+
+	private SameSizeConnection sameSizeConnection = SameSizeConnection.None;
 
 	public RooflinePlot() {
 		setLogX(true);
@@ -198,5 +206,31 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 	public RooflinePlot setAutoscaleY(boolean autoscaleY) {
 		this.autoscaleY = autoscaleY;
 		return This();
+	}
+
+	public SameSizeConnection getSameSizeConnection() {
+		return sameSizeConnection;
+	}
+
+	public RooflinePlot setSameSizeConnection(
+			SameSizeConnection sameSizeConnection) {
+		this.sameSizeConnection = sameSizeConnection;
+		return This();
+	}
+
+	public Set<Long> getProblemSizes() {
+		HashSet<Long> result = new HashSet<Long>();
+		for (RooflinePoint point : getAllPoints()) {
+			result.add(point.getProblemSize());
+		}
+		return result;
+	}
+
+	public Iterable<RooflinePoint> getPointsForProblemSize(final long size) {
+		return where(getAllPoints(), new IUnaryPredicate<RooflinePoint>() {
+			public Boolean apply(RooflinePoint arg) {
+				return arg.getProblemSize() == size;
+			}
+		});
 	}
 }

@@ -74,7 +74,7 @@ public class DgemvMeasurementController implements IMeasurementController {
 
 			rooflineController
 					.addRooflinePoint(kernel.getLabelOverride(),
-							Long.toString(matrixSize), kernel,
+							matrixSize, kernel,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamLines);
 			/*rooflineController

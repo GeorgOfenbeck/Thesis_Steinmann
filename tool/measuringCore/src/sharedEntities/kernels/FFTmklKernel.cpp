@@ -82,10 +82,10 @@ void FFTmklKernel::dispose() {
 void FFTmklKernel::warmCodeCache() {
 	run();
 
-	// initialize buffer
+	/*// initialize buffer
 	for (int64_t i = 0; i < getBufferSize(); i++) {
 		complexData[i] = drand48() + drand48() * 1i;
-	}
+	}*/
 }
 
 
