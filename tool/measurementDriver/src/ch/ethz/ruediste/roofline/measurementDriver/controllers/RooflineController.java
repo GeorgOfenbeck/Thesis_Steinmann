@@ -125,20 +125,24 @@ public class RooflineController {
 						"main", timeCalc, opCountCalculator, tbCalculator)
 				.get();
 
-		// build derived quantities
-		OperationalIntensity operationalIntensity = new OperationalIntensity(
-				result.best(tbCalculator), result.best(opCountCalculator));
+		for (QuantityMap map : result.grouped(10)) {
+			// build derived quantities
+			OperationalIntensity operationalIntensity = new OperationalIntensity(
+					map.best(tbCalculator),
+					map.best(opCountCalculator));
 
-		Performance performance = new Performance(
-				result.best(opCountCalculator), result.best(timeCalc));
+			Performance performance = new Performance(
+					map.best(opCountCalculator), map.best(timeCalc));
 
-		// create point
-		RooflinePoint point = new RooflinePoint(problemSize,
-				operationalIntensity,
-				performance);
+			// create point
+			RooflinePoint point = new RooflinePoint(problemSize,
+					operationalIntensity,
+					performance);
 
-		addRooflinePoint(seriesName, point);
-		return point;
+			addRooflinePoint(seriesName, point);
+		}
+
+		return null;
 	}
 
 	public RooflinePoint addRooflinePoint(String seriesName, long problemSize,

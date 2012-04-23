@@ -19,7 +19,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 
 	private final ArrayList<Pair<String, Throughput>> peakBandwidths = new ArrayList<Pair<String, Throughput>>();
 	private final ArrayList<Pair<String, Performance>> peakPerformances = new ArrayList<Pair<String, Performance>>();
-	private final HashMap<String, RooflineSeries> allSeries = new LinkedHashMap<String, RooflineSeries>();
+	private final LinkedHashMap<String, RooflineSeries> allSeries = new LinkedHashMap<String, RooflineSeries>();
 	private RooflineSeries currentSeries;
 
 	private boolean autoscaleX;
@@ -85,7 +85,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 				new IUnaryFunction<RooflinePoint, OperationalIntensity>() {
 
 					public OperationalIntensity apply(RooflinePoint arg) {
-						return arg.getOperationalIntensity();
+						return arg.getMedianOperationalIntensity();
 					}
 				});
 	}
@@ -93,7 +93,7 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 	public Iterable<Performance> getPerformances() {
 		ArrayList<Performance> result = new ArrayList<Performance>();
 		for (RooflinePoint point : getAllPoints()) {
-			result.add(point.getPerformance());
+			result.add(point.getMedianPerformance());
 		}
 		for (Pair<String, Performance> perf : peakPerformances) {
 			result.add(perf.getRight());
