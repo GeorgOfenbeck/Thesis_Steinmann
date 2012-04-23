@@ -13,6 +13,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 
+import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.DistributionPlot.DistributionPlotSeries;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.PointPlot.Point;
@@ -26,6 +27,16 @@ import ch.ethz.ruediste.roofline.sharedEntities.SystemInformation;
 import com.google.inject.Inject;
 
 public class PlotService {
+	public final static ConfigurationKey<Boolean> showMinMax = ConfigurationKey
+			.Create(Boolean.class, "showMinMax",
+					"show the minima and maxima in roofline plots",
+					true);
+
+	public final static ConfigurationKey<Boolean> showPercentiles = ConfigurationKey
+			.Create(Boolean.class, "showPercentiles",
+					"show the percentiles in roofline plots",
+					true);
+
 	private final static Logger log = Logger.getLogger(PlotService.class);
 
 	private static final double plotWidth = 14.337;
@@ -47,6 +58,9 @@ public class PlotService {
 
 	@Inject
 	public SystemInfoService systemInfoService;
+
+	@Inject
+	public Configuration configuration;
 
 	static int pointTypes[] = { 5, 7, 9, 11, 13, };
 	static String lineColors[] = { "black", "red", "green", "blue", "#FFFF00" };
@@ -352,20 +366,56 @@ public class PlotService {
 		final PrintStream outputFile = new PrintStream(plot.getOutputName()
 				+ ".data");
 
-		for (RooflineSeries serie : plot.getAllSeries()) {
-			for (RooflinePoint point : serie.getPoints()) {
-				outputFile.printf("%e %e\n", point.getOperationalIntensity()
-						.getValue(), point.getPerformance().getValue());
+		{
+			int i = 0;
+			for (RooflineSeries serie : plot.getAllSeries()) {
+				outputFile.printf("# Median %d\n", i);
+				for (RooflinePoint point : serie.getPoints()) {
+					outputFile.printf("%e %e\n",
+							point.getMedianOperationalIntensity().getValue(),
+							point.getMedianPerformance().getValue());
+				}
+				outputFile.printf("\n\n");
+				i++;
 			}
-			outputFile.printf("\n\n");
+		}
+
+		{
+			int i = 0;
+			for (RooflineSeries serie : plot.getAllSeries()) {
+				outputFile.printf("# Stats %d\n", i);
+				for (RooflinePoint point : serie.getPoints()) {
+					if (point.getN() > 1) {
+						DescriptiveStatistics opIntStats = point
+								.getOperationalIntensityStats();
+
+						DescriptiveStatistics perfStats = point
+								.getPerformanceStats();
+
+						outputFile.printf("%e %e %e %e %e %e %e %e %e %e \n",
+								opIntStats.getPercentile(50),
+								perfStats.getPercentile(50),
+								opIntStats.getMin(), opIntStats.getMax(),
+								perfStats.getMin(), perfStats.getMax(),
+								opIntStats.getPercentile(25),
+								opIntStats.getPercentile(75),
+								perfStats.getPercentile(25),
+								perfStats.getPercentile(75));
+					}
+				}
+				outputFile.printf("\n\n");
+				i++;
+			}
 		}
 
 		// print data for connecting points with same problem size
 		{
 			for (long problemSize : plot.getProblemSizes()) {
 				// get all points with the problem size
-				List<RooflinePoint> points = toList(plot
-						.getPointsForProblemSize(problemSize));
+				List<RooflinePoint> points = new ArrayList<RooflinePoint>();
+				for (RooflineSeries serie : plot.getAllSeries()) {
+					points.add(serie.getPoint(problemSize));
+				}
 
 				// sort the points by operational intensity or performance
 				switch (plot.getSameSizeConnection()) {
@@ -373,13 +423,13 @@ public class PlotService {
 					Collections.sort(points,
 							new Comparator<RooflinePoint>() {
 
-								public int compare(RooflinePoint o1,
-										RooflinePoint o2) {
-									return Double.compare(o1
-											.getOperationalIntensity()
-											.getValue(), o2
-											.getOperationalIntensity()
-											.getValue());
+								public int compare(RooflinePoint p1,
+										RooflinePoint p2) {
+									return Double.compare(p1
+											.getMedianOperationalIntensity()
+											.getValue(),
+											p2.getMedianOperationalIntensity()
+													.getValue());
 								}
 							});
 				break;
@@ -387,13 +437,13 @@ public class PlotService {
 					Collections.sort(points,
 							new Comparator<RooflinePoint>() {
 
-								public int compare(RooflinePoint o1,
-										RooflinePoint o2) {
-									return Double.compare(o1
-											.getPerformance()
-											.getValue(), o2
-											.getPerformance()
-											.getValue());
+								public int compare(RooflinePoint p1,
+										RooflinePoint p2) {
+									return Double.compare(p1
+											.getMedianPerformance()
+											.getValue(),
+											p2.getMedianPerformance()
+													.getValue());
 								}
 							});
 				break;
@@ -404,11 +454,12 @@ public class PlotService {
 
 				// output the sorted points to the data file
 				if (plot.getSameSizeConnection() != SameSizeConnection.None) {
-					outputFile.printf("# %d\n", problemSize);
+					outputFile.printf("# ProblemSize %d\n", problemSize);
 					for (RooflinePoint point : points)
-						outputFile.printf("%e %e\n", point
-								.getOperationalIntensity()
-								.getValue(), point.getPerformance().getValue());
+						outputFile.printf("%e %e\n",
+								point.getMedianOperationalIntensity()
+										.getValue(),
+								point.getMedianPerformance().getValue());
 					outputFile.printf("\n\n");
 				}
 			}
@@ -538,15 +589,35 @@ public class PlotService {
 
 				plotLines
 						.add(String
-								.format("'%s.data' index %d title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
+								.format("'%s.data' index 'Median %d' title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
 										plot.getOutputName(), i,
 										series.getName(), lwLine,
 										getPointType(i),
 										getLineColor(i)));
 
+				if (configuration.get(showMinMax)
+						&& series.anyPointWithMultipleValues()) {
+					// plot min/max
+					plotLines
+							.add(String
+									.format("'%s.data' index 'Stats %d' using 1:2:3:4:5:6 notitle with xyerrorbars lw %d lt -1 lc rgb\"%s\"",
+											plot.getOutputName(), i, lwLine,
+											getLineColor(i)));
+				}
+
+				if (configuration.get(showPercentiles)
+						&& series.anyPointWithMultipleValues()) {
+					// plot 25/75 percentile
+					plotLines
+							.add(String
+									.format("'%s.data' index 'Stats %d' using 1:2:7:8:9:10 notitle with boxxyerrorbars lw %d lt -1 lc rgb\"%s\"",
+											plot.getOutputName(), i, lwLine,
+											getLineColor(i)));
+				}
+
 				// add label for the first and the last point
 				{
-					ArrayList<RooflinePoint> points = series.getPoints();
+					List<RooflinePoint> points = series.getPoints();
 					for (int idx = 0; idx < points.size(); idx++)
 						printLabel(output, points.get(idx), idx == 0
 								|| idx == points.size() - 1);
@@ -558,7 +629,7 @@ public class PlotService {
 				for (long problemSize : plot.getProblemSizes()) {
 					plotLines
 							.add(String
-									.format("'%s.data' index '%d' notitle with lines lw %d lt 0 lc rgb\"#000000\"",
+									.format("'%s.data' index 'ProblemSize %d' notitle with lines lw %d lt 0 lc rgb\"#000000\"",
 											plot.getOutputName(), problemSize,
 											lwLine));
 				}
@@ -587,8 +658,8 @@ public class PlotService {
 		if (!StringUtils.isEmpty(label)) {
 			output.printf(
 					"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02 front\n",
-					label, point.getOperationalIntensity().getValue(),
-					point.getPerformance().getValue());
+					label, point.getMedianOperationalIntensity().getValue(),
+					point.getMedianPerformance().getValue());
 		}
 	}
 

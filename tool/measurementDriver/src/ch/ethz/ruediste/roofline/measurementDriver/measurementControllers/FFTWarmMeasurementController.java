@@ -241,9 +241,11 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		configuration.push();
 		for (final Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
 			if (coordinate.get(bufferSizeAxis) > 512 * 1024)
-				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
+				configuration
+						.set(QuantityMeasuringService.numberOfRunsKey, 100);
 			else
-				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
+				configuration
+						.set(QuantityMeasuringService.numberOfRunsKey, 100);
 
 			System.out.println(coordinate);
 			KernelBase kernel = coordinate.get(kernelAxis);

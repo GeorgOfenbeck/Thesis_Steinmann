@@ -202,7 +202,7 @@ public class QuantityMeasuringService {
 			TerminalQuantityCalculator<TransferredBytes> streamingStoreCalc = createPerfEventQuantityCalculator(
 					TransferredBytes.class,
 					Combination.Sum,
-					"coreduo::SSE_NTSTORES_RET","core::SSE_PRE_EXEC:STORES");
+					"coreduo::SSE_NTSTORES_RET", "core::SSE_PRE_EXEC:STORES");
 
 			return new AddingQuantityCalculator<TransferredBytes>(
 					new MultiplyingQuantityCalculator<TransferredBytes>(
@@ -312,7 +312,7 @@ public class QuantityMeasuringService {
 		return createPerfEventQuantityCalculator(
 				TLBMisses.class,
 				Combination.Sum,
-				"coreduo::DTLB_MISS","core::DTLB_MISSES");
+				"coreduo::DTLB_MISS", "core::DTLB_MISSES");
 	}
 
 	public Quantity<?> measure(KernelBase kernel, Coordinate measurementPoint) {
@@ -393,6 +393,58 @@ public class QuantityMeasuringService {
 
 		public <T extends Quantity<T>> T best(QuantityCalculator<T> calc) {
 			return calc.getBestResult(super.get(calc));
+		}
+
+		/**
+		 * group the measurement runs into groups and return the result for each
+		 * group
+		 * 
+		 * @param groupSize
+		 *            group size
+		 * @return
+		 */
+		public List<QuantityMap> grouped(int groupSize) {
+			ArrayList<QuantityMap> result = new ArrayList<QuantityMap>();
+
+			boolean found = true;
+			int idx = 0;
+
+			QuantityMap map = new QuantityMap();
+			while (found) {
+				found = false;
+
+				// iterate over all entries
+				for (java.util.Map.Entry<QuantityCalculator<?>, List<Iterable<MeasurerOutputBase>>> entry : entrySet()) {
+					// is there a value for the current index?
+					if (idx < entry.getValue().size()) {
+						found = true;
+
+						// get the list for the calculator
+						List<Iterable<MeasurerOutputBase>> list = map
+								.get((Object) entry.getKey());
+						if (list == null) {
+							list = new ArrayList<Iterable<MeasurerOutputBase>>();
+							map.put(entry.getKey(), list);
+						}
+
+						// add the run output to the list of the calculator
+						list.add(entry.getValue().get(idx));
+					}
+				}
+
+				if (found && idx > 0 && idx % groupSize == 0) {
+					result.add(map);
+					map = new QuantityMap();
+				}
+
+				idx++;
+			}
+
+			// add a partial map if persent
+			if (map.size() > 0)
+				result.add(map);
+
+			return result;
 		}
 
 		/**
@@ -574,7 +626,7 @@ public class QuantityMeasuringService {
 	public QuantityMap measureQuantities(final KernelBase kernel,
 			QuantityCalculator<?>... calculators) {
 		int numMeasurements = configuration.get(numberOfRunsKey);
-	
+
 		QuantityMap result = measureQuantities(kernel, numMeasurements,
 				calculators);
 		return result;
@@ -587,7 +639,7 @@ public class QuantityMeasuringService {
 	public QuantityMap measureQuantities(final KernelBase kernel, int numRuns,
 			QuantityCalculator<?>... calculators) {
 		IMeasurementBuilder builder = new IMeasurementBuilder() {
-	
+
 			public Measurement build(Map<Object, MeasurerSet> sets) {
 				Measurement measurement = new Measurement();
 				Workload workload = new Workload();
