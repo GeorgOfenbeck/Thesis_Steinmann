@@ -104,7 +104,20 @@
 \maketitle
 
 \begin{abstract}
-This is the paper's abstract \ldots
+To increase CPU performance despite limited clock speeds (due to several
+phisical issues), CPUs become more and more complex. This raises the difficulty
+to understand their behavior, which is important for software performance
+optimization.
+
+In this context, insightful yet easy to understand performance models are of
+great value. The Roofline Model premises to fulfill these criteria.
+
+Unfortunately, to our best knowledge there is no tool available to measure the
+required quantities and generate Roofline Plots. We built such a tool, evaluated
+the quality of it's measurement results and generated Roofline Plots of various
+code samples.
+
+The tool is freely available and intended to be used by a wider audience.
 \end{abstract}
 
 \tableofcontents
@@ -1106,12 +1119,29 @@ Figure \ref{yonah/FFTwarm}  shows the influence of the initial cache state.
 
 \section{Future Work and Conclusions}
 In this thesis we designed and implemented a tool which simplifies performance
-measurements. We introduced multiple abstraction layers, which allow simple and
+measurements. We introduced multiple abstractions, which allow simple and
 common measurements to be performed with ease, while beeing flexible enough to
 scale to more complex situations.
 
+Due to these abstractions it should be possible to repeat the measurements
+presented in this thesis with small effort. This has not been done yet.
 
+We observe substantial variations when measuring memory intensive kernels. We
+have no good explanation for these effects. A thorough analysis could be very
+informative. 
 
+For handling the variance we presumed that a measurement either results in the
+true value, or it is disturbed by some activity (task switches) and results in a
+biased result. We further presumed that the distortion can only increase the
+result (time, memory transfer, operation count), and thus the minimum result of
+multiple measurement runs has to be the true result.
+
+An in depth study of this model could result in means to reduce the number of
+measurements to be performed and the ability to give confidence intervals for
+measurement results.
+
+\clearpage
+\appendix
 \section{Measurement Tool Architecture}
 The tool consists of two main components: The Measuring Core, which performs the
 actual measurements, and the Measurement Driver, which controls the core.
@@ -2424,12 +2454,14 @@ another. Since the overhead of a switching the core is large, it is generally
 avoided by the scheduler of the operating system. But it can occur, and we have
 to be prepared for it.
 
-\section{Figures}
+\section{List of Figures}
+\renewcommand{\listfigurename}{}
+\vskip -1cm
 \listoffigures
 
-\section{Bibliography}
+\renewcommand\refname{\vskip -1cm}
+\section{References}
 \bibliographystyle{abbrv}
 \bibliography{report}
-
 
 \end{document}
