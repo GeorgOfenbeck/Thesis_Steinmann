@@ -788,21 +788,28 @@ For the validation of multi threaded measurements, we use the same measurements
 as for the single threaded validation, but run a separate workload instance on
 each core. Using a barrier, we make sure the two kernels start at the same time. 
 
-Since the Yonah does not utilize HyperThreading, we don't expect
+Since the Yonah architecture does not utilize HyperThreading, we don't expect
 an arithmetic kernel running on one core affecting a memory intensive kernel on
 the other core. Therefore the workloads run in parallel are not mixed.
 
-
 \subsection{Transferred Volume}
-\graphFloatTwo{Transfer Volume of the Read Kernel}
-{yonah/valTBThReadValues}{MemBus}
-{yonah/valTBALTThReadValues}{MemL2} 
+\graphFloatTwo{Ratio of the Actual Transfer Volume to the Expected Transfer
+Volume for two Read Kernels running in Parallel (using one Buffer per Kernel)}
+{yonah/valTBThReadValues}{MemBus} {yonah/valTBALTThReadValues}{MemL2} 
 
-\graphFloatTwo{Transfer Volume of the Write Kernel}
+\graphFloatTwo{Ratio of the Actual Transfer Volume to the Expected Transfer
+Volume for two Write Kernels running in Parallel (using one Buffer per Kernel)}
 {yonah/valTBThWriteValues}{MemBus}
 {yonah/valTBALTThWriteValues}{MemL2} 
 
-\graphFloatTwo{Transfer Volume of the Triad Kernel}
+\graphFloatTwo{Ratio of the Actual Transfer Volume to the Expected Transfer
+Volume for two Write Kernels using Streaming Stores running in Parallel (using
+one Buffer per Kernel)} 
+{yonah/valTBThWriteStreamValues}{MemBus}
+{yonah/valTBALTThWriteStreamValues}{MemL2}
+
+\graphFloatTwo{Ratio of the Actual Transfer Volume to the Expected Transfer
+Volume for two Triad Kernels running in Parallel (using one Buffer per Kernel)}
 {yonah/valTBThTriadValues}{MemBus}
 {yonah/valTBALTThTriadValues}{MemL2} 
 
@@ -812,6 +819,10 @@ Kernel using MemBus}
 \graphFloat{yonah/valTBThWritePoint}{Distribution of the Results of the Write
 Kernel using MemBus}
 
+\graphFloat{yonah/valTBThWriteStreamPoint}{Distribution of the Results of the
+Write Kernel using Streaming Stores measured with the MemBus measurement
+variant}
+
 \graphFloat{yonah/valTBThTriadPoint}{Distribution of the Results of the Triad
 Kernel using MemBus} 
 
@@ -819,14 +830,16 @@ The MemBus variant measures all transfers on the bus. Therefore, the
 measurer of each workload should see the traffic of both kernels. The MemL2 variant
 should separate the traffic of the two cores. On figures
 \ref{yonah/valTBThReadValues},
-\ref{yonah/valTBThWriteValues} and
+\ref{yonah/valTBThWriteValues},
+\ref{yonah/valTBThWriteStreamValues} and
 \ref{yonah/valTBThTriadValues} we see the expected results for the MemL2
 variant. The precision is comparable to the single threaded measurements, the
 overhead is slightly higher.
 
 In contrast, the MemBus variant shows a huge variation. Choosing 4MB as
 representative buffer size, figures \ref{yonah/valTBThReadPoint},
-\ref{yonah/valTBThWritePoint} and \ref{yonah/valTBThTriadPoint} show the
+\ref{yonah/valTBThWritePoint},
+\ref{yonah/valTBThWriteStreamPoint} and \ref{yonah/valTBThTriadPoint} show the
 distribution of the results. There is a cluster around the expected result of
 twice the expected transfer volume (each workload seeing the transfer of both
 cores), but also a cluster around once the expected transfer volume. It seems
@@ -859,7 +872,8 @@ difference. (fig. \ref{yonah/valTimeThTriadMemValues})
 
 \subsection{Operation Count}
 
-\graphFloat{yonah/valOpThValues}{Operation Count}
+\graphFloat{yonah/valOpThValues}{Ratio of the Actual Operation Count to
+the Expected Operation Count for two ADD Kernels running at the same time}
 
 As for the single threaded case, measuring the operation count does not pose any
 problems. (fig. \ref{yonah/valOpThValues})
@@ -869,46 +883,64 @@ problems. (fig. \ref{yonah/valOpThValues})
 We again use the minimum of $K=10$ scheme. (see
 \ref{sec:SingleThreadedHandlingTheVariance})
 
-\graphFloatTwo{Error of the Transfer Volume of the Read Kernel with $K=10$}
-{yonah/valTBThReadMinError}{MemBus}
-{yonah/valTBALTThReadMinError}{MemL2} 
+\graphFloatTwo{Error of the Transfer Volume of two Read Kernels running at the
+same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{yonah/valTBThReadMinError}{MemBus} {yonah/valTBALTThReadMinError}{MemL2} 
 
-\graphFloatTwo{Error of the Transfer Volume of the Write Kernel with $K=10$}
-{yonah/valTBThWriteMinError}{MemBus}
-{yonah/valTBALTThWriteMinError}{MemL2} 
+\graphFloatTwo{Error of the Transfer Volume of two Write Kernels running at the
+same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{yonah/valTBThWriteMinError}{MemBus} {yonah/valTBALTThWriteMinError}{MemL2} 
 
-\graphFloatTwo{Error of the Transfer Volume of the Triad Kernel with $K=10$}
-{yonah/valTBThTriadMinError}{MemBus}
-{yonah/valTBALTThTriadMinError}{MemL2} 
+\graphFloatTwo{Error of the Transfer Volume of two Write Kernels using
+Streaming Stores running at the same time with $K=10$:
+$\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{yonah/valTBThWriteStreamMinError}{MemBus}
+{yonah/valTBALTThWriteStreamMinError}{MemL2}
+
+\graphFloatTwo{Error of the Transfer Volume of two Triad Kernels running at the
+same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{yonah/valTBThTriadMinError}{MemBus} {yonah/valTBALTThTriadMinError}{MemL2} 
 
 When measuring the transfer volume we achieve a variation below 10\%. The
 overhead is around 20\% for small buffers, and goes towards zero for transfer
 volumes exceeding 10MB. (figs \ref{yonah/valTBThReadMinError},
-\ref{yonah/valTBThWriteMinError} and \ref{yonah/valTBThTriadMinError})
+\ref{yonah/valTBThWriteMinError},
+\ref{yonah/valTBThWriteStreamMinError} and \ref{yonah/valTBThTriadMinError})
 
 \graphFloat{yonah/valTimeThReadMemMinError}{Error of the Execution Time of two
-Read Kernels running at the same time with $K=10$}
+Read Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 \graphFloat{yonah/valTimeThWriteMemMinError}{Error of the Execution Time of two
-Write Kernels running at the same time with $K=10$}
+Write Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{yonah/valTimeThWriteStreamMemMinError}{Error of the Execution Time
+of two Write Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 \graphFloat{yonah/valTimeThTriadMemMinError}{Error of the Execution Time of two
-Triad Kernels running at the same time with $K=10$}
+Triad Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 For the execution time, we observe huge variations for small buffer sizes. If
 the expected transfer volume exceeds 20KB, the variations drop to around 10\%
 and become large again for transfer volumes exceeding 10MB. (figs.
-\ref{yonah/valTimeThReadMemMinError}, \ref{yonah/valTimeThWriteMemMinError} and
+\ref{yonah/valTimeThReadMemMinError}, \ref{yonah/valTimeThWriteMemMinError},
+\ref{yonah/valTimeThWriteStreamMemMinError} and
 \ref{yonah/valTimeThTriadMemMinError})
 
 \graphFloat{yonah/valTimeThAddArithMinError}{Error of the Execution Time of two
-ADD Kernels running at the same time with $K=10$}
+ADD Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 The variations observed when running two ADD kernels in parallel are small
 except for iteration counts below 100000. (fig.
 \ref{yonah/valTimeThAddArithMinError})
 
-\graphFloat{yonah/valOpThMinError}{Error of the Operation Count with $K=10$}
+\graphFloat{yonah/valOpThMinError}{Error of the Operation Count of two ADD
+Kernels running at the same time with $K=10$:
+$\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected Operation Count}})$}
 As expected, the results for the operation count are perfect (fig. \ref{yonah/valOpThMinError})
 
 Summarizing our results, using the minimum of $K$ scheme with $K=10$ the
@@ -1111,8 +1143,8 @@ Figure \ref{yonah/fft} shows the roofline plot of the four implementations. The
 NR implementation performs well initially, but the operational intensity and the
 performance significantly drop for large input sizes.
 
-\graphFloat{yonah/FFTwarm}{Roofline Plot of the Fast Fourier Transformation
-with Different Initial Cache States}
+%\graphFloat{yonah/FFTwarm}{Roofline Plot of the Fast Fourier Transformation
+%with Different Initial Cache States}
 Figure \ref{yonah/FFTwarm}  shows the influence of the initial cache state. 
 
 \clearpage
@@ -2209,250 +2241,6 @@ MeasurementSchemeRegistration.cpp
 \item the annotated assembly code can be found in tool/measuringCore/Debug/ass.s
 \item open the annotated assembly code in Eclipse
 \end{itemize}
-
-\section{===WORK IN PROGRESS===}
-\section{Measuring Execution Time}
-\begin{itemize}
-\item 0x40000000   UNHALTED\_CORE\_CYCLES 30Ah CPU\_CLK\_UNHALTED.CORE
-\item 0x40000025   UNHALTED\_REFERENCE\_CYCLES 30Bh CPU\_CLK\_UNHALTED.REF
-\item 0x400000ad   THERMAL\_TRIP 3Bh C0h 
-\item 0x400000ae   CPU\_CLK\_UNHALTED
-\item 0x400001a9   ix86arch::UNHALTED\_CORE\_CYCLES
-\item 0x400001aa   ix86arch::INSTRUCTION\_RETIRED
-\item 0x400001ab   ix86arch::UNHALTED\_REFERENCE\_CYCLES 
-\end{itemize}
-
-\subsection{Experiments}
-To gain insight into the accuracy and precision of the timers available, we run
-the addition kernel with an exponentially increasing iteration count. The
-largest iteration count should result in a runtime of about 0.5s. We expect the
-precision to be high for small iteration counts, a peak variance at around 5 ms
-due to the task switches, and an increasing precision for higher iteration
-counts. The accuracy of the minimum should be high for small iteration counts,
-and include a small overhead if multiple task switches occur during the
-measurement.
-
-\subsection{Experiment 1}
-The goal of this experiment is to show the effects of task switches and disk IO
-on measuring execution time. As far as possible, we'd like to exclude the
-effects of shared memory bandwidth. 
-
-We measure the arithmetic add kernel. Iteration count is increased until total
-execution time is about half a second. We measure at both the minimal and
-maximal CPU frequency. We measure on an idle system, when another arithmetic
-kernel runs or when heavy disk IO is performed. We let the system load threads
-run on all of the system's CPU. Separate measurements for core cycles, bus
-cycles, gettimeofday(), times (user time)
-
-We estimate the execution time for one iteration. We take the time for the
-highest iteration count where we can still get measurement runs without any
-interrupts. This time is divided by the respective iteration count.
-
-Graphs (idle, disk, arithmetic): 
-
-\begin{itemize}
-\item X: exp exec time [ms, cycles] Y: rel error V: box plots
-\item X: exp exec time [ms, cycles] Y: ints V: box plots
-\item X: exp exec time [ms, cycles] Y: task sw V: box plots
-\end{itemize}
-
-\subsection{Experiment 2}
-Investigate the effects of task switches on a memory intensive kernel. Repeat
-experiment 1 with both a memory load and write kernel
-
-\subsection{Experiment 3}
-Measure the influences of shared memory bandwidth on the runtime. Depending on
-the system architecture, we expect to measure shared bandwidth effects. We
-measure a memory load and a memory write kernel. We measure on idle system and
-while running memory load and write kernel on the other CPUs. Buffer sizes are
-larger than cache size. Measure core cycles. Measure at min and max frequency.
-Buffer size chosen such that execution time is around half a scheduling time
-segment.
-
-One plot per kernel combination (load/load, load/write, write/load, write/write)
-\begin{itemize}
-\item X: cpu map Y: time[cycles]
-\end{itemize}
-
-
-\subsection{Experiment 4}
-Unfortunately, even on a very lightly loaded system, any task can be executed on
-any other core. Caused by the shared memory bandwidth, this could affect short
-running kernels, and result in wrong measurement results of a whole measurement
-series. We show this by starting two memory intensive, short running kernels
-simultaneously. Solution: introduce sleeps between measurement runs, to make
-sure they are independently measured.
-
-with and without sleep: X: measurement number Y: time[cycles]
-
-\subsection{Experiment 5}
-For long running measurements, it is sufficient to make sure that the average
-system load is low. The side effects of code running on other kernels will be
-smoothed out. This is shown on various average loads (none, 1 2 3 5 10 20 40 50
-75 100)
-
-X: system load Y: rel error
-X: system load Y: variance
-
-We measure using the following counters:
-- core cycles
-- bus cycles
-- gettimeofday()
-- times(): user time
-
-We measure the following kernels:
-+- arithmetic:add
-*- mem: load
-*- mem: write
-
-We measure at 
-*+- max frequency
-+- min frequency
-
-We measure use the following kernels to generate system load
-+- arithmetic: add
-*- mem: load
-*- mem: write
-+- io: file 
-- io: network
-- io: graphics
-
-We measure at different load levels (*+none, 25, 50, 75, *+100)
-
-Measure at different load switch durations (0.1,1,5,10,15,50,100 ms)
-
-We measure with any core combination.
-same core / +core2
-core *+0 *+1 *+2 *+3
-
-
-
-\section{Measuring Memory Traffic}
-\begin{itemize}
-\item 0x40000027   LLC\_MISSES
-\item 0x40000040   SSE\_PRE\_EXEC 07h03h SSE\_PRE\_EXEC.L2
-\item 0x40000059   L2\_DBUS\_BUSY\_RD
-\item 0x4000005c   L2\_LINES\_IN  24h
-\item 0x4000006a   L2\_M\_LINES\_OUT  27h
-\item 0x400000cb   SSE\_PRE\_MISS 4Bh 00h/01h/02h
-\item 62h BUS\_DRDY\_CLOCKS
-\end{itemize}
-
-\subsection{Experiments}
-To gain insight into the accuracy and precision of the memory transfer methods,
-we run the addition kernel with an exponentially increasing iteration count. The
-largest iteration count should result in a runtime of about 0.5s. We expect the
-precision to be high for small iteration counts, a peak variance at around 5 ms
-due to the task switches, and an increasing precision for higher iteration
-counts. The accuracy of the minimum should be high for small iteration counts,
-and include a small overhead if multiple task switches occur during the
-measurement.
-
-\subsection{Experiment 1}
-The first series of measurements is about the overhead of task switches on the
-measured memory transfer. We measure an arithmetic kernel and mem load and
-write, with buffer sizes which fit into the cache and which do not fit. We
-measure on an idle system, and with an arithmetic kernel on the other CPUs.
-
-X: iteration count Y: rel error 
-X: iteration count Y: ints
-X: iteration count Y: task switches
-
-\subsection{Experiment 2}
-The second measurement series is about the separation of measuring transfer
-volume of different threads. We measure mem load and write with large buffers.
-We measure on an idle system and with mem kernels on the other CPUs. Execution
-time: about .5 s
-
-X: cpu map Y: rel error
-
-We measure using the following counters:
-- bus transactions
-- cache misses / writebacks / non-prefetching load/store instructions
-
-We measure the following kernels:
-- arithmetic:add
-- mem: load: small 
-- mem: write: small
-- mem: load: large
-- mem: write: large
-
-We measure at 
-- max frequency
-
-We measure use the following kernels to generate system load
-- arithmetic: add
-- mem: load
-- mem: write
-- io: file 
-- io: network
-- io: graphics
-
-We measure at different load levels (none, 25, 50, 75, 100)
-
-Measure at different load switch durations (0.1,1,5,10,15,50,100 ms)
-
-We measure with any core combination.
-same core / +core2
-core 0 1 2 3
-
-
-
-\section{Effects Affecting the Measurement of Multiple Quantities}
-While each of the measurements required to produce a roofline plot has it's own
-subtleties, there are some effects affecting multiple measurements, which we
-will discuss in the following sections.
-
-\subsection{Context Switches}
-Unless a special operating system is used, we have to deal with context switches
-during measurement. On current operating systems, a context switch typically
-occurs every 10ms due to the timer interrupt. Following the lines of
-\cite{ComSysProgPersp}, there are two ways to deal with them:
-
-If the execution time of the kernel is small, the operating system will
-eventually execute the whole kernel without interruption. This can be exploited
-using the best k measurement scheme. The kernel is repeatedly executed until the
-k measurements with the smallest execution times show a variation below a
-certain threshold. These executions were apparently not affected by a context
-switch, since a context switch would have increased execution time. The
-HW\_INT\_RCV performance counter could possibly be used as well to detect
-context switches.
-
-If a single execution of the kernel takes longer than the period of time between
-two timer interrupts, it will always be affected by a context switch. In this
-case, the proposed solution is to execute the kernel in a loop until many
-context switches occurred. The effect of the context switches can be compensated
-for by reducing the measured time be a certain factor. The factor depends on the
-actual system.
-
-The linux kernel offers the possibility to count performance events only during
-the time a thread actually executes, omitting events happening during kernel
-execution or while other threads run. This was not treated in the book above,
-and offers interesting new options.
-
-
-
-\subsection{System Load}
-Specially if the measurement includes context switches, the system load has a
-big impact on the measurement result. But due to caching effects, even the k
-best measurement scheme might be affected by the system load. Since we can
-control the system the measurements are performed on, we can control system
-load. But none the less, it should be recorded along with the measurement, in
-case something goes wrong with the measurement system setup.
-
-\subsection{Multi Threading}
-Our kernels and benchmarks will use multi threading. This has to be supported by
-the measurement tool. Since some caches as well as part of the memory bandwidth
-might be shared among different cores, multi threading can have various effects
-on the amount of transferred memory and the available bandwidth.
-
-In case of hyper threading, some functional units of a processor core are shared
-among two threads. This influences the peak performance of the core.
-
-It is possible that the operating system moves a thread from one core to
-another. Since the overhead of a switching the core is large, it is generally
-avoided by the scheduler of the operating system. But it can occur, and we have
-to be prepared for it.
 
 \section{List of Figures}
 \renewcommand{\listfigurename}{}

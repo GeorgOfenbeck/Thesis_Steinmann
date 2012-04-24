@@ -72,6 +72,10 @@ public class ValidateTransferredBytesMeasurementController extends
 				mtb);
 		measureThreadedMem(outputName, "ThWrite",
 				createWriteKernelCoordinate(false, false), mtb);
+
+		measureThreadedMem(outputName, "ThWriteStream",
+				createWriteKernelCoordinate(true, true), mtb);
+
 		measureThreadedMem(outputName, "ThTriad",
 				createTriadKernelCoordinate(), mtb);
 
