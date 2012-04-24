@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.log4j.Logger;
 
+import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
@@ -22,6 +23,9 @@ import ch.ethz.ruediste.roofline.sharedEntities.eventPredicates.WorkloadEventPre
 import com.google.inject.Inject;
 
 public class RooflineController {
+	public static final ConfigurationKey<Boolean> measureMultiThreadedKey = ConfigurationKey
+			.Create(Boolean.class, "measureMultiThreaded",
+					"if set to true, take other threads into account", true);
 	private static final Logger log = Logger
 			.getLogger(RooflineController.class);
 
@@ -32,10 +36,13 @@ public class RooflineController {
 	public QuantityMeasuringService quantityMeasuringService;
 
 	@Inject
-	PlotService plotService;
+	public PlotService plotService;
 
 	@Inject
-	SystemInfoService systemInfoService;
+	public SystemInfoService systemInfoService;
+
+	@Inject
+	public Configuration configuration;
 
 	private final RooflinePlot plot = new RooflinePlot();
 
@@ -79,26 +86,28 @@ public class RooflineController {
 				workload.setMeasurerSet(sets.get("main"));
 				measurement.addWorkload(workload);
 
-				// create predicates
-				WorkloadEventPredicate startPredicate = new WorkloadEventPredicate(
-						workload,
-						WorkloadEventEnum.KernelStart);
+				if (configuration.get(measureMultiThreadedKey)) {
+					// create predicates
+					WorkloadEventPredicate startPredicate = new WorkloadEventPredicate(
+							workload,
+							WorkloadEventEnum.KernelStart);
 
-				WorkloadEventPredicate stopPredicate = new WorkloadEventPredicate(
-						workload,
-						WorkloadEventEnum.KernelStop);
+					WorkloadEventPredicate stopPredicate = new WorkloadEventPredicate(
+							workload,
+							WorkloadEventEnum.KernelStop);
 
-				// configure create measurer action
-				{
-					CreateMeasurerOnThreadAction action = new CreateMeasurerOnThreadAction();
-					measurement.addRule(new Rule(startPredicate, action));
+					// configure create measurer action
+					{
+						CreateMeasurerOnThreadAction action = new CreateMeasurerOnThreadAction();
+						measurement.addRule(new Rule(startPredicate, action));
 
-					action.setMeasurerSet(sets.get("main"));
+						action.setMeasurerSet(sets.get("main"));
 
-					action.setStartPredicate(null);
-					action.setStopPredicate(stopPredicate);
-					action.setReadPredicate(stopPredicate);
-					action.setDisposePredicate(stopPredicate);
+						action.setStartPredicate(null);
+						action.setStopPredicate(stopPredicate);
+						action.setReadPredicate(stopPredicate);
+						action.setDisposePredicate(stopPredicate);
+					}
 				}
 				return measurement;
 			}

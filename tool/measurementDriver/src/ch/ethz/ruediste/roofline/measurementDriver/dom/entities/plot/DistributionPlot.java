@@ -113,7 +113,7 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 	}
 
 	public double getBoxWidth() {
-		if (boxWidth == Double.NaN && isLogX())
+		if (Double.isNaN(boxWidth) && isLogX())
 			return 0.1;
 		return boxWidth;
 	}

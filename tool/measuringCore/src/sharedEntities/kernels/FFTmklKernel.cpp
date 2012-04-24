@@ -40,7 +40,7 @@ void FFTmklKernel::initialize() {
 		throw Exception("MKL FFT " + string(DftiErrorMessage(status)));
 	}
 
-	if (posix_memalign((void**) (&complexData), 16,
+	if (posix_memalign((void**) (&complexData), /*16*/ 1024*4,
 			getBufferSize() * sizeof(double _Complex)) != 0) {
 		throw "could not allocate memory";
 	}

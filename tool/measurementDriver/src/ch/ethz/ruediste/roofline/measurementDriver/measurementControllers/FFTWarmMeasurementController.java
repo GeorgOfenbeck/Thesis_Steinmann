@@ -55,7 +55,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		measureRoofline(outputName);
 		//measureDifferences(outputName);
-		//measurePerformance(outputName);
+		measurePerformance(outputName);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -119,7 +119,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		DistributionPlot plot = new DistributionPlot();
 		plot.setOutputName(outputName + "Performance")
 				.setTitle("FFT - Warm and Cold Caches")
-				.setxLabel("Buffer Size").setxUnit("Byte")
+				.setxLabel("Problem Size").setxUnit("Complex Doubles")
 				.setyLabel("Performance").setyUnit("Flop/Cycle").setLogX();//.setYRange(-1e6, 1e6);
 
 		ParameterSpace space = new ParameterSpace();
@@ -127,50 +127,44 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 		for (long i = 32; i < 1024 * 1024; i *= 2)
 			space.add(bufferSizeAxis, i);
 
-		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
+		space.add(kernelClassAxis, FFTmklKernel.class);
+		space.add(optimizationAxis, "-O3");
 
-		addMklKernel(space, kernelNames);
-
-		for (final Coordinate c : space.getAllPoints(kernelAxis, null)) {
+		for (final Coordinate c : space.getAllPoints(kernelClassAxis, null)) {
 			Coordinate base = c;
 			Coordinate warmCode = c.getExtendedPoint(warmCodeAxis, true);
 			Coordinate warmData = c.getExtendedPoint(warmDataAxis, true);
 			Coordinate warmDataCode = warmData.getExtendedPoint(warmCodeAxis,
 					true);
 
-			//Iterable<Performance> tbBase = measurePerformance(base);
+			addPerformances(plot, base);
+			addPerformances(plot, warmCode);
+			addPerformances(plot, warmData);
+			addPerformances(plot, warmDataCode);
 
-			ArrayList<Pair<Iterable<Performance>, String>> allSeries = new ArrayList<Pair<Iterable<Performance>, String>>();
-			IterableUtils.addAll(allSeries,
-					Pair.of(measurePerformance(base), ""),
-					Pair.of(measurePerformance(warmData), "Data"),
-					Pair.of(measurePerformance(warmCode), "Code"),
-					Pair.of(measurePerformance(warmDataCode), "DataCode")
-					);
-
-			for (Pair<Iterable<Performance>, String> series : allSeries) {
-
-				Long matrixSize = c.get(kernelAxis).getDataSize();
-				/*for (Pair<Performance, Performance> pair : zip(
-						tbBase,
-						series.getLeft())) {
-
-					plot.addValue(
-							kernelNames.get(c.get(kernelAxis))
-									+ series.getRight(),
-							matrixSize,
-							pair.getLeft().getValue()
-									- pair.getRight().getValue()
-							);
-				}*/
-				for (Performance perf : series.getLeft()) {
-					plot.addValue(kernelNames.get(c.get(kernelAxis))
-							+ series.getRight(), matrixSize, perf.getValue());
-				}
-			}
 		}
 
 		plotService.plot(plot);
+	}
+
+	/**
+	 * @param plot
+	 * @param coord
+	 */
+	private void addPerformances(DistributionPlot plot, Coordinate coord) {
+
+		KernelBase kernel = KernelBase.create(coord);
+
+		QuantityCalculator<Performance> calc = quantityMeasuringService
+				.getPerformanceCalculator(kernel
+						.getSuggestedOperation(), ClockType.CoreCycles);
+
+		QuantityMap quantities = quantityMeasuringService
+				.measureQuantities(kernel, 10, calc);
+
+		System.out.println(kernel.getLabel());
+		plot.addValues(kernel.getLabel(), coord.get(bufferSizeAxis),
+				quantities.getStatistics(calc));
 	}
 
 	/**
@@ -192,16 +186,17 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 	 * @param c
 	 * @return
 	 */
-	public Iterable<Performance> measurePerformance(final Coordinate c) {
+	public DescriptiveStatistics measurePerformance(final Coordinate c) {
 		IMeasurementBuilder builder = getBuilder(c);
 
 		QuantityCalculator<Performance> calc = quantityMeasuringService
 				.getPerformanceCalculator(c.get(kernelAxis)
 						.getSuggestedOperation(), ClockType.CoreCycles);
-		QuantityMap quantities = quantityMeasuringService
-				.measureQuantities(builder, 20).with("main", calc).get();
 
-		return quantities.get(calc);
+		QuantityMap quantities = quantityMeasuringService
+				.measureQuantities(builder, 10).with("main", calc).get();
+
+		return quantities.getStatistics(calc);
 	}
 
 	/**
@@ -233,6 +228,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 		for (long i = 128; i < 1024 * 1024; i *= 2)
 			space.add(bufferSizeAxis, i);
+		//space.add(bufferSizeAxis, 128L);
 
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 
@@ -254,7 +250,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 			IMeasurementBuilder builder = getBuilder(coordinate);
 
 			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamLines);
 
 			QuantityMap quantities = quantityMeasuringService
 					.measureQuantities(builder, 10).with("main", calc).get();

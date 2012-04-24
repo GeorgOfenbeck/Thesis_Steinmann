@@ -113,11 +113,14 @@ public class RooflineService {
 
 		// apply the best parameters
 		kernel.initialize(maximum);
-		QuantityCalculator<Performance> calc = quantityMeasuringService.getPerformanceCalculator(
-				measurementCoordinate
-										.get(QuantityMeasuringService.operationAxis), measurementCoordinate
-										.get(QuantityMeasuringService.clockTypeAxis));
-		QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
+		QuantityCalculator<Performance> calc = quantityMeasuringService
+				.getPerformanceCalculator(
+						measurementCoordinate
+								.get(QuantityMeasuringService.operationAxis),
+						measurementCoordinate
+								.get(QuantityMeasuringService.clockTypeAxis));
+		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,
+				calc);
 
 		// measure the performance
 		Performance performance = result.best(calc);
@@ -139,12 +142,12 @@ public class RooflineService {
 		case Load:
 			kernel = new MemoryKernel();
 			kernelParameters.set(optimizationAxis, "-O3 -msse");
-			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 10);
+			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 5);
 		break;
 		case RandomLoad:
 			kernel = new MemoryKernel();
 			kernelParameters.set(optimizationAxis, "-O3");
-			kernelParameters.set(bufferSizeAxis, 1024L * 1024L);
+			kernelParameters.set(bufferSizeAxis, 512L * 1024L);
 			kernelParameters.set(unrollAxis, 20);
 		break;
 		case Add:
@@ -157,10 +160,12 @@ public class RooflineService {
 
 		// initialize the kernel
 		kernel.initialize(kernelParameters.build());
-		QuantityCalculator<Throughput> calc = quantityMeasuringService.getThroughputCalculator(border,
-				clockType);
-		
-		QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
+		QuantityCalculator<Throughput> calc = quantityMeasuringService
+				.getThroughputCalculator(border,
+						clockType);
+
+		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,
+				calc);
 
 		// measure the throughput
 		Throughput throughput = result.best(calc);

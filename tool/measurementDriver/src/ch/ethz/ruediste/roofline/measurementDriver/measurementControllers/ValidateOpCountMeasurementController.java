@@ -72,9 +72,9 @@ public class ValidateOpCountMeasurementController extends
 		public void setupValuesPlot(String outputName,
 				DistributionPlot plotValues) {
 			plotValues.setOutputName(outputName + "Values")
-					.setTitle("OpCount Values").setLog()
-					.setxLabel("expOpCount")
-					.setxUnit("flop").setyLabel("actualOpCount/expOpCount")
+					.setTitle("Operation Count Values").setLog()
+					.setxLabel("Expected Operation Count")
+					.setxUnit("Flops").setyLabel("Operation Count Ratio")
 					.setyUnit("1");
 		}
 
@@ -82,9 +82,10 @@ public class ValidateOpCountMeasurementController extends
 		public void setupMinValuesPlot(String outputName,
 				DistributionPlot plotMinValues) {
 			plotMinValues.setOutputName(outputName + "MinValues")
-					.setTitle("OpCount Min Values").setLog()
-					.setxLabel("expOpCount").setxUnit("operations")
-					.setyLabel("min(actualOpCount)/expOpCount").setyUnit("1");
+					.setTitle("Operation Count Min Values").setLog()
+					.setxLabel("Expected Operation Count")
+					.setxUnit("Flops")
+					.setyLabel("Operation Count Ratio").setyUnit("1");
 		}
 
 		@Override
@@ -92,7 +93,7 @@ public class ValidateOpCountMeasurementController extends
 			plotError.setOutputName(outputName + "Error")
 					.setTitle("OpCount Error").setLogX()
 					.setxLabel("expOpCount")
-					.setxUnit("operations")
+					.setxUnit("Flops")
 					.setyLabel("err(actualOpCount/expOpCount)").setyUnit("%");
 
 		}
@@ -101,9 +102,10 @@ public class ValidateOpCountMeasurementController extends
 		public void setupMinErrorPlot(String outputName,
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "MinError")
-					.setTitle("OpCount Min Error").setLogX()
-					.setxLabel("expOpCount").setxUnit("operations")
-					.setyLabel("err(min(actualOpCount)/expOpCount)")
+					.setTitle("Operation Count Min Error").setLogX()
+					.setxLabel("Expected Operation Count")
+					.setxUnit("Flops")
+					.setyLabel("Error")
 					.setyUnit("%");
 		}
 

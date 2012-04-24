@@ -45,7 +45,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		System.out.printf("peak tp: %f\n", rooflineService
 				.measurePeakThroughput(PeakAlgorithm.Load,
-						MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles)
+						MemoryTransferBorder.LlcRamLines, ClockType.CoreCycles)
 				.getValue());
 
 		Axis<Long> prefetchDistanceAxis = new Axis<Long>(
@@ -93,14 +93,18 @@ public class MemoryMeasurementController implements IMeasurementController {
 			//kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));
 
 			kernel.initialize(coordinate);
-			QuantityCalculator<Throughput> calc = quantityMeasuringService.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
-					ClockType.CoreCycles);
-			
-			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
+			QuantityCalculator<Throughput> calc = quantityMeasuringService
+					.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
+							ClockType.CoreCycles);
+
+			QuantityMap result = quantityMeasuringService.measureQuantities(
+					kernel, calc);
 
 			Throughput throughput = result.best(calc);
-			QuantityCalculator<TransferredBytes> calculator = quantityMeasuringService.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
-			QuantityMap result1 = quantityMeasuringService.measureQuantities(kernel, calculator);
+			QuantityCalculator<TransferredBytes> calculator = quantityMeasuringService
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
+			QuantityMap result1 = quantityMeasuringService.measureQuantities(
+					kernel, calculator);
 
 			TransferredBytes transferredBytes = result1.best(calculator);
 

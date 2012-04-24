@@ -40,7 +40,7 @@ void MemoryKernel::initialize() {
 
 	size_t size = getBufferSize();
 	// allocate buffer pointers
-	if (posix_memalign((void**) (&buffer), CacheLineSize,
+	if (posix_memalign((void**) (&buffer), 4*1024,
 			DLP * UNROLL * size * sizeof(float)) != 0) {
 		throw "could not allocate memory";
 	}

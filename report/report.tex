@@ -79,6 +79,8 @@
 \newcommand{\class}[1]{\textbf{#1}}
 \newcommand{\method}[1]{\textsf{#1}}
 
+\newcommand{\err}[0]{\ensuremath{\text{err}}}
+
 \lstset{
   showstringspaces=false,
   breaklines=true,
@@ -135,34 +137,36 @@ If the implementation of an algorithm manages to largely operate on data which
 can be held in the CPU caches, off-chip bandwidth will not be an issue. 
 Unfortunately it is often difficult to organize the data access
 pattern of an algorithm in such a way that repeatedly accessed data is not
-squeezed out of the cache by intermediate data accesses.
+wiped out of the cache by intermediate data accesses.
 
 During the optimization of an algorithm, many changes have an effect on both
 performance and data access pattern. It is therefore beneficial for a
 performance model to capture both aspects.
 
 Towards this goal, the roofline model introduces the term 'operational
-intensity' to mean number of performed operations per byte transferred between
-CPU and memory. The exact definition of operation is problem specific, but
-floating point operation is often used.
+intensity' defined as the number of performed operations per byte transferred
+between CPU and memory. The exact definition of operation in the context of
+this definition is problem specific, but floating point operation is often used.
 
 %\graphFloat{yonah/overview}{Overview of different Kernels}
 % (fig.\ref{yonah/overview})
 
 The roofline model combines the operational intensity on the $x$ axis with the
 performance on the $y$ axis in a 2D graph . Each
-measurement results in a point on the plot. Multiple points are connected with a
-line to a series. The graph is on a log-log scale.
+measurement results in a point on the plot. If a measurement is repeated
+for different problem sizes, the resulting points in the roofline plot
+can be connected by a line to a series.
 
 The peak floating point performance appears as a horizontal line. There can be
 different bounds depending on the technology or the number of cores used. 
 
-What about memory bandwidth? If the implementation of an algorithm transfers $v$
-bytes (transfer volume) and performs $\Omega$ operations within $t$ cycles (the
-unit of time does not matter, could be seconds as well), it will be placed at
-$x=\Omega/v$ (operational intensity) and $y=\Omega/t$ (performance). The data
-throughput between CPU and memory is $\tau=v/t$, which {\bf can be derived from
-performance and operational intensity}: 
+The memory bandwith can be shown in the roofline plot, too. If the
+implementation of an algorithm transfers $v$ bytes (transfer volume) and
+performs $\Omega$ operations within $t$ cycles (the unit of time does not
+matter, could be seconds as well), it will be placed at $x=\Omega/v$
+(operational intensity) and $y=\Omega/t$ (performance). The data throughput
+between CPU and memory is $\tau=v/t$, which {\bf can be derived from performance
+and operational intensity}:
 
 $$
 \tau=\frac{v}{t}
@@ -181,9 +185,10 @@ following limit for performance and operational intensity:
 y&<x\beta 
 \end{align*}
 
-Since roofline plots are on a log-log scale, the bandwidth line appears as a
-line of unit slope, offset towards the top left of the graph proportional to the
-logarithm of the memory bandwidth.
+Roofline plots use a log-log scale. This enables the presentation of data in a
+huge range. In addition, the bandwidth line appears as a line of unit slope,
+offset towards the top left of the graph proportional to the logarithm of the
+memory bandwidth.
 \footnote{ In order to grasp the appearance of the bandwidth line, we have to
 map the line to a cartesian coordinate system .
 The coordinates $x'$ and $y'$ in the cartesian coordinate system are in the
@@ -236,8 +241,8 @@ for (int j = 0; j < n; j++) {
 }
 \end{lstlisting}
 
-We measured the two variants with $m=1e6$ and $n=4$ on a random computer and got
-the following performances:
+We measured the two variants with $m=1e6$ and $n=4$ on an arbitrary computer and
+got the following performances:
 \begin{center}
 \begin{tabular}{lr@{.}l}
 \toprule
@@ -288,22 +293,16 @@ algorithms and do the analysis for each algorithm separately. In the rest of
 this thesis, we will use the term kernel for a routine or part of a program
 which is analyzed on it's own.
 
-Multi threaded kernels should be supported.
+Many kernels are multi threaded in order to take advantage of CPUs with multiple
+cores. This is achieved by splitting the algorithm into multiple threads which
+can be executed in parallel. Our tool should be able to handle such kernels.
 
-To get the data points for a kernel, we need to measure the performance and the
-operational intensity.
+To get the data points for a kernel, we need to measure it's performance and
+the operational intensity.
 
 Performance is defined as amount of work per unit of time. The time required to
 do the work has to be measured. The amount of work and how it is defined is
 determined by the actual kernel. 
-
-For example, if different implementations of an algorithm solve the same problem
-with a different number of floating point operations, their floating point
-performances are not comparable. It would make more sense to derive the
-theoretical floating point operation count given the problem size and use the
-result instead of measuring the actual operation count.
-Otherwise just including dummy operations would increase the apparent
-performance, which is certainly not desirable.
 
 Operational intensity is defined as operations per byte of data traffic. Since
 the operational intensity cannot be measured directly, we have to measure the
@@ -315,9 +314,10 @@ the different cache levels or between L1 cache and processor.
 
 To obtain the peak performance and memory bandwidth lines for the roofline model
 we need to create micro benchmarks. They are typically designed to transfer as
-much data per unit of time or to execute as may operations per unit of time as
-possible. Thus the measurement capabilities needed to evaluate the actual
-problems can be reused for the benchmarks.
+much data per unit of time for memory bandwidth lines and to execute as may
+operations per unit of time for peak performance lines as possible. Thus the
+measurement capabilities needed to evaluate the actual problems can be reused
+for the benchmarks.
 
 In summary, the following quantities need to be measured:
 \begin{itemize}
@@ -355,11 +355,26 @@ The main contribution of this thesis is of practical nature. We built a tool
 which simplifies performance measurements and in particular the generation of
 roofline plots.
 
-In addition we will present detailed low level measurement results, which could
-be used as a reference for future work.
+The tool provides a set of tested measurement routines, which can be used
+to measure custom code. Using the provided infrastructure simplifies the
+analysis of the precision of the generated results.
 
-Finally, we implemented a variety of kernels (in many cases using libraries) and
-present their roofline plots.
+We presented detailed low level measurement results and analyzed their accuracy
+and precision. This could be used as reference for future work.
+
+We implemented a variety of kernels (in many cases using libraries) and
+discussed them in the context of the roofline model. 
+
+Finally, we extended the roofline plots in the following ways: 
+\begin{description}
+\item[Series] We connected multiple points of a measurement series
+(for example multiple problem sizes of a single algorithm implementation) with a line.
+\item[Series Comparisons] When measuring series of different
+implementations of a single algorithm, we connected equal problem sizes with a
+dashed line to faciliates the comparison between the implementations.
+\item[Error Boxes] We repeated our measurements and represented the precision
+with error boxes within the roofline plots.
+\end{description}
 
 \section{Measurement Setup}
 In this section we first introduce the performance counters, which are
@@ -450,8 +465,8 @@ allocation and eviction, namely
 with 8*'coreduo::SSE\_NTSTORES\_RET' to take non temporal stores into account.
 
 \subsection{Cache}
-\graphFloat{yonah/FFTwarm}{Yonah: Influence of the initial cache state}
-\graphFloat{yonah/FFTwarmPerformance}{Yonah: Influence of the initial cache
+\graphFloat{yonah/FFTwarm}{Influence of the initial cache state}
+\graphFloat{yonah/FFTwarmPerformance}{Influence of the initial cache
 state on the Performance} 
 
 Specially for short running kernels, the initial state of the cache can have a
@@ -465,7 +480,29 @@ the Intel Math Kernel Libraries as showcase. Figures \ref{yonah/FFTwarm} and
 (FFT-Mkl), only the data is warmed up (FFT-Mkl-Data), only the code is warmed up
 (FFT-Mkl-Code) or both data and code is warmed up (FFT-Mkl-Data-Code).
 
-The following snippet shows the relevant logic:
+In the roofline plot (fig. \ref{yonah/FFTwarm}) we repeated each measurement
+10 times and showed the median result, as well as the 25\% and 75\% percentile
+as a box around the median point. We connected the median points for the same
+problem size with dashed lines.
+
+If only the code cache is warmed up, the difference to completely cold caches
+is small. The effect of warming up the data chaches more significant. 
+
+If the data and the code is loaded into the caches initially, the operational
+intensity increases again compared to only loading the data.  Short before the
+cache size is exceeded by the size of the data and the code, the operational
+intensity becomes very large.
+
+For large problem sizes, the initial state of the cache has a neglectable
+impact.
+
+To get a better impression on the effects on performance, figure 
+\ref{yonah/FFTwarmPerformance} shows the problem size on the x axis and the
+performance on the y axis. For a problem size of 10'000, the performance
+difference between cold and warm caches (code and data) is around 20\%.
+
+
+The following snippet shows the relvant logic for initializing the caches:
 
 \begin{minipage}{\textwidth-18pt}
 \begin{lstlisting}[language=C++]
@@ -539,6 +576,8 @@ In all groups we used the following kernels:
 \begin{description}
 \item[ADD] Repeat adding a constant to an accumulator. Everything is performed
 in registers. We use multiple accumulators and unroll the loop. 
+\item[MUL] Repeat multiplying an accumulator with a constant. Everything is performed
+in registers. We use multiple accumulators and unroll the loop. 
 \item[Read] Read a buffer from memory
 \item[Write] Overwrite a buffer in memory
 \item[WriteStream] Overwrite a buffer in memory, using non temporal store
@@ -547,43 +586,80 @@ instructions
 writing $a$ back.
 \end{description}
 
+Read, write and WriteStream read or write a single memory buffer of size $S$.
+The Triad kernel operates on three buffers of size $S$.
+ 
 \subsection{Transfer Volume}
 
-\graphFloatTwo{Transfer Volume}
-{yonah/valTBValues}{MemBus}
+\graphFloatTwo{Ratio of the Actual Transfer Volume to
+the Expected Transfer Volume} {yonah/valTBValues}{MemBus}
 {yonah/valTBALTValues}{MemL2}
 
-\graphFloatTwo{Error of Transferred Bytes}
+We tried to estimate the amount of memory $\Theta$ that has to be transferred. 
+For pure reading, we expect to observe the whole buffer being transferred to the
+core ($\Theta=S$).
+When writing is involved, we expect some of the writes to be held back in the
+cache. For the write kernel the buffer is loaded into the CPU before beeing
+overwritten. In addition we presume that the whole cache is used for write back
+caching. Thus the estimated transfer volume is $\Theta=S+\max(0,S-2MB)$. 
+
+For the triad kernel, all three buffers have to be loaded into the CPU and one
+has to be written back. We presume that one third (due to the three buffers) of
+the cache is used for write back caching. ($\Theta=3S+\max(0,S-\frac23MB)$) The
+streaming write kernel should write the whole buffer once ($\Theta=S$).
+
+In figure \ref{yonah/valTBValues} we show the expected transfer volume $\Theta$
+on the $x$ axis and the ratio of the actual and the expected transfer volume on
+the $y$ axis ($\frac{\tau}{\Theta}$). We measured system bus transfers in
+subfigure {\bf a} (MemBus) and L2 cache line allocations in subfigure {\bf b}
+(MemL2).
+
+The distribution of the results is shown using box plots. \cite{BoxPlot} For
+each expected transfer volume, the measurement is repeated $n=100$ times. The
+median is shown with a point and connected to the medians of the other transfer
+volumes with a line. Around the point a box is plotted. The top of the box
+represents the 75th percentile, the bottom the 25th percentile. The ends of the
+whiskers represent the minimum and maximum of the observed results. 
+
+With our measurement setup, we roughly observe the expected transfer volumes.
+Around an expected transfer volume of 2MB we overestimate the influence of the
+write back cache. The CPU seems to write data back to the memory before the
+cache is completely filled.
+
+The MemBus and MemL2 variants produce similar result. Note that the MemL2
+variant measures less than the expected memory transfer for large buffer sizes.
+
+To show the error of the measurement results we defined the $\err(x)$ function: 
+
+$$
+\err(x)=\begin{cases}
+x>1 & (x-1)*100\%\\
+x\leq1 & (\frac{1}{x}-1)*100\%
+\end{cases}
+$$
+
+\graphFloatTwo{Error of the Transfer Volume: $\err(\frac{\tau}{\Theta})$}
 {yonah/valTBError}{MemBus}
 {yonah/valTBALTError}{MemL2}
-
-We tried to estimate the amount of memory that has to be transferred. For pure
-reading, we expect to observe the whole buffer being transferred to the core.
-When writing is involved, we expect some of the writes to be held back in the
-cache. For the write kernel we presume that the whole cache is used for write
-back caching, and one third of the cache for the triad kernel, since there are
-three buffers. The streaming write kernel should write the whole buffer once.
-
-Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
-of memory transfer. Around an expected transfer volume of 2MB we overestimate
-the influence of the write back cache. The CPU seems to write data back to the
-memory before the cache is completely filled. The MemBus and MemL2 variants
-produce similar result. Note that the MemL2 variant measures less than the
-expected memory transfer for large buffer sizes.
-
-The errors (see fig. \ref{yonah/valTBError}) of the MemL2 variant are
-smaller than those of the MemBus variant.
+We used the $\err(x)$ function for the $y$ axis of figure
+(\ref{yonah/valTBError}). The spread of the MemL2 variant is better than the
+spread of the MemBus variant, while the offset is comparable.
 
 \graphFloat{yonah/valTBALTFlushValues}{MemL2: Memory Transfer during Cache
 Flush after kernel execution}
 
 To validate our assumption on the write back cache, we measured the memory
 transfer while flushing the cache using 'CLFLUSH' after the execution of the
-kernel completes. (fig. \ref{yonah/valTBALTFlushValues}) There is a small
-overhead for the Read kernel. The data of the write kernel shows that almost the
-whole 2MB 2nd level cache is used for write back caching. For the Triad kernel
-one could suspect that each buffer receives about one third of the cache, which
-is affirmed by the data.
+kernel completes. (fig. \ref{yonah/valTBALTFlushValues}) 
+
+There is a small overhead for the read kernel. For the write and the triad
+kernel, all written data is transferred while flushing the caches as long as
+the data fits into the cache. 
+
+If the data does not fit into the cache anymore, almost the whole 2MB 2nd level
+cache is used for write back caching in case of the write kernel. For the Triad
+kernel one could suspect that each buffer receives about one third of the cache,
+which is affirmed by the data.
 
 When measuring on an Intel Core, we observed a strange behavior. While the Read
 and the Triad kernels behaved as expected, the we observed a memory transfer of
@@ -605,38 +681,44 @@ BusL2 variant measures one byte every 300-1600 cycles (see fig.
 difference is plausible since the BusMem variant is likely to pick up any noise
 on the memory bus.
 
-\subsection{Time}
-\graphFloat{yonah/valTimeArithValues}{Execution Time of the ADD kernel}
-\graphFloat{yonah/valTimeArithError}{Error of the Execution Time of the
-ADD kernel}
+\clearpage
 
-For the ADD kernels, figure \ref{yonah/valTimeArithValues} shows that the
-execution time is around one cycle per operation and does not differ between SSE
-and x87, which is consistent with the information found in the Intel manual.
-The same applies for the MUL kernels, with a throughput of around $0.5$
-multiplications per cycle. The error is small for operation counts above 10000
+\subsection{Time}
+\graphFloat{yonah/valTimeArithValues}{Execution Time of the Arithmetic Kernels}
+\graphFloat{yonah/valTimeArithError}{Error of the Execution Time of the
+Arithmetic Kernels: $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
+Time})}\right)$}
+
+We analyzed the execution time of the arithmetic ADD and MUL kernels. Both
+should theoretically cause no memory transfer. Figure
+\ref{yonah/valTimeArithValues} shows the execution time of the kernels for
+different iteration counts. The execution time is one cycle per operation for
+the ADD kernel and two cycles per operation for the MUL kernel. The difference
+between using the legacy x87 floating point instructions and SSE is neglectable.
+These results are consistent with the information found in the Intel manual.
+
+For the error plot we use the minimal execution time for each expected operation
+count as reference.  The error is small for operation counts above 1'000'000
 (fig \ref{yonah/valTimeArithError}).
 
 \graphFloat{yonah/valTimeMemValues}{Execution Time of the memory kernels} 
-\graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the memory kernels}
-For the kernels causing memory transfer, we observe a strong correlation between
-expected memory transfer and execution time (fig. \ref{yonah/valTimeMemValues}),
-but the errors far exceed those observed for the arithmetic kernels (fig.
+\graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the Memory
+Intensive Kernels:  $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
+Time})}\right)$} For the kernels causing memory transfer, we observe a
+strong correlation between expected memory transfer and execution time (fig. \ref{yonah/valTimeMemValues}), but the errors far exceed those observed for the arithmetic kernels (fig.
 \ref{yonah/valTimeMemError}).
 
-
+\clearpage
 \subsection{Operation Count}
-\graphFloat{yonah/valOpValues}{Operation Count}
-Figure \ref{yonah/valOpValues} how that we get
-almost perfect results for measuring the operation count. The error for the x87
-ADD and MUL could be explained by an overhead of around 50 respectively
-500 floating point instructions.
+\graphFloat{yonah/valOpValues}{Operation Count: $\frac{\text{Actual Operation
+Count}}{\text{Expected Operation Count}}$} Figure \ref{yonah/valOpValues} shows
+that we get almost perfect results for measuring the operation count.
 
 \clearpage
 \subsection{Handling the Variance}
 \label{sec:SingleThreadedHandlingTheVariance}
 In the previous sections we saw that our measurements produce plausible results.
-But as soon as the kernels cause memory transfer, we observe a high variance. We
+As soon as the kernels cause memory transfer, we observe a high variance. We
 presume this is due to various activities happening in the background during the
 measurement. (Task switches etc).
 
@@ -646,33 +728,37 @@ measured execution time, memory transfer or operation count. Ideally, at least
 one execution does not include any overhead. In this case the true value is the
 minimum value observed.
 
-Based on these considerations, we repeat each measurement $K$ times and
-discard all but the minimum value.
+Based on these considerations, we repeat each measurement $K=10$ times and
+discard all but the minimum value. Results generated using this scheme are
+marked by adding value of $K$ as subscript.
 
-\graphFloatTwo{Error of the Transfer Volume with $K=10$}
-{yonah/valTBMinError}{MemBus}
+\graphFloatTwo{Error of the Transfer Volume with $K=10$:
+$\err\left(\frac{\tau_{10}}{\Theta}\right)$} {yonah/valTBMinError}{MemBus}
 {yonah/valTBALTMinError}{MemL2} 
 
-Using this scheme with $K=10$ for measuring the transfer volumes, the samples
+Using this scheme for measuring the transfer volumes, the samples
 fall in a range of about 5\%. The bias is under 10\% except for transfer volumes
 under 20KB and with a peak of up to 40\% around 2MB for the kernels involving
 writes. The differece in precision between MemBus and MemL2 disappeared
 almost completely. For large transfer volumes, the accuracy of the MemBus
 variant is superior. (fig. \ref{yonah/valTBMinError})
 
-\graphFloat{yonah/valTimeMemMinError}{Yonah: Error of the Execution Time with
-$K=10$} 
+\graphFloat{yonah/valTimeMemMinError}{Error of the Execution Time with
+$K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 Applying the same scheme to measuring the execution time of the memory kernels
 yields a precision of about 10\%. Since we cannot derive an expected value, we
 chose the minimum observed value as reference.
 (fig. \ref{yonah/valTimeMemMinError})
 
-\graphFloat{yonah/valTimeArithMinError}{Yonah: Error of Execution Time with
-$K=10$}
+\graphFloat{yonah/valTimeArithMinError}{Error of Execution Time with
+$K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
-\graphFloat{yonah/valOpMinError}{Yonah: Error of Operation Count with
-$K=10$}
+\graphFloat{yonah/valOpMinError}{Error of Operation Count with
+$K=10$: $\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected
+Operation Count}})$}
 
 Finally, figures \ref{yonah/valTimeArithMinError} and \ref{yonah/valOpMinError}
 show that the arithmetic kernels do not pose any problems.
@@ -680,8 +766,8 @@ show that the arithmetic kernels do not pose any problems.
 Summarizing our results, using the minimum of $K$ scheme with $K=10$ the
 arithmetic kernels can be measured with high precision and accuracy. The results
 of measuring execution time and memory transfer of memory intensive kernels are
-scattered within 10\% of the reference value. The memory tranfer volume
-is overestimated by about 10\% for transfer volumes under 10MB
+scattered within 10\% of the reference value. The memory tranfer volume is
+overestimated by about 10\% for transfer volumes under 10MB.
 
 \clearpage
 \section{Multi Threaded Accuracy and Precision}
@@ -1017,6 +1103,15 @@ with Different Initial Cache States}
 Figure \ref{yonah/FFTwarm}  shows the influence of the initial cache state. 
 
 \clearpage
+
+\section{Future Work and Conclusions}
+In this thesis we designed and implemented a tool which simplifies performance
+measurements. We introduced multiple abstraction layers, which allow simple and
+common measurements to be performed with ease, while beeing flexible enough to
+scale to more complex situations.
+
+
+
 \section{Measurement Tool Architecture}
 The tool consists of two main components: The Measuring Core, which performs the
 actual measurements, and the Measurement Driver, which controls the core.

@@ -40,7 +40,7 @@ public class ValidateTimeMeasurementController extends
 
 	public void measure(String outputName) throws IOException {
 
-		measure(outputName, "Add", createArithKernelCoordinate(
+		/*measure(outputName, "Add", createArithKernelCoordinate(
 				ArithmeticOperation.ArithmeticOperation_ADD,
 				InstructionSet.SSE), ArithController.class);
 
@@ -53,16 +53,22 @@ public class ValidateTimeMeasurementController extends
 				MemController.class);
 		measure(outputName, "Triad", createTriadKernelCoordinate(),
 				MemController.class);
-
+		*/
 		instantiator.getInstance(ArithController.class).measure(
 				outputName,
 				cpuSingletonList(),
 				createArithKernelCoordinates());
+		/*
+				instantiator.getInstance(ArithExpController.class).measure(
+						outputName + "Exp",
+						cpuSingletonList(),
+						createArithKernelCoordinates());*/
 
 		instantiator.getInstance(MemController.class).measure(
 				outputName,
 				cpuSingletonList(),
-				createMemKernelCoordinates());
+				createMemKernelCoordinates()
+				);
 
 		//measureHistogram(outputName, createTriadKernelCoordinate());
 	}
@@ -203,6 +209,62 @@ public class ValidateTimeMeasurementController extends
 		plotService.plot(thRead.getPlotMinValues());
 	}
 
+	static class ArithExpController extends
+			DistributionWithExpectationController<Time> {
+
+		@Override
+		protected Time expected(KernelBase kernel) {
+			ArithmeticKernel k = (ArithmeticKernel) kernel;
+			// standard is one cycle
+			double factor = 1;
+
+			// for multiplications, every operation takes two cycles
+			if (k.getOperation() == ArithmeticOperation.ArithmeticOperation_MUL)
+				factor = 2;
+			return new Time(k.getExpectedOperationCount().getValue() * factor);
+		}
+
+		@Override
+		protected KernelBase createKernel(Coordinate kernelCoordinate,
+				long problemSize) {
+			ArithmeticKernel kernel = (ArithmeticKernel) KernelBase
+					.create(kernelCoordinate);
+			kernel.setIterations(problemSize);
+			return kernel;
+		}
+
+		@Override
+		protected QuantityCalculator<Time> createCalculator(KernelBase kernel) {
+			return quantityMeasuringService
+					.getTimeCalculator(ClockType.CoreCycles);
+		}
+
+		@Override
+		public void setupValuesPlot(String outputName,
+				DistributionPlot plotValues) {
+			plotValues.setOutputName(outputName + "Values").setLog();
+		}
+
+		@Override
+		public void setupMinValuesPlot(String outputName,
+				DistributionPlot plotMinValues) {
+			plotMinValues.setOutputName(outputName + "MinValues");
+		}
+
+		@Override
+		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
+			plotError.setOutputName(outputName + "Error").setLogX();
+		}
+
+		@Override
+		public void setupMinErrorPlot(String outputName,
+				DistributionPlot plotMinError) {
+			plotMinError.setOutputName(outputName + "MinError");
+
+		}
+
+	}
+
 	static class ArithController extends
 			DistributionNoExpectationController<Time> {
 
@@ -216,19 +278,20 @@ public class ValidateTimeMeasurementController extends
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "ArithMinError")
 					.setTitle("Time Min Error").setLogX()
-					.setxLabel("expOpCount")
+					.setxLabel("Expected Operation Count")
 					.setKeyPosition(KeyPosition.TopRight)
-					.setxUnit("operations")
-					.setyLabel("err(time10/min(time10))").setyUnit("%");
+					.setxUnit("Flops")
+					.setyLabel("Error").setyUnit("%");
 		}
 
 		@Override
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "ArithError")
-					.setTitle("Time Error").setLogX().setxLabel("expOpCount")
+					.setTitle("Time Error").setLogX()
+					.setxLabel("Expected Operation Count")
 					.setKeyPosition(KeyPosition.TopRight)
-					.setxUnit("operations")
-					.setyLabel("err(time/min(time))").setyUnit("%");
+					.setxUnit("Flops")
+					.setyLabel("Error").setyUnit("%");
 		}
 
 		@Override
@@ -245,8 +308,9 @@ public class ValidateTimeMeasurementController extends
 				DistributionPlot plotValues) {
 			plotValues.setOutputName(outputName + "ArithValues")
 					.setTitle("Time Values").setLog()
-					.setxLabel("expOperations")
-					.setxUnit("operation").setyLabel("time").setyUnit("cycles");
+					.setxLabel("Expected Operation Count")
+					.setxUnit("Flops").setyLabel("Execution Time")
+					.setyUnit("Cycles");
 		}
 
 		@Override
@@ -292,7 +356,8 @@ public class ValidateTimeMeasurementController extends
 			plotValues.setOutputName(outputName + "MemValues")
 					.setTitle("Time Values").setLog()
 					.setxLabel("Expected Transfer Volume")
-					.setxUnit("Bytes").setyLabel("time").setyUnit("Cycles");
+					.setxUnit("Bytes").setyLabel("Execution Time")
+					.setyUnit("Cycles");
 		}
 
 		@Override
@@ -309,7 +374,7 @@ public class ValidateTimeMeasurementController extends
 			plotError.setOutputName(outputName + "MemError")
 					.setTitle("Time Error").setLogX()
 					.setxLabel("Expected Transfer Volume")
-					.setxUnit("Bytes").setyLabel("err(time/min(time))")
+					.setxUnit("Bytes").setyLabel("Error").setyUnit("%")
 					.setKeyPosition(KeyPosition.TopRight);
 
 		}
@@ -320,7 +385,7 @@ public class ValidateTimeMeasurementController extends
 			plotMinError.setOutputName(outputName + "MemMinError")
 					.setTitle("Time Min Error").setLogX()
 					.setxLabel("Expected Transfer Volume").setxUnit("Bytes")
-					.setyLabel("err(time10/min(time10))").setyUnit("%")
+					.setyLabel("Error").setyUnit("%")
 					.setKeyPosition(KeyPosition.TopRight);
 		}
 

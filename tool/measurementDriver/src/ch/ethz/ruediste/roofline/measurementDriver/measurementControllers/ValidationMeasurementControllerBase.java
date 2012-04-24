@@ -7,7 +7,7 @@ import java.util.*;
 
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.SystemInfoService;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.util.Instantiator;
 import ch.ethz.ruediste.roofline.sharedEntities.InstructionSet;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
@@ -28,7 +28,10 @@ public class ValidationMeasurementControllerBase {
 	public Instantiator instantiator;
 
 	@Inject
-	SystemInfoService systemInfoService;
+	public SystemInfoService systemInfoService;
+
+	@Inject
+	public OptimizationService optimizationService;
 
 	public ValidationMeasurementControllerBase() {
 		super();
@@ -76,6 +79,33 @@ public class ValidationMeasurementControllerBase {
 				instructionSet);
 		coord.set(optimizationAxis,
 				ArithmeticKernel.getSuggestedOptimization(instructionSet));
+
+		/*// setup optimization space
+		ParameterSpace optimzationSpace = new ParameterSpace();
+		for (int i = 1; i < 20; i++) {
+			optimzationSpace.add(unrollAxis, i);
+		}
+		for (int i = 1; i < 20; i++) {
+			optimzationSpace.add(dlpAxis, i);
+		}
+
+		KernelBase kernel = KernelBase.create(coord.build());
+
+		CoordinateBuilder measurementCoordinateBuilder = new CoordinateBuilder();
+		measurementCoordinateBuilder.set(QuantityMeasuringService.quantityAxis,
+				Performance.class);
+		measurementCoordinateBuilder.set(
+				QuantityMeasuringService.clockTypeAxis, ClockType.CoreCycles);
+		measurementCoordinateBuilder
+				.set(QuantityMeasuringService.operationAxis,
+						kernel.getSuggestedOperation());
+
+		// do the minimization
+		Coordinate maximum = optimizationService.maximize(kernel,
+				optimzationSpace, measurementCoordinateBuilder.build());
+
+		coord.set(unrollAxis, maximum.get(unrollAxis));
+		coord.set(dlpAxis, maximum.get(dlpAxis));*/
 		return coord.build();
 	}
 
