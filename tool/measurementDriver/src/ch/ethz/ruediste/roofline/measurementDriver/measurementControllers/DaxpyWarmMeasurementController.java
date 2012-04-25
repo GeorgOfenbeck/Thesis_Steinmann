@@ -1,11 +1,14 @@
 package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
+import static ch.ethz.ruediste.roofline.sharedEntities.Axes.*;
+
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.KeyPosition;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.RooflinePlot.SameSizeConnection;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
@@ -14,10 +17,10 @@ import ch.ethz.ruediste.roofline.sharedEntities.kernels.DaxpyKernel;
 
 import com.google.inject.Inject;
 
-public class DaxpyMeasurementController implements IMeasurementController {
+public class DaxpyWarmMeasurementController implements IMeasurementController {
 
 	public String getName() {
-		return "daxpy";
+		return "daxpyWarm";
 	}
 
 	public String getDescription() {
@@ -37,15 +40,21 @@ public class DaxpyMeasurementController implements IMeasurementController {
 		rooflineController.setTitle("Vector-Vector Multiplication");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
-		rooflineController.getPlot().setAutoscaleY(true)
-				.setKeyPosition(KeyPosition.BottomRight);
+		rooflineController.getPlot()
+				.setKeyPosition(KeyPosition.BottomRight).setAutoscaleY(true)
+				.setSameSizeConnection(
+						SameSizeConnection.ByOperationalIntensity);
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(DaxpyKernel.useMklAxis, true);
-		space.add(DaxpyKernel.useMklAxis, false);
+		//space.add(DaxpyKernel.useMklAxis, false);
 		space.add(Axes.numThreadsAxis, 1);
-		space.add(Axes.numThreadsAxis, systemInfoService.getOnlineCPUs()
-				.size());
+		/*space.add(Axes.numThreadsAxis, systemInfoService.getOnlineCPUs()
+				.size());*/
+		space.add(warmCodeAxis, false);
+		space.add(warmCodeAxis, true);
+		space.add(warmDataAxis, false);
+		space.add(warmDataAxis, true);
 
 		for (Coordinate coord : space) {
 			addPoints(rooflineController, coord);

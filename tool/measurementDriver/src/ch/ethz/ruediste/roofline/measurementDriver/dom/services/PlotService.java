@@ -369,7 +369,7 @@ public class PlotService {
 		{
 			int i = 0;
 			for (RooflineSeries serie : plot.getAllSeries()) {
-				outputFile.printf("# Median %d\n", i);
+				outputFile.printf("# [Median %d]\n", i);
 				for (RooflinePoint point : serie.getPoints()) {
 					outputFile.printf("%e %e\n",
 							point.getMedianOperationalIntensity().getValue(),
@@ -383,7 +383,7 @@ public class PlotService {
 		{
 			int i = 0;
 			for (RooflineSeries serie : plot.getAllSeries()) {
-				outputFile.printf("# Stats %d\n", i);
+				outputFile.printf("# [Stats %d]\n", i);
 				for (RooflinePoint point : serie.getPoints()) {
 					if (point.getN() > 1) {
 						DescriptiveStatistics opIntStats = point
@@ -454,7 +454,7 @@ public class PlotService {
 
 				// output the sorted points to the data file
 				if (plot.getSameSizeConnection() != SameSizeConnection.None) {
-					outputFile.printf("# ProblemSize %d\n", problemSize);
+					outputFile.printf("# [ProblemSize %d]\n", problemSize);
 					for (RooflinePoint point : points)
 						outputFile.printf("%e %e\n",
 								point.getMedianOperationalIntensity()
@@ -589,7 +589,7 @@ public class PlotService {
 
 				plotLines
 						.add(String
-								.format("'%s.data' index 'Median %d' title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
+								.format("'%s.data' index '[Median %d]' title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
 										plot.getOutputName(), i,
 										series.getName(), lwLine,
 										getPointType(i),
@@ -600,7 +600,7 @@ public class PlotService {
 					// plot min/max
 					plotLines
 							.add(String
-									.format("'%s.data' index 'Stats %d' using 1:2:3:4:5:6 notitle with xyerrorbars lw %d lt -1 lc rgb\"%s\"",
+									.format("'%s.data' index '[Stats %d]' using 1:2:3:4:5:6 notitle with xyerrorbars lw %d lt -1 lc rgb\"%s\"",
 											plot.getOutputName(), i, lwLine,
 											getLineColor(i)));
 				}
@@ -610,7 +610,7 @@ public class PlotService {
 					// plot 25/75 percentile
 					plotLines
 							.add(String
-									.format("'%s.data' index 'Stats %d' using 1:2:7:8:9:10 notitle with boxxyerrorbars lw %d lt -1 lc rgb\"%s\"",
+									.format("'%s.data' index '[Stats %d]' using 1:2:7:8:9:10 notitle with boxxyerrorbars lw %d lt -1 lc rgb\"%s\"",
 											plot.getOutputName(), i, lwLine,
 											getLineColor(i)));
 				}
@@ -629,7 +629,7 @@ public class PlotService {
 				for (long problemSize : plot.getProblemSizes()) {
 					plotLines
 							.add(String
-									.format("'%s.data' index 'ProblemSize %d' notitle with lines lw %d lt 0 lc rgb\"#000000\"",
+									.format("'%s.data' index '[ProblemSize %d]' notitle with lines lw %d lt 0 lc rgb\"#000000\"",
 											plot.getOutputName(), problemSize,
 											lwLine));
 				}

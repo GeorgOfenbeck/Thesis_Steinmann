@@ -112,4 +112,15 @@ public class MMMKernel extends MMMKernelData {
 		}
 		throw new Error("should not happen");
 	}
+
+	@Override
+	public String getLabelSuffix() {
+		switch (getAlgorithm()) {
+		case MMMAlgorithm_Blocked:
+		case MMMAlgorithm_Blocked_Restrict:
+		case MMMAlgorithm_TripleLoop:
+			return "";
+		}
+		return super.getLabelSuffix();
+	}
 }

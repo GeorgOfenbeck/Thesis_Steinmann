@@ -74,3 +74,8 @@ void DgemvKernel::dispose() {
 	free(y);
 }
 
+void DgemvKernel::warmCodeCache() {
+	run();
+}
+
+

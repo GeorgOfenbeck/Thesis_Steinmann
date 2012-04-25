@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
@@ -14,7 +13,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineControlle
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
@@ -65,11 +64,18 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		rooflineController.getPlot().setAutoscaleX(true)
 				.setKeyPosition(KeyPosition.BottomRight);
 
-		DistributionPlot plot = new DistributionPlot();
-		plot.setOutputName(outputName + "tb")
+		DistributionPlot plotTb = new DistributionPlot();
+		plotTb.setOutputName(outputName + "tb")
+				.setTitle("MMM - Warm and Cold Caches")
+				.setxLabel("Matrix Size").setxUnit("1")
+				.setyLabel("Memory Transfer Volume").setyUnit("bytes");
+
+		DistributionPlot plotInt = new DistributionPlot();
+		plotInt.setOutputName(outputName + "Int")
 				.setTitle("MMM - Warm and Cold Caches")
 				.setxLabel("Buffer Size").setxUnit("1")
-				.setyLabel("min10(Memory Transfer)").setyUnit("bytes");
+				.setyLabel("Operational Intensity").setyUnit("1").setLogY()
+				.setBoxWidth(5);
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(warmCodeAxis, false);
@@ -85,31 +91,34 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 
 		configuration.push();
 		for (final Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
-			if (coordinate.get(matrixSizeAxis) > 500)
+			if (coordinate.get(matrixSizeAxis) > 400)
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
 			else
-				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
+				configuration
+						.set(QuantityMeasuringService.numberOfRunsKey, 100);
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 
 			IMeasurementBuilder builder = getBuilder(coordinate);
-
-			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
-
-			QuantityMap quantities = quantityMeasuringService
-					.measureQuantities(builder, 10).with("main", calc).get();
-
 			Long matrixSize = coordinate.get(matrixSizeAxis);
 
-			DescriptiveStatistics stats = new DescriptiveStatistics();
-			for (TransferredBytes tb : quantities.get(calc)) {
-				stats.addValue(tb.getValue());
-				if (stats.getN() >= 10) {
-					plot.addValue(kernel.getLabel(), matrixSize,
-							stats.getMin());
-					stats.clear();
-				}
+			QuantityCalculator<Throughput> calcTb = quantityMeasuringService
+					.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
+							ClockType.CoreCycles);
+			QuantityCalculator<OperationalIntensity> calcInt = quantityMeasuringService
+					.getOperationalIntensityCalculator(
+							MemoryTransferBorder.LlcRamBus,
+							kernel.getSuggestedOperation());
+
+			QuantityMap quantities = quantityMeasuringService
+					.measureQuantities(builder)
+					.with("main", calcTb, calcInt).get();
+
+			for (QuantityMap group : quantities.grouped(10)) {
+				plotTb.addValue(kernel.getLabel(), matrixSize,
+						group.best(calcTb).getValue());
+				plotInt.addValue(kernel.getLabel(), matrixSize,
+						group.best(calcInt).getValue());
 			}
 
 			rooflineController
@@ -121,7 +130,8 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		configuration.pop();
 
 		rooflineController.plot();
-		plotService.plot(plot);
+		plotService.plot(plotTb);
+		plotService.plot(plotInt);
 	}
 
 	/**

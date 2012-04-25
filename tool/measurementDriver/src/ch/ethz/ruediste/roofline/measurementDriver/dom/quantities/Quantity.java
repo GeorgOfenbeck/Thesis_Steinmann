@@ -8,7 +8,10 @@ public abstract class Quantity<TDerived extends Quantity<TDerived>> implements
 	private double value;
 
 	protected Quantity(double value) {
-		this.value = value;
+		if (Double.isInfinite(value) || Double.isNaN(value))
+			this.value = Double.MAX_VALUE;
+		else
+			this.value = value;
 	}
 
 	@Override

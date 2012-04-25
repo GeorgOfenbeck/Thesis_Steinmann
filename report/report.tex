@@ -349,19 +349,20 @@ The tool is written for the x86 platform and should support different
 processors. 
  
 \subsection{Related Work}
-{\bf Domain: Measuring execution time, operation count and memory transfer
-volume.} Multitasking operation systems may interrupt a program at any time and
+There are various performance models other than the roofline model.
+\cite{Asanovic:EECS-2006-183} \cite{Boyd94ahierarchical} In particular, the 3Cs
+(compulsory, capacity and conflict misses) model for caches
+\cite{Hill:1989:EAC:76602.76603} is simple to understand, yet offers
+insight into program behavior.
+
+Multitasking operation systems may interrupt a program at any time and
 perform a context switch. When a measurement run is interrupted the result can
-be affected. We used the techniques presented in \cite{ComSysProgPersp} to deal
-with this problem.
+be affected. Techniques to deal with this problem are
+presented in \cite{ComSysProgPersp}, with a focus on measuring execution time.
 
 In addition, the initial state of the caches can have an influence on the
-measurement results. It is therefore important to warm or flush the caches.
-(\cite{Whaley:2008:AAC:1462062.1462065})
-
-{\bf Domain: Software engineering.} For this thesis a substantial amount of code
-has been written with the intent to be reused in the future. We followed the
-concepts outlined in \cite{evans2004domain} to improve code quality.
+measurement results. It is therefore important to warm or flush the caches. An
+in detail discussion can be found in \cite{Whaley:2008:AAC:1462062.1462065}.
 
 \subsection{Contribution of the Thesis}
 The main contribution of this thesis is of practical nature. We built a tool
@@ -388,6 +389,18 @@ dashed line to faciliates the comparison between the implementations.
 \item[Error Boxes] We repeated our measurements and represented the precision
 with error boxes within the roofline plots.
 \end{description}
+
+\subsection{Acknowledgements}
+First I would like thank Georg Ofenbeck for supervising my thesis. He guided me
+through the process of writing this thesis. In addition he proof-read my drafts
+and provided very valuable feedback.
+
+I worked in the group of Professor Markus P\"uschel. He creates a very
+positive working atmosphere among his staff. We held few but very productive
+meetings. They always helped me to see clear again.
+
+Finally I would like to thank Daniele Spampinato and Zolt\'an Maj\'o for the
+intresting discussions we had.
 
 \section{Measurement Setup}
 In this section we first introduce the performance counters, which are
@@ -880,6 +893,7 @@ problems. (fig. \ref{yonah/valOpThValues})
 
 \clearpage
 \subsection{Handling the Variance}
+\label{sec:MultiThreadedHandlingTheVariance}
 We again use the minimum of $K=10$ scheme. (see
 \ref{sec:SingleThreadedHandlingTheVariance})
 
@@ -957,6 +971,23 @@ generally a high variance, except for transfer volumes between 20KB and 10MB.
 We used our tool to measure various kernels. For each kernel we describe the
 kernel and the measurement setup and show the resulting roofline plot.
 
+We used the techniques described in sections
+\ref{sec:SingleThreadedHandlingTheVariance} and
+\ref{sec:MultiThreadedHandlingTheVariance} to reduce the variance of the
+measurement results. 
+
+We repeated each measurement 10 times and show the results using whisker bars
+for the minimum and maximum and error boxes for the 25th and 75th percentile.
+
+Since the precision generally improves with growing problem sizes, we decided to
+measure large problems only once. For such measurements, no whisker bars or
+error boxes are drawn.
+
+To investigate the influence of the initial cache state, measured a specific
+implementation of a kernel with cold caches, with the data loaded into the
+cahces (``-Data''), with the code loaded into the caches (``-Code'') and with
+both data and code loaded into the caches (``-Data-Code'').
+
 \subsection{BLAS}
 Basic Linear Algebra Subprograms (BLAS) is a standard API for basic linear
 algebra operations. The functionality is divided into three levels:
@@ -971,15 +1002,35 @@ For each level, we chose a representative operation and generated roofline plots
 using the Intel Math Kernel Library (MKL) \cite{MKL} and the OpenBlas
 \cite{OpenBlas} implementations.
 
+\subsubsection{Level 1}
 \graphFloat{yonah/daxpy}{Roofline Plot of the Vector-Vector Multiplication
-(MemL2, DoublePrecisionFlop)}
+(MemL2, DoublePrecisionFlop)} 
 For level 1, we chose the 'daxpy' operation, defined as $\bf y \leftarrow \alpha
 \bf x + \bf y$ with double vectors. There is no reuse in this kernel. For every
 vector element triple, two operations are performed. Since the vector sizes
 we measure fits into the last level cache, we don't have to take the write
 backs into account. The maximal operational intensity is $2/(2*8)=1/8=0.125$
-which is confirmed by figure \ref{yonah/daxpy}.
+which is confirmed by figure \ref{yonah/daxpy}. The precision of the results is
+good.
 
+\graphFloat{yonah/daxpyWarm}{Roofline Plot of the influence of the
+initial cache state on the Vector-Vector Multiplication (MemL2,
+DoublePrecisionFlop)}
+
+If only the code is initially loaded into the caches, the effect is relatively
+small for small vectors and neglectable for larger vectors. (fig. \ref{yonah/daxpyWarm}) 
+
+If the data is initially loaded into the caches, the operational intensity grows
+with the size of the vector. The code has to be loaded once from memory. Thus
+the transfer volume should be constant, while the operation count grows with the
+vector size. At some point the vectors are too large to fit into do not fit into
+the caches into the
+
+If both data and code are initially loaded into the caches, the operational
+intensity is theoretically infinite (or undefined), since no memory transfer is
+required. 
+
+\subsubsection{Level 2}
 \graphFloat{yonah/dgemv}{Roofline Plot of the Matrix-Vector Multiplication
 (MemL2, DoublePrecisionFlop)} 
 For level 2, we chose the 'dgemv' operation,
@@ -990,8 +1041,18 @@ vector addition, totaling in $2n^2+2n$. The vector $\mathbf x$ can be reused.
 Since the vector sizes we measure fit into the last level cache, the write backs
 are cached. The memory transfer is $2n*8$ bytes to load the vectors and $n^2*8$
 bytes to load the matrix. This results in a maximal operational intensity for
-large matrices of $\approx 2/8=0.25$ which is confirmed by figure \ref{yonah/dgemv}
+large matrices of $\approx 2/8=0.25$ which is confirmed by figure
+\ref{yonah/dgemv}.
 
+The precision is generally good, although we observe some performance outliers
+for the multi threaded MKL implementation.
+
+\graphFloat{yonah/dgemvWarm}{Roofline Plot of the Matrix-Vector Multiplication
+(MemL2, DoublePrecisionFlop)} 
+Bringing the data into the caches before starting the measurements has an
+influence for $n<=500$. 
+
+\subsubsection{Level 3}
 For level 3, we chose the 'dgemm' operation,
 defined as $C \leftarrow \alpha A B + \beta C $ with double matrices. For an
 $n\times n$ matrix, the operation count is $2n^2$ for the two scale operations
@@ -1118,6 +1179,10 @@ version and the two libraries.
 In addition we included the blocked version with
 scalar replacement. The scalar replacement has been implemented by specifying
 the matrices as 'restrict' pointers to the compiler, hence the name.
+
+The tripple loop has a poor performance, even for small matrices. This is
+problably due to it's lack of unrolling. For matrix sizes exceeding $n=400$ the
+drop in operational intensity is clearly visible.
 
 \graphFloat{yonah/MMMwarm}{Roofline Plot of the Matrix-Matrix Multiplication
 with Different Initial Cache States}

@@ -30,10 +30,10 @@ void DaxpyKernel::initialize() {
 	long size=getVectorSize();
 
 	// allocate memory
-	if (posix_memalign((void**) (&x), 16, size* sizeof(double)) != 0) {
+	if (posix_memalign((void**) (&x), 4*1024, size* sizeof(double)) != 0) {
 			throw "could not allocate memory";
 		}
-	if (posix_memalign((void**) (&y), 16, size* sizeof(double)) != 0) {
+	if (posix_memalign((void**) (&y), 4*1024, size* sizeof(double)) != 0) {
 				throw "could not allocate memory";
 			}
 	// initialize factors
@@ -62,4 +62,9 @@ void DaxpyKernel::dispose() {
 	free(x);
 	free(y);
 }
+
+void DaxpyKernel::warmCodeCache() {
+	run();
+}
+
 
