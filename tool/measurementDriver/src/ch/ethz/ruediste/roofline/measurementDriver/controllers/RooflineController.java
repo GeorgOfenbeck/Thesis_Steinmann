@@ -134,6 +134,7 @@ public class RooflineController {
 						"main", timeCalc, opCountCalculator, tbCalculator)
 				.get();
 
+		RooflinePoint lastAddedPoint = null;
 		for (QuantityMap map : result.grouped(10)) {
 			// build derived quantities
 			OperationalIntensity operationalIntensity = new OperationalIntensity(
@@ -148,10 +149,10 @@ public class RooflineController {
 					operationalIntensity,
 					performance);
 
-			addRooflinePoint(seriesName, point);
+			lastAddedPoint = addRooflinePoint(seriesName, point);
 		}
 
-		return null;
+		return lastAddedPoint;
 	}
 
 	public RooflinePoint addRooflinePoint(String seriesName, long problemSize,
@@ -208,14 +209,10 @@ public class RooflineController {
 		return point;
 	}
 
-	/**
-	 * @param seriesName
-	 * @param point
-	 */
-	public void addRooflinePoint(String seriesName, RooflinePoint point) {
+	public RooflinePoint addRooflinePoint(String seriesName, RooflinePoint point) {
 		log.info(String.format("Added Roofline Point %s-%s: %s", seriesName,
 				point.getProblemSize(), point));
-		plot.addPoint(seriesName, point);
+		return plot.addPoint(seriesName, point);
 	}
 
 	public ClockType getClockType() {

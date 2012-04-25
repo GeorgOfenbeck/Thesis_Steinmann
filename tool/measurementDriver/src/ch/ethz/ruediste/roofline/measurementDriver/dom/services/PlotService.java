@@ -225,11 +225,11 @@ public class PlotService {
 		Double yMax = (Double) plot.getYRange(systemInformation).getMaximum();
 
 		output.printf("set xrange [%s:%s]\n",
-				xMin.isNaN() ? "" : xMin,
-				xMax.isNaN() ? "" : xMax);
+				xMin.isInfinite() ? "" : xMin,
+				xMax.isInfinite() ? "" : xMax);
 		output.printf("set yrange [%s:%s]\n",
-				yMin.isNaN() ? "" : yMin,
-				yMax.isNaN() ? "" : yMax);
+				yMin.isInfinite() ? "" : yMin,
+				yMax.isInfinite() ? "" : yMax);
 
 		output.printf("set xlabel '%s [%s]' font 'Gill Sans, 6'\n",
 				plot.getxLabel(), plot.getxUnit());
@@ -302,8 +302,14 @@ public class PlotService {
 		}
 
 		// show output
-		commandService.runCommand(new File("."), "gnuplot",
-				new String[] { plot.getOutputName() + ".gnuplot" });
+		try {
+			commandService.runCommand(new File("."), "gnuplot",
+					new String[] { plot.getOutputName() + ".gnuplot" });
+		}
+		catch (Throwable e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	public void plot(SeriesPlot plot) throws ExecuteException, IOException {
@@ -414,7 +420,9 @@ public class PlotService {
 				// get all points with the problem size
 				List<RooflinePoint> points = new ArrayList<RooflinePoint>();
 				for (RooflineSeries serie : plot.getAllSeries()) {
-					points.add(serie.getPoint(problemSize));
+					RooflinePoint point = serie.getPoint(problemSize);
+					if (point != null)
+						points.add(point);
 				}
 
 				// sort the points by operational intensity or performance
@@ -640,10 +648,15 @@ public class PlotService {
 
 			output.close();
 		}
-
-		// show output
-		commandService.runCommand(new File("."), "gnuplot",
-				new String[] { plot.getOutputName() + ".gnuplot" });
+		try {
+			// show output
+			commandService.runCommand(new File("."), "gnuplot",
+					new String[] { plot.getOutputName() + ".gnuplot" });
+		}
+		catch (Throwable e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	/**

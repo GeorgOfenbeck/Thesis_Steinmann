@@ -48,7 +48,8 @@ public class IntroductionExampleMeasurementController implements
 		//rooflineController.addDefaultPeaks();
 		rooflineController.setTitle("Introductory Example");
 		rooflineController.getPlot().setKeyPosition(KeyPosition.NoKey)
-				.setYRange(0.01, Double.NaN).setXRange(0.01, Double.NaN);
+				.setYRange(0.01, Double.POSITIVE_INFINITY)
+				.setXRange(0.01, Double.POSITIVE_INFINITY);
 		measure(0);
 		measure(1);
 		rooflineController.plot();

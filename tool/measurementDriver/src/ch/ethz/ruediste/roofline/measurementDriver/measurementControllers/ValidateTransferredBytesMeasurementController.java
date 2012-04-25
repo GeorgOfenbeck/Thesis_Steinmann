@@ -357,7 +357,7 @@ public class ValidateTransferredBytesMeasurementController extends
 					plotSimple.apply(runMap.get(calcs.get(0)).getValue());
 
 					double cur = runMap.get(calcs.get(0)).getValue();
-					if (last != Double.NaN) {
+					if (!Double.isNaN(last)) {
 						if (last > th && cur > th)
 							hh++;
 						if (last > th && cur <= th)

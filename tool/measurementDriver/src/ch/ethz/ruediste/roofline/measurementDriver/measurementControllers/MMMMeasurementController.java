@@ -41,7 +41,8 @@ public class MMMMeasurementController implements IMeasurementController {
 		rooflineController.setTitle("Matrix-Matrix-Multiplication");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
-		rooflineController.getPlot().setKeyPosition(KeyPosition.BottomRight);
+		rooflineController.getPlot().setKeyPosition(KeyPosition.BottomRight)
+				.setYRange(0.05, Double.POSITIVE_INFINITY);
 
 		{
 			ParameterSpace space = new ParameterSpace();

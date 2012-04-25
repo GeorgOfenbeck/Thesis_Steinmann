@@ -30,7 +30,7 @@ void WhtKernel::initialize() {
 	long size = 1 << getBufferSizeExp();
 
 	// allocate memory
-	if (posix_memalign((void**) (&buffer), 16, size * sizeof(wht_value)) != 0) {
+	if (posix_memalign((void**) (&buffer), 4*1024, size * sizeof(wht_value)) != 0) {
 		throw "could not allocate memory";
 	}
 

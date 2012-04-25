@@ -55,7 +55,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		measureRoofline(outputName);
 		//measureDifferences(outputName);
-		measurePerformance(outputName);
+		//measurePerformance(outputName);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -95,6 +95,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 			for (Pair<Iterable<TransferredBytes>, String> series : allSeries) {
 
 				Long matrixSize = c.get(bufferSizeAxis);
+
 				for (Pair<TransferredBytes, TransferredBytes> pair : zip(
 						tbBase,
 						series.getLeft())) {
@@ -236,9 +237,9 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 		configuration.push();
 		for (final Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
-			if (coordinate.get(bufferSizeAxis) > 512 * 1024)
+			if (coordinate.get(bufferSizeAxis) >= 128 * 1024)
 				configuration
-						.set(QuantityMeasuringService.numberOfRunsKey, 100);
+						.set(QuantityMeasuringService.numberOfRunsKey, 1);
 			else
 				configuration
 						.set(QuantityMeasuringService.numberOfRunsKey, 100);
@@ -248,14 +249,15 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 			kernel.initialize(coordinate);
 
 			IMeasurementBuilder builder = getBuilder(coordinate);
+			Long matrixSize = coordinate.get(bufferSizeAxis);
 
-			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
+			/*QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamLines);
 
 			QuantityMap quantities = quantityMeasuringService
 					.measureQuantities(builder, 10).with("main", calc).get();
 
-			Long matrixSize = coordinate.get(bufferSizeAxis);
+			
 
 			DescriptiveStatistics stats = new DescriptiveStatistics();
 			for (TransferredBytes tb : quantities.get(calc)) {
@@ -265,13 +267,13 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 							stats.getMin());
 					stats.clear();
 				}
-			}
+			}*/
 
 			rooflineController
 					.addRooflinePoint(kernel.getLabel(),
 							matrixSize, builder,
 							kernel.getSuggestedOperation(),
-							MemoryTransferBorder.LlcRamBus);
+							MemoryTransferBorder.LlcRamLines);
 		}
 		configuration.pop();
 

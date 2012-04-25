@@ -72,12 +72,15 @@ public class DaxpyWarmMeasurementController implements IMeasurementController {
 			kernel.setOptimization("-O3");
 			kernel.setVectorSize(vectorSize);
 
-			rooflineController
+			RooflinePoint point = rooflineController
 					.addRooflinePoint(kernel.getLabelOverride(),
 							vectorSize, kernel,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamLines);
 
+			if (kernel.getWarmData() && !kernel.getWarmCode()
+					&& vectorSize <= 128000)
+				point.setLabel(Long.toString(vectorSize));
 		}
 		configuration.pop();
 	}

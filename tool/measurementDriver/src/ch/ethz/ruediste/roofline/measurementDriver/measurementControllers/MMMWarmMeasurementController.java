@@ -12,6 +12,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.RooflinePlot.SameSizeConnection;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
@@ -61,21 +62,21 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.setTitle("MMM - Warm and Cold Caches");
 		rooflineController.addDefaultPeaks();
-		rooflineController.getPlot().setAutoscaleX(true)
-				.setKeyPosition(KeyPosition.BottomRight);
-
-		DistributionPlot plotTb = new DistributionPlot();
-		plotTb.setOutputName(outputName + "tb")
-				.setTitle("MMM - Warm and Cold Caches")
-				.setxLabel("Matrix Size").setxUnit("1")
-				.setyLabel("Memory Transfer Volume").setyUnit("bytes");
+		rooflineController
+				.getPlot()
+				//.setAutoscaleX(true)
+				.setKeyPosition(KeyPosition.BottomRight)
+				.setXRange(Double.NEGATIVE_INFINITY, 1000)
+				.setSameSizeConnection(
+						SameSizeConnection.ByOperationalIntensity);
 
 		DistributionPlot plotInt = new DistributionPlot();
 		plotInt.setOutputName(outputName + "Int")
 				.setTitle("MMM - Warm and Cold Caches")
 				.setxLabel("Buffer Size").setxUnit("1")
 				.setyLabel("Operational Intensity").setyUnit("1").setLogY()
-				.setBoxWidth(5);
+				.setBoxWidth(10).setKeyPosition(KeyPosition.TopRight)
+				.setYRange(Double.NEGATIVE_INFINITY, 10000);
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(warmCodeAxis, false);
@@ -83,8 +84,11 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		space.add(warmDataAxis, false);
 		space.add(warmDataAxis, true);
 
+		space.add(matrixSizeAxis, 25L);
 		space.add(matrixSizeAxis, 50L);
-		for (long i = 100; i < 700; i += 100)
+		space.add(matrixSizeAxis, 100L);
+		space.add(matrixSizeAxis, 150L);
+		for (long i = 200; i < 700; i += 100)
 			space.add(matrixSizeAxis, i);
 
 		addMklKernel(space);
@@ -102,35 +106,39 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 			IMeasurementBuilder builder = getBuilder(coordinate);
 			Long matrixSize = coordinate.get(matrixSizeAxis);
 
-			QuantityCalculator<Throughput> calcTb = quantityMeasuringService
-					.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
+			QuantityCalculator<Performance> calcPerf = quantityMeasuringService
+					.getPerformanceCalculator(kernel.getSuggestedOperation(),
 							ClockType.CoreCycles);
+
 			QuantityCalculator<OperationalIntensity> calcInt = quantityMeasuringService
 					.getOperationalIntensityCalculator(
-							MemoryTransferBorder.LlcRamBus,
+							MemoryTransferBorder.LlcRamLines,
 							kernel.getSuggestedOperation());
 
 			QuantityMap quantities = quantityMeasuringService
 					.measureQuantities(builder)
-					.with("main", calcTb, calcInt).get();
+					.with("main", calcInt, calcPerf).get();
 
 			for (QuantityMap group : quantities.grouped(10)) {
-				plotTb.addValue(kernel.getLabel(), matrixSize,
-						group.best(calcTb).getValue());
 				plotInt.addValue(kernel.getLabel(), matrixSize,
 						group.best(calcInt).getValue());
+
+				RooflinePoint point = rooflineController
+						.addRooflinePoint(
+								kernel.getLabel(),
+								new RooflinePoint(
+										matrixSize, group.best(calcInt), group
+												.best(calcPerf)));
+
+				if (kernel.getWarmData() && !kernel.getWarmCode()
+						&& matrixSize < 300)
+					point.setLabel(Long.toString(matrixSize));
 			}
 
-			rooflineController
-					.addRooflinePoint(kernel.getLabel(),
-							matrixSize, builder,
-							kernel.getSuggestedOperation(),
-							MemoryTransferBorder.LlcRamBus);
 		}
 		configuration.pop();
 
 		rooflineController.plot();
-		plotService.plot(plotTb);
 		plotService.plot(plotInt);
 	}
 

@@ -491,7 +491,7 @@ allocation and eviction, namely
 with 8*'coreduo::SSE\_NTSTORES\_RET' to take non temporal stores into account.
 
 \subsection{Cache}
-\graphFloat{yonah/FFTwarm}{Influence of the initial cache state}
+\graphFloat{yonah/FFTwarm}{Influence of the initial cache state (MemBus)}
 \graphFloat{yonah/FFTwarmPerformance}{Influence of the initial cache
 state on the Performance} 
 
@@ -1022,13 +1022,23 @@ small for small vectors and neglectable for larger vectors. (fig. \ref{yonah/dax
 
 If the data is initially loaded into the caches, the operational intensity grows
 with the size of the vector. The code has to be loaded once from memory. Thus
-the transfer volume should be constant, while the operation count grows with the
-vector size. At some point the vectors are too large to fit into do not fit into
-the caches into the
+the transfer volume is constant, while the operation count grows with the
+vector size. At some point the vectors are too large to fit into the cache and
+the effect disappears. Theoretically the drop of operational intensity should
+occur at a vector size of 131072 ($2MB/(2*8)$), but it already starts at a size
+of 16000. The two double vectors of this size occupy one eight of the cache.
+Since the L2 cache is 8 way associative, this is exactly the size wich fits into
+the cache without using one cache line set twice. We did not investigate this
+further.
 
 If both data and code are initially loaded into the caches, the operational
 intensity is theoretically infinite (or undefined), since no memory transfer is
-required. 
+required.
+
+When the data is initally loaded into the caches a reduced precision is
+observed. Since the measurements run for a relatively long period of time while
+causing a small transfer volume, auxiliary data transfers might be measured
+which occur at a fluctuating rate. This could cause the loss of precision.
 
 \subsubsection{Level 2}
 \graphFloat{yonah/dgemv}{Roofline Plot of the Matrix-Vector Multiplication
@@ -1045,12 +1055,20 @@ large matrices of $\approx 2/8=0.25$ which is confirmed by figure
 \ref{yonah/dgemv}.
 
 The precision is generally good, although we observe some performance outliers
-for the multi threaded MKL implementation.
+for the multi threaded OpenBlas implementation.
 
 \graphFloat{yonah/dgemvWarm}{Roofline Plot of the Matrix-Vector Multiplication
-(MemL2, DoublePrecisionFlop)} 
-Bringing the data into the caches before starting the measurements has an
-influence for $n<=500$. 
+(MemL2, DoublePrecisionFlop)}
+
+What has been said for the vector-vector multiplication
+about the effects of bringing data or code (or both) into the caches before
+starting the measurement also applies to the matrix-vector multiplication,
+although the numbers changed.
+
+When loading the data initially into the caches, the operational intensity
+starts to drop at a vector size of $n=300$. At this point the matrix occupies
+$300^2*8=720000$ bytes. 
+
 
 \subsubsection{Level 3}
 For level 3, we chose the 'dgemm' operation,
@@ -1137,9 +1155,9 @@ once per block row of $A$. Thus the memory transfer to load $A$ and $B$ is
 $2\frac{n}{N_b}n^2*8=2\frac{n^3}{N_b}*8$ and $2*n^2*8$ to load and store $C$.
 The resulting operational intensity is $N_B/8=6.25$.
 
-\graphFloat{yonah/mmmOp}{Matrix Matrix Multiplication: Operational Intensity}
-When comparing these models for the operational intensity of the triple loop and
-the blocked version, we observe a good match for matrix sizes up to $n=200$.
+\graphFloat{yonah/mmmOp}{Matrix Matrix Multiplication: Operational Intensity
+(MemL2)} When comparing these models for the operational intensity of the triple
+loop and the blocked version, we observe a good match for matrix sizes up to $n=200$.
 Past this size, the operational intensity of the triple loop rapidly falls to
 the value predicted for large matrices, but the drop begins too early. We
 predicted the fall when a single matrice occupies more memory than the L2 cache
@@ -1172,25 +1190,73 @@ $3(\frac{n}{N_b})^3N_b=3\frac{n^3}{N_b^2}$ in total.
 Figure \ref{yonah/mmmOpTlb} shows that the measurement results follow our
 predictions.
 
-\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication}
-Figure \ref{yonah/mmm} shows the roofline plot of the triple loop, the blocked
+\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication
+(MemL2)} Figure \ref{yonah/mmm} shows the roofline plot of the triple loop, the blocked
 version and the two libraries. 
 
 In addition we included the blocked version with
 scalar replacement. The scalar replacement has been implemented by specifying
 the matrices as 'restrict' pointers to the compiler, hence the name.
 
-The tripple loop has a poor performance, even for small matrices. This is
+The precision of all results is decent. 
+
+The triple loop has a poor performance, even for small matrices. This is
 problably due to it's lack of unrolling. For matrix sizes exceeding $n=400$ the
-drop in operational intensity is clearly visible.
+drop in operational intensity and performance is clearly visible.
+
+The other single threaded implementations all have an operational intensity of
+around 10. The performance is 0.5 flops/cycle for the blocked version, 0.7 for
+the blocked version with scalar replacement and around 0.85 for the library
+implementaions. It is interesting to see that the highly optimized library have
+a very similar operational intensity and only a 20\% higher performance compared
+to the rather similar blocked version with scalar replacement.
+
+The multi threaded implementations show a speedup of factor two, with a
+reduction in operational intensity. It would be interesting to know if the
+reduced operational intensity is a measurement artifact or due to the
+implementations.
 
 \graphFloat{yonah/MMMwarm}{Roofline Plot of the Matrix-Matrix Multiplication
-with Different Initial Cache States}
+with Different Initial Cache States (MemL2)}
 
-Figure \ref{yonah/MMMwarm} shows the influence of the initial cache state. Due
-to the small code size it does not matter much if the code is initially in
-cache. If the data is in cache matters for matrix sizes up to about 200.
+\graphFloat{yonah/MMMwarmInt}{Effect of the Initial Cache State on the
+Operational Intensity for the Matrix-Matrix Multiplication (MemL2)}
 
+The initial cache state has a very small influence on the performance. (fig.
+\ref{yonah/MMMwarm}) This results in a very cluttered roofline plot. The
+insensitivity of the performance to the initial cache state is plausible since
+the matrix-matrix multiplication has a relatively high operational intensity
+and is not memory bandwidth bound. 
+
+To be able to analyze the effect of the initial cache state on the operational
+intensity, we extracted the relevant information in figure
+\ref{yonah/MMMwarmInt}.
+
+For matrix sizes greater than $n=300$ the inital cache state has almost no
+effect.
+
+The effect of loading the code into the caches is neglectable for small matrix
+sizes. Starting with $n=150$ the difference becomes apparent. This could be
+caused by a switch of the algorithm implementation by the library.
+
+If the data is initially loaded into the caches the operational intensity
+increases by more than an order of magnitude for small matrices. The effect
+grows with larger matrices. But for a size of $n=100$ the operational
+intensity begins to drop. One matrice of that size occupies 80KB only. We have
+no explanation for this effect. 
+
+At $n=150$ the drop stops, with an operational intensity still two times larger
+than the one for cold caches. The effect of the warm caches decays for growing
+matrix sizes. 
+
+If both data and code is loaded into the caches we observe operational
+intensities in the range of 200 to 10000 for small matrix sizes. We see a
+similar drop curve as when only the data is loaded into the caches. 
+
+The huge operational intensities can be explained by the large number of
+operations that are performed while theoretically not transferring any memory.
+The operation count for $n=25$ is $2*n^3=31'250$ and $250'000$ for $n=50$.
+ 
 \subsection{FFT}
 Fast Fourier Transform algorithms 'are of great importance in a variety of
 fields, from digital signal processing and solving partial differential
@@ -1203,15 +1269,21 @@ and Spiral \cite{Spiral}. All four implementations operate on a linear buffer
 containing $n$ complex numbers, each represented by two doubles. The
 transformation is performed in-place.
 
-\graphFloat{yonah/fft}{Roofline Plot of four FFT implementations}
+\graphFloat{yonah/fft}{Roofline Plot of four FFT implementations (MemL2)}
 Figure \ref{yonah/fft} shows the roofline plot of the four implementations. The
 NR implementation performs well initially, but the operational intensity and the
 performance significantly drop for large input sizes.
 
-%\graphFloat{yonah/FFTwarm}{Roofline Plot of the Fast Fourier Transformation
-%with Different Initial Cache States}
 Figure \ref{yonah/FFTwarm}  shows the influence of the initial cache state. 
 
+\subsection{WHT}
+The Walsh–Hadamard transformation (WHT) is related to the FFT. It's application
+is mainly in the field of data encoding.
+
+We used the implementation of the SPIRAL project \cite{Spiral}. Figure ? shows
+the roofline plot. 
+\graphFloat{yonah/wht}{Roofline Plot WHT (MemL2)}
+\graphFloat{yonah/whtInt}{Operational Intensity WHT (MemL2)}
 \clearpage
 
 \section{Future Work and Conclusions}
@@ -1226,6 +1298,11 @@ presented in this thesis with small effort. This has not been done yet.
 We observe substantial variations when measuring memory intensive kernels. We
 have no good explanation for these effects. A thorough analysis could be very
 informative. 
+
+In various places we observed cache misses when all data should theoretically
+fit into the L2 cache. We suspect that the LRU (least recently used) cache line
+replacement implementation is not perfect. Detailed experiments could possibly
+tell if this is true or false.
 
 For handling the variance we presumed that a measurement either results in the
 true value, or it is disturbed by some activity (task switches) and results in a
@@ -1885,6 +1962,20 @@ as argument and return it's output.
 \umlDiagram{measurementDriver/RetrievingOutputs}
 
 \subsubsection{Plotting}
+Generating plots is an important feature of the tool. There are different plot
+types. The most important are roofline plots and distribution plots. A
+\class{RooflinePlot} contains all data required to generate a roofline plot,
+including peak performances and memory bandwidths. 
+
+A \class{DistributionPlot} is a 2D plot containing multiple data series. For
+every discrete $x$ coordinate, there can be multiple values per series. The
+values are shown using an error box for the 25th/75th percentile and whisker
+bars for the minimum and maximum.
+
+Once an instance of a \class{Plot} is filled with data, it can be passed to one
+of the \method{plot()} methods of the \class{PlotService}. A gnuplot
+\cite{gnuplot} script and the required data file will be created in the current
+directory. Then gnuplot is called to generate a pdf of the plot.
 
 \subsubsection{The MeasurementAppController}
 The measurement application controller is the entry point for performing

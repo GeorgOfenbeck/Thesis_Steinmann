@@ -9,6 +9,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementContr
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.RooflinePlot.SameSizeConnection;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
@@ -44,7 +45,7 @@ public class DgemvWarmMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 		rooflineController.getPlot().setSameSizeConnection(
-				SameSizeConnection.ByPerformance);
+				SameSizeConnection.ByPerformance).setAutoscaleY(true);
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(DaxpyKernel.useMklAxis, true);
@@ -59,6 +60,7 @@ public class DgemvWarmMeasurementController implements IMeasurementController {
 
 		for (Coordinate coord : space) {
 			addRooflinePoints(rooflineController, coord);
+
 		}
 		rooflineController.plot();
 	}
@@ -71,6 +73,7 @@ public class DgemvWarmMeasurementController implements IMeasurementController {
 			Coordinate coord) {
 		configuration.push();
 		ArrayList<Long> matrixSizes = new ArrayList<Long>();
+		matrixSizes.add(50L);
 		matrixSizes.add(100L);
 		matrixSizes.add(200L);
 		matrixSizes.add(300L);
@@ -91,11 +94,15 @@ public class DgemvWarmMeasurementController implements IMeasurementController {
 			kernel.setOptimization("-O3");
 			kernel.setMatrixSize(matrixSize);
 
-			rooflineController
+			RooflinePoint point = rooflineController
 					.addRooflinePoint(kernel.getLabelOverride(),
 							matrixSize, kernel,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamLines);
+
+			if (kernel.getWarmData() && !kernel.getWarmCode()
+					&& matrixSize <= 500)
+				point.setLabel(Long.toString(matrixSize));
 		}
 		configuration.pop();
 	}

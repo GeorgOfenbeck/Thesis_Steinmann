@@ -23,7 +23,7 @@ public:
 	void initialize();
 	void run();
 	void dispose();
-
+	void warmCodeCache(){run();}
 };
 
 #endif /* WHTKERNEL_H_ */

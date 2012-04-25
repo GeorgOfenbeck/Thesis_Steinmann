@@ -30,13 +30,25 @@ public class RooflineSeries {
 		return name;
 	}
 
-	public void addPoint(RooflinePoint point) {
+	public RooflinePoint addPoint(RooflinePoint point) {
+		// get the problem size of the point
 		long problemSize = point.getProblemSize();
+
+		// check if a point for the problem size is already present
 		if (points.containsKey(problemSize)) {
-			points.get(problemSize).merge(point);
+			// get the existing point 
+			RooflinePoint existingPoint = points.get(problemSize);
+
+			// merge the existing point with the new point
+			existingPoint.merge(point);
+
+			return existingPoint;
 		}
 		else {
+			// add a new point
 			points.put(problemSize, point);
+
+			return point;
 		}
 	}
 
