@@ -253,6 +253,7 @@ public class RooflineController {
 					MemoryTransferBorder.LlcRamBus);
 		break;
 		case Yonah:
+			//plot.addPeakThroughput("Theoretical", new Throughput(2.8));
 			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 					MemoryTransferBorder.LlcRamBus);
 

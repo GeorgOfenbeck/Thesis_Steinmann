@@ -227,8 +227,9 @@ As for the peak performance, there can be multiple bounds, depending for example
 on the number of cores used, the memory type or the access pattern (random vs.
 linear).
 
-The horizontal and diagonal lines give the roofline model it's name. The point
-where the lines intersect is called the ridge point.
+The horizontal and diagonal lines, called performance and bandwidth ceilings,
+give the roofline model it's name. The point where the lines intersect is called
+the ridge point.
 
 The power of the model comes from the ability to show performance and
 effects of the data access pattern at the same time. To illustrate this point,
@@ -446,6 +447,7 @@ depends heavily on the definition of operation, but is typically measurable with
 the performance counters, too.
 
 \subsection{Measurement Machine}
+\label{sec:MeasurementMachine}
 All measurements are performed on an IBM X60 Thinkpad, featuring an Intel
 CoreDuo CPU (Family 6, Model 14). The CPU is based on the Yonah
 micro architecture, which is similar to the Pentium-M. The CPU contains two
@@ -966,6 +968,165 @@ transfer volumes below 10MB. The results of measuring the execution time have
 generally a high variance, except for transfer volumes between 20KB and 10MB.
 
 \clearpage
+
+\section{Finding Performance and Bandwidth Ceilings}
+Roofline plots show ceilings for the performance and the bandwith of the
+measurement system. The values for the ceilings can be derived from the system
+specification. 
+
+For the Yonah architecture, one double precision addition can be issued every
+cycle and one multiplication every two cycles. The latencies are 3 cycles for
+the addition and 5 cycles for the multiplication. \cite{inteloptimize} 
+
+The latency specifies how many cycles after issuing an operation the result
+becomes available. If the result of a first operation used as input for a second
+operation, the second operation has to wait for the first operation to complete.
+
+There is no difference between the x87 and the SSE instruction set, since the
+same execution units are used for both. The performance of SSE code can be
+slightly better, since more registers are available and fewer instructions need
+to be decoded.
+
+The theoretical ceilings for pure additions is 1 flop/cycle and 0.5 flop/cycle.
+
+It should be possible to use the multiplier and the adder at the same time, so
+if there are two additions per multiplication it should be possible to reach 1.5
+flop/cycle.
+
+We implemented a heavily optimized micro benchmark for pure adds, pure
+multiplications and a mix of additions and multiplications. For the additions we
+used the following loop:
+
+\begin{lstlisting}
+double r[DLP];
+...
+for (long i = 0; i < iterations; i++) {
+	for (int p = 0; p < UNROLL; p++) {
+		for (int j = 0; j < DLP; j++) {
+			r[j] += 1;
+		}
+	}
+}
+\end{lstlisting}
+
+We allocated an array of DLP doubles. In each iteration, we add 1 to each of
+the doubles in the array. This avoids the latency and keeps multiple
+instructions in flight. For the SSE implementation we did a straight
+forward vectorization of the code using SSE intrinsics.
+
+For the multiplication we use a very similar loop. We just replaced the
+addition with a multiplication. 
+
+\begin{lstlisting}
+double r[DLP];
+...
+for (long i = 0; i < iterations; i++) {
+	for (int p = 0; p < UNROLL; p++) {
+		for (int j = 0; j < DLP; j++) {
+			r[j] *= base;
+		}
+}
+}
+\end{lstlisting}
+
+Finally, we created a mix with two additions per multiplication:
+
+\begin{lstlisting}
+double mulR[DLP];
+double addR[DLP*2];
+...
+for (long i = 0; i < iterations; i++) {
+	for (int p = 0; p < UNROLL; p++) {
+		for (int j = 0; j < DLP; j++) {
+			mulR[j]*=base;
+			addR[j]+=1;
+			addR[DLP+j]+=1;
+		}
+	}
+}
+\end{lstlisting}
+
+We optimized the value for UNROLL and DLP in the range of 1 to 19 and found the
+following results:
+
+\begin{center}
+\begin{tabular}{llllr@{.}l}
+\toprule
+Operation&Instruction Set & DLP & UNROLL &  \multicolumn{2}{l}{Performance
+[Flop/Cycle]} \\
+\midrule
+ADD   & x87       &  9 & 14 & 0&965\\
+      & SSEScalar &  7 & 15 & 0&934\\
+      & SSE       &  7 & 15 & 0&986\\
+MUL   & x87       &  3 & 10 & 0&498\\
+      & SSEScalar &  3 &  9 & 0&498\\
+      & SSE       &  3 & 10 & 0&498\\
+Mixed & x87       &  3 & 17 & 1&31\\
+      &SSEScalar  &  3 & 17 & 1&35\\
+      &SSE        &  2 &  4 & 1&34\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For pure additions and multiplications we almost reached the theoretical limit.
+For the mixed workload we reached 90\% of the theoretical 1.5 flops per cycle.
+
+In our plots we show 1 flop per cycle as single core performance ceiling and 2
+flops per cycle as dual core performance ceiling.
+
+The bandwidth ceiling can be calculated from the parameters of the memory
+subsystem and is 2.80 bytes per cycle (see section
+\ref{sec:MeasurementMachine}).
+
+To measure the bandwidth which can actually be reached we implemented a
+microbenchmark. To measure the read performance, the benchmark iterates over a
+buffer and combines the data using the XOR operation. For the write performance
+a memory buffer is overwritten.
+
+We use SSE load and stores. There are two flavors of the store operations.
+Normal stores first load the data from memory into the caches and overwrite it
+there. When the cache line gets evicted, the data is written to memory.
+Non temporal stores do not load the data into the caches. The data is written
+directly to memory.
+
+We use multiple load and store streams. That is, we split the buffer
+into multiple parts and iterate over all parts simultaneously.
+
+We experimented with software prefetching but could not improve our results. 
+
+Optimizing loop unrolling and stream count resulted in  the following
+numbers:
+
+\begin{center}
+\begin{tabular}{lllr@{.}l}
+\toprule
+Operation & Streams & UNROLL &  \multicolumn{2}{l}{Throughput
+[Byte/Cycle]} \\
+\midrule
+Load  &  2 & 3 & 2&16\\
+Write &  3 & 4 & 1&71\\
+Non Temporal & 1 & 1 & 1&66\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The throughput of the non temporal stores seems to be low compared to the
+normal stores. But since only half of the memory has to be transferred (no
+loads), the same amount of memory is actually written in half the time.
+
+The results reported here were obtained using MemBus, but the results of the
+MemL2 variant are almost identical.
+ 
+In the stream benchmark \cite{stream} the system reaches a copy rate of 2434
+MB/s, which is $2*3434MB/1.8GHz=2.84$ bytes per cycle. Our microbenchmark
+reported a smaller number, but the result is comparable to ours.
+
+We also measure the random access throughput. A large buffer is allocated and
+randomly accessed. The troughput is 0.269 bytes per cycle. Since a cache line is
+64 bytes, this results in one memory access every $64/0.269=238$ cycles.
+
+In our roofline plots we only show the load ceiling (2.2 flops per cycle) and
+the random access ceiling (0.27 bytes per cycle).
 
 \section{Experimental Results}
 We used our tool to measure various kernels. For each kernel we describe the
@@ -1999,7 +2160,7 @@ bars for the minimum and maximum.
 
 Once an instance of a \class{Plot} is filled with data, it can be passed to one
 of the \method{plot()} methods of the \class{PlotService}. A gnuplot
-\cite{gnuplot} script and the required data file will be created in the current
+script and the required data file will be created in the current
 directory. Then gnuplot is called to generate a pdf of the plot.
 
 \subsubsection{The MeasurementAppController}

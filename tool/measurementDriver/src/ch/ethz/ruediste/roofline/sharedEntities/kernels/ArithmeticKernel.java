@@ -23,7 +23,7 @@ public class ArithmeticKernel extends ArithmeticKernelData {
 	private static final MacroKey mulAddMixMacro = MacroKey.Create(
 			"RMT_ARITHMETIC_MUL_ADD_MIX",
 			"specifies the mix of multiplications and additions to be used",
-			"ADD MUL");
+			"MUL ADD ADD");
 
 	public enum ArithmeticOperation {
 		ArithmeticOperation_ADD, ArithmeticOperation_MUL, ArithmeticOperation_MULADD
