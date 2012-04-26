@@ -491,7 +491,7 @@ allocation and eviction, namely
 with 8*'coreduo::SSE\_NTSTORES\_RET' to take non temporal stores into account.
 
 \subsection{Cache}
-\graphFloat{yonah/FFTwarm}{Influence of the initial cache state (MemBus)}
+\graphFloat{yonah/FFTwarm}{Influence of the initial cache state (MemL2)}
 \graphFloat{yonah/FFTwarmPerformance}{Influence of the initial cache
 state on the Performance} 
 
@@ -977,16 +977,49 @@ We used the techniques described in sections
 measurement results. 
 
 We repeated each measurement 10 times and show the results using whisker bars
-for the minimum and maximum and error boxes for the 25th and 75th percentile.
+for the minimum and maximum and error boxes for the 25th and 75th percentile. 
 
 Since the precision generally improves with growing problem sizes, we decided to
 measure large problems only once. For such measurements, no whisker bars or
 error boxes are drawn.
 
-To investigate the influence of the initial cache state, measured a specific
+To investigate the influence of the initial cache state, we measured a specific
 implementation of a kernel with cold caches, with the data loaded into the
-cahces (``-Data''), with the code loaded into the caches (``-Code'') and with
+caches (``-Data''), with the code loaded into the caches (``-Code'') and with
 both data and code loaded into the caches (``-Data-Code'').
+
+We observed a similar behavior for all kernels. If only the code is initially
+loaded into the caches, the operational intensity is slightly increased for
+small problem sizes, since the transfer volume is reduced by the size of the
+code. For larger problem sizes the effect disappears, since the size of
+the code is neglectable to the transfer volume needed to load the data.
+
+If the data is initially loaded into the caches, the operational intensity is
+increased compared to cold caches and grows with the size of the vector.
+During the measurment the code has to be loaded once from memory.
+Since the data is already in the caches the transfer volume is constant, while
+the operation count grows with the problem size.
+
+With growing problem sizes the data is too large to fit into the caches.
+The operational intensity drops to the level of cold caches. The drop should
+occur when the size of the data exceeds the size of the caches.
+
+If both data and code are initially loaded into the caches, the operational
+intensity is theoretically infinite (or undefined) as long as both data and
+code fit into the caches, since no memory transfer is required. With growing
+problem sizes the data does not fit into the caches anymore and the operational
+intensity drops but stays higher than the operational intensity measured when
+only the data is loaded into the caches.
+
+For high operational intensities we observed a reduced precision. Since such
+measurements run for a relatively long period of time while causing a small
+transfer volume, auxiliary data transfers might be measured which occur at a
+fluctuating rate. This could cause the loss of precision.
+
+The effect on performance of the initial cache state is generally smaller than
+the effect on operational intensity. While a factor of 10 is not uncommon for
+the operational intensity, an increase by 1.5 can only be observed for memory
+bound kernels. The effect is marginal for computationally bound kernels.
 
 \subsection{BLAS}
 Basic Linear Algebra Subprograms (BLAS) is a standard API for basic linear
@@ -1017,28 +1050,12 @@ good.
 initial cache state on the Vector-Vector Multiplication (MemL2,
 DoublePrecisionFlop)}
 
-If only the code is initially loaded into the caches, the effect is relatively
-small for small vectors and neglectable for larger vectors. (fig. \ref{yonah/daxpyWarm}) 
-
-If the data is initially loaded into the caches, the operational intensity grows
-with the size of the vector. The code has to be loaded once from memory. Thus
-the transfer volume is constant, while the operation count grows with the
-vector size. At some point the vectors are too large to fit into the cache and
-the effect disappears. Theoretically the drop of operational intensity should
-occur at a vector size of 131072 ($2MB/(2*8)$), but it already starts at a size
-of 16000. The two double vectors of this size occupy one eight of the cache.
-Since the L2 cache is 8 way associative, this is exactly the size wich fits into
-the cache without using one cache line set twice. We did not investigate this
-further.
-
-If both data and code are initially loaded into the caches, the operational
-intensity is theoretically infinite (or undefined), since no memory transfer is
-required.
-
-When the data is initally loaded into the caches a reduced precision is
-observed. Since the measurements run for a relatively long period of time while
-causing a small transfer volume, auxiliary data transfers might be measured
-which occur at a fluctuating rate. This could cause the loss of precision.
+If data or code and data is initially loaded into the caches, we expect the
+operational intensity to drop for a vector size of $n=2MB/(2*8)=131'072$. But
+the drop already starts at a size of 16'000 (fig. \ref{yonah/daxpyWarm}). The
+two double vectors of this size occupy one eight of the cache. Since the L2
+cache is 8 way associative, this is exactly the size wich fits into the cache
+without using one cache line set twice. We did not investigate this further.
 
 \subsubsection{Level 2}
 \graphFloat{yonah/dgemv}{Roofline Plot of the Matrix-Vector Multiplication
@@ -1060,14 +1077,9 @@ for the multi threaded OpenBlas implementation.
 \graphFloat{yonah/dgemvWarm}{Roofline Plot of the Matrix-Vector Multiplication
 (MemL2, DoublePrecisionFlop)}
 
-What has been said for the vector-vector multiplication
-about the effects of bringing data or code (or both) into the caches before
-starting the measurement also applies to the matrix-vector multiplication,
-although the numbers changed.
-
-When loading the data initially into the caches, the operational intensity
-starts to drop at a vector size of $n=300$. At this point the matrix occupies
-$300^2*8=720000$ bytes. 
+When initially loading data or code and data into the caches, the operational
+intensity starts to drop at a vector size of $n=300$. At this point the matrix occupies
+$300^2*8=720000$ bytes, which is about one third of the cache. 
 
 
 \subsubsection{Level 3}
@@ -1272,18 +1284,31 @@ transformation is performed in-place.
 \graphFloat{yonah/fft}{Roofline Plot of four FFT implementations (MemL2)}
 Figure \ref{yonah/fft} shows the roofline plot of the four implementations. The
 NR implementation performs well initially, but the operational intensity and the
-performance significantly drop for large input sizes.
+performance significantly drop for large input sizes. The library
+implementations have a large overhead on small input sizes, but perform a lot
+better on large inputs.
 
-Figure \ref{yonah/FFTwarm}  shows the influence of the initial cache state. 
+Figure \ref{yonah/FFTwarm} shows the influence of the initial cache state. When
+data or code and data is initially loaded into the caches, the operational
+intensity drop starts for $n=4'096$. The input size is $n*2*8=64KB$.
 
 \subsection{WHT}
-The Walsh–Hadamard transformation (WHT) is related to the FFT. It's application
+The Walsh-Hadamard transformation (WHT) is related to the FFT. It's application
 is mainly in the field of data encoding.
 
-We used the implementation of the SPIRAL project \cite{Spiral}. Figure ? shows
-the roofline plot. 
 \graphFloat{yonah/wht}{Roofline Plot WHT (MemL2)}
+We used the implementation of the SPIRAL project \cite{Spiral}. The algorithm
+operates on a buffer of $2^n$ doubles. Since we only have one
+implementation, we directly show a roofline plot with the different
+initial cache states (fig. \ref{yonah/wht})
+
 \graphFloat{yonah/whtInt}{Operational Intensity WHT (MemL2)}
+Since the roofline plot is very cluttered, we show the operational
+intensity versus the problem size in figure \ref{yonah/whtInt}.
+For warm data or code and data, the operational intensity drops at $n=15$. The
+buffer size is $2^n*8=262'144$, which is one eight of the second level cache. We
+have no explanation for this effect.
+
 \clearpage
 
 \section{Future Work and Conclusions}
@@ -2398,11 +2423,13 @@ MeasurementSchemeRegistration.cpp
 \item open the annotated assembly code in Eclipse
 \end{itemize}
 
+\newpage
 \section{List of Figures}
 \renewcommand{\listfigurename}{}
 \vskip -1cm
 \listoffigures
 
+\newpage
 \renewcommand\refname{\vskip -1cm}
 \section{References}
 \bibliographystyle{abbrv}

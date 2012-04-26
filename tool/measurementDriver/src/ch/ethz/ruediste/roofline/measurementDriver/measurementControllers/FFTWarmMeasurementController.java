@@ -251,6 +251,10 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 			IMeasurementBuilder builder = getBuilder(coordinate);
 			Long matrixSize = coordinate.get(bufferSizeAxis);
 
+			if (kernel.getWarmCode() && kernel.getWarmData()
+					&& matrixSize < 4096)
+				continue;
+
 			/*QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
 					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamLines);
 
@@ -269,16 +273,19 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 				}
 			}*/
 
-			rooflineController
+			RooflinePoint point = rooflineController
 					.addRooflinePoint(kernel.getLabel(),
 							matrixSize, builder,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamLines);
+			if (kernel.getWarmData() && !kernel.getWarmCode()
+					&& matrixSize < 10000)
+				point.setLabel(Long.toString(matrixSize));
 		}
 		configuration.pop();
 
 		rooflineController.plot();
-		plotService.plot(plot);
+		//plotService.plot(plot);
 	}
 
 	/**

@@ -15,7 +15,7 @@ public class DaxpyKernel extends DaxpyKernelData {
 
 	@Override
 	public String getLabelOverride() {
-		return "VVM" + getLabelSuffix();
+		return "VVM";
 	}
 
 	@Override

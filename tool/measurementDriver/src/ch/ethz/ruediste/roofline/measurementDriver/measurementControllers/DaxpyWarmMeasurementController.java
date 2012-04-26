@@ -7,11 +7,14 @@ import java.io.IOException;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.RooflinePlot.SameSizeConnection;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.Axes;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.DaxpyKernel;
 
@@ -36,6 +39,12 @@ public class DaxpyWarmMeasurementController implements IMeasurementController {
 	@Inject
 	public Configuration configuration;
 
+	@Inject
+	public PlotService plotService;
+
+	@Inject
+	public QuantityMeasuringService quantityMeasuringService;
+
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Vector-Vector Multiplication");
 		rooflineController.setOutputName(outputName);
@@ -44,6 +53,9 @@ public class DaxpyWarmMeasurementController implements IMeasurementController {
 				.setKeyPosition(KeyPosition.BottomRight).setAutoscaleY(true)
 				.setSameSizeConnection(
 						SameSizeConnection.ByOperationalIntensity);
+
+		DistributionPlot plot = new DistributionPlot();
+		plot.setOutputName(outputName + "Writes").setLog();
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(DaxpyKernel.useMklAxis, true);
@@ -57,13 +69,14 @@ public class DaxpyWarmMeasurementController implements IMeasurementController {
 		space.add(warmDataAxis, true);
 
 		for (Coordinate coord : space) {
-			addPoints(rooflineController, coord);
+			addPoints(coord, plot);
 		}
-		rooflineController.plot();
+		plotService.plot(plot);
+		//rooflineController.plot();
 	}
 
-	public void addPoints(RooflineController rooflineController,
-			Coordinate coord) {
+	public void addPoints(
+			Coordinate coord, DistributionPlot plot) {
 		configuration.push();
 		configuration.set(QuantityMeasuringService.numberOfRunsKey, 100);
 		for (long vectorSize = 500; vectorSize <= 1000 * 1000; vectorSize *= 2) {
@@ -72,8 +85,19 @@ public class DaxpyWarmMeasurementController implements IMeasurementController {
 			kernel.setOptimization("-O3");
 			kernel.setVectorSize(vectorSize);
 
+			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamLinesWrite);
+
+			QuantityMap result = quantityMeasuringService.measureQuantities(
+					kernel, calc);
+
+			for (QuantityMap group : result.grouped(10)) {
+				plot.addValue(kernel.getLabel(), vectorSize, group.best(calc)
+						.getValue());
+			}
+
 			RooflinePoint point = rooflineController
-					.addRooflinePoint(kernel.getLabelOverride(),
+					.addRooflinePoint(kernel.getLabel(),
 							vectorSize, kernel,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamLines);

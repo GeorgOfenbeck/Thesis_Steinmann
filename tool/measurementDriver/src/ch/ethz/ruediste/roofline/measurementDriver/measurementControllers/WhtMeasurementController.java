@@ -9,6 +9,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.RooflinePlot.SameSizeConnection;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
@@ -45,9 +46,13 @@ public class WhtMeasurementController implements IMeasurementController {
 		rooflineController.addDefaultPeaks();
 		rooflineController.setTitle("WHT");
 		rooflineController.setOutputName(outputName);
-		rooflineController.getPlot().setXRange(Double.NEGATIVE_INFINITY, 1000)
+		rooflineController
+				.getPlot()
+				.setXRange(Double.NEGATIVE_INFINITY, 1000)
 				.setYRange(0.01, Double.POSITIVE_INFINITY)
-				.setKeyPosition(KeyPosition.BottomRight);
+				.setKeyPosition(KeyPosition.BottomRight)
+				.setSameSizeConnection(
+						SameSizeConnection.ByOperationalIntensity);
 
 		DistributionPlot plotInt = new DistributionPlot();
 		plotInt.setOutputName(outputName + "Int")
@@ -100,6 +105,10 @@ public class WhtMeasurementController implements IMeasurementController {
 									new RooflinePoint(
 											size, group.best(calcInt), group
 													.best(calcPerf)));
+
+					if (kernel.getWarmData() && !kernel.getWarmCode()
+							&& size < 20)
+						point.setLabel(Long.toString(size));
 
 					plotInt.addValue(kernel.getLabel(), size,
 							group.best(calcInt).getValue());
