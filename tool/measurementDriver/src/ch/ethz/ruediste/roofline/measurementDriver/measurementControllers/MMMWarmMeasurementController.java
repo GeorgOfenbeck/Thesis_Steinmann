@@ -73,7 +73,7 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		DistributionPlot plotInt = new DistributionPlot();
 		plotInt.setOutputName(outputName + "Int")
 				.setTitle("MMM - Warm and Cold Caches")
-				.setxLabel("Buffer Size").setxUnit("1")
+				.setxLabel("Matrix Size").setxUnit("1")
 				.setyLabel("Operational Intensity").setyUnit("1").setLogY()
 				.setBoxWidth(10).setKeyPosition(KeyPosition.TopRight)
 				.setYRange(Double.NEGATIVE_INFINITY, 10000);

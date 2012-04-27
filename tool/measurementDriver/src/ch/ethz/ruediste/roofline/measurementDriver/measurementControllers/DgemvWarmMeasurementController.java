@@ -45,7 +45,7 @@ public class DgemvWarmMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 		rooflineController.getPlot().setSameSizeConnection(
-				SameSizeConnection.ByPerformance).setAutoscaleY(true);
+				SameSizeConnection.ByOperationalIntensity).setAutoscaleY(true);
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(DaxpyKernel.useMklAxis, true);

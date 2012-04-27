@@ -240,6 +240,10 @@ public class PlotService {
 	public void plot(DistributionPlot plot) throws ExecuteException,
 			IOException {
 
+		DescriptiveStatistics valueStats = plot.getValueStats();
+		double min = valueStats.getMin();
+		double max = valueStats.getMax();
+
 		log.debug(String
 				.format("entering plot(DistributionPlot) for plot %s. output name is %s",
 						plot.getTitle(), plot.getOutputName()));
@@ -254,10 +258,14 @@ public class PlotService {
 					.getStatisticsMap().entrySet()) {
 
 				DescriptiveStatistics statistics = entry.getValue();
-				outputFile.printf("%d %e %e %e %e %e\n", entry.getKey(),
-						statistics.getPercentile(25), statistics.getMin(),
-						statistics.getMax(), statistics.getPercentile(75),
-						statistics.getPercentile(50));
+				double perf = statistics.getPercentile(50);
+				if (isNormal(perf))
+					outputFile.printf("%d %e %e %e %e %e\n", entry.getKey(),
+							getOr(statistics.getPercentile(25), min / 1e10),
+							getOr(statistics.getMin(), min / 1e10),
+							getOr(statistics.getMax(), max * 1e10),
+							getOr(statistics.getPercentile(75), max * 1e10),
+							perf);
 			}
 			outputFile.printf("\n\n");
 		}
@@ -361,6 +369,16 @@ public class PlotService {
 				new String[] { plot.getOutputName() + ".gnuplot" });
 	}
 
+	boolean isNormal(double d) {
+		return !Double.isInfinite(d) && !Double.isNaN(d);
+	}
+
+	double getOr(double d, double def) {
+		if (isNormal(d))
+			return d;
+		return def;
+	}
+
 	/**
 	 * plot a roofline plot
 	 */
@@ -372,14 +390,22 @@ public class PlotService {
 		final PrintStream outputFile = new PrintStream(plot.getOutputName()
 				+ ".data");
 
+		double minX = plot.getXRange(systemInformation).getMinimum();
+		double minY = plot.getYRange(systemInformation).getMinimum();
+		double maxX = plot.getXRange(systemInformation).getMaximum();
+		double maxY = plot.getYRange(systemInformation).getMaximum();
+
 		{
 			int i = 0;
 			for (RooflineSeries serie : plot.getAllSeries()) {
 				outputFile.printf("# [Median %d]\n", i);
 				for (RooflinePoint point : serie.getPoints()) {
+					double opInt = point.getMedianOperationalIntensity()
+							.getValue();
+					double perf = point.getMedianPerformance().getValue();
 					outputFile.printf("%e %e\n",
-							point.getMedianOperationalIntensity().getValue(),
-							point.getMedianPerformance().getValue());
+							getOr(opInt, maxX * 2),
+							getOr(perf, maxY * 2));
 				}
 				outputFile.printf("\n\n");
 				i++;
@@ -398,15 +424,25 @@ public class PlotService {
 						DescriptiveStatistics perfStats = point
 								.getPerformanceStats();
 
-						outputFile.printf("%e %e %e %e %e %e %e %e %e %e \n",
-								opIntStats.getPercentile(50),
-								perfStats.getPercentile(50),
-								opIntStats.getMin(), opIntStats.getMax(),
-								perfStats.getMin(), perfStats.getMax(),
-								opIntStats.getPercentile(25),
-								opIntStats.getPercentile(75),
-								perfStats.getPercentile(25),
-								perfStats.getPercentile(75));
+						double opInt = opIntStats.getPercentile(50);
+						double perf = perfStats.getPercentile(50);
+						if (isNormal(opInt) && isNormal(perf))
+							outputFile
+									.printf("%e %e %e %e %e %e %e %e %e %e \n",
+											opInt,
+											perf,
+											getOr(opIntStats.getMin(), minX / 2),
+											getOr(opIntStats.getMax(), maxX * 2),
+											getOr(perfStats.getMin(), minY / 2),
+											getOr(perfStats.getMax(), minY * 2),
+											getOr(opIntStats.getPercentile(25),
+													minX / 2),
+											getOr(opIntStats.getPercentile(75),
+													maxX * 2),
+											getOr(perfStats.getPercentile(25),
+													minY / 2),
+											getOr(perfStats.getPercentile(75),
+													maxY * 2));
 					}
 				}
 				outputFile.printf("\n\n");
@@ -464,10 +500,15 @@ public class PlotService {
 				if (plot.getSameSizeConnection() != SameSizeConnection.None) {
 					outputFile.printf("# [ProblemSize %d]\n", problemSize);
 					for (RooflinePoint point : points)
-						outputFile.printf("%e %e\n",
-								point.getMedianOperationalIntensity()
-										.getValue(),
-								point.getMedianPerformance().getValue());
+					{
+						double opInt = point.getMedianOperationalIntensity()
+								.getValue();
+						double perf = point.getMedianPerformance().getValue();
+						if (isNormal(opInt) && isNormal(perf))
+							outputFile.printf("%e %e\n",
+									opInt,
+									perf);
+					}
 					outputFile.printf("\n\n");
 				}
 			}
@@ -669,10 +710,13 @@ public class PlotService {
 		if (StringUtils.isEmpty(label) && useProblemSizeIfNoLabel)
 			label = Long.toString(point.getProblemSize());
 		if (!StringUtils.isEmpty(label)) {
-			output.printf(
-					"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02 front\n",
-					label, point.getMedianOperationalIntensity().getValue(),
-					point.getMedianPerformance().getValue());
+			double opInt = point.getMedianOperationalIntensity().getValue();
+			double perf = point.getMedianPerformance().getValue();
+			if (isNormal(opInt) && isNormal(perf))
+				output.printf(
+						"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02 front\n",
+						label, opInt,
+						perf);
 		}
 	}
 
