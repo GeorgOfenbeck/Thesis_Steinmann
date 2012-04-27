@@ -251,6 +251,8 @@ public class RooflineController {
 		case Core:
 			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 					MemoryTransferBorder.LlcRamBus);
+			addPeakThroughput("MemRand", PeakAlgorithm.RandomLoad,
+					MemoryTransferBorder.LlcRamBus);
 		break;
 		case Yonah:
 			//plot.addPeakThroughput("Theoretical", new Throughput(2.8));

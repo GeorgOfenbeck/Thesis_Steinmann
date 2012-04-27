@@ -36,6 +36,11 @@ public class PlotService {
 			.Create(Boolean.class, "showPercentiles",
 					"show the percentiles in roofline plots",
 					true);
+	
+	public final static ConfigurationKey<KeyPosition> keyPositionKey = ConfigurationKey
+			.Create(KeyPosition.class, "keyPosition",
+					"Position of the key in the plots. Overrides any other setting",
+					KeyPosition.Undefined);
 
 	private final static Logger log = Logger.getLogger(PlotService.class);
 
@@ -188,7 +193,11 @@ public class PlotService {
 		preparePlot(output, (Plot<?>) plot);
 
 		// place the legend
-		switch (plot.getKeyPosition()) {
+		KeyPosition keyPosition = plot.getKeyPosition();
+		if (configuration.get(keyPositionKey)!=KeyPosition.Undefined)
+			keyPosition=configuration.get(keyPositionKey);
+		
+		switch (keyPosition) {
 		case BottomLeft:
 			output.println("set key left bottom");
 		break;

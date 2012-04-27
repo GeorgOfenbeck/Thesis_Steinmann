@@ -109,7 +109,7 @@ public class Configuration {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <T> T parse(Class<T> clazz, String value) {
 		if (Double.class == clazz) {
 			return (T) (Double) Double.parseDouble(value);
@@ -131,6 +131,9 @@ public class Configuration {
 			return (T) (Boolean) Boolean.parseBoolean(value);
 		}
 
+		if (clazz.isEnum()){
+			return (T) Enum.valueOf((Class<? extends Enum>)clazz, value);
+		}
 		throw new Error("Unsupported type " + clazz.getSimpleName());
 	}
 

@@ -145,7 +145,7 @@ public class RooflineService {
 
 	public Throughput measurePeakThroughput(PeakAlgorithm algorithm,
 			MemoryTransferBorder border, ClockType clockType) {
-		KernelBase kernel = null;
+		MemoryKernel kernel = null;
 		CoordinateBuilder kernelParameters = new CoordinateBuilder();
 
 		// create the kernel
@@ -154,6 +154,17 @@ public class RooflineService {
 			kernel = new MemoryKernel();
 			kernelParameters.set(optimizationAxis, "-O3 -msse");
 			kernelParameters.set(bufferSizeAxis, 1024L * 1024 * 5);
+			
+			// setup kernel
+				switch (systemInfoService.getCpuType())
+				{
+				case Yonah:
+					// nothing to do
+					break;
+				case Core:
+					kernel.setUnroll(1);
+					kernel.setDlp(1);
+				}
 		break;
 		case RandomLoad:
 			kernel = new MemoryKernel();

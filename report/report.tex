@@ -1126,11 +1126,11 @@ MB/s, which is $2*3434MB/1.8GHz=2.84$ bytes per cycle. Our microbenchmark
 reported a smaller number, but the result is comparable to ours.
 
 We also measure the random access throughput. A large buffer is allocated and
-randomly accessed. The troughput is 0.497 bytes per cycle. Since a cache line is
-64 bytes, this results in one memory access every $64/0.497=129$ cycles.
+randomly accessed. The troughput is 0.525 bytes per cycle. Since a cache line is
+64 bytes, this results in one memory access every $64/0.525=122$ cycles.
 
 In our roofline plots we only show the load ceiling (2.2 flops per cycle) and
-the random access ceiling (0.497 bytes per cycle).
+the random access ceiling (0.52 bytes per cycle).
 
 \section{Experimental Results}
 We used our tool to measure various kernels. For each kernel we describe the
@@ -2734,11 +2734,11 @@ MB/s, which is $2*3434MB/1.8GHz=2.84$ bytes per cycle. Our microbenchmark
 reported a smaller number, but the result is comparable to ours.
 
 We also measure the random access throughput. A large buffer is allocated and
-randomly accessed. The troughput is 0.457 bytes per cycle. Since a cache line is
-64 bytes, this results in one memory access every $64/0.457=140$ cycles.
+randomly accessed. The troughput is 0.455 bytes per cycle. Since a cache line is
+64 bytes, this results in one memory access every $64/0.455=141$ cycles.
 
 In our roofline plots we only show the load ceiling (2.2 flops per cycle) and
-the random access ceiling (0.457 bytes per cycle).
+the random access ceiling (0.45 bytes per cycle).
 
 \subsection{Measurement and Validation}
 The accuracy and precision are very similar to those of the Yonah architecture
@@ -2881,6 +2881,36 @@ Time}_{10}}{\min(\text{Execution Time})}\right)$}
 \graphFloat{core/valOpThMinError}{Core: Error of the Operation Count of two ADD
 Kernels running at the same time with $K=10$:
 $\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected Operation Count}})$}
+
+\clearpage
+\subsection{Experimental Results}
+\subsubsection{BLAS}
+\graphFloat{core/daxpy}{Core: Roofline Plot of the Vector-Vector Multiplication
+(MemL2, DoublePrecisionFlop)} 
+\graphFloat{core/daxpyWarm}{Core: Roofline Plot of the influence of the
+initial cache state on the Vector-Vector Multiplication (MemL2,
+DoublePrecisionFlop)}
+\graphFloat{core/dgemv}{Core: Roofline Plot of the Matrix-Vector Multiplication
+(MemL2, DoublePrecisionFlop)} 
+\graphFloat{core/dgemvWarm}{Core: Roofline Plot of the Matrix-Vector
+Multiplication (MemL2, DoublePrecisionFlop)}
+\graphFloat{core/mmm}{Core: Roofline Plot of the Matrix-Matrix Multiplication
+(MemL2)}
+\graphFloat{core/MMMwarm}{Core: Roofline Plot of the Matrix-Matrix
+Multiplication with Different Initial Cache States (MemL2)}
+
+\graphFloat{core/MMMwarmInt}{Core: Effect of the Initial Cache State on the
+Operational Intensity for the Matrix-Matrix Multiplication (MemL2)}
+
+\clearpage
+\subsubsection{FFT}
+\graphFloat{core/fft}{Core: Roofline Plot of four FFT implementations (MemL2)}
+\graphFloat{core/FFTwarm}{Core: Influence of the initial cache state (MemL2)}
+
+
+\subsubsection{WHT}
+\graphFloat{core/wht}{Core: Roofline Plot WHT (MemL2)}
+\graphFloat{core/whtInt}{Core: Operational Intensity WHT (MemL2)}
 
 \clearpage
 \newpage
