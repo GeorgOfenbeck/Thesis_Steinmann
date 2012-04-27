@@ -461,7 +461,7 @@ memory. The theoretical throughput of the memory is 5.12 GB/s, which is 2.80
 Bytes per core cycle, if the CPU runs at 1.83GHz.
 
 We used XUbuntu 11.10, running a Linux 3.0.0-16 kernel in 32 bit mode, since
-the CPU does not support the 64 bit mode.
+the CPU does not support the 64 bit mode. We used GCC 4.6.1.
 
 The performance counters are instrumented using the 'perf event' kernel
 interface \cite{unoffPerfEventsWebPage}, using libpfm4  \cite{libpfm4Docu} to
@@ -987,7 +987,8 @@ same execution units are used for both. The performance of SSE code can be
 slightly better, since more registers are available and fewer instructions need
 to be decoded.
 
-The theoretical ceilings for pure additions is 1 flop/cycle and 0.5 flop/cycle.
+The theoretical ceiling for pure additions is 1 flop/cycle and 0.5 flop/cycle
+for pure multiplications.
 
 It should be possible to use the multiplier and the adder at the same time, so
 if there are two additions per multiplication it should be possible to reach 1.5
@@ -1050,18 +1051,19 @@ We optimized the value for UNROLL and DLP in the range of 1 to 19 and found the
 following results:
 
 \begin{center}
-\begin{tabular}{llllr@{.}l}
+\begin{tabular}{llllr@{.}lr@{.}l}
 \toprule
-Operation&Instruction Set & DLP & UNROLL &  \multicolumn{2}{l}{Performance
-[Flop/Cycle]} \\
+Operation&Instruction Set & DLP & UNROLL &  \multicolumn{4}{l}{Performance
+[Flop/Cycle]} \\ \cmidrule{5-8}
+&&&&\multicolumn{2}{l}{Measured}&\multicolumn{2}{l}{Theoretical}\\
 \midrule
-ADD   & x87       &  9 & 14 & 0&965\\
+ADD   & x87       &  9 & 14 & 0&965 & 1&0\\
       & SSEScalar &  7 & 15 & 0&934\\
       & SSE       &  7 & 15 & 0&986\\
-MUL   & x87       &  3 & 10 & 0&498\\
+MUL   & x87       &  3 & 10 & 0&498 & 0&5\\
       & SSEScalar &  3 &  9 & 0&498\\
       & SSE       &  3 & 10 & 0&498\\
-Mixed & x87       &  3 & 17 & 1&31\\
+Mixed & x87       &  3 & 17 & 1&31 & 1&5\\
       &SSEScalar  &  3 & 17 & 1&35\\
       &SSE        &  2 &  4 & 1&34\\
 \bottomrule
@@ -1122,11 +1124,11 @@ MB/s, which is $2*3434MB/1.8GHz=2.84$ bytes per cycle. Our microbenchmark
 reported a smaller number, but the result is comparable to ours.
 
 We also measure the random access throughput. A large buffer is allocated and
-randomly accessed. The troughput is 0.269 bytes per cycle. Since a cache line is
-64 bytes, this results in one memory access every $64/0.269=238$ cycles.
+randomly accessed. The troughput is 0.497 bytes per cycle. Since a cache line is
+64 bytes, this results in one memory access every $64/0.497=129$ cycles.
 
 In our roofline plots we only show the load ceiling (2.2 flops per cycle) and
-the random access ceiling (0.27 bytes per cycle).
+the random access ceiling (0.497 bytes per cycle).
 
 \section{Experimental Results}
 We used our tool to measure various kernels. For each kernel we describe the
@@ -1479,7 +1481,9 @@ common measurements to be performed with ease, while beeing flexible enough to
 scale to more complex situations.
 
 Due to these abstractions it should be possible to repeat the measurements
-presented in this thesis with small effort. This has not been done yet.
+presented in this thesis on different systems with small effort. We already
+repeated the measurements on an Intel Core machine (see \ref{}). But the
+behavior of different system might be insightful.
 
 We observe substantial variations when measuring memory intensive kernels. We
 have no good explanation for these effects. A thorough analysis could be very
@@ -2583,6 +2587,161 @@ MeasurementSchemeRegistration.cpp
 \item the annotated assembly code can be found in tool/measuringCore/Debug/ass.s
 \item open the annotated assembly code in Eclipse
 \end{itemize}
+
+\section{Results on the Intel Core}
+\label{sec:resultsIntelCore}
+We repeated our measurements on a desktop computer with an Intel Core 2 CPU. The
+results are not discussed in detail, but we tried to point out the most
+important differences to the results we measured for the Yonah architecture
+based system.
+
+The CPU is an 'Intel Core 2 6600' (Family 6, Model 15, Stepping 6) running at
+2.4 GHz. It contains two cores, each having a 32KB instruction and a 32KB data
+L1 cache, 8 ways set associative, with 64 bytes line size. The two cores share a
+4MB unified L2 cache, 16 ways set associative and with 64 bytes line size. The
+TLB has 256 entries, 4 way set associative. The core frequency can scale between
+1.6GHz and 2.4GHz. The bus frequency is 266MHz.
+
+The main memory consists of two 1GB and two 512MB DDR2 modules, totaling in 3GB
+available memory. The theoretical throughput of the memory is 8.3 GB/s, which is
+3.46 Bytes per core cycle, if the CPU runs at 2.4GHz.
+
+\subsection{Performance Counters}
+We used 'coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
+count, we used the follwing definitions for operation: 
+\begin{description}
+\item[SinglePrecisionFlop] SSE single precision operations.
+\\{\footnotesize
+'core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
++2*'core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
+\item[DoublePrecisionFlop] SSE double precision operations.
+\\{\footnotesize
+'core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
++2*'core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
+\item[CompInstr] Computational instructions retired. Counts SSE instructions
+and x87 instructions. Used for x87 code. 
+\\{\footnotesize 'coreduo::FP\_COMP\_OPSEXE'}
+\item[SSEFlop] SSE operations, sum of SinglePrecisionFlop and
+DoublePrecisionFlop
+\end{description}
+
+We used two variants of measuring the memory transfer volume. The {\bf MemBus}
+variant uses 64*'core::BUS\_TRANS\_MEM', which measures the transfers on the
+system bus. The {\bf MemL2} variant uses the counters for the L2 cache line
+allocation and eviction, namely
+64*('core::L2\_LINES\_IN:SELF'+'core::L2\_M\_LINES\_OUT:SELF'), combined
+with 8*'core::SSE\_PRE\_EXEC:STORES' to take non temporal stores
+into account.
+
+We used XUbuntu 11.10, running a Linux 3.0.0-16 kernel in 64 bit mode and GCC
+4.6.1.
+
+\subsection{Performance and Bandwidth Ceilings}
+For the Core architecture, one double precision addition and multiplication can
+be issued every cycle. The latencies are 3 cycles for
+the addition and 5 cycles for the multiplication. \cite{inteloptimize} 
+
+The throughput and latencies of the packed SSE instructions are equal to those
+of the x87 instructions. Thus with the x87 instruction set the theoretical
+ceiling is 1 flop/cycle for pure additions and multiplications. With the SSE
+instruction set the ceiling is 2 flop/cycle.
+
+It should be possible to use the multiplier and the adder at the same time, so
+if there is an equal number of additions and multiplications it should be
+possible to reach 4 flop/cycle.
+
+We used the same micro benchmarks for addition and multiplication as for the
+Yonah architecture. 
+
+For the mixed instruction set a different workload is used. Due to the latencies
+we always have to keep 5 multiplications and 3 additions in flight. This is
+achieved by the following code:
+
+\begin{lstlisting}
+#define MULTIPLICATIONS 5
+#define ADDITIONS 3
+double mulR[MULTIPLICATIONS];
+double addR[ADDITIONS];
+...
+#define MUL for (int h = 0; h < MULTIPLICATIONS; h++)\
+				mulR[h] *= base;
+#define ADD for (int h = 0; h < ADDITIONS; h++)\
+				addR[h] += 1;
+for (long i = 0; i < iterations; i++) {
+	for (int p = 0; p < UNROLL; p++) {
+		MUL ADD ADD MUL ADD ADD MUL ADD
+	}
+}
+\end{lstlisting}
+
+
+Optimizing the value for UNROLL and DLP in the range of 1 to 19 we found the
+following results:
+
+\begin{center}
+\begin{tabular}{llllr@{.}lr@{.}l}
+\toprule
+Operation&Instruction Set & DLP & UNROLL &  \multicolumn{4}{l}{Performance
+[Flop/Cycle]} \\ \cmidrule{5-8}
+&&&&\multicolumn{2}{l}{Measured}&\multicolumn{2}{l}{Theoretical}\\
+\midrule
+ADD   & x87       &  9 & 15 & 0&998 & 1&0\\
+      & SSEScalar &  9 & 15 & 0&998 & 1&0\\
+      & SSE       &  9 & 17 & 1&996 & 2&0\\
+MUL   & x87       & 10 & 15 & 1&998 & 1&0\\
+      & SSEScalar & 10 & 15 & 0&998 & 1&0\\
+      & SSE       &  9 & 15 & 1&996 & 2&0\\
+Mixed & x87       &  - & 10 & 1&996 & 2&0\\
+      &SSEScalar  &  - &  9 & 1&995 & 2&0\\
+      &SSE        &  - & 11 & 3&991 & 4&0\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In all cases we almost reach the theoretical values.
+
+In our plots we show 2 flop per cycle as balanced scalar ceiling, 4 flops
+per cycle as balanced SSE ceiling and 8 flops per cycle as dual core SSE
+ceiling.
+
+The bandwidth ceiling can be calculated from the parameters of the memory
+subsystem and is 3.46 bytes per cycle (see section
+\ref{sec:resultsIntelCore}).
+
+We use the same microbenchmarks as for the Yonah architecture. Optimizing loop
+unrolling and stream count resulted in  the following numbers:
+
+\begin{center}
+\begin{tabular}{lllr@{.}l}
+\toprule
+Operation & Streams & UNROLL &  \multicolumn{2}{l}{Throughput
+[Byte/Cycle]} \\
+\midrule
+Load  &  1 & 1 & 2&58\\
+Write &  1 & 3 & 1&63\\
+Non Temporal & 1 & 4 & 2&02\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The results reported here were obtained using MemBus, but the results of the
+MemL2 variant are almost identical.
+ 
+In the stream benchmark \cite{stream} the system reaches a copy rate of 3177
+MB/s, which is $2*3434MB/1.8GHz=2.84$ bytes per cycle. Our microbenchmark
+reported a smaller number, but the result is comparable to ours.
+
+We also measure the random access throughput. A large buffer is allocated and
+randomly accessed. The troughput is 0.457 bytes per cycle. Since a cache line is
+64 bytes, this results in one memory access every $64/0.457=140$ cycles.
+
+In our roofline plots we only show the load ceiling (2.2 flops per cycle) and
+the random access ceiling (0.457 bytes per cycle).
+
+\subsection{Measurement and Validation}
+The accuracy and precision are very similar to those of the Yonah architecture
+based system.
+
 
 \newpage
 \section{List of Figures}
