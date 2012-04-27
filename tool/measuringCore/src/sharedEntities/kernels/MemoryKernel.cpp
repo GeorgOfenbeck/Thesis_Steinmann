@@ -164,7 +164,7 @@ void MemoryKernel::run() {
 
 				// xor with random value
 				void *p=&tmp;
-				idx=idx^(*(long *) p);
+				idx=idx^(*(int *) p);
 
 				// constrain index to the buffer
 				idx=idx%modulo;

@@ -149,6 +149,7 @@ public class RooflineService {
 			kernelParameters.set(optimizationAxis, "-O3");
 			kernelParameters.set(bufferSizeAxis, 512L * 1024L);
 			kernelParameters.set(unrollAxis, 20);
+			kernelParameters.set(MemoryKernel.memoryOperationAxis,MemoryOperation.MemoryOperation_RandomRead);
 		break;
 		case Add:
 		case ArithBalanced:
