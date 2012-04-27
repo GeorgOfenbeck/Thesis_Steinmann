@@ -80,6 +80,11 @@ public class ValidationMeasurementControllerBase {
 		coord.set(optimizationAxis,
 				ArithmeticKernel.getSuggestedOptimization(instructionSet));
 
+		switch (systemInfoService.getCpuType()){
+		case Core:
+			if (operation==ArithmeticOperation.ArithmeticOperation_MUL)
+			coord.set(dlpAxis, 10);
+		}
 		/*// setup optimization space
 		ParameterSpace optimzationSpace = new ParameterSpace();
 		for (int i = 1; i < 20; i++) {
