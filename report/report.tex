@@ -732,7 +732,9 @@ count as reference.  The error is small for operation counts above 1'000'000
 \graphFloat{yonah/valTimeMemValues}{Execution Time of the memory kernels} 
 \graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the Memory
 Intensive Kernels:  $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
-Time})}\right)$} For the kernels causing memory transfer, we observe a
+Time})}\right)$} 
+
+For the kernels causing memory transfer, we observe a
 strong correlation between expected memory transfer and execution time (fig. \ref{yonah/valTimeMemValues}), but the errors far exceed those observed for the arithmetic kernels (fig.
 \ref{yonah/valTimeMemError}).
 
@@ -2742,7 +2744,145 @@ the random access ceiling (0.457 bytes per cycle).
 The accuracy and precision are very similar to those of the Yonah architecture
 based system.
 
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to
+the Expected Transfer Volume} {core/valTBValues}{MemBus}
+{core/valTBALTValues}{MemL2}
 
+\graphFloatTwo{Core: Error of the Transfer Volume: $\err(\frac{\tau}{\Theta})$}
+{core/valTBError}{MemBus}
+{core/valTBALTError}{MemL2}
+
+\graphFloat{core/valTBALTFlushValues}{Core: MemL2: Memory Transfer during Cache
+Flush after kernel execution}
+
+\graphFloatTwo{Core: Transferred Bytes of the Arithmetic Kernels}
+{core/valTBArithTBValues}{MemBus}
+{core/valTBALTArithTBValues}{MemL2}
+
+\graphFloat{core/valTimeArithValues}{Core: Execution Time of the Arithmetic
+Kernels} 
+\graphFloat{core/valTimeArithError}{Core: Error of the Execution Time of the
+Arithmetic Kernels: $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
+Time})}\right)$}
+
+\graphFloat{core/valTimeMemValues}{Core: Execution Time of the memory kernels} 
+\graphFloat{core/valTimeMemError}{Core: Error of the Execution Time of the
+Memory Intensive Kernels:  $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
+Time})}\right)$} 
+
+\graphFloat{core/valOpValues}{Core: Operation Count: $\frac{\text{Actual
+Operation Count}}{\text{Expected Operation Count}}$}
+
+\graphFloatTwo{Core: Error of the Transfer Volume with $K=10$:
+$\err\left(\frac{\tau_{10}}{\Theta}\right)$} {core/valTBMinError}{MemBus}
+{core/valTBALTMinError}{MemL2} 
+
+\graphFloat{core/valTimeMemMinError}{Core: Error of the Execution Time with
+$K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeArithMinError}{Core: Error of Execution Time with
+$K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valOpMinError}{Core: Error of Operation Count with
+$K=10$: $\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected
+Operation Count}})$}
+
+\clearpage 
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to the Expected
+Transfer Volume for two Read Kernels running in Parallel (using one Buffer per Kernel)}
+{core/valTBThReadValues}{MemBus} {core/valTBALTThReadValues}{MemL2} 
+
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to the Expected
+Transfer Volume for two Write Kernels running in Parallel (using one Buffer per Kernel)}
+{core/valTBThWriteValues}{MemBus}
+{core/valTBALTThWriteValues}{MemL2} 
+
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to the Expected
+Transfer Volume for two Write Kernels using Streaming Stores running in Parallel (using
+one Buffer per Kernel)} 
+{core/valTBThWriteStreamValues}{MemBus}
+{core/valTBALTThWriteStreamValues}{MemL2}
+
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to the Expected
+Transfer Volume for two Triad Kernels running in Parallel (using one Buffer per Kernel)}
+{core/valTBThTriadValues}{MemBus}
+{core/valTBALTThTriadValues}{MemL2} 
+
+\graphFloat{core/valTBThReadPoint}{Core: Distribution of the Results of the Read
+Kernel using MemBus} 
+
+\graphFloat{core/valTBThWritePoint}{Core: Distribution of the Results of the
+Write Kernel using MemBus}
+
+\graphFloat{core/valTBThWriteStreamPoint}{Core: Distribution of the Results of
+the Write Kernel using Streaming Stores measured with the MemBus measurement
+variant}
+
+\graphFloat{core/valTBThTriadPoint}{Core: Distribution of the Results of the
+Triad Kernel using MemBus} 
+
+\graphFloat{core/valTimeThAddArithValues}{Core: Execution Time of two ADD
+Kernels running at the same time}
+
+\graphFloat{core/valTimeThReadMemValues}{Core: Execution Time of two Read
+Kernels running at the same time}
+
+\graphFloat{core/valTimeThWriteMemValues}{Core: Execution Time of two Write
+Kernels running at the same time}
+
+\graphFloat{core/valTimeThTriadMemValues}{Core: Execution Time of two Triad
+Kernels running at the same time}
+
+\graphFloat{core/valOpThValues}{Core: Ratio of the Actual Operation Count to
+the Expected Operation Count for two ADD Kernels running at the same time}
+
+\clearpage
+
+\graphFloatTwo{Core: Error of the Transfer Volume of two Read Kernels running at
+the same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{core/valTBThReadMinError}{MemBus} {core/valTBALTThReadMinError}{MemL2} 
+
+\graphFloatTwo{Core: Error of the Transfer Volume of two Write Kernels running
+at the same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{core/valTBThWriteMinError}{MemBus} {core/valTBALTThWriteMinError}{MemL2} 
+
+\graphFloatTwo{Core: Error of the Transfer Volume of two Write Kernels using
+Streaming Stores running at the same time with $K=10$:
+$\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{core/valTBThWriteStreamMinError}{MemBus}
+{core/valTBALTThWriteStreamMinError}{MemL2}
+
+\graphFloatTwo{Core: Error of the Transfer Volume of two Triad Kernels running
+at the same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{core/valTBThTriadMinError}{MemBus} {core/valTBALTThTriadMinError}{MemL2} 
+
+\graphFloat{core/valTimeThReadMemMinError}{Core: Error of the Execution Time of
+two Read Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeThWriteMemMinError}{Core: Error of the Execution Time of
+two Write Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeThWriteStreamMemMinError}{Core: Error of the Execution
+Time of two Write Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeThTriadMemMinError}{Core: Error of the Execution Time of
+two Triad Kernels running at the same time with $K=10$:
+$\err\left(\frac{\text{Execution Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeThAddArithMinError}{Core: Error of the Execution Time of
+two ADD Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valOpThMinError}{Core: Error of the Operation Count of two ADD
+Kernels running at the same time with $K=10$:
+$\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected Operation Count}})$}
+
+\clearpage
 \newpage
 \section{List of Figures}
 \renewcommand{\listfigurename}{}
