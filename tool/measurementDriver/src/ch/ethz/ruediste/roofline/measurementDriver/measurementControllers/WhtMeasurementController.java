@@ -68,7 +68,7 @@ public class WhtMeasurementController implements IMeasurementController {
 		space.add(warmDataAxis, false);
 		space.add(warmDataAxis, true);
 		for (Coordinate coord : space) {
-			for (int size = 7; size < 23; size++) {
+			for (int size = 7; size < 20; size++) {
 				if (size < 20)
 					configuration.set(QuantityMeasuringService.numberOfRunsKey,
 							100);

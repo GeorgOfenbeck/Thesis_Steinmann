@@ -12,6 +12,7 @@ import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasurin
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.ArithmeticKernel.ArithmeticOperation;
+import ch.ethz.ruediste.roofline.sharedEntities.kernels.MemoryKernel.MemoryOperation;
 
 import com.google.inject.Inject;
 
@@ -27,6 +28,9 @@ public class RooflineService {
 
 	@Inject
 	public OptimizationService optimizationService;
+	
+	@Inject
+	public SystemInfoService systemInfoService;
 
 	public Performance measurePeakPerformance(PeakAlgorithm algorithm,
 			InstructionSet instructionSet, ClockType clockType) throws Error {
@@ -83,7 +87,8 @@ public class RooflineService {
 		break;
 
 		}
-
+		
+		
 		// setup optimization space
 		ParameterSpace optimzationSpace = new ParameterSpace();
 		for (int i = 1; i < 20; i++) {
@@ -92,18 +97,24 @@ public class RooflineService {
 		for (int i = 1; i < 20; i++) {
 			optimzationSpace.add(dlpAxis, i);
 		}
-
-		// optimize instruction mix, too
-		if (algorithm == PeakAlgorithm.ArithBalanced) {
-			for (int i = 1; i <= 3; i++) {
-				optimzationSpace.add(arithBalancedAdditionsAxis, i);
-				optimzationSpace.add(arithBalancedMultiplicationsAxis, i);
-			}
-		}
-
+		
 		// create the kernel
 		ArithmeticKernel kernel = new ArithmeticKernel();
 		kernel.initialize(kernelParameters.build());
+		
+		// setup kernel
+		if (algorithm == PeakAlgorithm.ArithBalanced) {
+			switch (systemInfoService.getCpuType())
+			{
+			case Yonah:
+				// nothing to do
+				break;
+			case Core:
+				kernel.setMulAddMix("MUL ADD ADD MUL ADD ADD MUL ADD");
+				kernel.setMultiplications(5);
+				kernel.setAdditions(3);
+			}
+		}
 
 		Coordinate measurementCoordinate = measurementCoordinateBuilder.build();
 
@@ -147,8 +158,8 @@ public class RooflineService {
 		case RandomLoad:
 			kernel = new MemoryKernel();
 			kernelParameters.set(optimizationAxis, "-O3");
-			kernelParameters.set(bufferSizeAxis, 512L * 1024L);
-			kernelParameters.set(unrollAxis, 20);
+			kernelParameters.set(bufferSizeAxis, 1024L * 1024L);
+			kernelParameters.set(unrollAxis, 50);
 			kernelParameters.set(MemoryKernel.memoryOperationAxis,MemoryOperation.MemoryOperation_RandomRead);
 		break;
 		case Add:

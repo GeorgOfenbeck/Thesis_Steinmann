@@ -43,11 +43,9 @@ public class MemoryMeasurementController implements IMeasurementController {
 	public RooflineService rooflineService;
 
 	public void measure(String outputName) throws IOException {
-		System.out.printf("peak tp: %f\n", rooflineService
-				.measurePeakThroughput(PeakAlgorithm.RandomLoad,
-						MemoryTransferBorder.LlcRamLines, ClockType.CoreCycles)
-				.getValue());
+		measureRandom();
 
+		
 		Axis<Long> prefetchDistanceAxis = new Axis<Long>(
 				"a1242032-756e-4d56-b0f1-4f9c63e6b2a9", "prefetchDistance");
 		Axis<PrefetchType> prefetchTypeAxis = new Axis<PrefetchType>(
@@ -91,7 +89,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 			MemoryKernel kernel = new MemoryKernel();
 
 			if (coordinate.get(MemoryKernel.memoryOperationAxis) == MemoryOperation.MemoryOperation_WRITE)
-				kernel.setUseStreamingOperations(false);
+				kernel.setUseStreamingOperations(true);
 
 			//kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
 			//kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));
@@ -111,5 +109,30 @@ public class MemoryMeasurementController implements IMeasurementController {
 					result.best(calcThrough), result.best(calcVolume));
 		}
 
+	}
+
+	private void measureRandom() {
+		System.out.printf("peak tp: %f\n", rooflineService
+				.measurePeakThroughput(PeakAlgorithm.RandomLoad,
+						MemoryTransferBorder.LlcRamLines, ClockType.CoreCycles)
+				.getValue());
+		
+		MemoryKernel kernel = new MemoryKernel();
+		kernel.setOperation(MemoryOperation.MemoryOperation_RandomRead);
+		kernel.setBufferSize(1024L*1024L);
+		kernel.setUnroll(50);
+		kernel.setOptimization("-O3");
+
+		QuantityCalculator<Throughput> calcThrough = quantityMeasuringService
+				.getThroughputCalculator(MemoryTransferBorder.LlcRamLines,
+						ClockType.CoreCycles);
+		QuantityCalculator<TransferredBytes> calcVolume = quantityMeasuringService
+				.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamLines);
+
+		QuantityMap result = quantityMeasuringService.measureQuantities(
+				kernel, calcThrough, calcVolume);
+
+		System.out.printf("RANDOM throughput: %s Transferred bytes: %s\n",
+				result.best(calcThrough), result.best(calcVolume));
 	}
 }

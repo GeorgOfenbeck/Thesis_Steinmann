@@ -24,7 +24,12 @@ public class CeilingMeasurementController implements IMeasurementController {
 	RooflineService rooflineService;
 
 	public void measure(String outputName) throws IOException {
-		InstructionSet instSet = InstructionSet.x87;
+		measure(InstructionSet.x87);
+		measure(InstructionSet.SSE);
+		measure(InstructionSet.SSEScalar);
+	}
+
+	private void measure(InstructionSet instSet) throws Error {
 		{
 			Performance perf = rooflineService.measurePeakPerformance(
 					PeakAlgorithm.Add,
@@ -39,12 +44,12 @@ public class CeilingMeasurementController implements IMeasurementController {
 			System.out.println("Mul perf: " + perf.getValue());
 		}
 
-		/*{
+		{
 			Performance perf = rooflineService.measurePeakPerformance(
 					PeakAlgorithm.ArithBalanced,
 					instSet, ClockType.CoreCycles);
-			System.out.println("Mul perf: " + perf.getValue());
-		}*/
+			System.out.println("AddMul perf: " + perf.getValue());
+		}
 	}
 
 }
