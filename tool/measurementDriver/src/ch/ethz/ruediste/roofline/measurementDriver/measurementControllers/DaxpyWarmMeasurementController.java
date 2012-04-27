@@ -72,7 +72,7 @@ public class DaxpyWarmMeasurementController implements IMeasurementController {
 			addPoints(coord, plot);
 		}
 		plotService.plot(plot);
-		//rooflineController.plot();
+		rooflineController.plot();
 	}
 
 	public void addPoints(
