@@ -80,7 +80,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 			space.add(unrollAxis, i);
 		}
 
-		space.add(bufferSizeAxis, 1024L * 1024L);
+		space.add(bufferSizeAxis, 1024L * 1024L * 5);
 
 		for (Coordinate coordinate : space.getAllPoints(
 				MemoryKernel.memoryOperationAxis, optimizationAxis,
@@ -88,17 +88,17 @@ public class MemoryMeasurementController implements IMeasurementController {
 			MemoryKernel kernel = new MemoryKernel();
 
 			if (coordinate.get(MemoryKernel.memoryOperationAxis) == MemoryOperation.MemoryOperation_WRITE)
-				kernel.setUseStreamingOperations(true);
+				kernel.setUseStreamingOperations(false);
 
 			//kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
 			//kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));
 
 			kernel.initialize(coordinate);
 			QuantityCalculator<Throughput> calcThrough = quantityMeasuringService
-					.getThroughputCalculator(MemoryTransferBorder.LlcRamLines,
+					.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
 							ClockType.CoreCycles);
 			QuantityCalculator<TransferredBytes> calcVolume = quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamLines);
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
 
 			QuantityMap result = quantityMeasuringService.measureQuantities(
 					kernel, calcThrough, calcVolume);

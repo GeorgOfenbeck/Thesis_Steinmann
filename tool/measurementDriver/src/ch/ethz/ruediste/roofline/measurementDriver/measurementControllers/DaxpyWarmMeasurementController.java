@@ -50,7 +50,7 @@ public class DaxpyWarmMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 		rooflineController.getPlot()
-				.setKeyPosition(KeyPosition.BottomRight).setAutoscaleY(true)
+				.setKeyPosition(KeyPosition.BottomRight).setAutoscaleY(true).setXRange(Double.NEGATIVE_INFINITY,1000)
 				.setSameSizeConnection(
 						SameSizeConnection.ByOperationalIntensity);
 

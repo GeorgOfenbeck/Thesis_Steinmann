@@ -40,7 +40,7 @@ public class ValidateTimeMeasurementController extends
 
 	public void measure(String outputName) throws IOException {
 
-		/*measure(outputName, "Add", createArithKernelCoordinate(
+		measure(outputName, "Add", createArithKernelCoordinate(
 				ArithmeticOperation.ArithmeticOperation_ADD,
 				InstructionSet.SSE), ArithController.class);
 
@@ -53,7 +53,7 @@ public class ValidateTimeMeasurementController extends
 				MemController.class);
 		measure(outputName, "Triad", createTriadKernelCoordinate(),
 				MemController.class);
-		*/
+
 		instantiator.getInstance(ArithController.class).measure(
 				outputName,
 				cpuSingletonList(),
