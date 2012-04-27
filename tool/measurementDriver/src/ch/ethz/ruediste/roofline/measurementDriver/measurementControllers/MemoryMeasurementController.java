@@ -45,7 +45,6 @@ public class MemoryMeasurementController implements IMeasurementController {
 	public void measure(String outputName) throws IOException {
 		measureRandom();
 
-		
 		Axis<Long> prefetchDistanceAxis = new Axis<Long>(
 				"a1242032-756e-4d56-b0f1-4f9c63e6b2a9", "prefetchDistance");
 		Axis<PrefetchType> prefetchTypeAxis = new Axis<PrefetchType>(
@@ -114,12 +113,12 @@ public class MemoryMeasurementController implements IMeasurementController {
 	private void measureRandom() {
 		System.out.printf("peak tp: %f\n", rooflineService
 				.measurePeakThroughput(PeakAlgorithm.RandomLoad,
-						MemoryTransferBorder.LlcRamLines, ClockType.CoreCycles)
+						MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles)
 				.getValue());
-		
+
 		MemoryKernel kernel = new MemoryKernel();
 		kernel.setOperation(MemoryOperation.MemoryOperation_RandomRead);
-		kernel.setBufferSize(1024L*1024L);
+		kernel.setBufferSize(1024L * 1024L);
 		kernel.setUnroll(50);
 		kernel.setOptimization("-O3");
 
