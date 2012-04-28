@@ -38,7 +38,7 @@ public class DaxpyMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 		rooflineController.getPlot().setAutoscaleY(true)
-				.setKeyPosition(KeyPosition.BottomRight);
+				.setKeyPosition(KeyPosition.BottomRight).setAutoscaleX(true);
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(DaxpyKernel.useMklAxis, true);
@@ -56,8 +56,14 @@ public class DaxpyMeasurementController implements IMeasurementController {
 	public void addPoints(RooflineController rooflineController,
 			Coordinate coord) {
 		configuration.push();
-		configuration.set(QuantityMeasuringService.numberOfRunsKey, 100);
-		for (long vectorSize = 500; vectorSize <= 1000 * 1000; vectorSize *= 2) {
+
+		for (long vectorSize = 500; vectorSize <= 10000 * 1000; vectorSize *= 2) {
+			if (vectorSize > 1000 * 1000)
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
+			else
+				configuration
+						.set(QuantityMeasuringService.numberOfRunsKey, 100);
+
 			DaxpyKernel kernel = new DaxpyKernel();
 			kernel.initialize(coord);
 			kernel.setOptimization("-O3");
