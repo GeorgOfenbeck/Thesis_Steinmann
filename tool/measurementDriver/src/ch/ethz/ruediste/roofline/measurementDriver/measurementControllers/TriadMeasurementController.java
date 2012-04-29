@@ -31,38 +31,41 @@ public class TriadMeasurementController implements IMeasurementController {
 	RooflineController rooflineController;
 
 	public void measure(String outputName) throws IOException {
-
+		// initialize the roofline plot
 		rooflineController.setTitle("Triad");
 		rooflineController.addDefaultPeaks();
 
 		for (long size = 10000; size < 100000; size += 10000) {
+			// initialize kernel
 			TriadKernel kernel = new TriadKernel();
 			kernel.setBufferSize(size);
 			kernel.setOptimization("-O3");
 
+			// add a roofline point
 			rooflineController
 					.addRooflinePoint("Triad", size,
 							kernel, Operation.CompInstr,
 							MemoryTransferBorder.LlcRamBus);
-			QuantityCalculator<Throughput> calc = quantityMeasuringService
+
+			// create calculators
+			QuantityCalculator<Throughput> throughtputCalculator = quantityMeasuringService
 					.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
 							ClockType.CoreCycles);
 
-			QuantityMap result = quantityMeasuringService.measureQuantities(
-					kernel, calc);
-
-			Throughput throughput = result.best(calc);
-			QuantityCalculator<OperationCount> calculator = quantityMeasuringService
+			QuantityCalculator<OperationCount> operationCountCalculator = quantityMeasuringService
 					.getOperationCountCalculator(Operation.CompInstr);
-			QuantityMap result1 = quantityMeasuringService.measureQuantities(
-					kernel, calculator);
 
-			OperationCount operations = result1.best(calculator);
+			// perform measurement
+			QuantityMap result = quantityMeasuringService.measureQuantities(
+					kernel, throughtputCalculator, operationCountCalculator);
 
+			// print throughput and operation count
 			System.out.printf("size %d: throughput: %s operations: %s\n", size,
-					throughput, operations);
+					result.best(throughtputCalculator),
+					result.best(operationCountCalculator));
 		}
 
+		// create the PDF of the plot
 		rooflineController.plot();
 	}
 

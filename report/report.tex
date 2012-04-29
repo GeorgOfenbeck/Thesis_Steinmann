@@ -146,7 +146,7 @@ cheering me up and never letting me forget to work on the documentation.
 \newpage
 
 \chapter{Introduction}
-'The free lunch is over' \cite{FreeLunchIsOver} In the past decades, the CPU
+`The free lunch is over' \cite{FreeLunchIsOver} In the past decades, the CPU
 manufactures were reliably able to increase the clock speed. However, this has
 become harder and harder due to not just one but several physical issues. To
 increase performance despite the limited clock speed, the CPUs become more
@@ -179,7 +179,7 @@ During the optimization of an algorithm, many changes have an effect on both
 performance and data access pattern. It is therefore beneficial for a
 performance model to capture both aspects.
 
-Towards this goal, the roofline model introduces the term 'operational
+Towards this goal, the roofline model introduces the term `operational
 intensity' defined as the number of performed operations per byte transferred
 between CPU and memory. The exact definition of operation in the context of
 this definition is problem specific, but floating point operation is often used.
@@ -479,34 +479,34 @@ Bytes per core cycle, if the CPU runs at 1.83GHz.
 We used XUbuntu 11.10, running a Linux 3.0.0-16 kernel in 32 bit mode, since
 the CPU does not support the 64 bit mode. We used GCC 4.6.1.
 
-The performance counters are instrumented using the 'perf event' kernel
+The performance counters are instrumented using the `perf event' kernel
 interface \cite{unoffPerfEventsWebPage}, using libpfm4  \cite{libpfm4Docu} to
 generate the required parameters.
 
-We used 'coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
+We used `coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
 count, we used the following definitions for operation: 
 \begin{description}
 \item[SinglePrecisionFlop] SSE single precision operations.
 \\{\footnotesize
-'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
-+2*'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
+`coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
++2*`coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
 \item[DoublePrecisionFlop] SSE double precision operations.
 \\{\footnotesize
-'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
-+2*'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
+`coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
++2*`coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
 \item[CompInstr] Computational instructions retired. Counts SSE instructions
 and x87 instructions. Used for x87 code. 
-\\{\footnotesize 'coreduo::FP\_COMP\_INSTR\_RET'}
+\\{\footnotesize `coreduo::FP\_COMP\_INSTR\_RET'}
 \item[SSEFlop] SSE operations, sum of SinglePrecisionFlop and
 DoublePrecisionFlop
 \end{description}
 
 We used two variants of measuring the memory transfer volume. The {\bf MemBus}
-variant uses 64*'coreduo::BUS\_TRANS\_MEM', which measures the transfers on the
+variant uses 64*`coreduo::BUS\_TRANS\_MEM', which measures the transfers on the
 system bus. The {\bf MemL2} variant uses the counters for the L2 cache line
 allocation and eviction, namely
-64*('coreduo::L2\_LINES\_IN:SELF'+'coreduo::L2\_M\_LINES\_OUT:SELF'), combined
-with 8*'coreduo::SSE\_NTSTORES\_RET' to take non temporal stores into account.
+64*(`coreduo::L2\_LINES\_IN:SELF'+`coreduo::L2\_M\_LINES\_OUT:SELF'), combined
+with 8*`coreduo::SSE\_NTSTORES\_RET' to take non temporal stores into account.
 
 \section{Cache}
 \graphFloat{yonah/FFTwarm}{Influence of the initial cache state (MemL2)}
@@ -580,14 +580,14 @@ if (getWarmCode()) {
 %\end{minipage}
 
 Getting cold caches can be quite tricky. See
-\cite{Whaley:2008:AAC:1462062.1462065} section '3.
+\cite{Whaley:2008:AAC:1462062.1462065} section `3.
 CACHE FLUSHING METHODS WHEN TIMING ONE INVOCATION' for details.
 
 To clear the code cache, we use the traditional method of accessing a large
 memory buffer and executing more than 32KB code to flush the L1 code cache.
 
 In addition, the kernels report the buffers they allocated. This is used to
-flush these buffers with the 'clflush' instruction, not affecting code which is
+flush these buffers with the `clflush' instruction, not affecting code which is
 already in the cache. This is implemented by the \method{flushBuffers()}
 method in the above code snippet.
 
@@ -598,14 +598,14 @@ frequency will generally cause a higher percentage of the peak performance to be
 reached by the kernel.
 
 On Linux, frequency scaling is controlled so called governors. We used the
-'performance' governor for all our measurements, which fixes the core frequency
+`performance' governor for all our measurements, which fixes the core frequency
 to the maximum.
 
 \chapter{Single Threaded Accuracy and Precision}
 In this chapter we analyze the quality of our measurement results for single
 threaded workloads.
 
-First, let's recapitulate the definitions of accuracy and precision.
+First, let us recapitulate the definitions of accuracy and precision.
 \cite{accuracyAndPrecision} Accuracy of a measurement system is the closeness of
 the measurement results to the true value.
 Precision is the degree to which repeated measurements show the same result.
@@ -697,7 +697,7 @@ spread of the MemBus variant, while the offset is comparable.
 Flush after kernel execution}
 
 To validate our assumption on the write back cache, we measured the memory
-transfer while flushing the cache using 'CLFLUSH' after the execution of the
+transfer while flushing the cache using `CLFLUSH' after the execution of the
 kernel completes. (fig. \ref{yonah/valTBALTFlushValues}) 
 
 There is a small overhead for the read kernel. For the write and the triad
@@ -830,7 +830,7 @@ For the validation of multi threaded measurements, we use the same measurements
 as for the single threaded validation, but run a separate workload instance on
 each core. Using a barrier, we make sure the two kernels start at the same time. 
 
-Since the Yonah architecture does not utilize HyperThreading, we don't expect
+Since the Yonah architecture does not utilize HyperThreading, we do not expect
 an arithmetic kernel running on one core affecting a memory intensive kernel on
 the other core. Therefore the workloads run in parallel are not mixed.
 
@@ -902,7 +902,7 @@ running at the same time}
 \graphFloat{yonah/valTimeThTriadMemValues}{Execution Time of two Triad Kernels
 running at the same time}
 
-For the memory kernels we don't see much difference in execution time between
+For the memory kernels we do not see much difference in execution time between
 the single threaded and the multi threaded results for expected transfer volumes
 below 1MB. We expected to observe a larger difference. For larger buffers the
 expected difference of about a factor of two can be observed, although outliers
@@ -1189,8 +1189,8 @@ error boxes are drawn.
 
 To investigate the influence of the initial cache state, we measured a specific
 implementation of a kernel with cold caches, with the data loaded into the
-caches (``-Data''), with the code loaded into the caches (``-Code'') and with
-both data and code loaded into the caches (``-Data-Code'').
+caches (`-Data'), with the code loaded into the caches (`-Code') and with
+both data and code loaded into the caches (`-Data-Code').
 
 We observed a similar behavior for all kernels. If only the code is initially
 loaded into the caches, the operational intensity is slightly increased for
@@ -1241,7 +1241,7 @@ using the Intel Math Kernel Library (MKL) \cite{MKL} and the OpenBlas
 
 \subsection{Level 1}
 \graphFloat{yonah/daxpy}{Roofline Plot of the Vector-Vector Multiplication
-(MemL2, DoublePrecisionFlop)} For level 1, we chose the 'daxpy' operation,
+(MemL2, DoublePrecisionFlop)} For level 1, we chose the `daxpy' operation,
 defined as $\bf y \leftarrow \alpha \bf x + \bf y$ with double vectors. There is
 no reuse in this kernel. For every vector element triple, two operations are
 performed. If the vectors fit into the caches there is no write back and the
@@ -1263,7 +1263,7 @@ without using one cache line set twice. We did not investigate this further.
 \subsection{Level 2}
 \graphFloat{yonah/dgemv}{Roofline Plot of the Matrix-Vector Multiplication
 (MemL2, DoublePrecisionFlop)} 
-For level 2, we chose the 'dgemv' operation,
+For level 2, we chose the `dgemv' operation,
 defined as $\mathbf y \leftarrow \alpha A \mathbf x  + \beta \bf{y}$ with double
 vectors and matrices. For an $n\times n$ matrix and vectors of size $n$, the
 operation count is $2n$ for the vector scaling and $2n^2$ for the multiplication of the matrix with the vecor and the
@@ -1286,7 +1286,7 @@ $300^2*8=720000$ bytes, which is about one third of the cache.
 
 
 \subsection{Level 3}
-For level 3, we chose the 'dgemm' operation,
+For level 3, we chose the `dgemm' operation,
 defined as $C \leftarrow \alpha A B + \beta C $ with double matrices. For an
 $n\times n$ matrix, the operation count is $2n^2$ for the two scale operations
 and $2n^3$ for the matrix-matrix multiplication and the addition to $C$.
@@ -1413,7 +1413,7 @@ version and the two libraries.
 
 In addition we included the blocked version with
 scalar replacement. The scalar replacement has been implemented by specifying
-the matrices as 'restrict' pointers to the compiler, hence the name.
+the matrices as `restrict' pointers to the compiler, hence the name.
 
 The precision of all results is decent. 
 
@@ -1475,12 +1475,12 @@ operations that are performed while theoretically not transferring any memory.
 The operation count for $n=25$ is $2*n^3=31'250$ and $250'000$ for $n=50$.
  
 \section{FFT}
-Fast Fourier Transform algorithms 'are of great importance in a variety of
+Fast Fourier Transform algorithms `are of great importance in a variety of
 fields, from digital signal processing and solving partial differential
 equations to algorithms for quick multiplication of large integers.'
 (\cite{FastFourierTransform})
 
-Apart from the simple implementation found in 'Numerical Recipes' (NR)
+Apart from the simple implementation found in `Numerical Recipes' (NR)
 \cite{Press:2007:NRE:1403886} on page 608, we used the implementations from the MKL \cite{MKL} , FFTW \cite{FFTW}
 and Spiral \cite{Spiral}. All four implementations operate on a linear buffer
 containing $n$ complex numbers, each represented by two doubles. The
@@ -1559,14 +1559,11 @@ written in that language. To simplify development and maintenance, we tried to
 keep the amount of C++ code as small as possible. Therefore the measurement
 driver is written in Java.
 
-A measurement is controlled by a measurement specific
-routine (one per measurement), which iterates through all parameter points to be examined,
-compiles and starts the Measuring Core and finally processes the results. We
-decided to use Java for this code. This provides the flexibility  
-
-This should result in straight forward code
-for controlling the measurements and, since the control code is written in Java, a minimal amount of new concepts has to be
-learned.
+A measurement is controlled by a measurement specific routine (one per
+measurement), which iterates through all parameter points to be examined. For
+each point it compiles and starts the Measuring Core and processes the results.
+Since these routines tend to require a lot of flexibility, we decided to use
+Java for this code. 
 
 During the development of measurement control routines, it is expected that many
 changes do not affect the parameter points. To speed up repeated measurements
@@ -1585,10 +1582,10 @@ files of a measurement are placed in the current working directory.
 
 \section{Component Collaboration}
 Data transfer between the measuring core and the measurement driver is achieved
-using serialized objects stored in files. Classes of these objects are
-used both from C++ and Java and therefore shared entities. They
-are described using XML. Source code for both languages is generated. For
-details, see \ref{sec:MultiLanguageInfrastructure} 
+using serialized objects stored in files. Classes of these objects are used both
+from C++ and Java. They are called shared entities and are described using XML.
+Source code for both languages is generated. For details, see
+\ref{sec:MultiLanguageInfrastructure}
 
 The root class for describing a measurement is a MeasurementCommand.
 It contains the number of times the measurement should be repeated, as well as
@@ -1616,20 +1613,20 @@ The following diagram shows all classes describing a measurement together:
 
 \umlDiagram{MeasurementCommandFull}
 
-A measurement is usually repeated multiple times, to get an idea of the
-distribution of the results. Each repetition is called measurement run.
+To be able to analyze the distribution of the results, a measurement is
+tipically repeated multiple times. Each repetition is called measurement run.
 In each run, the outputs of all measurers are collected. At the end of the
 measurement, the core serializes the results of all runs into a single file,
 which is read by the driver.
 
 \umlDiagram{MeasurementRunOutput}
 
-\section{Tour of a Measurement}
-In this section, we'll look at the components specific to a measurement. To make
-sure you don't get lost, here is the tour map: 
+\section{Measurement Overview}
+In this section, we will look at the components specific to a measurement. The
+following diagram gives an overview of the discussed components:
 \umlDiagram{MeasurementTourMap}
 
-First, we'll look at the kernel. It is defined in
+First, we will look at the kernel. It is defined in
 an XML file:
 \begin{lstlisting}[language=XML]
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1648,16 +1645,16 @@ an XML file:
 </derivedClass>
 \end{lstlisting}
 
-Kernels are always derived from KernelBase, hence the 'derivedClass' element on
+Kernels are always derived from KernelBase, hence the `derivedClass' element on
 line 2 and the base type defined on line 6. 
 
-The 'cSuffix' is given as 'Data' on
-line 7. This causes the generated class to be named 'TriadKernelData'. The
-measuring core implements 'TriadKernel', which derives from TriadKernelData. The
+The `cSuffix' is given as `Data' on
+line 7. This causes the generated class to be named `TriadKernelData'. The
+measuring core implements `TriadKernel', which derives from TriadKernelData. The
 serialization service will instantiate the derived class. This mechanism allows
 to use a derived class, optionally with additional code and data, to be used in
-the measuring core. This is how the actual algorithm is implemented. We'll look
-at this later.
+the measuring core. This is how the actual algorithm is implemented. We will
+look at this later.
 
 On line 10 starts a field definition. Fields and getters/setters are generated
 for the field.
@@ -1688,7 +1685,7 @@ public class TriadMeasurementController implements IMeasurementController {
 }
 \end{lstlisting}
 The class implements \class{IMeasurementController} and has to be placed in the
-'measurementControllers' package. The measure command will instantiate the class
+`measurementControllers' package. The measure command will instantiate the class
 and call the measure() method. The \method{getName()} method returns the name of the
 measurement, which is used to identify the measurement.
 
@@ -1700,6 +1697,7 @@ how these facilities are used when we look at the body of the measure function:
 
 \begin{lstlisting}[language=JAVA]
 public void measure(String outputName){
+	// initialize the roofline plot
 	rooflineController.setTitle("Triad");
 	rooflineController.addDefaultPeaks();
 
@@ -1710,24 +1708,33 @@ public void measure(String outputName){
 		kernel.setOptimization("-O3");
 
 		// add a roofline point
-		rooflineController.addRooflinePoint(
-			"Triad", Long.toString(size),
-			kernel, Operation.CompInstr,
-			MemoryTransferBorder.LlcRam);
+		rooflineController
+				.addRooflinePoint("Triad", size,
+						kernel, Operation.CompInstr,
+						MemoryTransferBorder.LlcRamBus);
 
-		// measure the throughput
-		Throughput throughput = quantityMeasuringService.measureThroughput(
-			kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
+		// create calculators
+		QuantityCalculator<Throughput> throughtputCalculator 
+			= quantityMeasuringService
+				.getThroughputCalculator(
+					MemoryTransferBorder.LlcRamBus,
+					ClockType.CoreCycles);
 
-		// measure the operation count
-		OperationCount operations = quantityMeasuringService
-			.measureOperationCount(kernel, Operation.CompInstr);
+		QuantityCalculator<OperationCount> operationCountCalculator 
+			= quantityMeasuringService
+				.getOperationCountCalculator(Operation.CompInstr);
+
+		// perform measurement
+		QuantityMap result = quantityMeasuringService.measureQuantities(
+				kernel, throughtputCalculator, operationCountCalculator);
 
 		// print throughput and operation count
 		System.out.printf("size %d: throughput: %s operations: %s\n", size,
-			throughput, operations);
+				result.best(throughtputCalculator),
+				result.best(operationCountCalculator));
 	}
 
+	// create the PDF of the plot
 	rooflineController.plot();
 }
 \end{lstlisting}
@@ -1748,13 +1755,15 @@ service.
 The last statement of the measure() body causes the plot to be output to a file
 in the current directory. This involves the invocation of gnuplot.
 
-During the invocation of \method{addRooflinePoint()} and the quantity measuring service a
-lot was going on under the hood. First a measurement was created from the
-kernel and the measurers required to measure the requested quantities. Then was
-checked if there is already a result for the measurement in the cache. If not,
-the measurement was serialized, the measuring core was configured, built
-and started. Then the result of the core was parsed and stored in the cache.
-And finally, the requested quantities were calculated.
+The \method{addRooflinePoint()} method of the \class{RooflineController} and the
+\method{measureQuantities()} method of the \class{QuantityMeasuringService}
+depend on a lot of functionality of the measurement driver and the measuring
+core. First a measurement was created from the kernel and the measurers required
+to measure the requested quantities. Then it was checked if there is already a
+result for the measurement in the cache. If not, the measurement was serialized,
+the measuring core was configured, built and started. Then the result of the
+core was parsed and stored in the cache. And finally, the requested quantities
+were calculated.
 
 The only measurement specific part involved in this process is the
 implementation of the kernel. First the header:
@@ -1773,9 +1782,9 @@ public:
 };
 \end{lstlisting}
 
-The kernel requires three buffers. All declared methods override methods
-from the \class{KernelBase}. The buffers are allocated and initialized in
-initialize() and freed in dispose(). \method{getBuffers()} returns the buffers along with
+All declared methods override methods
+from \class{KernelBase}. The kernel requires three buffers.  The buffers are
+allocated and initialized in initialize() and freed in dispose(). \method{getBuffers()} returns the buffers along with
 their sizes. This is used to clear the or warm the caches. run() contains the
 actual algorithm. 
 
@@ -1983,7 +1992,7 @@ injection framework is initialized. This is accomplished using the
 instantiated, mainly based on naming conventions.
 
 Then the command line arguments are parsed. If command line auto completion is
-desired (indicated by the '-autocomplete' flag), the auto completion process
+desired (indicated by the `-autocomplete' flag), the auto completion process
 starts. 
 
 Otherwise the configuration is initialized, using the flags specified at the
@@ -1996,7 +2005,7 @@ framework.
 Then the class for the command given on the command line is instantiated and
 the \method{execute()} method on the resulting \class{ICommand} is called.
 
-When a 'measure' command is given, a \class{MeasurementCommandController} is
+When a `measure' command is given, a \class{MeasurementCommandController} is
 instantiated. The command controller looks a the next command line argument,
 instantiates the corresponding measurement controller and calls the
 \method{measure()} method.
@@ -2050,16 +2059,13 @@ The conventions are:
 singletons
 \item[Repositories] all classes in the repositories packages are bound to
 themselves as singletons
-\item[Application Controllers] all classes in the 'appControllers' package are
+\item[Application Controllers] all classes in the `appControllers' package are
 bound to themselves as singletons
-\item[Measurement Series] all classes deriving form IMeasurementSeries in the
-measurement series package are bound to the IMeasurementSeries interface
-annotated with their name
-\item[Commands] all classes deriving from ICommand in the commands package are
-bound to the ICommand interface annotated with their name
-\item[Measurement Controllers] all classes deriving from IMeasurementController
-in the measurement controller package are bound to the IMeasurementController
+\item[Measurement Controllers] all classes deriving form IMeasurementController
+in the `measurementControllers' package are bound to the IMeasurementController
 interface annotated with their name
+\item[Commands] all classes deriving from ICommand in the `commands' package are
+bound to the ICommand interface annotated with their name
 \end{description}
 
 \subsection{Configuration}
@@ -2069,7 +2075,8 @@ The design goal was to create a configuration system which
 configuration files
 \item can manage some form of comment for the flags
 \item makes the available flags transparent
-\item supports user specific configuration
+\item supports user specific configurations
+\item allows the change of the configuration flags at runtime
 \end{itemize}
 
 \umlDiagram{measurementDriver/Configuration}
@@ -2120,21 +2127,30 @@ Finally, the flag definitions with lowest precedence are the default values
 given in the configuration keys.
 
 \subsection{Auto Completion}
+To enable auto completion support, a small shell script has to be placed in a
+system directory (see \ref{sec:HowtoInstall}). Whenever auto completion is
+requested by the user on the command line (by pressing TAB), to `rot' tool is
+called with the `-autocomplete' flag. 
+
+The frontend just forwards to the measurement driver, without recompilation. The
+driver then provides the completion proposals, taking registered commands and
+measurement controllers into account.
 
 \subsection{Commands}
-A command is represented by a class deriving from ICommandController and should
-be placed in the commands package. A command has a name and a description, which
-should be the return value of the getName() respectively getDescription()
-methods of the command. The measurement driver expects a command name as first
-argument. The name is matched against the names of all available commands. If a
-command matches, the execute() method of a new instance of the corresponding
-class is called with the remaining command line arguments as parameter.
+A command is represented by a class deriving from \class{ICommandController} and
+should be placed in the `commandControllers' package. A command has a name and a
+description, which should be the return value of the \method{getName()}
+respectively \method{getDescription()} methods of the command. The measurement
+driver expects a command name as first argument. The name is matched against the
+names of all available commands. If a command matches, the \method{execute()}
+method of a new instance of the corresponding class is called with the remaining command
+line arguments as parameter.
 
 \subsection{Measurement Controllers}
 The operation of the measurement driver is controlled by the measurement
 controllers. They define which measurements to perform and how to process the
 output. The measure command instantiates a measurement controller and calls the
-measure() method.
+\method{measure()} method.
 
 \subsection{Parameter Space}
 When implementing measurement controllers, one often has to iterate over all
@@ -2185,6 +2201,8 @@ to store the id of the measurer with the measurer output. Measurers are newly
 created with each invocation of the measurement driver, possibly leading to new
 ids. But for caching, the ids of the measurers do not matter.
 
+\umlDiagram{measurementDriver/RetrievingOutputs}
+
 To overcome these problems, two ids are generated for each measurer. One
 identifier uniquely identifying each instantiated measurer. And an id which is
 unique within one measurement. When loading a result from cache, the unique
@@ -2194,8 +2212,6 @@ at hand.
 To retrieve the output of a measurer, the \class{MeasurementResult} and
 the \class{MeasurementRunOutput} provide several methods which take a measurer
 as argument and return it's output.
-
-\umlDiagram{measurementDriver/RetrievingOutputs}
 
 \subsection{Plotting}
 Generating plots is an important feature of the tool. There are different plot
@@ -2550,7 +2566,7 @@ static class FooInitializer: public SystemInitializer{
 
 It is important to give every initializer subclass an individual name. Use the
 name of the file the initializer is declared in as prefix. If two initializer
-classes have the same name, they don't work correctly (instances of the wrong
+classes have the same name, they do not work correctly (instances of the wrong
 classes are created)
 
 Whenever a \class{SystemInitializer} is instantiated, the instance is registered in a
@@ -2559,17 +2575,18 @@ stop() method of all registered \class{SystemInitializers} is called.
 
 \chapter{How To}
 \section{Installation}
+\label{sec:HowtoInstall}
 see INSTALL file in tool directory
 
 \section{Create a New Kernel}
 First, you have to create an XML description of the new kernel in
 sharedEntities/definitions/kernels. Look at some of the other files in that
 directory and choose one as starting point for your own. Copy the chosen file
-and give it the name of your kernel. It must end with 'Kernel'. The file name is
+and give it the name of your kernel. It must end with `Kernel'. The file name is
 taken as class name for your kernel description.
 
-Next, run 'rot help' to generate the source code from your XML description. In
-case your class defines a 'javaSuffix', the compilation following the source
+Next, run `rot help' to generate the source code from your XML description. In
+case your class defines a `javaSuffix', the compilation following the source
 generation will fail. Create the Java code of your kernel class in
 measurementDriver/src/ch/ethz/ruediste/roofline/sharedEntities/Kernel and make
 it inherit from the generated class with the suffix. (see other kernels for
@@ -2577,7 +2594,7 @@ examples)
 
 The Java part of your kernel is now ready. You can use it in a measurement. But
 we are still missing the implementation in the measuring core. To implement the
-kernel, it is indispensable to specify a 'cSuffix' in your kernel description.
+kernel, it is indispensable to specify a `cSuffix' in your kernel description.
 
 Create a class in measuringCore/src/sharedEntities/kernels, include the
 generated header file (filename contains the suffix) and derive from the
@@ -2592,14 +2609,14 @@ size. This is used to automatically clear or warm the caches.
 \end{description}
 
 In case you have additional code, you can place it in a subdirectory with the
-same name as your kernel, without the 'Kernel' suffix. All '.cpp' files will be
+same name as your kernel, without the `Kernel' suffix. All `.cpp' files will be
 compiled and linked with the measuring core.
 
 \section{Use the Driver as a Library}
-You can use the measurement driver as a library. First, run './gradlew
+You can use the measurement driver as a library. First, run `./gradlew
 --daemon measurementDriver:runnableJar' to create a jar containing the driver
 together with all dependencies. It will be located in
-'measurementDriver/build/distributions/measurementDriver.jar'. Include the jar
+`measurementDriver/build/distributions/measurementDriver.jar'. Include the jar
 in your project.
 
 During the startup of your application, call LibraryMain.initialize(). Now you
@@ -2641,7 +2658,7 @@ results are not discussed in detail, but we tried to point out the most
 important differences to the results we measured for the Yonah architecture
 based system.
 
-The CPU is an 'Intel Core 2 6600' (Family 6, Model 15, Stepping 6) running at
+The CPU is an `Intel Core 2 6600' (Family 6, Model 15, Stepping 6) running at
 2.4 GHz. It contains two cores, each having a 32KB instruction and a 32KB data
 L1 cache, 8 ways set associative, with 64 bytes line size. The two cores share a
 4MB unified L2 cache, 16 ways set associative and with 64 bytes line size. The
@@ -2653,30 +2670,30 @@ available memory. The theoretical throughput of the memory is 8.3 GB/s, which is
 3.46 Bytes per core cycle, if the CPU runs at 2.4GHz.
 
 \section{Performance Counters}
-We used 'coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
+We used `coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
 count, we used the follwing definitions for operation: 
 \begin{description}
 \item[SinglePrecisionFlop] SSE single precision operations.
 \\{\footnotesize
-'core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
-+2*'core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
+`core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
++2*`core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
 \item[DoublePrecisionFlop] SSE double precision operations.
 \\{\footnotesize
-'core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
-+2*'core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
+`core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
++2*`core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
 \item[CompInstr] Computational instructions retired. Counts SSE instructions
 and x87 instructions. Used for x87 code. 
-\\{\footnotesize 'coreduo::FP\_COMP\_OPSEXE'}
+\\{\footnotesize `coreduo::FP\_COMP\_OPSEXE'}
 \item[SSEFlop] SSE operations, sum of SinglePrecisionFlop and
 DoublePrecisionFlop
 \end{description}
 
 We used two variants of measuring the memory transfer volume. The {\bf MemBus}
-variant uses 64*'core::BUS\_TRANS\_MEM', which measures the transfers on the
+variant uses 64*`core::BUS\_TRANS\_MEM', which measures the transfers on the
 system bus. The {\bf MemL2} variant uses the counters for the L2 cache line
 allocation and eviction, namely
-64*('core::L2\_LINES\_IN:SELF'+'core::L2\_M\_LINES\_OUT:SELF'), combined
-with 8*'core::SSE\_PRE\_EXEC:STORES' to take non temporal stores
+64*(`core::L2\_LINES\_IN:SELF'+`core::L2\_M\_LINES\_OUT:SELF'), combined
+with 8*`core::SSE\_PRE\_EXEC:STORES' to take non temporal stores
 into account.
 
 We used XUbuntu 11.10, running a Linux 3.0.0-16 kernel in 64 bit mode and GCC
@@ -2786,7 +2803,13 @@ the random access ceiling (0.45 bytes per cycle).
 
 \section{Measurement and Validation}
 The accuracy and precision are very similar to those of the Yonah architecture
-based system.
+based system. 
+
+The most notable difference was observed for the measurement results of the
+transfer volume for multi threaded workloads when using MemBus. For the Yonah
+architecture, half of the measurement results showed the transfer volume of both
+threads and the other half only the volume of a single thread. On the Core only
+the volume of a single thread is observed.
 
 \graphFloatTwo{Core: Ratio of the Actual Transfer Volume to
 the Expected Transfer Volume} {core/valTBValues}{MemBus}
@@ -2958,14 +2981,13 @@ Operational Intensity for the Matrix-Matrix Multiplication (MemL2)}
 
 \clearpage
 \newpage
-\chapter{List of Figures}
-\renewcommand{\listfigurename}{}
-\vskip -1cm
+\phantomsection \label{listoffig}
+\addcontentsline{toc}{chapter}{List of Figures}
 \listoffigures
 
 \newpage
-\renewcommand\refname{\vskip -1cm}
-\chapter{References}
+\phantomsection \label{bibiliogr}
+\addcontentsline{toc}{chapter}{Bibiliography}
 \bibliographystyle{abbrv}
 \bibliography{report}
 
