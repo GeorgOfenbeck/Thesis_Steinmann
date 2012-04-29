@@ -21,7 +21,7 @@ public class MeasureCommandController implements
 	}
 
 	public String getDescription() {
-		return "<measurement name> [<output name>] \nExecutes the given measurement";
+		return "<measurement controller name> [<output name>] \nExecutes the given measurement controller";
 
 	}
 
@@ -76,7 +76,7 @@ public class MeasureCommandController implements
 		if (
 		// no measurement has been entered yet
 		args.size() == 0
-		// part of a measurement has been entered already
+				// part of a measurement has been entered already
 				|| (args.size() == 1 && !partialWord.isEmpty())) {
 			for (Class<? extends IMeasurementController> clazz : instantiator
 					.getBoundClasses(IMeasurementController.class)) {

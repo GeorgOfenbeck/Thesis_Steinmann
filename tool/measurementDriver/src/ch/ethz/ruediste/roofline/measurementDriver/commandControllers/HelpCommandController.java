@@ -57,7 +57,7 @@ public class HelpCommandController implements ICommandController {
 
 		instantiator.listNamed(ICommandController.class);
 
-		System.out.println("\nMeasurement Series:");
+		System.out.println("\nMeasurement Controllers:");
 		System.out.println("*************");
 		instantiator.listNamed(IMeasurementController.class);
 
@@ -67,7 +67,7 @@ public class HelpCommandController implements ICommandController {
 		for (Pair<Class<?>, ConfigurationKeyBase> entry : reflectionRepository
 				.getConfigurationKeyPairs()) {
 			System.out.printf("%s = %s\n\t(%s / %s)\n\t%s\n\n",
-			// key
+					// key
 					entry.getRight().getKey(),
 					// current value
 					configuration.getUntyped(entry.getRight()),

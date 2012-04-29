@@ -21,7 +21,7 @@ public class ReMeasureCommandController implements
 	}
 
 	public String getDescription() {
-		return "<measurement name> [<output name>] \nExecutes the given measurement, overwriting the cached results";
+		return "<measurement controller name> [<output name>] \nExecutes the given measurement controller, overwriting the cached results";
 	}
 
 	public void execute(List<String> args) {
