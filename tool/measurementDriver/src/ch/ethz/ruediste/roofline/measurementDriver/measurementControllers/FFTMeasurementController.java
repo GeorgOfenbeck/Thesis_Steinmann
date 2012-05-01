@@ -87,7 +87,7 @@ public class FFTMeasurementController implements IMeasurementController {
 			}
 		}
 
-		space.add(Axes.optimizationAxis, "-O3 -msse2");
+		space.add(Axes.optimizationAxis, "-O3");
 
 		configuration.push();
 		for (Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {

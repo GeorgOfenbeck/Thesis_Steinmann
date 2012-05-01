@@ -229,7 +229,7 @@ public class FFTWarmMeasurementController implements IMeasurementController {
 
 		for (long i = 128; i < 1024 * 1024; i *= 2)
 			space.add(bufferSizeAxis, i);
-		//space.add(bufferSizeAxis, 128L);
+		//space.add(bufferSizeAxis, 2048L);
 
 		HashMap<KernelBase, String> kernelNames = new HashMap<KernelBase, String>();
 
