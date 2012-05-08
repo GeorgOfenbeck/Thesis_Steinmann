@@ -9,10 +9,12 @@ import org.apache.log4j.Logger;
 
 import ch.ethz.ruediste.roofline.measurementDriver.appControllers.MeasurementAppController;
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.QuantityMap;
 import ch.ethz.ruediste.roofline.sharedEntities.*;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.*;
@@ -25,7 +27,7 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 			.getLogger(ArithmeticMeasurementController.class);
 
 	public String getName() {
-		return "arithmetic";
+		return "arithmetic_freq_tsc";
 	}
 
 	public String getDescription() {
@@ -37,9 +39,17 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 
 	@Inject
 	QuantityMeasuringService quantityMeasuringService;
+	
+	@Inject
+	RooflineController rooflineController;
 
 	public void measure(String outputName) throws IOException {
-
+		
+		rooflineController.setTitle("Arith");
+		rooflineController.addDefaultPeaks();
+		rooflineController.setOutputName("arith_freq_tsc.pdf");
+		
+		
 		log.trace("entering arithmetic measurement controller");
 
 		ParameterSpace space = new ParameterSpace();
@@ -84,11 +94,14 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 			kernel.initialize(coordinate);
 			InstructionSet instructionSet = coordinate.get(instructionSetAxis);
 			kernel.setOptimization(optimizationMap.get(instructionSet));
-			kernel.setMulAddMix("MUL ADD ADD MUL ADD ADD MUL ADD");
+			kernel.setMulAddMix("MUL ADD MUL ADD MUL ADD");
+			rooflineController.addRooflinePoint("Balanced", 10, kernel, Operation.CompInstr, MemoryTransferBorder.LlcRamBus);
+			
 
 			if (true) {
 				QuantityCalculator<Performance> calc = quantityMeasuringService.getPerformanceCalculator(
-						operationMap.get(instructionSet), ClockType.CoreCycles);
+						//operationMap.get(instructionSet), ClockType.CoreCycles);
+						operationMap.get(instructionSet), ClockType.TSC);
 				QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
 				Performance performance = result.best(calc);
 				System.out.printf("Performance %s: %s\n", coordinate,
@@ -98,8 +111,10 @@ public class ArithmeticMeasurementController implements IMeasurementController {
 			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calculator);
 
 			OperationCount count = result.best(calculator);
-			System.out.printf("Operations %s: %s\n", coordinate, count);
+			//System.out.printf("Operations %s: %s\n", coordinate, count);
+			
 		}
+		rooflineController.plot();
 
 	}
 }

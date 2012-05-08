@@ -239,6 +239,11 @@ public class RooflineController {
 		//addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
 		//addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
 		break;
+		case SandyBridgeExtreme:
+			plot.addPeakPerformance("Balanced Scalar", new Performance(2));
+			plot.addPeakPerformance("AVX", new Performance(8));
+			plot.addPeakPerformance("6*AVX", new Performance(48));
+			break;
 		}
 
 		switch (systemInfoService.getCpuType()) {
@@ -253,6 +258,11 @@ public class RooflineController {
 			addPeakThroughput("MemRand", PeakAlgorithm.RandomLoad,
 					MemoryTransferBorder.LlcRamBus);
 		break;
+		case SandyBridgeExtreme:
+			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
+					MemoryTransferBorder.LlcRamBus);
+			break;
+		
 		}
 	}
 

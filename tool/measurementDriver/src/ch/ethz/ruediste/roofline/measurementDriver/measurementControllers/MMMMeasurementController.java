@@ -93,7 +93,7 @@ public class MMMMeasurementController implements IMeasurementController {
 			// save configuration
 			configuration.push();
 
-			for (long matrixSize = 100; matrixSize <= /*2000*/500; matrixSize += 100) {
+			for (long matrixSize = 100; matrixSize <= 2500 /*500*/; matrixSize += 100) {
 
 				// set number of runs dependant on matrix size
 				if (matrixSize < 400) {

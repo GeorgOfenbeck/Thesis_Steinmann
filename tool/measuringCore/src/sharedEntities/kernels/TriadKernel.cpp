@@ -8,6 +8,8 @@
 #include "TriadKernel.h"
 
 #include <cstring>
+#include <stdio.h>
+
 
 void TriadKernel::initialize() {
 	srand48(0);
@@ -42,6 +44,7 @@ void TriadKernel::run() {
 			a[i] = b[i] + 2.34 * c[i];
 		}
 	}
+	printf("withouti %lf",a[0]);
 }
 
 void TriadKernel::dispose() {
