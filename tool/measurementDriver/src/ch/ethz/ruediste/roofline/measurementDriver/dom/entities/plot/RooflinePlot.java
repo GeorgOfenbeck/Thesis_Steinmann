@@ -124,6 +124,9 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 			case Yonah:
 				defaultRange = Range.between(0.03, 50.);
 			break;
+			case SandyBridgeExtreme:
+				defaultRange = Range.between(0.03, 300.);
+			break;
 			default:
 				throw new Error("Cpu Type not supported");
 			}
@@ -177,6 +180,9 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 			case Yonah:
 				defaultRange = Range.between(0.1, 4.5);
 			break;
+			case SandyBridgeExtreme:
+				defaultRange = Range.between(0.03, 80.);
+				break;
 			default:
 				throw new Error("Cpu Type not supported");
 			}

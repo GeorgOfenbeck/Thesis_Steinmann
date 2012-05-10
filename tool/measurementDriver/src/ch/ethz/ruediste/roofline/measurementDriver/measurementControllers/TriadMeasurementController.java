@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
+import org.apache.commons.configuration.ConfigurationKey;
+
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
@@ -17,12 +19,14 @@ import com.google.inject.Inject;
 public class TriadMeasurementController implements IMeasurementController {
 
 	public String getName() {
-		return "triad";
+		return "triad_freq_tsc";
 	}
 
 	public String getDescription() {
 		return "runs the triad kernel";
 	}
+	
+	
 
 	@Inject
 	QuantityMeasuringService quantityMeasuringService;
@@ -34,6 +38,7 @@ public class TriadMeasurementController implements IMeasurementController {
 		// initialize the roofline plot
 		rooflineController.setTitle("Triad");
 		rooflineController.addDefaultPeaks();
+		rooflineController.setOutputName("triad_freq_tsc.pdf");
 
 		for (long size = 10000; size < 100000; size += 10000) {
 			// initialize kernel
@@ -50,7 +55,8 @@ public class TriadMeasurementController implements IMeasurementController {
 			// create calculators
 			QuantityCalculator<Throughput> throughtputCalculator = quantityMeasuringService
 					.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
-							ClockType.CoreCycles);
+							ClockType.TSC);
+							//ClockType.CoreCycles);
 
 			QuantityCalculator<OperationCount> operationCountCalculator = quantityMeasuringService
 					.getOperationCountCalculator(Operation.CompInstr);

@@ -41,8 +41,7 @@ public class MMMMeasurementController implements IMeasurementController {
 		rooflineController.setTitle("Matrix-Matrix-Multiplication");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
-		rooflineController.getPlot().setKeyPosition(KeyPosition.BottomRight)
-				.setYRange(0.05, Double.POSITIVE_INFINITY);
+		rooflineController.getPlot().setKeyPosition(KeyPosition.BottomRight);
 
 		{
 			ParameterSpace space = new ParameterSpace();
@@ -94,12 +93,12 @@ public class MMMMeasurementController implements IMeasurementController {
 			// save configuration
 			configuration.push();
 
-			for (long matrixSize = 100; matrixSize <= 2000; matrixSize += 100) {
+			for (long matrixSize = 100; matrixSize <= 2500 /*500*/; matrixSize += 100) {
 
 				// set number of runs dependant on matrix size
 				if (matrixSize < 400) {
 					configuration.set(QuantityMeasuringService.numberOfRunsKey,
-							100);
+							10);
 				}
 				else {
 					configuration.set(QuantityMeasuringService.numberOfRunsKey,
