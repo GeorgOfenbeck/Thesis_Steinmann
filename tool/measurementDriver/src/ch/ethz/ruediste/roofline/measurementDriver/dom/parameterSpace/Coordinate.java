@@ -35,7 +35,8 @@ public class Coordinate {
 		if (contains(axis)) {
 			return (T) coordinates.get(axis);
 		}
-		throw new Error("axis not part of the coordinate");
+		throw new Error("axis " + axis.getName()
+				+ " not part of the coordinate");
 	}
 
 	@Override

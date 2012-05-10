@@ -72,6 +72,8 @@ public class FFTMeasurementController implements IMeasurementController {
 			space.add(Axes.bufferSizeAxis, i);
 		}
 
+		//space.add(Axes.bufferSizeAxis, 64 * 1024L);
+
 		/*for (long i = 72; i < 128; i += 8) {
 			space.add(Axes.bufferSizeAxis, i * 1024L);
 		}*/
@@ -85,16 +87,17 @@ public class FFTMeasurementController implements IMeasurementController {
 			}
 		}
 
-		space.add(Axes.optimizationAxis, "-O3 -msse2");
+		space.add(Axes.optimizationAxis, "-O3");
 
 		configuration.push();
 		for (Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
 
-			if (coordinate.get(bufferSizeAxis) > 64 * 1024L) {
+			if (coordinate.get(bufferSizeAxis) > 128 * 1024L) {
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
 			}
 			else {
-				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
+				configuration
+						.set(QuantityMeasuringService.numberOfRunsKey, 100);
 			}
 
 			// skip non-power of two sizes for the NR kernel

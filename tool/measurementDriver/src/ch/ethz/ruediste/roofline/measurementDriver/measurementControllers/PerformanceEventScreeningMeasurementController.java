@@ -43,6 +43,8 @@ public class PerformanceEventScreeningMeasurementController implements
 
 		for (PmuDescription pmu : systemInfoService.getPresentPmus()) {
 			for (PerfEventDescription event : pmu.getEvents()) {
+				System.out.println("PmuName: "+ pmu.getPmuName() + " event " + event.getName());
+				
 				measure(out, pmu.getPmuName(), event, null);
 				/*
 				 * for (PerfEventAttributeDescription attribute : event

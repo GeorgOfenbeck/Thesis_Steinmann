@@ -40,7 +40,7 @@ public class SfoMeasurementController implements IMeasurementController {
 				.getOperationCountCalculator(Operation.DoublePrecisionFlop);
 
 		SfoKernel kernel = new SfoKernel();
-		kernel.setControlFile("/home/ruedi/svn/azuagarg_thesis/test/genrmf_data/out_a8_b5_n320.txt");
+		kernel.setControlFile("/home/ruedi/svn/azuagarg_thesis/test/genrmf_data/out_a6_b3_n108.txt");
 		kernel.setUseSatoru(useSatoru);
 
 		QuantityMap result = quantityMeasuringService.measureQuantities(kernel,

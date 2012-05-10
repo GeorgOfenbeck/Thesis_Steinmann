@@ -65,7 +65,8 @@ public class DgemvMeasurementController implements IMeasurementController {
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
 			}
 			else {
-				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
+				configuration
+						.set(QuantityMeasuringService.numberOfRunsKey, 100);
 			}
 			DgemvKernel kernel = new DgemvKernel();
 			kernel.initialize(coord);

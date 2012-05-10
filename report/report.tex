@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,12pt]{report}
 \usepackage[top=2cm]{geometry}
 \usepackage{color}
 \usepackage{listings}
@@ -79,6 +79,8 @@
 \newcommand{\class}[1]{\textbf{#1}}
 \newcommand{\method}[1]{\textsf{#1}}
 
+\newcommand{\err}[0]{\ensuremath{\text{err}}}
+
 \lstset{
   showstringspaces=false,
   breaklines=true,
@@ -99,16 +101,88 @@
 \date{\today}
 
 \begin{document}
-\maketitle
+%\maketitle
+\begin{titlepage}
+\begin{center}
 
+\vspace*{4cm}
+
+{\Huge Applying the Roofline Model}
+
+\vspace{2.6\baselineskip}
+Master Thesis
+
+\vspace{0.6\baselineskip}
+by
+
+\vspace{2.6\baselineskip}
+{\Large Ruedi Steinmann}
+
+\vspace{2.6\baselineskip}
+Departement of Computer Science
+
+\vspace{0.6\baselineskip}
+ETH Z\"urich
+
+\vspace{5.6\baselineskip}
+\begin{tabular}{ll}
+\toprule
+Advisers: &Prof. Markus P\"uschel\\
+		  &Georg Ofenbeck\\
+Institute: & Institute for Computer Systems \\
+Group: & Advanced Computing Laboratory\\
+\bottomrule
+\end{tabular}
+
+\vspace{2.6\baselineskip}
+\today
+
+\end{center}
+\end{titlepage}
 \begin{abstract}
-This is the paper's abstract \ldots
+
+In the beginning, CPU performance was mainly improved by increasing the core
+frequency. This approach is limited by several physical issues. These limits
+were reached about one decade ago. Since then performance improvements have been
+achieved at the cost of a strong increase in CPU complexity. This raises the
+difficulty to understand their behavior, which is important for software
+performance optimization.
+
+In this context, insightful yet easy to understand performance models are of
+great value. The Roofline Model premises to fulfill these criteria.
+
+Unfortunately, to our best knowledge there is no tool available to measure the
+required quantities and generate Roofline Plots. We built such a tool, evaluated
+the quality of it's measurement results and generated Roofline Plots of various
+code samples.
+
+The tool is freely available and intended to be used by a wider audience.
 \end{abstract}
 
 \tableofcontents
 
-\section{Introduction}
-'The free lunch is over' \cite{FreeLunchIsOver} In the past decades, the CPU
+\renewcommand{\abstractname}{Acknowledgements}
+\begin{abstract}
+First I would like thank Georg Ofenbeck for supervising my thesis. He guided me
+through the process of writing this thesis. In addition he proof-read my drafts
+and provided very valuable feedback.
+
+I worked in the group of Professor Markus P\"uschel. He creates a very
+positive working atmosphere among his staff. We held few but very productive
+meetings. They always helped me to see clear again.
+
+I am thankful to Daniele Spampinato and Zolt\'an Maj\'o
+for all the interesting discussions we had.
+
+Finally, I would like to thank my wife. She was always there
+cheering me up and never letting me forget to work on the documentation.
+
+\end{abstract}
+
+\newpage
+
+\chapter{Introduction}
+`The free lunch is over' \cite{FreeLunchIsOver} In the past decades, the CPU
 manufactures were reliably able to increase the clock speed. However, this has
 become harder and harder due to not just one but several physical issues. To
 increase performance despite the limited clock speed, the CPUs become more
@@ -135,34 +209,36 @@ If the implementation of an algorithm manages to largely operate on data which
 can be held in the CPU caches, off-chip bandwidth will not be an issue. 
 Unfortunately it is often difficult to organize the data access
 pattern of an algorithm in such a way that repeatedly accessed data is not
-squeezed out of the cache by intermediate data accesses.
+wiped out of the cache by intermediate data accesses.
 
 During the optimization of an algorithm, many changes have an effect on both
 performance and data access pattern. It is therefore beneficial for a
 performance model to capture both aspects.
 
-Towards this goal, the roofline model introduces the term 'operational
-intensity' to mean number of performed operations per byte transferred between
-CPU and memory. The exact definition of operation is problem specific, but
-floating point operation is often used.
+Towards this goal, the roofline model introduces the term `operational
+intensity' defined as the number of performed operations per byte transferred
+between CPU and memory. The exact definition of operation in the context of
+this definition is problem specific, but floating point operation is often used.
 
 %\graphFloat{yonah/overview}{Overview of different Kernels}
 % (fig.\ref{yonah/overview})
 
 The roofline model combines the operational intensity on the $x$ axis with the
 performance on the $y$ axis in a 2D graph . Each
-measurement results in a point on the plot. Multiple points are connected with a
-line to a series. The graph is on a log-log scale.
+measurement results in a point on the plot. If a measurement is repeated
+for different problem sizes, the resulting points in the roofline plot
+can be connected by a line to a series.
 
 The peak floating point performance appears as a horizontal line. There can be
 different bounds depending on the technology or the number of cores used. 
 
-What about memory bandwidth? If the implementation of an algorithm transfers $v$
-bytes (transfer volume) and performs $\Omega$ operations within $t$ cycles (the
-unit of time does not matter, could be seconds as well), it will be placed at
-$x=\Omega/v$ (operational intensity) and $y=\Omega/t$ (performance). The data
-throughput between CPU and memory is $\tau=v/t$, which {\bf can be derived from
-performance and operational intensity}: 
+The memory bandwidth can be shown in the roofline plot, too. If the
+implementation of an algorithm transfers $v$ bytes (transfer volume) and
+performs $\Omega$ operations within $t$ cycles (the unit of time does not
+matter, could be seconds as well), it will be placed at $x=\Omega/v$
+(operational intensity) and $y=\Omega/t$ (performance). The data throughput
+between CPU and memory is $\tau=v/t$, which {\bf can be derived from performance
+and operational intensity}:
 
 $$
 \tau=\frac{v}{t}
@@ -181,9 +257,10 @@ following limit for performance and operational intensity:
 y&<x\beta 
 \end{align*}
 
-Since roofline plots are on a log-log scale, the bandwidth line appears as a
-line of unit slope, offset towards the top left of the graph proportional to the
-logarithm of the memory bandwidth.
+Roofline plots use a log-log scale. This enables the presentation of data in a
+huge range. In addition, the bandwidth line appears as a line of unit slope,
+offset towards the top left of the graph proportional to the logarithm of the
+memory bandwidth.
 \footnote{ In order to grasp the appearance of the bandwidth line, we have to
 map the line to a cartesian coordinate system .
 The coordinates $x'$ and $y'$ in the cartesian coordinate system are in the
@@ -209,8 +286,9 @@ As for the peak performance, there can be multiple bounds, depending for example
 on the number of cores used, the memory type or the access pattern (random vs.
 linear).
 
-The horizontal and diagonal lines give the roofline model it's name. The point
-where the lines intersect is called the ridge point.
+The horizontal and diagonal lines, called performance and bandwidth ceilings,
+give the roofline model it's name. The point where the lines intersect is called
+the ridge point.
 
 The power of the model comes from the ability to show performance and
 effects of the data access pattern at the same time. To illustrate this point,
@@ -236,8 +314,8 @@ for (int j = 0; j < n; j++) {
 }
 \end{lstlisting}
 
-We measured the two variants with $m=1e6$ and $n=4$ on a random computer and got
-the following performances:
+We measured the two variants with $m=1e6$ and $n=4$ on an arbitrary computer and
+got the following performances:
 \begin{center}
 \begin{tabular}{lr@{.}l}
 \toprule
@@ -249,13 +327,14 @@ Variant & \multicolumn{2}{r}{Performance} \\
 \end{tabular} 
 \end{center}
 
-Using just this information we have no clue why our modification degraded
+Using just this information it is hard to say why our modification degraded
 performance. 
 
 \graphFloat{yonah/intro}{Roofline Plot of the Introduction Example}
+
 Using the roofline model we get figure \ref{yonah/intro}. We see that the
 operational intensity decreased by an order of magnitude for variant 1.
-Since both variants operate close to the peak memory bandwidth, it is clear that
+Since both variants operate close to the memory bandwidth, it is clear that
 the performance has to fall together with the operational intensity. In addition
 the plot makes clear that the only way to get a substantial speed improvement is
 to increase the operational intensity. Reviewing our modification, we can see
@@ -275,7 +354,7 @@ difficult it is to reach a good performance. The further the ridge point lies to
 the right, the higher is the operational intensity required to achieve peak
 performance.
 
-\subsection{Goals of the Thesis}
+\section{Goals of the Thesis}
 {\bf This thesis aims to create a tool capable of easily creating roofline
 plots. In addition it should provide a measuring infrastructure which can be
 used in a broader context.}
@@ -288,22 +367,16 @@ algorithms and do the analysis for each algorithm separately. In the rest of
 this thesis, we will use the term kernel for a routine or part of a program
 which is analyzed on it's own.
 
-Multi threaded kernels should be supported.
+Many kernels are multi threaded in order to take advantage of CPUs with multiple
+cores. This is achieved by splitting the algorithm into multiple threads which
+can be executed in parallel. Our tool should be able to handle such kernels.
 
-To get the data points for a kernel, we need to measure the performance and the
-operational intensity.
+To get the data points for a kernel, we need to measure it's performance and
+the operational intensity.
 
 Performance is defined as amount of work per unit of time. The time required to
 do the work has to be measured. The amount of work and how it is defined is
 determined by the actual kernel. 
-
-For example, if different implementations of an algorithm solve the same problem
-with a different number of floating point operations, their floating point
-performances are not comparable. It would make more sense to derive the
-theoretical floating point operation count given the problem size and use the
-result instead of measuring the actual operation count.
-Otherwise just including dummy operations would increase the apparent
-performance, which is certainly not desirable.
 
 Operational intensity is defined as operations per byte of data traffic. Since
 the operational intensity cannot be measured directly, we have to measure the
@@ -315,9 +388,10 @@ the different cache levels or between L1 cache and processor.
 
 To obtain the peak performance and memory bandwidth lines for the roofline model
 we need to create micro benchmarks. They are typically designed to transfer as
-much data per unit of time or to execute as may operations per unit of time as
-possible. Thus the measurement capabilities needed to evaluate the actual
-problems can be reused for the benchmarks.
+much data per unit of time for memory bandwidth lines and to execute as may
+operations per unit of time for peak performance lines as possible. Thus the
+measurement capabilities needed to evaluate the actual problems can be reused
+for the benchmarks.
 
 In summary, the following quantities need to be measured:
 \begin{itemize}
@@ -335,48 +409,68 @@ results of different kernels and sizes can be combined into a single plot.
 The tool is written for the x86 platform and should support different
 processors. 
  
-\subsection{Related Work}
-{\bf Domain: Measuring execution time, operation count and memory transfer
-volume.} Multitasking operation systems may interrupt a program at any time and
+\section{Related Work}
+There are various performance models other than the roofline model.
+\cite{Asanovic:EECS-2006-183} \cite{Boyd94ahierarchical} In particular, the 3Cs
+(compulsory, capacity and conflict misses) model for caches
+\cite{Hill:1989:EAC:76602.76603} is simple to understand, yet offers
+insight into program behavior.
+
+Multitasking operation systems may interrupt a program at any time and
 perform a context switch. When a measurement run is interrupted the result can
-be affected. We used the techniques presented in \cite{ComSysProgPersp} to deal
-with this problem.
+be affected. Techniques to deal with this problem are
+presented in \cite{ComSysProgPersp}, with a focus on measuring execution time.
 
 In addition, the initial state of the caches can have an influence on the
-measurement results. It is therefore important to warm or flush the caches.
-(\cite{Whaley:2008:AAC:1462062.1462065})
+measurement results. It is therefore important to warm or flush the caches. An
+in detail discussion can be found in \cite{Whaley:2008:AAC:1462062.1462065}.
 
-{\bf Domain: Software engineering.} For this thesis a substantial amount of code
-has been written with the intent to be reused in the future. We followed the
-concepts outlined in \cite{evans2004domain} to improve code quality.
-
-\subsection{Contribution of the Thesis}
+\section{Contribution of the Thesis}
 The main contribution of this thesis is of practical nature. We built a tool
 which simplifies performance measurements and in particular the generation of
 roofline plots.
 
-In addition we will present detailed low level measurement results, which could
-be used as a reference for future work.
+The tool provides a set of tested measurement routines, which can be used
+to measure custom code. Using the provided infrastructure simplifies the
+analysis of the precision of the generated results.
 
-Finally, we implemented a variety of kernels (in many cases using libraries) and
-present their roofline plots.
+We presented detailed low level measurement results and analyzed their accuracy
+and precision. This could be used as reference for future work.
 
-\section{Measurement Setup}
-In this section we first introduce the performance counters, which are
+We implemented micro benchmarks to measure the peak performance and memory
+bandwidth of our measurement system. 
+
+ We implemented a variety of kernels (in many cases using
+libraries), generated a roofline plot and discussed them in the context of the roofline
+model.
+
+Finally, we extended the roofline plots in the following ways: 
+\begin{description}
+\item[Series] We connected multiple points of a measurement series
+(for example multiple problem sizes of a single algorithm implementation) with a line.
+\item[Series Comparisons] When measuring series of different
+implementations of a single algorithm, we connected equal problem sizes with a
+dashed line to facilitates the comparison between the implementations.
+\item[Error Boxes] We repeated our measurements and represented the precision
+with error boxes within the roofline plots.
+\end{description}
+
+\chapter{Measurement Setup}
+In this chapter we first introduce the performance counters, which are
 used to measure most of the quantities required to generate a roofline
-plot. Altough the performance counters are available on all newer x86 CPUs,
+plot. Although the performance counters are available on all newer x86 CPUs,
 they differ between processors. Therefore we describe our measurement
 machine and how we measured on that particular machine.
 
 Finally, we present our method of cache initialization and how we handle
 frequency scaling.
  
-\subsection{Performance Counters}
+\section{Performance Counters}
 One of the key features of a CPU is it's speed. But that speed can only be
 shown if the software running on the CPU is properly optimized. Since
 optimization often requires detailed understanding of the CPU's internal
-behavior, performance events and counters were incorporated directly into the
-CPU. 
+behavior, the CPU manufacturers decided to directly incorporate performance
+events and counters into the CPU. 
 
 Using special control registers, each counter can be configured to increment
 when a performance event occurs. Since the counters are implemented in hardware,
@@ -385,10 +479,10 @@ enabling them does not have any effect on program execution (no overhead).
 Recent x86 CPUs typically contain two performance counters and support a large
 number of performance events, 119 on a CoreDuo. Examples are:
 \begin{description}
-  \item[INSTRUCTION RETIRED] occurs for every retired instruction
-  \item[DBUS BUSY] occurs for every cycle during which data bus is busy
-  \item[SSE PRE MISS] occurs when an SSE instruction misses all cache levels
-  \item[BR TAKEN RET] occurs for every retired taken branch instruction 
+  \item[INSTRUCTION\_RETIRED] occurs for every retired instruction
+  \item[DBUS\_BUSY] occurs for every cycle during which data bus is busy
+  \item[SSE\_PRE\_MISS] occurs when an SSE instruction misses all cache levels
+  \item[BR\_TAKEN\_RET] occurs for every retired taken branch instruction 
 \end{description}
 
 When working with the linux operation system, the performance counters are
@@ -404,7 +498,8 @@ other option is to use the counters for bus transfers. Measuring the operation c
 depends heavily on the definition of operation, but is typically measurable with
 the performance counters, too.
 
-\subsection{Measurement Machine}
+\section{Measurement Machine}
+\label{sec:MeasurementMachine}
 All measurements are performed on an IBM X60 Thinkpad, featuring an Intel
 CoreDuo CPU (Family 6, Model 14). The CPU is based on the Yonah
 micro architecture, which is similar to the Pentium-M. The CPU contains two
@@ -418,44 +513,44 @@ memory. The theoretical throughput of the memory is 5.12 GB/s, which is 2.80
 Bytes per core cycle, if the CPU runs at 1.83GHz.
 
 We used XUbuntu 11.10, running a Linux 3.0.0-16 kernel in 32 bit mode, since
-the CPU does not support the 64 bit mode.
+the CPU does not support the 64 bit mode. We used GCC 4.6.1.
 
-The performance counters are instrumented using the 'perf event' kernel
+The performance counters are instrumented using the `perf event' kernel
 interface \cite{unoffPerfEventsWebPage}, using libpfm4  \cite{libpfm4Docu} to
 generate the required parameters.
 
-We used 'coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
-count, we used the follwing definitions for operation: 
+We used `coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
+count, we used the following definitions for operation: 
 \begin{description}
 \item[SinglePrecisionFlop] SSE single precision operations.
 \\{\footnotesize
-'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
-+2*'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
+`coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
++2*`coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
 \item[DoublePrecisionFlop] SSE double precision operations.
 \\{\footnotesize
-'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
-+2*'coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
+`coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
++2*`coreduo::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
 \item[CompInstr] Computational instructions retired. Counts SSE instructions
 and x87 instructions. Used for x87 code. 
-\\{\footnotesize 'coreduo::FP\_COMP\_INSTR\_RET'}
+\\{\footnotesize `coreduo::FP\_COMP\_INSTR\_RET'}
 \item[SSEFlop] SSE operations, sum of SinglePrecisionFlop and
 DoublePrecisionFlop
 \end{description}
 
 We used two variants of measuring the memory transfer volume. The {\bf MemBus}
-variant uses 64*'coreduo::BUS\_TRANS\_MEM', which measures the transfers on the
+variant uses 64*`coreduo::BUS\_TRANS\_MEM', which measures the transfers on the
 system bus. The {\bf MemL2} variant uses the counters for the L2 cache line
 allocation and eviction, namely
-64*('coreduo::L2\_LINES\_IN:SELF'+'coreduo::L2\_M\_LINES\_OUT:SELF'), combined
-with 8*'coreduo::SSE\_NTSTORES\_RET' to take non temporal stores into account.
+64*(`coreduo::L2\_LINES\_IN:SELF'+`coreduo::L2\_M\_LINES\_OUT:SELF'), combined
+with 8*`coreduo::SSE\_NTSTORES\_RET' to take non temporal stores into account.
 
-\subsection{Cache}
-\graphFloat{yonah/FFTwarm}{Yonah: Influence of the initial cache state}
-\graphFloat{yonah/FFTwarmPerformance}{Yonah: Influence of the initial cache
+\section{Cache}
+\graphFloat{yonah/FFTwarm}{Influence of the initial cache state (MemL2)}
+\graphFloat{yonah/FFTwarmPerformance}{Influence of the initial cache
 state on the Performance} 
 
 Specially for short running kernels, the initial state of the cache can have a
-big impact on the memory traffic and execution time.  The impact can be
+big impact on the memory transfer volume and execution time.  The impact can be
 controlled by making sure the caches are either warm or cold.
 
 In our tool, it is possible to specify the desired initial state of the code and
@@ -465,9 +560,31 @@ the Intel Math Kernel Libraries as showcase. Figures \ref{yonah/FFTwarm} and
 (FFT-Mkl), only the data is warmed up (FFT-Mkl-Data), only the code is warmed up
 (FFT-Mkl-Code) or both data and code is warmed up (FFT-Mkl-Data-Code).
 
-The following snippet shows the relevant logic:
+In the roofline plot (fig. \ref{yonah/FFTwarm}) we repeated each measurement
+10 times and showed the median result, as well as the 25\% and 75\% percentile
+as a box around the median point. We connected the median points for the same
+problem size with dashed lines.
 
-\begin{minipage}{\textwidth-18pt}
+If only the code cache is warmed up, the difference to completely cold caches
+is small. The effect of warming up the data caches more significant. 
+
+If the data and the code is loaded into the caches initially, the operational
+intensity increases again compared to only loading the data.  Short before the
+cache size is exceeded by the size of the data and the code, the operational
+intensity becomes very large.
+
+For large problem sizes, the initial state of the cache has a negligible
+impact.
+
+To get a better impression on the effects on performance, figure 
+\ref{yonah/FFTwarmPerformance} shows the problem size on the x axis and the
+performance on the y axis. For a problem size of 10'000, the performance
+difference between cold and warm caches (code and data) is around 20\%.
+
+
+The following snippet shows the relevant logic for initializing the caches:
+
+%\begin{minipage}{\textwidth-18pt}
 \begin{lstlisting}[language=C++]
 // should the code cache be warm?
 if (getWarmCode()) {
@@ -496,32 +613,35 @@ if (getWarmCode()) {
 	}
 } 
 \end{lstlisting}
-\end{minipage}
+%\end{minipage}
 
 Getting cold caches can be quite tricky. See
-\cite{Whaley:2008:AAC:1462062.1462065} section '3.
+\cite{Whaley:2008:AAC:1462062.1462065} section `3.
 CACHE FLUSHING METHODS WHEN TIMING ONE INVOCATION' for details.
 
 To clear the code cache, we use the traditional method of accessing a large
 memory buffer and executing more than 32KB code to flush the L1 code cache.
 
 In addition, the kernels report the buffers they allocated. This is used to
-flush these buffers with the 'clflush' instruction, not affecting code which is
+flush these buffers with the `clflush' instruction, not affecting code which is
 already in the cache. This is implemented by the \method{flushBuffers()}
 method in the above code snippet.
 
-\subsection{Frequency Scaling}
+\section{Frequency Scaling}
 The core frequency is not constant in current processors. Since the memory
 latencies and throughputs do not scale with the core frequency, a lower core
 frequency will generally cause a higher percentage of the peak performance to be
 reached by the kernel.
 
 On Linux, frequency scaling is controlled so called governors. We used the
-'performance' governor for all our measurements, which fixes the core frequency
+`performance' governor for all our measurements, which fixes the core frequency
 to the maximum.
 
-\section{Single Threaded Accuracy and Precision}
-First, let's recapitulate the definitions of accuracy and precision.
+\chapter{Single Threaded Accuracy and Precision}
+In this chapter we analyze the quality of our measurement results for single
+threaded workloads.
+
+First, let us recapitulate the definitions of accuracy and precision.
 \cite{accuracyAndPrecision} Accuracy of a measurement system is the closeness of
 the measurement results to the true value.
 Precision is the degree to which repeated measurements show the same result.
@@ -539,6 +659,8 @@ In all groups we used the following kernels:
 \begin{description}
 \item[ADD] Repeat adding a constant to an accumulator. Everything is performed
 in registers. We use multiple accumulators and unroll the loop. 
+\item[MUL] Repeat multiplying an accumulator with a constant. Everything is performed
+in registers. We use multiple accumulators and unroll the loop. 
 \item[Read] Read a buffer from memory
 \item[Write] Overwrite a buffer in memory
 \item[WriteStream] Overwrite a buffer in memory, using non temporal store
@@ -547,43 +669,81 @@ instructions
 writing $a$ back.
 \end{description}
 
-\subsection{Transfer Volume}
+Read, write and WriteStream read or write a single memory buffer of size $S$.
+The Triad kernel operates on three buffers of size $S$.
+ 
+\section{Transfer Volume}
 
-\graphFloatTwo{Transfer Volume}
-{yonah/valTBValues}{MemBus}
+\graphFloatTwo{Ratio of the Actual Transfer Volume to
+the Expected Transfer Volume} {yonah/valTBValues}{MemBus}
 {yonah/valTBALTValues}{MemL2}
 
-\graphFloatTwo{Error of Transferred Bytes}
+To evaluate the accuracy of our results, we tried to estimate the amount of
+memory $\Theta$ that has to be transferred.
+For pure reading, we expect to observe the whole buffer being transferred to the
+core ($\Theta=S$).
+When writing is involved, we expect some of the writes to be held back in the
+cache. For the write kernel the buffer is loaded into the CPU before beeing
+overwritten. In addition we presume that the whole cache is used for write back
+caching. Thus the estimated transfer volume is $\Theta=S+\max(0,S-2MB)$. 
+
+For the triad kernel, all three buffers have to be loaded into the CPU and one
+has to be written back. We presume that one third (due to the three buffers) of
+the cache is used for write back caching. ($\Theta=3S+\max(0,S-\frac23MB)$) The
+streaming write kernel should write the whole buffer once ($\Theta=S$).
+
+In figure \ref{yonah/valTBValues} we show the expected transfer volume $\Theta$
+on the $x$ axis and the ratio of the actual and the expected transfer volume on
+the $y$ axis ($\frac{\tau}{\Theta}$). We measured system bus transfers in
+sub figure {\bf a} (MemBus) and L2 cache line allocations in sub figure {\bf b}
+(MemL2).
+
+The distribution of the results is shown using box plots. \cite{BoxPlot} For
+each expected transfer volume, the measurement is repeated $n=100$ times. The
+median is shown with a point and connected to the medians of the other transfer
+volumes with a line. Around the point a box is plotted. The top of the box
+represents the 75th percentile, the bottom the 25th percentile. The ends of the
+whiskers represent the minimum and maximum of the observed results. 
+
+With our measurement setup, we roughly observe the expected transfer volumes.
+Around an expected transfer volume of 2MB we overestimate the influence of the
+write back cache. The CPU seems to write data back to the memory before the
+cache is completely filled.
+
+The MemBus and MemL2 variants produce similar result. Note that the MemL2
+variant measures less than the expected memory transfer for large buffer sizes.
+
+To show the error of the measurement results we defined the $\err(x)$ function: 
+
+$$
+\err(x)=\begin{cases}
+x>1 & (x-1)*100\%\\
+x\leq1 & (\frac{1}{x}-1)*100\%
+\end{cases}
+$$
+
+\graphFloatTwo{Error of the Transfer Volume: $\err(\frac{\tau}{\Theta})$}
 {yonah/valTBError}{MemBus}
 {yonah/valTBALTError}{MemL2}
-
-We tried to estimate the amount of memory that has to be transferred. For pure
-reading, we expect to observe the whole buffer being transferred to the core.
-When writing is involved, we expect some of the writes to be held back in the
-cache. For the write kernel we presume that the whole cache is used for write
-back caching, and one third of the cache for the triad kernel, since there are
-three buffers. The streaming write kernel should write the whole buffer once.
-
-Figure \ref{yonah/valTBValues} shows that we roughly observe the expected amount
-of memory transfer. Around an expected transfer volume of 2MB we overestimate
-the influence of the write back cache. The CPU seems to write data back to the
-memory before the cache is completely filled. The MemBus and MemL2 variants
-produce similar result. Note that the MemL2 variant measures less than the
-expected memory transfer for large buffer sizes.
-
-The errors (see fig. \ref{yonah/valTBError}) of the MemL2 variant are
-smaller than those of the MemBus variant.
+We used the $\err(x)$ function for the $y$ axis of figure
+(\ref{yonah/valTBError}). The spread of the MemL2 variant is better than the
+spread of the MemBus variant, while the offset is comparable.
 
 \graphFloat{yonah/valTBALTFlushValues}{MemL2: Memory Transfer during Cache
 Flush after kernel execution}
 
 To validate our assumption on the write back cache, we measured the memory
-transfer while flushing the cache using 'CLFLUSH' after the execution of the
-kernel completes. (fig. \ref{yonah/valTBALTFlushValues}) There is a small
-overhead for the Read kernel. The data of the write kernel shows that almost the
-whole 2MB 2nd level cache is used for write back caching. For the Triad kernel
-one could suspect that each buffer receives about one third of the cache, which
-is affirmed by the data.
+transfer while flushing the cache using `CLFLUSH' after the execution of the
+kernel completes. (fig. \ref{yonah/valTBALTFlushValues}) 
+
+There is a small overhead for the read kernel. For the write and the triad
+kernel, all written data is transferred while flushing the caches as long as
+the data fits into the cache. 
+
+If the data does not fit into the cache anymore, almost the whole 2MB 2nd level
+cache is used for write back caching in case of the write kernel. For the Triad
+kernel one could suspect that each buffer receives about one third of the cache,
+which is affirmed by the data.
 
 When measuring on an Intel Core, we observed a strange behavior. While the Read
 and the Triad kernels behaved as expected, the we observed a memory transfer of
@@ -599,44 +759,57 @@ When measuring the memory transfer of the arithmetic kernels, we observe an
 overhead of around 2.5KB for for short running kernels. When the execution time
 exceeds 1ms to 10ms, the memory transfer starts to correlate with the execution
 time. There is a huge difference between the BusMem and BusL2 variants. The
-BusMem variant measures an overhed of around one byte every 20 cycles, while the
+BusMem variant measures an overhead of around one byte every 20 cycles, while the
 BusL2 variant measures one byte every 300-1600 cycles (see fig.
 \ref{yonah/valTBArithTBValues} and \ref{yonah/valTimeArithValues}) This
 difference is plausible since the BusMem variant is likely to pick up any noise
 on the memory bus.
 
-\subsection{Time}
-\graphFloat{yonah/valTimeArithValues}{Execution Time of the ADD kernel}
-\graphFloat{yonah/valTimeArithError}{Error of the Execution Time of the
-ADD kernel}
+\clearpage
 
-For the ADD kernels, figure \ref{yonah/valTimeArithValues} shows that the
-execution time is around one cycle per operation and does not differ between SSE
-and x87, which is consistent with the information found in the Intel manual.
-The same applies for the MUL kernels, with a throughput of around $0.5$
-multiplications per cycle. The error is small for operation counts above 10000
+\section{Time}
+\graphFloat{yonah/valTimeArithValues}{Execution Time of the Arithmetic Kernels}
+\graphFloat{yonah/valTimeArithError}{Error of the Execution Time of the
+Arithmetic Kernels: $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
+Time})}\right)$}
+
+We analyzed the execution time of the arithmetic ADD and MUL kernels. Both
+should theoretically cause no memory transfer. Figure
+\ref{yonah/valTimeArithValues} shows the execution time of the kernels for
+different iteration counts. The execution time is one cycle per operation for
+the ADD kernel and two cycles per operation for the MUL kernel. The difference
+between using the legacy x87 floating point instructions and SSE is negligible.
+These results are consistent with the information found in the Intel manual.
+
+For the error plot we use the minimal execution time for each expected operation
+count as reference.  The error is small for operation counts above 1'000'000
 (fig \ref{yonah/valTimeArithError}).
 
 \graphFloat{yonah/valTimeMemValues}{Execution Time of the memory kernels} 
-\graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the memory kernels}
-For the kernels causing memory transfer, we observe a strong correlation between
-expected memory transfer and execution time (fig. \ref{yonah/valTimeMemValues}),
-but the errors far exceed those observed for the arithmetic kernels (fig.
-\ref{yonah/valTimeMemError}).
+\graphFloat{yonah/valTimeMemError}{Error of the Execution Time of the Memory
+Intensive Kernels:  $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
+Time})}\right)$} 
 
-
-\subsection{Operation Count}
-\graphFloat{yonah/valOpValues}{Operation Count}
-Figure \ref{yonah/valOpValues} how that we get
-almost perfect results for measuring the operation count. The error for the x87
-ADD and MUL could be explained by an overhead of around 50 respectively
-500 floating point instructions.
+For the kernels causing memory transfer, we observe a
+strong correlation between expected memory transfer and execution time 
+(fig. \ref{yonah/valTimeMemValues}), but the errors far exceed those observed 
+for the arithmetic kernels (fig. \ref{yonah/valTimeMemError}).
 
 \clearpage
-\subsection{Handling the Variance}
+\section{Operation Count}
+
+\graphFloat{yonah/valOpValues}{Operation Count: $\frac{\text{Actual Operation
+Count}}{\text{Expected Operation Count}}$} 
+
+Figure \ref{yonah/valOpValues} shows
+that we get almost perfect results for measuring the operation count.
+
+\clearpage
+\section{Handling the Variance}
 \label{sec:SingleThreadedHandlingTheVariance}
+
 In the previous sections we saw that our measurements produce plausible results.
-But as soon as the kernels cause memory transfer, we observe a high variance. We
+As soon as the kernels cause memory transfer, we observe a high variance. We
 presume this is due to various activities happening in the background during the
 measurement. (Task switches etc).
 
@@ -646,33 +819,37 @@ measured execution time, memory transfer or operation count. Ideally, at least
 one execution does not include any overhead. In this case the true value is the
 minimum value observed.
 
-Based on these considerations, we repeat each measurement $K$ times and
-discard all but the minimum value.
+Based on these considerations, we repeat each measurement $K=10$ times and
+discard all but the minimum value. Results generated using this scheme are
+marked by adding value of $K$ as subscript.
 
-\graphFloatTwo{Error of the Transfer Volume with $K=10$}
-{yonah/valTBMinError}{MemBus}
+\graphFloatTwo{Error of the Transfer Volume with $K=10$:
+$\err\left(\frac{\tau_{10}}{\Theta}\right)$} {yonah/valTBMinError}{MemBus}
 {yonah/valTBALTMinError}{MemL2} 
 
-Using this scheme with $K=10$ for measuring the transfer volumes, the samples
+Using this scheme for measuring the transfer volumes, the samples
 fall in a range of about 5\%. The bias is under 10\% except for transfer volumes
 under 20KB and with a peak of up to 40\% around 2MB for the kernels involving
 writes. The differece in precision between MemBus and MemL2 disappeared
 almost completely. For large transfer volumes, the accuracy of the MemBus
 variant is superior. (fig. \ref{yonah/valTBMinError})
 
-\graphFloat{yonah/valTimeMemMinError}{Yonah: Error of the Execution Time with
-$K=10$} 
+\graphFloat{yonah/valTimeMemMinError}{Error of the Execution Time with
+$K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 Applying the same scheme to measuring the execution time of the memory kernels
 yields a precision of about 10\%. Since we cannot derive an expected value, we
 chose the minimum observed value as reference.
 (fig. \ref{yonah/valTimeMemMinError})
 
-\graphFloat{yonah/valTimeArithMinError}{Yonah: Error of Execution Time with
-$K=10$}
+\graphFloat{yonah/valTimeArithMinError}{Error of Execution Time with
+$K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
-\graphFloat{yonah/valOpMinError}{Yonah: Error of Operation Count with
-$K=10$}
+\graphFloat{yonah/valOpMinError}{Error of Operation Count with
+$K=10$: $\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected
+Operation Count}})$}
 
 Finally, figures \ref{yonah/valTimeArithMinError} and \ref{yonah/valOpMinError}
 show that the arithmetic kernels do not pose any problems.
@@ -680,30 +857,37 @@ show that the arithmetic kernels do not pose any problems.
 Summarizing our results, using the minimum of $K$ scheme with $K=10$ the
 arithmetic kernels can be measured with high precision and accuracy. The results
 of measuring execution time and memory transfer of memory intensive kernels are
-scattered within 10\% of the reference value. The memory tranfer volume
-is overestimated by about 10\% for transfer volumes under 10MB
+scattered within 10\% of the reference value. The memory transfer volume is
+overestimated by about 10\% for transfer volumes under 10MB.
 
 \clearpage
-\section{Multi Threaded Accuracy and Precision}
+\chapter{Multi Threaded Accuracy and Precision}
 For the validation of multi threaded measurements, we use the same measurements
 as for the single threaded validation, but run a separate workload instance on
 each core. Using a barrier, we make sure the two kernels start at the same time. 
 
-Since the Yonah does not utilize HyperThreading, we don't expect
+Since the Yonah architecture does not utilize HyperThreading, we do not expect
 an arithmetic kernel running on one core affecting a memory intensive kernel on
 the other core. Therefore the workloads run in parallel are not mixed.
 
+\section{Transferred Volume}
+\graphFloatTwo{Ratio of the Actual Transfer Volume to the Expected Transfer
+Volume for two Read Kernels running in Parallel (using one Buffer per Kernel)}
+{yonah/valTBThReadValues}{MemBus} {yonah/valTBALTThReadValues}{MemL2} 
 
-\subsection{Transferred Volume}
-\graphFloatTwo{Transfer Volume of the Read Kernel}
-{yonah/valTBThReadValues}{MemBus}
-{yonah/valTBALTThReadValues}{MemL2} 
-
-\graphFloatTwo{Transfer Volume of the Write Kernel}
+\graphFloatTwo{Ratio of the Actual Transfer Volume to the Expected Transfer
+Volume for two Write Kernels running in Parallel (using one Buffer per Kernel)}
 {yonah/valTBThWriteValues}{MemBus}
 {yonah/valTBALTThWriteValues}{MemL2} 
 
-\graphFloatTwo{Transfer Volume of the Triad Kernel}
+\graphFloatTwo{Ratio of the Actual Transfer Volume to the Expected Transfer
+Volume for two Write Kernels using Streaming Stores running in Parallel (using
+one Buffer per Kernel)} 
+{yonah/valTBThWriteStreamValues}{MemBus}
+{yonah/valTBALTThWriteStreamValues}{MemL2}
+
+\graphFloatTwo{Ratio of the Actual Transfer Volume to the Expected Transfer
+Volume for two Triad Kernels running in Parallel (using one Buffer per Kernel)}
 {yonah/valTBThTriadValues}{MemBus}
 {yonah/valTBALTThTriadValues}{MemL2} 
 
@@ -713,6 +897,10 @@ Kernel using MemBus}
 \graphFloat{yonah/valTBThWritePoint}{Distribution of the Results of the Write
 Kernel using MemBus}
 
+\graphFloat{yonah/valTBThWriteStreamPoint}{Distribution of the Results of the
+Write Kernel using Streaming Stores measured with the MemBus measurement
+variant}
+
 \graphFloat{yonah/valTBThTriadPoint}{Distribution of the Results of the Triad
 Kernel using MemBus} 
 
@@ -720,21 +908,23 @@ The MemBus variant measures all transfers on the bus. Therefore, the
 measurer of each workload should see the traffic of both kernels. The MemL2 variant
 should separate the traffic of the two cores. On figures
 \ref{yonah/valTBThReadValues},
-\ref{yonah/valTBThWriteValues} and
+\ref{yonah/valTBThWriteValues},
+\ref{yonah/valTBThWriteStreamValues} and
 \ref{yonah/valTBThTriadValues} we see the expected results for the MemL2
 variant. The precision is comparable to the single threaded measurements, the
 overhead is slightly higher.
 
 In contrast, the MemBus variant shows a huge variation. Choosing 4MB as
 representative buffer size, figures \ref{yonah/valTBThReadPoint},
-\ref{yonah/valTBThWritePoint} and \ref{yonah/valTBThTriadPoint} show the
+\ref{yonah/valTBThWritePoint},
+\ref{yonah/valTBThWriteStreamPoint} and \ref{yonah/valTBThTriadPoint} show the
 distribution of the results. There is a cluster around the expected result of
 twice the expected transfer volume (each workload seeing the transfer of both
 cores), but also a cluster around once the expected transfer volume. It seems
 that in about half of the measurement runs, the kernel only see their own
 traffic. 
 
-\subsection{Time}
+\section{Time}
 \graphFloat{yonah/valTimeThAddArithValues}{Execution Time of two ADD Kernels
 running at the same time} As expected, running two arithmetic kernels in
 parallel does not affect the measured execution time (fig. \ref{yonah/valTimeThAddArithValues}).
@@ -748,7 +938,7 @@ running at the same time}
 \graphFloat{yonah/valTimeThTriadMemValues}{Execution Time of two Triad Kernels
 running at the same time}
 
-For the memory kernels we don't see much difference in execution time between
+For the memory kernels we do not see much difference in execution time between
 the single threaded and the multi threaded results for expected transfer volumes
 below 1MB. We expected to observe a larger difference. For larger buffers the
 expected difference of about a factor of two can be observed, although outliers
@@ -758,75 +948,320 @@ are frequent. (fig. \ref{yonah/valTimeThReadMemValues} and
 For the triad kernel there is almost no
 difference. (fig. \ref{yonah/valTimeThTriadMemValues})
 
-\subsection{Operation Count}
+\section{Operation Count}
 
-\graphFloat{yonah/valOpThValues}{Operation Count}
+\graphFloat{yonah/valOpThValues}{Ratio of the Actual Operation Count to
+the Expected Operation Count for two ADD Kernels running at the same time}
 
 As for the single threaded case, measuring the operation count does not pose any
 problems. (fig. \ref{yonah/valOpThValues})
 
 \clearpage
-\subsection{Handling the Variance}
+\section{Handling the Variance}
+\label{sec:MultiThreadedHandlingTheVariance}
 We again use the minimum of $K=10$ scheme. (see
 \ref{sec:SingleThreadedHandlingTheVariance})
 
-\graphFloatTwo{Error of the Transfer Volume of the Read Kernel with $K=10$}
-{yonah/valTBThReadMinError}{MemBus}
-{yonah/valTBALTThReadMinError}{MemL2} 
+\graphFloatTwo{Error of the Transfer Volume of two Read Kernels running at the
+same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{yonah/valTBThReadMinError}{MemBus} {yonah/valTBALTThReadMinError}{MemL2} 
 
-\graphFloatTwo{Error of the Transfer Volume of the Write Kernel with $K=10$}
-{yonah/valTBThWriteMinError}{MemBus}
-{yonah/valTBALTThWriteMinError}{MemL2} 
+\graphFloatTwo{Error of the Transfer Volume of two Write Kernels running at the
+same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{yonah/valTBThWriteMinError}{MemBus} {yonah/valTBALTThWriteMinError}{MemL2} 
 
-\graphFloatTwo{Error of the Transfer Volume of the Triad Kernel with $K=10$}
-{yonah/valTBThTriadMinError}{MemBus}
-{yonah/valTBALTThTriadMinError}{MemL2} 
+\graphFloatTwo{Error of the Transfer Volume of two Write Kernels using
+Streaming Stores running at the same time with $K=10$:
+$\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{yonah/valTBThWriteStreamMinError}{MemBus}
+{yonah/valTBALTThWriteStreamMinError}{MemL2}
 
-When measuring the transfer volume we achieve a variation below 10\%. The
-overhead is around 20\% for small buffers, and goes towards zero for transfer
-volumes exceeding 10MB. (figs \ref{yonah/valTBThReadMinError},
-\ref{yonah/valTBThWriteMinError} and \ref{yonah/valTBThTriadMinError})
+\graphFloatTwo{Error of the Transfer Volume of two Triad Kernels running at the
+same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{yonah/valTBThTriadMinError}{MemBus} {yonah/valTBALTThTriadMinError}{MemL2} 
+
+For measuring the transfer volume the precision of the MemL2 variant is superior
+to the precision of the MemBus variant. Using the MemL2 variant, we get a
+variation below 10\% if the expected transfer volume is above 10KB.
+
+For the Read, Write and Triad kernel the overhead is between 10\% and 20\% for
+buffers below 10MB and goes towards zero for transfer volumes exceeding 10MB.
+(figs \ref{yonah/valTBThReadMinError}, \ref{yonah/valTBThWriteMinError}
+ and \ref{yonah/valTBThTriadMinError}).
+
+The streaming writes can be measured with high precision and accuracy for
+transfervolumes beyond 100KB using the MemL2 variant. The MemBus variant has a
+high variance for small and large buffers. Between 	10KB and 10MB the results
+fall within 10\% of the expected values (fig.
+\ref{yonah/valTBThWriteStreamMinError}).
 
 \graphFloat{yonah/valTimeThReadMemMinError}{Error of the Execution Time of two
-Read Kernels running at the same time with $K=10$}
+Read Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 \graphFloat{yonah/valTimeThWriteMemMinError}{Error of the Execution Time of two
-Write Kernels running at the same time with $K=10$}
+Write Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{yonah/valTimeThWriteStreamMemMinError}{Error of the Execution Time
+of two Write Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 \graphFloat{yonah/valTimeThTriadMemMinError}{Error of the Execution Time of two
-Triad Kernels running at the same time with $K=10$}
+Triad Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
-For the execution time, we observe huge variations for small buffer sizes. If
-the expected transfer volume exceeds 20KB, the variations drop to around 10\%
+When measuring memory intensive kernels we measure huge
+variations of the execution time for small buffer sizes.
+If the expected transfer volume exceeds 20KB, the variations drop to around 10\%
 and become large again for transfer volumes exceeding 10MB. (figs.
-\ref{yonah/valTimeThReadMemMinError}, \ref{yonah/valTimeThWriteMemMinError} and
+\ref{yonah/valTimeThReadMemMinError}, \ref{yonah/valTimeThWriteMemMinError},
+\ref{yonah/valTimeThWriteStreamMemMinError} and
 \ref{yonah/valTimeThTriadMemMinError})
 
 \graphFloat{yonah/valTimeThAddArithMinError}{Error of the Execution Time of two
-ADD Kernels running at the same time with $K=10$}
+ADD Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
 
 The variations observed when running two ADD kernels in parallel are small
-except for iteration counts below 100000. (fig.
+except for iteration counts below 100'000. (fig.
 \ref{yonah/valTimeThAddArithMinError})
 
-\graphFloat{yonah/valOpThMinError}{Error of the Operation Count with $K=10$}
+\graphFloat{yonah/valOpThMinError}{Error of the Operation Count of two ADD
+Kernels running at the same time with $K=10$:
+$\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected Operation Count}})$}
 As expected, the results for the operation count are perfect (fig. \ref{yonah/valOpThMinError})
 
-Summarizing our results, using the minimum of $K$ scheme with $K=10$ the
-arithmetic kernels can be measured with high precision and accuracy. 
+Summarizing our results, transfer volumes can be measured with a precision of
+10\%. They are overestimated by about 20\% for transfer volumes below 10MB. 
 
-The results of measuring the transfer volume of memory intensive kernels are
-scattered within 10\% of the reference value and overestimated by about 20\% for
-transfer volumes below 10MB. The results of measuring the execution time have
-generally a high variance, except for transfer volumes between 20KB and 10MB.
+The precision of the measured execution times depends heavily on the type of
+kernel measured. Memory intensive kernels are measured with a precision of
+about 10\% for transfer volumes between 10KB and 10MB and very high variances
+outside of that range. Arithmetic kernels can be measured with a high precision.
+
+The operation count measurements are very accurate and precise.
 
 \clearpage
 
-\section{Experimental Results}
+\chapter{Finding Performance and Bandwidth Ceilings}
+Roofline plots show ceilings for the performance and the bandwith of the
+measurement system. The values for the ceilings can be measured or derived from
+the system specification. We will use both approaches and compare the
+results.
+
+By the manual \cite{inteloptimize} CPUs using the  Yonah architecture can issue
+one double precision addition every cycle and one multiplication every two
+cycles. The latencies are given as 3 cycles for the addition and 5 cycles for
+the multiplication.
+
+The latency specifies how many cycles after issuing an operation the result
+becomes available. If the result of a first operation used as input for a second
+operation, the second operation has to wait for the first operation to complete.
+
+There is no difference between the x87 and the SSE instruction set, since the
+same execution units are used for both. The performance of SSE code can be
+slightly better, since more registers are available and fewer instructions need
+to be decoded.
+
+The theoretical ceiling for pure additions is 1 flop/cycle and 0.5 flop/cycle
+for pure multiplications.
+
+It should be possible to use the multiplier and the adder at the same time, so
+if there are two additions per multiplication it should be possible to reach 1.5
+flop/cycle.
+
+We implemented a heavily optimized micro benchmark for pure adds, pure
+multiplications and a mix of additions and multiplications. For the additions we
+used the following loop:
+
+\begin{lstlisting}
+double r[DLP];
+...
+for (long i = 0; i < iterations; i++) {
+	for (int p = 0; p < UNROLL; p++) {
+		for (int j = 0; j < DLP; j++) {
+			r[j] += 1;
+		}
+	}
+}
+\end{lstlisting}
+
+We allocated an array of DLP doubles. In each iteration, we add 1 to each of
+the doubles in the array. The use of multiple accumulators avoids the latency
+and makes it possible to keep multiple instructions in flight. For the SSE
+implementation we did a straight forward vectorization of the code using SSE intrinsics.
+
+For the multiplication we use a very similar loop. We just replaced the
+addition with a multiplication. 
+
+\begin{lstlisting}
+double r[DLP];
+...
+for (long i = 0; i < iterations; i++) {
+	for (int p = 0; p < UNROLL; p++) {
+		for (int j = 0; j < DLP; j++) {
+			r[j] *= base;
+		}
+}
+}
+\end{lstlisting}
+
+Finally, we created a mix with two additions per multiplication:
+
+\begin{lstlisting}
+double mulR[DLP];
+double addR[DLP*2];
+...
+for (long i = 0; i < iterations; i++) {
+	for (int p = 0; p < UNROLL; p++) {
+		for (int j = 0; j < DLP; j++) {
+			mulR[j]*=base;
+			addR[j]+=1;
+			addR[DLP+j]+=1;
+		}
+	}
+}
+\end{lstlisting}
+
+We optimized the value for UNROLL and DLP in the range of 1 to 19 and found the
+following results:
+
+\begin{center}
+\begin{tabular}{llllr@{.}lr@{.}l}
+\toprule
+Operation&Instruction Set & DLP & UNROLL &  \multicolumn{4}{l}{Performance
+[Flop/Cycle]} \\ \cmidrule{5-8}
+&&&&\multicolumn{2}{l}{Measured}&\multicolumn{2}{l}{Theoretical}\\
+\midrule
+ADD   & x87       &  9 & 14 & 0&965 & 1&0\\
+      & SSEScalar &  7 & 15 & 0&934\\
+      & SSE       &  7 & 15 & 0&986\\
+MUL   & x87       &  3 & 10 & 0&498 & 0&5\\
+      & SSEScalar &  3 &  9 & 0&498\\
+      & SSE       &  3 & 10 & 0&498\\
+Mixed & x87       &  3 & 17 & 1&31 & 1&5\\
+      &SSEScalar  &  3 & 17 & 1&35\\
+      &SSE        &  2 &  4 & 1&34\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For pure additions and multiplications we almost reached the theoretical limit.
+For the mixed workload we reached 90\% of the theoretical 1.5 flops per cycle.
+
+In our plots we show 1 flop per cycle as single core performance ceiling and 2
+flops per cycle as dual core performance ceiling.
+
+The bandwidth ceiling can be calculated from the parameters of the memory
+subsystem and is 2.80 bytes per cycle (see section
+\ref{sec:MeasurementMachine}).
+
+To measure the bandwidth which can actually be reached we implemented a
+micro benchmark. To measure the read performance, the benchmark iterates over a
+buffer and combines the data using the XOR operation. For the write performance
+a memory buffer is overwritten.
+
+We use SSE load and stores. There are two flavors of the store operations.
+Normal stores first load the data from memory into the caches and overwrite it
+there. When the cache line gets evicted, the data is written to memory.
+Non temporal stores do not load the data into the caches. The data is written
+directly to memory.
+
+We use multiple load and store streams. That is, we split the buffer
+into multiple parts and iterate over all parts simultaneously.
+
+We experimented with software prefetching but could not improve our results. 
+
+Optimizing loop unrolling and stream count resulted in  the following
+numbers:
+
+\begin{center}
+\begin{tabular}{lllr@{.}l}
+\toprule
+Operation & Streams & UNROLL &  \multicolumn{2}{l}{Throughput
+[Byte/Cycle]} \\
+\midrule
+Load  &  2 & 3 & 2&16\\
+Write &  3 & 4 & 1&71\\
+Non Temporal & 1 & 1 & 1&66\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The throughput of the non temporal stores seems to be low compared to the
+normal stores. But since only half of the memory has to be transferred (no
+loads), the same amount of memory is actually written in half the time.
+
+The results reported here were obtained using MemBus, but the results of the
+MemL2 variant are almost identical.
+ 
+In the stream benchmark \cite{stream} the system reaches a copy rate of 2434
+MB/s, which is $2*3434MB/1.8GHz=2.84$ bytes per cycle. Our micro benchmark
+reported a smaller number, but the result is comparable to ours.
+
+We also measure the random access throughput. A large buffer is allocated and
+randomly accessed. The throughput is 0.525 bytes per cycle. Since a cache line is
+64 bytes, this results in one memory access every $64/0.525=122$ cycles.
+
+In our roofline plots we only show the load ceiling (2.2 flops per cycle) and
+the random access ceiling (0.52 bytes per cycle).
+
+\chapter{Experimental Results}
 We used our tool to measure various kernels. For each kernel we describe the
 kernel and the measurement setup and show the resulting roofline plot.
 
-\subsection{BLAS}
+We used the techniques described in sections
+\ref{sec:SingleThreadedHandlingTheVariance} and
+\ref{sec:MultiThreadedHandlingTheVariance} to reduce the variance of the
+measurement results. 
+
+We repeated each measurement 10 times and show the results using whisker bars
+for the minimum and maximum and error boxes for the 25th and 75th percentile. 
+
+Since the precision generally improves with growing problem sizes, we decided to
+measure large problems only once. For such measurements, no whisker bars or
+error boxes are drawn.
+
+To investigate the influence of the initial cache state, we measured a specific
+implementation of a kernel with cold caches, with the data loaded into the
+caches (`-Data'), with the code loaded into the caches (`-Code') and with
+both data and code loaded into the caches (`-Data-Code').
+
+We observed a similar behavior for all kernels. If only the code is initially
+loaded into the caches, the operational intensity is slightly increased for
+small problem sizes, since the transfer volume is reduced by the size of the
+code. For larger problem sizes the effect disappears, since the size of
+the code is negligible to the transfer volume needed to load the data.
+
+If the data is initially loaded into the caches, the operational intensity is
+increased compared to cold caches and grows with the size of the vector.
+During the measurement the code has to be loaded once from memory.
+Since the data is already in the caches the transfer volume is constant, while
+the operation count grows with the problem size.
+
+With growing problem sizes the data is too large to fit into the caches.
+The operational intensity drops to the level of cold caches. The drop should
+occur when the size of the data exceeds the size of the caches.
+
+If both data and code are initially loaded into the caches, the operational
+intensity is theoretically infinite (or undefined) as long as both data and
+code fit into the caches, since no memory transfer is required. With growing
+problem sizes the data does not fit into the caches anymore and the operational
+intensity drops but stays higher than the operational intensity measured when
+only the data is loaded into the caches.
+
+For high operational intensities we observed a reduced precision. Since such
+measurements run for a relatively long period of time while causing a small
+transfer volume, auxiliary data transfers might be measured which occur at a
+fluctuating rate. This could cause the loss of precision.
+
+The effect on performance of the initial cache state is generally smaller than
+the effect on operational intensity. While a factor of 10 is not uncommon for
+the operational intensity, an increase by 1.5 can only be observed for memory
+bound kernels. The effect is marginal for computationally bound kernels.
+
+\section{BLAS}
 Basic Linear Algebra Subprograms (BLAS) is a standard API for basic linear
 algebra operations. The functionality is divided into three levels:
 
@@ -840,18 +1275,31 @@ For each level, we chose a representative operation and generated roofline plots
 using the Intel Math Kernel Library (MKL) \cite{MKL} and the OpenBlas
 \cite{OpenBlas} implementations.
 
+\subsection{Level 1}
 \graphFloat{yonah/daxpy}{Roofline Plot of the Vector-Vector Multiplication
-(MemL2, DoublePrecisionFlop)}
-For level 1, we chose the 'daxpy' operation, defined as $\bf y \leftarrow \alpha
-\bf x + \bf y$ with double vectors. There is no reuse in this kernel. For every
-vector element triple, two operations are performed. Since the vector sizes
-we measure fits into the last level cache, we don't have to take the write
-backs into account. The maximal operational intensity is $2/(2*8)=1/8=0.125$
-which is confirmed by figure \ref{yonah/daxpy}.
+(MemL2, DoublePrecisionFlop)} For level 1, we chose the `daxpy' operation,
+defined as $\bf y \leftarrow \alpha \bf x + \bf y$ with double vectors. There is
+no reuse in this kernel. For every vector element triple, two operations are
+performed. If the vectors fit into the caches there is no write back and the
+operational intensity is $2/(2*8)=1/8=0.125$. For larger vectors the intensiy
+becomes $2/(3*8)=1/12=0.083$. These values are confirmed by figure
+\ref{yonah/daxpy}. The precision of the results is good.
 
+\graphFloat{yonah/daxpyWarm}{Roofline Plot of the influence of the
+initial cache state on the Vector-Vector Multiplication (MemL2,
+DoublePrecisionFlop)}
+
+If data or code and data is initially loaded into the caches, we expect the
+operational intensity to drop for a vector size of $n=2MB/(2*8)=131'072$. But
+the drop already starts at a size of 16'000 (fig. \ref{yonah/daxpyWarm}). The
+two double vectors of this size occupy one eight of the cache. Since the L2
+cache is 8 way associative, this is exactly the size which fits into the cache
+without using one cache line set twice. We did not investigate this further.
+
+\subsection{Level 2}
 \graphFloat{yonah/dgemv}{Roofline Plot of the Matrix-Vector Multiplication
 (MemL2, DoublePrecisionFlop)} 
-For level 2, we chose the 'dgemv' operation,
+For level 2, we chose the `dgemv' operation,
 defined as $\mathbf y \leftarrow \alpha A \mathbf x  + \beta \bf{y}$ with double
 vectors and matrices. For an $n\times n$ matrix and vectors of size $n$, the
 operation count is $2n$ for the vector scaling and $2n^2$ for the multiplication of the matrix with the vecor and the
@@ -859,9 +1307,22 @@ vector addition, totaling in $2n^2+2n$. The vector $\mathbf x$ can be reused.
 Since the vector sizes we measure fit into the last level cache, the write backs
 are cached. The memory transfer is $2n*8$ bytes to load the vectors and $n^2*8$
 bytes to load the matrix. This results in a maximal operational intensity for
-large matrices of $\approx 2/8=0.25$ which is confirmed by figure \ref{yonah/dgemv}
+large matrices of $2/8=0.25$ which is confirmed by figure
+\ref{yonah/dgemv}.
 
-For level 3, we chose the 'dgemm' operation,
+The precision is generally good, although we observe some performance outliers
+for the multi threaded OpenBlas implementation.
+
+\graphFloat{yonah/dgemvWarm}{Roofline Plot of the Matrix-Vector Multiplication
+(MemL2, DoublePrecisionFlop)}
+
+When initially loading data or code and data into the caches, the operational
+intensity starts to drop at a vector size of $n=300$. At this point the matrix occupies
+$300^2*8=720000$ bytes, which is about one third of the cache. 
+
+
+\subsection{Level 3}
+For level 3, we chose the `dgemm' operation,
 defined as $C \leftarrow \alpha A B + \beta C $ with double matrices. For an
 $n\times n$ matrix, the operation count is $2n^2$ for the two scale operations
 and $2n^3$ for the matrix-matrix multiplication and the addition to $C$.
@@ -880,16 +1341,18 @@ the working set on the cache.
 
 The triple loop uses the following algorithm:
 
+\begin{minipage}{\textwidth-18pt}
 \begin{lstlisting}[language=C] 
 for (long i = 0; i < size; i++) 
 for (long j = 0; j < size; j++) 
 for (long k = 0; k < size; k++) 
 c[i * size + j] += a[i * size + k] * b[k * size + j]
 \end{lstlisting}
+\end{minipage}
 
 If $B$ fits into the cache, all matrices have to be loaded exactly once. In this
 case the transfer volume is $3n^2*8$ to load the matrices. Since the space
-occupied by the reused matrix is not available for writeback caching,
+occupied by the reused matrix is not available for write back caching,
 $\max(n^2*8-\max(k-n^2*8,0),0)$ bytes are written. Dropping lower order terms,
 the operational intensity is optimal ($n/16$). 
 
@@ -945,12 +1408,12 @@ once per block row of $A$. Thus the memory transfer to load $A$ and $B$ is
 $2\frac{n}{N_b}n^2*8=2\frac{n^3}{N_b}*8$ and $2*n^2*8$ to load and store $C$.
 The resulting operational intensity is $N_B/8=6.25$.
 
-\graphFloat{yonah/mmmOp}{Matrix Matrix Multiplication: Operational Intensity}
-When comparing these models for the operational intensity of the triple loop and
-the blocked version, we observe a good match for matrix sizes up to $n=200$.
+\graphFloat{yonah/mmmOp}{Matrix Matrix Multiplication: Operational Intensity
+(MemL2)} When comparing these models for the operational intensity of the triple
+loop and the blocked version, we observe a good match for matrix sizes up to $n=200$.
 Past this size, the operational intensity of the triple loop rapidly falls to
 the value predicted for large matrices, but the drop begins too early. We
-predicted the fall when a single matrice occupies more memory than the L2 cache
+predicted the fall when a single matrix occupies more memory than the L2 cache
 size, but the measured drop begins at half the cache size. (fig \ref{yonah/mmmOp}).
 
 The model for the blocked version overestimates the measurement results as
@@ -980,44 +1443,150 @@ $3(\frac{n}{N_b})^3N_b=3\frac{n^3}{N_b^2}$ in total.
 Figure \ref{yonah/mmmOpTlb} shows that the measurement results follow our
 predictions.
 
-\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication}
-Figure \ref{yonah/mmm} shows the roofline plot of the triple loop, the blocked
+\graphFloat{yonah/mmm}{Roofline Plot of the Matrix-Matrix Multiplication
+(MemL2)} Figure \ref{yonah/mmm} shows the roofline plot of the triple loop, the blocked
 version and the two libraries. 
 
 In addition we included the blocked version with
 scalar replacement. The scalar replacement has been implemented by specifying
-the matrices as 'restrict' pointers to the compiler, hence the name.
+the matrices as `restrict' pointers to the compiler, hence the name.
+
+The precision of all results is decent. 
+
+The triple loop has a poor performance, even for small matrices. This is
+probably due to it's lack of unrolling. For matrix sizes exceeding $n=400$ the
+drop in operational intensity and performance is clearly visible.
+
+The other single threaded implementations all have an operational intensity of
+around 10. The performance is 0.5 flops/cycle for the blocked version, 0.7 for
+the blocked version with scalar replacement and around 0.85 for the library
+implementations. It is interesting to see that the highly optimized library have
+a very similar operational intensity and only a 20\% higher performance compared
+to the rather similar blocked version with scalar replacement.
+
+The multi threaded implementations show a speedup of factor two, with a
+reduction in operational intensity. It would be interesting to know if the
+reduced operational intensity is a measurement artifact or due to the
+implementations.
 
 \graphFloat{yonah/MMMwarm}{Roofline Plot of the Matrix-Matrix Multiplication
-with Different Initial Cache States}
+with Different Initial Cache States (MemL2)}
 
-Figure \ref{yonah/MMMwarm} shows the influence of the initial cache state. Due
-to the small code size it does not matter much if the code is initially in
-cache. If the data is in cache matters for matrix sizes up to about 200.
+\graphFloat{yonah/MMMwarmInt}{Effect of the Initial Cache State on the
+Operational Intensity for the Matrix-Matrix Multiplication (MemL2)}
 
-\subsection{FFT}
-Fast Fourier Transform algorithms 'are of great importance in a variety of
+The initial cache state has a very small influence on the performance. (fig.
+\ref{yonah/MMMwarm}) This results in a very cluttered roofline plot. The
+insensitivity of the performance to the initial cache state is plausible since
+the matrix-matrix multiplication has a relatively high operational intensity
+and is not memory bandwidth bound. 
+
+To be able to analyze the effect of the initial cache state on the operational
+intensity, we extracted the relevant information in figure
+\ref{yonah/MMMwarmInt}.
+
+For matrix sizes greater than $n=300$ the initial cache state has almost no
+effect.
+
+The effect of loading the code into the caches is negligible for small matrix
+sizes. Starting with $n=150$ the difference becomes apparent. This could be
+caused by a switch of the algorithm implementation by the library.
+
+If the data is initially loaded into the caches the operational intensity
+increases by more than an order of magnitude for small matrices. The effect
+grows with larger matrices. But for a size of $n=100$ the operational
+intensity begins to drop. One matrix of that size occupies 80KB only. We have
+no explanation for this effect. 
+
+At $n=150$ the drop stops, with an operational intensity still two times larger
+than the one for cold caches. The effect of the warm caches decays for growing
+matrix sizes. 
+
+If both data and code is loaded into the caches we observe operational
+intensities in the range of 200 to 10000 for small matrix sizes. We see a
+similar drop curve as when only the data is loaded into the caches. 
+
+The huge operational intensities can be explained by the large number of
+operations that are performed while theoretically not transferring any memory.
+The operation count for $n=25$ is $2*n^3=31'250$ and $250'000$ for $n=50$.
+ 
+\section{FFT}
+Fast Fourier Transform algorithms `are of great importance in a variety of
 fields, from digital signal processing and solving partial differential
 equations to algorithms for quick multiplication of large integers.'
 (\cite{FastFourierTransform})
 
-Apart from the simple implementation found in 'Numerical Recipes' (NR)
+Apart from the simple implementation found in `Numerical Recipes' (NR)
 \cite{Press:2007:NRE:1403886} on page 608, we used the implementations from the MKL \cite{MKL} , FFTW \cite{FFTW}
 and Spiral \cite{Spiral}. All four implementations operate on a linear buffer
 containing $n$ complex numbers, each represented by two doubles. The
 transformation is performed in-place.
 
-\graphFloat{yonah/fft}{Roofline Plot of four FFT implementations}
+\graphFloat{yonah/fft}{Roofline Plot of four FFT implementations (MemL2)}
 Figure \ref{yonah/fft} shows the roofline plot of the four implementations. The
 NR implementation performs well initially, but the operational intensity and the
-performance significantly drop for large input sizes.
+performance significantly drop for large input sizes. The library
+implementations have a large overhead on small input sizes, but perform a lot
+better on large inputs.
 
-\graphFloat{yonah/FFTwarm}{Roofline Plot of the Fast Fourier Transformation
-with Different Initial Cache States}
-Figure \ref{yonah/FFTwarm}  shows the influence of the initial cache state. 
+Figure \ref{yonah/FFTwarm} shows the influence of the initial cache state. When
+data or code and data is initially loaded into the caches, the operational
+intensity drop starts for $n=4'096$. The input size is $n*2*8=64KB$.
+
+\section{WHT}
+The Walsh-Hadamard transformation (WHT) is related to the FFT. It's application
+is mainly in the field of data encoding.
+
+\graphFloat{yonah/wht}{Roofline Plot WHT (MemL2)}
+We used the implementation of the SPIRAL project \cite{Spiral}. The algorithm
+operates on a buffer of $2^n$ doubles. Since we only have one
+implementation, we directly show a roofline plot with the different
+initial cache states (fig. \ref{yonah/wht})
+
+\graphFloat{yonah/whtInt}{Operational Intensity WHT (MemL2)}
+Since the roofline plot is very cluttered, we show the operational
+intensity versus the problem size in figure \ref{yonah/whtInt}.
+For warm data or code and data, the operational intensity drops at $n=15$. The
+buffer size is $2^n*8=262'144$, which is one eight of the second level cache. We
+have no explanation for this effect.
 
 \clearpage
-\section{Measurement Tool Architecture}
+
+\chapter{Future Work and Conclusions}
+In this thesis we designed and implemented a tool which simplifies performance
+measurements. We introduced multiple abstractions, which allow simple and
+common measurements to be performed with ease, while being flexible enough to
+scale to more complex situations.
+
+Due to these abstractions it should be possible to repeat the measurements
+presented in this thesis on different systems with small effort. We already
+repeated the measurements on an Intel Core machine (see
+appendix \ref{sec:resultsIntelCore}). To reach more potential users it would be
+good to port the tool to more architectures.
+
+The precision and accuracy of our measurement results are satisfactionary for
+the generation of roofline plots. However, we observe substantial variations
+when measuring memory intensive kernels. We have no good explanation for these
+effects. A thorough analysis could be very informative.
+
+In various places we observed cache misses when all data should theoretically
+fit into the L2 cache. We suspect that the LRU (least recently used) cache line
+replacement implementation is not perfect. Detailed experiments could possibly
+tell if this is true or false.
+
+For handling the variance we presumed that a measurement either results in the
+true value, or it is disturbed by some activity (task switches) and results in a
+biased result. We further presumed that the distortion can only increase the
+result (time, memory transfer, operation count), and thus the minimum result of
+multiple measurement runs has to be the true result.
+
+An in depth study of this model could result in means to reduce the number of
+measurements to be performed and the ability to give confidence intervals for
+measurement results.
+
+\clearpage
+\appendix
+\chapter{Measurement Tool Architecture}
 The tool consists of two main components: The Measuring Core, which performs the
 actual measurements, and the Measurement Driver, which controls the core.
 
@@ -1026,12 +1595,11 @@ written in that language. To simplify development and maintenance, we tried to
 keep the amount of C++ code as small as possible. Therefore the measurement
 driver is written in Java.
 
-A measurement is controlled by a measurement specific
-routine (one per measurement), which iterates through all parameter points to be examined,
-compiles and starts the Measuring Core and processes the results. This should
-result in straight forward code for controlling the measurements and, since the
-control code is written in Java, a minimal amount of new concepts has to be
-learned.
+A measurement is controlled by a measurement specific routine (one per
+measurement), which iterates through all parameter points to be examined. For
+each point it compiles and starts the Measuring Core and processes the results.
+Since these routines tend to require a lot of flexibility, we decided to use
+Java for this code. 
 
 During the development of measurement control routines, it is expected that many
 changes do not affect the parameter points. To speed up repeated measurements
@@ -1048,12 +1616,12 @@ files of a measurement are placed in the current working directory.
 
 \umlDiagram{ToolComponents}
 
-\subsection{Component Collaboration}
+\section{Component Collaboration}
 Data transfer between the measuring core and the measurement driver is achieved
-using serialized objects stored in files. Classes of these objects are
-used both from C++ and Java and therefore shared entities. They
-are described using XML. Source code for both languages is generated. For
-details, see \ref{sec:MultiLanguageInfrastructure} 
+using serialized objects stored in files. Classes of these objects are used both
+from C++ and Java. They are called shared entities and are described using XML.
+Source code for both languages is generated. For details, see
+\ref{sec:MultiLanguageInfrastructure}
 
 The root class for describing a measurement is a MeasurementCommand.
 It contains the number of times the measurement should be repeated, as well as
@@ -1081,20 +1649,20 @@ The following diagram shows all classes describing a measurement together:
 
 \umlDiagram{MeasurementCommandFull}
 
-A measurement is usually repeated multiple times, to get an idea of the
-distribution of the results. Each repetition is called measurement run.
+To be able to analyze the distribution of the results, a measurement is
+tipically repeated multiple times. Each repetition is called measurement run.
 In each run, the outputs of all measurers are collected. At the end of the
 measurement, the core serializes the results of all runs into a single file,
 which is read by the driver.
 
 \umlDiagram{MeasurementRunOutput}
 
-\subsection{Tour of a Measurement}
-In this section, we'll look at the components specific to a measurement. To make
-sure you don't get lost, here is the tour map: 
+\section{Measurement Overview}
+In this section, we will look at the components specific to a measurement. The
+following diagram gives an overview of the discussed components:
 \umlDiagram{MeasurementTourMap}
 
-First, we'll look at the kernel. It is defined in
+First, we will look at the kernel. It is defined in
 an XML file:
 \begin{lstlisting}[language=XML]
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1113,16 +1681,16 @@ an XML file:
 </derivedClass>
 \end{lstlisting}
 
-Kernels are always derived from KernelBase, hence the derivedClass element on
+Kernels are always derived from KernelBase, hence the `derivedClass' element on
 line 2 and the base type defined on line 6. 
 
-The cSuffix is given as 'Data' on
-line 7. This causes the generated class to be named 'TriadKernelData'. The
-measuring core implements 'TriadKernel', which derives from TriadKernelData. The
+The `cSuffix' is given as `Data' on
+line 7. This causes the generated class to be named `TriadKernelData'. The
+measuring core implements `TriadKernel', which derives from TriadKernelData. The
 serialization service will instantiate the derived class. This mechanism allows
 to use a derived class, optionally with additional code and data, to be used in
-the measuring core. This is how the actual algorithm is implemented. We'll look
-at this later.
+the measuring core. This is how the actual algorithm is implemented. We will
+look at this later.
 
 On line 10 starts a field definition. Fields and getters/setters are generated
 for the field.
@@ -1152,12 +1720,12 @@ public class TriadMeasurementController implements IMeasurementController {
 	}
 }
 \end{lstlisting}
-The class implements IMeasurementController and has to be placed in the
-measurementControllers package. The measure command will instantiate the class
-and call the measure() method. The getName() method returns the name of the
+The class implements \class{IMeasurementController} and has to be placed in the
+`measurementControllers' package. The measure command will instantiate the class
+and call the measure() method. The \method{getName()} method returns the name of the
 measurement, which is used to identify the measurement.
 
-The two fields with the @Inject attribute are initialzed by the dependency
+The two fields with the @Inject attribute are initialized by the dependency
 injection framework when the class is instantiated. The quantity measuring
 service allows to measure quantities like operation count, transferred bytes,
 performance etc. The roofline controller manages a roofline plot. We will see
@@ -1165,6 +1733,7 @@ how these facilities are used when we look at the body of the measure function:
 
 \begin{lstlisting}[language=JAVA]
 public void measure(String outputName){
+	// initialize the roofline plot
 	rooflineController.setTitle("Triad");
 	rooflineController.addDefaultPeaks();
 
@@ -1175,24 +1744,33 @@ public void measure(String outputName){
 		kernel.setOptimization("-O3");
 
 		// add a roofline point
-		rooflineController.addRooflinePoint(
-			"Triad", Long.toString(size),
-			kernel, Operation.CompInstr,
-			MemoryTransferBorder.LlcRam);
+		rooflineController
+				.addRooflinePoint("Triad", size,
+						kernel, Operation.CompInstr,
+						MemoryTransferBorder.LlcRamBus);
 
-		// measure the throughput
-		Throughput throughput = quantityMeasuringService.measureThroughput(
-			kernel, MemoryTransferBorder.LlcRam, ClockType.CoreCycles);
+		// create calculators
+		QuantityCalculator<Throughput> throughtputCalculator 
+			= quantityMeasuringService
+				.getThroughputCalculator(
+					MemoryTransferBorder.LlcRamBus,
+					ClockType.CoreCycles);
 
-		// measure the operation count
-		OperationCount operations = quantityMeasuringService
-			.measureOperationCount(kernel, Operation.CompInstr);
+		QuantityCalculator<OperationCount> operationCountCalculator 
+			= quantityMeasuringService
+				.getOperationCountCalculator(Operation.CompInstr);
+
+		// perform measurement
+		QuantityMap result = quantityMeasuringService.measureQuantities(
+				kernel, throughtputCalculator, operationCountCalculator);
 
 		// print throughput and operation count
 		System.out.printf("size %d: throughput: %s operations: %s\n", size,
-			throughput, operations);
+				result.best(throughtputCalculator),
+				result.best(operationCountCalculator));
 	}
 
+	// create the PDF of the plot
 	rooflineController.plot();
 }
 \end{lstlisting}
@@ -1213,13 +1791,15 @@ service.
 The last statement of the measure() body causes the plot to be output to a file
 in the current directory. This involves the invocation of gnuplot.
 
-During the invocation of addRooflinePoint() and the quantity measuring service a
-lot was going on under the hood. First a measurement was created from the
-kernel and the measurers required to measure the requested quantities. Then was
-checked if there is already a result for the measurement in the cache. If not,
-the measurement was serialized, the measuring core was configured, built
-and started. Then the result of the core was parsed and stored in the cache.
-And finally, the requested quantities were caculated.
+The \method{addRooflinePoint()} method of the \class{RooflineController} and the
+\method{measureQuantities()} method of the \class{QuantityMeasuringService}
+depend on a lot of functionality of the measurement driver and the measuring
+core. First a measurement was created from the kernel and the measurers required
+to measure the requested quantities. Then it was checked if there is already a
+result for the measurement in the cache. If not, the measurement was serialized,
+the measuring core was configured, built and started. Then the result of the
+core was parsed and stored in the cache. And finally, the requested quantities
+were calculated.
 
 The only measurement specific part involved in this process is the
 implementation of the kernel. First the header:
@@ -1238,9 +1818,9 @@ public:
 };
 \end{lstlisting}
 
-The kernel requires three buffers. All declared methods override methods
-from the KernelBase. The buffers are allocated and initialized in
-initialize() and freed in dispose(). getBuffers() returns the buffers along with
+All declared methods override methods
+from \class{KernelBase}. The kernel requires three buffers.  The buffers are
+allocated and initialized in initialize() and freed in dispose(). \method{getBuffers()} returns the buffers along with
 their sizes. This is used to clear the or warm the caches. run() contains the
 actual algorithm. 
 
@@ -1289,7 +1869,7 @@ void TriadKernel::dispose() {
 
 \end{lstlisting}
 
-\subsection{Multi Language Infrastructure}
+\section{Multi Language Infrastructure}
 \label{sec:MultiLanguageInfrastructure}
 The shared entities are used from both C++ and Java. To avoid having to
 manually synchronize two versions of the same class, the source code for the C++
@@ -1333,7 +1913,7 @@ After the definitions are loaded, Velocity templates are used to generate all
 source code.
 
 A normal entity has a C and a Java base type. The C base type has to directly or
-indirectly inherit from SharedEntityBase, which is a polymorphic class.
+indirectly inherit from \class{SharedEntityBase}, which is a polymorphic class.
 This allows to use the RTTI (RunTime Type Information). Java base types have no
 such constraint (due to the implicit common base class Object). The base types
 are just included in the generated source code, but have no other effect on the
@@ -1361,7 +1941,7 @@ Diagram shows these dependencies:
 
 \umlDiagram{MultiLanguageCodeGeneration}
 
-\subsubsection{Serialization and Deserialization}
+\subsection{Serialization and Deserialization}
 Along with the source code for each class, a service serializing and
 deserializing multi language objects to/from a simple text based format is
 generated for both languages. It supports the following primitive types:
@@ -1398,9 +1978,9 @@ including all fields declared in a base class. If a reference is encountered,
 the deserialization method is called recursively with the same input, and the
 returned instance is used as field value.
 
-\subsection{Frontend}
+\section{Frontend}
 The measurement tool is a console tool controlled using command line options.
-Measurement results are either directly dispalyed on the console, dumped to a
+Measurement results are either directly displayed on the console, dumped to a
 data file or processed, usually for generating a graph. The graph is typically
 stored as a file. But unlike normal tools, the source code is expected to change
 frequently, and the user likely switches often between coding and using the
@@ -1409,7 +1989,7 @@ tool.
 To support this usage pattern, the build process has been integrated into the
 normal tool operation. The frontend is used to first trigger the build process
 and then invoke the measurement driver. Otherwise, the user would have to keep
-to console windowses open, one for building and one for measuring, and not to
+two console windows open, one for building and one for measuring, and not to
 forget building to see the changes made to the source code.
 
 After building, the frontend starts the the measurement driver, forwarding it's
@@ -1426,7 +2006,7 @@ using a user configuration file, which is located by default under
 argument. Finally, the command line options known by the frontend are used to
 modify the configuration flags after they have been loaded. 
 
-\subsection{Measurement Driver}
+\section{Measurement Driver}
 For the design of the measurement driver, we used software engineering best
 practice, namely unit testing (junit), mocks (jmock), and dependency
 injection (guice). Further a domain model (DOM), controllers, repositories and
@@ -1448,7 +2028,7 @@ injection framework is initialized. This is accomplished using the
 instantiated, mainly based on naming conventions.
 
 Then the command line arguments are parsed. If command line auto completion is
-desired (indicated by the '-autocomplete' flag), the auto completion process
+desired (indicated by the `-autocomplete' flag), the auto completion process
 starts. 
 
 Otherwise the configuration is initialized, using the flags specified at the
@@ -1461,7 +2041,7 @@ framework.
 Then the class for the command given on the command line is instantiated and
 the \method{execute()} method on the resulting \class{ICommand} is called.
 
-When a 'measure' command is given, a \class{MeasurementCommandController} is
+When a `measure' command is given, a \class{MeasurementCommandController} is
 instantiated. The command controller looks a the next command line argument,
 instantiates the corresponding measurement controller and calls the
 \method{measure()} method.
@@ -1505,7 +2085,7 @@ various tasks is collected using the \class{RuntimeMonitor}. At the end of the
 execution, the times spent for the tasks is printed to the console.
 
 
-\subsubsection{Dependency Injection Configuration}
+\subsection{Dependency Injection Configuration}
 Generally, a convention over configuration approach was chosen for the
 configuration of the dependency injection. The conventions as well as optional
 exceptions are defined in the MainModule. 
@@ -1515,26 +2095,24 @@ The conventions are:
 singletons
 \item[Repositories] all classes in the repositories packages are bound to
 themselves as singletons
-\item[Application Controllers] all classes in the 'appControllers' package are
+\item[Application Controllers] all classes in the `appControllers' package are
 bound to themselves as singletons
-\item[Measurement Series] all classes deriving form IMeasurementSeries in the
-measurement series package are bound to the IMeasurementSeries interface
-annotated with their name
-\item[Commands] all classes deriving from ICommand in the commands package are
-bound to the ICommand interface annotated with their name
-\item[Measurement Controllers] all classes deriving from IMeasurementController
-in the measurement controller package are bound to the IMeasurementController
+\item[Measurement Controllers] all classes deriving form IMeasurementController
+in the `measurementControllers' package are bound to the IMeasurementController
 interface annotated with their name
+\item[Commands] all classes deriving from ICommand in the `commands' package are
+bound to the ICommand interface annotated with their name
 \end{description}
 
-\subsubsection{Configuration}
+\subsection{Configuration}
 The design goal was to create a configuration system which
 \begin{itemize}
 \item allows to set configuration flags from the command line and from
 configuration files
 \item can manage some form of comment for the flags
 \item makes the available flags transparent
-\item supports user specific configuration
+\item supports user specific configurations
+\item allows the change of the configuration flags at runtime
 \end{itemize}
 
 \umlDiagram{measurementDriver/Configuration}
@@ -1555,7 +2133,7 @@ The values associated with configuration keys are stored in
 links. If no value is found in a configuration or all of its ancestors, the
 default value stored in the configuration key is used. 
 
-The state of a configuration kan be saved on a stack using \method{push()} and
+The state of a configuration can be saved on a stack using \method{push()} and
 restored using \method{pop()}. All modifications to a configuration after a push
 are undone by the pop. This can be used to temporarily change the
 configuration.
@@ -1584,24 +2162,33 @@ some placeholders, which are expanded during the build process.
 Finally, the flag definitions with lowest precedence are the default values
 given in the configuration keys.
 
-\subsubsection{Auto Completion}
+\subsection{Auto Completion}
+To enable auto completion support, a small shell script has to be placed in a
+system directory (see \ref{sec:HowtoInstall}). Whenever auto completion is
+requested by the user on the command line (by pressing TAB), to `rot' tool is
+called with the `-autocomplete' flag. 
 
-\subsubsection{Commands}
-A command is represented by a class deriving from ICommandController and should
-be placed in the commands package. A command has a name and a description, which
-should be the return value of the getName() respectively getDescription()
-methods of the command. The measurement driver expects a command name as first
-argument. The name is matched against the names of all available commands. If a
-command matches, the execute() method of a new instance of the corresponding
-class is called with the remaining command line arguments as parameter.
+The frontend just forwards to the measurement driver, without recompilation. The
+driver then provides the completion proposals, taking registered commands and
+measurement controllers into account.
 
-\subsubsection{Measurement Controllers}
+\subsection{Commands}
+A command is represented by a class deriving from \class{ICommandController} and
+should be placed in the `commandControllers' package. A command has a name and a
+description, which should be the return value of the \method{getName()}
+respectively \method{getDescription()} methods of the command. The measurement
+driver expects a command name as first argument. The name is matched against the
+names of all available commands. If a command matches, the \method{execute()}
+method of a new instance of the corresponding class is called with the remaining command
+line arguments as parameter.
+
+\subsection{Measurement Controllers}
 The operation of the measurement driver is controlled by the measurement
 controllers. They define which measurements to perform and how to process the
 output. The measure command instantiates a measurement controller and calls the
-measure() method.
+\method{measure()} method.
 
-\subsubsection{Parameter Space}
+\subsection{Parameter Space}
 When implementing measurement controllers, one often has to iterate over all
 possible combinations of some parameters. The \class{ParameterSpace} was
 designed to support this. 
@@ -1609,7 +2196,7 @@ designed to support this.
 Every parameter is identified by an \class{Axis}. For
 each axis, one or multiple values are specified. After the desired values are
 specified, all possible parameter combinations can be generated, represented by
-\class{Coordinate} objects. The points are generated implicitely when iterating
+\class{Coordinate} objects. The points are generated implicitly when iterating
 over the space.
 
 Example:
@@ -1634,14 +2221,14 @@ for (Coordinate coordinate : space) {
 }			
 \end{lstlisting}
 
-To faciliate the initialization of measurements, the classes of the measurement
-description have an \method{intialize()} method which takes a coordinate as
+To facilitate the initialization of measurements, the classes of the measurement
+description have an \method{initialize()} method which takes a coordinate as
 parameter. Depending on the kernel or measurer at hand, some fields are
 set to the value of an axis given by the coordinate.
 
 The most common axes are defined in the \class{Axes} class.
 
-\subsubsection{Retrieving Outputs}
+\subsection{Retrieving Outputs}
 To process the results of a measurement, it is frequently necessary to
 retrieve the output of a specific measurer. 
 
@@ -1649,6 +2236,8 @@ The straight forward approach would be to give each measurer an unique id, and
 to store the id of the measurer with the measurer output. Measurers are newly
 created with each invocation of the measurement driver, possibly leading to new
 ids. But for caching, the ids of the measurers do not matter.
+
+\umlDiagram{measurementDriver/RetrievingOutputs}
 
 To overcome these problems, two ids are generated for each measurer. One
 identifier uniquely identifying each instantiated measurer. And an id which is
@@ -1660,11 +2249,23 @@ To retrieve the output of a measurer, the \class{MeasurementResult} and
 the \class{MeasurementRunOutput} provide several methods which take a measurer
 as argument and return it's output.
 
-\umlDiagram{measurementDriver/RetrievingOutputs}
+\subsection{Plotting}
+Generating plots is an important feature of the tool. There are different plot
+types. The most important are roofline plots and distribution plots. A
+\class{RooflinePlot} contains all data required to generate a roofline plot,
+including peak performances and memory bandwidths. 
 
-\subsubsection{Plotting}
+A \class{DistributionPlot} is a 2D plot containing multiple data series. For
+every discrete $x$ coordinate, there can be multiple values per series. The
+values are shown using an error box for the 25th/75th percentile and whisker
+bars for the minimum and maximum.
 
-\subsubsection{The MeasurementAppController}
+Once an instance of a \class{Plot} is filled with data, it can be passed to one
+of the \method{plot()} methods of the \class{PlotService}. A gnuplot
+script and the required data file will be created in the current
+directory. Then gnuplot is called to generate a PDF of the plot.
+
+\subsection{The MeasurementAppController}
 The measurement application controller is the entry point for performing
 measurements. It is the sole client to the \class{MeasuringCoreService}, which
 provides the low level control over the measuring core, and keeps track of the
@@ -1763,7 +2364,7 @@ controller. Therefore the service ultimately forwards all calls to
 \umlDiagram{measurementDriver/measureCallLift}
 
 
-\subsubsection{Architecture Specific Behavior}
+\subsection{Architecture Specific Behavior}
 The measurement driver supports multiple system architectures. Currently, the
 system architecture is identified by the available PMUs. When a performance
 event is to be read, a list with the event for each architecture is passed to
@@ -1774,7 +2375,7 @@ checked directly.
 For further development, it might become beneficial to use the specification
 pattern. 
 
-\subsubsection{Preprocessor Macros}
+\subsection{Preprocessor Macros}
 Preprocessor macros are used to allow flexible compile time parameterization of
 the measuring core. The macros are defined by the measurement driver. Before the
 compilation of the measuring core, the measurement driver writes the definition
@@ -1796,7 +2397,7 @@ found, an error is raised.
 
 \umlDiagram{measurementDriver/MacroDefinitions}
 
-\subsubsection{Measurement Result Caching}
+\subsection{Measurement Result Caching}
 The measurement controllers mix the definition of the measurement parameters and
 the processing of the output. Thus, if the output processing logic needs to be
 modified, the measurements have to be performed again. This causes a delay,
@@ -1814,11 +2415,11 @@ and the measurement results are stored therein. Before a measurement is
 performed, the hash value is computed. If a corresponding file is found, the
 previous measurement results are reused.
 
-\subsection{Measuring Core}
+\section{Measuring Core}
 The measuring core is based on the object graph constructed by the driver. The
 classes are extended with code and data.
 
-\subsubsection{Core Architecture}
+\subsection{Core Architecture}
 To fully utilize multi core systems, applications have to be implemented with
 multiple threads or processes. Measuring such applications is considerably more
 difficult than measuring single threaded applications. If the thread management
@@ -1861,7 +2462,7 @@ cause it to be stopped. The parent modifies the thread state of the stopped
 thread. When the thread resumes execution, it executes some event handling code
 and then return to the location the thread was interrupted.
 
-\subsubsection{Child Thread States}
+\subsection{Child Thread States}
 \umlDiagram{measuringCore/ChildState}
 The parent process manages a state for each child thread. When a child thread
 starts, ptrace will immediately stop it with SIGSTOP. If the notification system
@@ -1877,7 +2478,7 @@ that the thread will stop eventually.
 A thread can exit at any time. When this is detected by the parent process, the
 state and the notification queue are erased.
 
-\subsection{Thread Representation in the Child Process}
+\section{Thread Representation in the Child Process}
 In the child process, threads are represented as \class{ChildThread} objects.
 Since every \class{Workload} runs in it's own thread, a child thread is
 associated with every workload. 
@@ -1891,7 +2492,7 @@ with the workload.
 Actions can be sent from one thread to another using
 \method{ChildThread::queueAction()}. 
 
-\subsubsection{Building}
+\subsection{Building}
 Each measurement can be performed with different compiler optimization flags and
 macro definitions. Therefore, the measuring core has to be rebuilt for each
 measurement, which makes rebuilding the measuring core a frequent operation. It
@@ -1979,7 +2580,7 @@ stored in .d files in the build directory and are included in the makefile.
 If special compilation flags are required for a source file, a rule should be
 added near the end of the makefile.
 
-\subsubsection{System Initialization}
+\subsection{System Initialization}
 We chose a modular approach to initialize the measuring core. Whenever a system
 part needs to run code when the program starts or shuts down, it can instantiate
 a class derived from SystemInitializer.
@@ -2001,26 +2602,27 @@ static class FooInitializer: public SystemInitializer{
 
 It is important to give every initializer subclass an individual name. Use the
 name of the file the initializer is declared in as prefix. If two initializer
-classes have the same name, they don't work correctly (instances of the wrong
+classes have the same name, they do not work correctly (instances of the wrong
 classes are created)
 
-Whenever a SystemInitializer is instantiated, the instance is registered in a
+Whenever a \class{SystemInitializer} is instantiated, the instance is registered in a
 static global list. On system startup and shutdown, the start() respective
-stop() method of all registered SystemInitializers is called.
+stop() method of all registered \class{SystemInitializers} is called.
 
-\section{How To}
-\subsection{Installation}
+\chapter{How To}
+\section{Installation}
+\label{sec:HowtoInstall}
 see INSTALL file in tool directory
 
-\subsection{Create a New Kernel}
+\section{Create a New Kernel}
 First, you have to create an XML description of the new kernel in
 sharedEntities/definitions/kernels. Look at some of the other files in that
 directory and choose one as starting point for your own. Copy the chosen file
-and give it the name of your kernel. It must end with 'Kernel'. The file name is
+and give it the name of your kernel. It must end with `Kernel'. The file name is
 taken as class name for your kernel description.
 
-Next, run 'rot help' to generate the source code from your XML description. In
-case your class defines a 'javaSuffix', the compilation following the source
+Next, run `rot help' to generate the source code from your XML description. In
+case your class defines a `javaSuffix', the compilation following the source
 generation will fail. Create the Java code of your kernel class in
 measurementDriver/src/ch/ethz/ruediste/roofline/sharedEntities/Kernel and make
 it inherit from the generated class with the suffix. (see other kernels for
@@ -2028,7 +2630,7 @@ examples)
 
 The Java part of your kernel is now ready. You can use it in a measurement. But
 we are still missing the implementation in the measuring core. To implement the
-kernel, it is indispensable to specify a 'cSuffix' in your kernel description.
+kernel, it is indispensable to specify a `cSuffix' in your kernel description.
 
 Create a class in measuringCore/src/sharedEntities/kernels, include the
 generated header file (filename contains the suffix) and derive from the
@@ -2043,34 +2645,34 @@ size. This is used to automatically clear or warm the caches.
 \end{description}
 
 In case you have additional code, you can place it in a subdirectory with the
-same name as your kernel, without the 'Kernel' suffix. All '.cpp' files will be
+same name as your kernel, without the `Kernel' suffix. All `.cpp' files will be
 compiled and linked with the measuring core.
 
-\subsection{Use the Driver as a Library}
-You can use the measurement driver as a library. First, run './gradlew
+\section{Use the Driver as a Library}
+You can use the measurement driver as a library. First, run `./gradlew
 --daemon measurementDriver:runnableJar' to create a jar containing the driver
 together with all dependencies. It will be located in
-'measurementDriver/build/distributions/measurementDriver.jar'. Include the jar
+`measurementDriver/build/distributions/measurementDriver.jar'. Include the jar
 in your project.
 
 During the startup of your application, call LibraryMain.initialize(). Now you
 can use the driver. You can directly instantiate entities and use
 \method{Instantiator.instance.getInstance()} to retrieve service instances.
 
-\subsection{Create New Measurement}
+\section{Create New Measurement}
 \begin{itemize}
 \item create new class in measurementDriver/measurements
 \item implement IMeasurement
 \end{itemize}
 
-\subsection{Add Configuration Key}
+\section{Add Configuration Key}
 The configuration is used to set various flags in the measurement driver.
 \begin{itemize}
-\item add public static field of type ConfigurationKey to any class within the
+\item add public static field of type \class{ConfigurationKey} to any class within the
 measurement driver.
 \end{itemize}
 
-\subsection{Generate Annotated Assembly}
+\section{Generate Annotated Assembly}
 \begin{itemize}
 \item in Eclipse, hit build (Ctrl+B)
 \item change the kernel header file (make it recompile)
@@ -2085,256 +2687,344 @@ MeasurementSchemeRegistration.cpp
 \item open the annotated assembly code in Eclipse
 \end{itemize}
 
-\section{===WORK IN PROGRESS===}
-\section{Measuring Execution Time}
-\begin{itemize}
-\item 0x40000000   UNHALTED\_CORE\_CYCLES 30Ah CPU\_CLK\_UNHALTED.CORE
-\item 0x40000025   UNHALTED\_REFERENCE\_CYCLES 30Bh CPU\_CLK\_UNHALTED.REF
-\item 0x400000ad   THERMAL\_TRIP 3Bh C0h 
-\item 0x400000ae   CPU\_CLK\_UNHALTED
-\item 0x400001a9   ix86arch::UNHALTED\_CORE\_CYCLES
-\item 0x400001aa   ix86arch::INSTRUCTION\_RETIRED
-\item 0x400001ab   ix86arch::UNHALTED\_REFERENCE\_CYCLES 
-\end{itemize}
+\chapter{Results on the Intel Core}
+\label{sec:resultsIntelCore}
+We repeated our measurements on a desktop computer with an Intel Core 2 CPU. The
+results are not discussed in detail, but we tried to point out the most
+important differences to the results we measured for the Yonah architecture
+based system.
 
-\subsection{Experiments}
-To gain insight into the accuracy and precision of the timers available, we run
-the addition kernel with an exponentially increasing iteration count. The
-largest iteration count should result in a runtime of about 0.5s. We expect the
-precision to be high for small iteration counts, a peak variance at around 5 ms
-due to the task switches, and an increasing precision for higher iteration
-counts. The accuracy of the minimum should be high for small iteration counts,
-and include a small overhead if multiple task switches occur during the
-measurement.
+The CPU is an `Intel Core 2 6600' (Family 6, Model 15, Stepping 6) running at
+2.4 GHz. It contains two cores, each having a 32KB instruction and a 32KB data
+L1 cache, 8 ways set associative, with 64 bytes line size. The two cores share a
+4MB unified L2 cache, 16 ways set associative and with 64 bytes line size. The
+TLB has 256 entries, 4 way set associative. The core frequency can scale between
+1.6GHz and 2.4GHz. The bus frequency is 266MHz.
 
-\subsection{Experiment 1}
-The goal of this experiment is to show the effects of task switches and disk IO
-on measuring execution time. As far as possible, we'd like to exclude the
-effects of shared memory bandwidth. 
+The main memory consists of two 1GB and two 512MB DDR2 modules, totaling in 3GB
+available memory. The theoretical throughput of the memory is 8.3 GB/s, which is
+3.46 Bytes per core cycle, if the CPU runs at 2.4GHz.
 
-We measure the arithmetic add kernel. Iteration count is increased until total
-execution time is about half a second. We measure at both the minimal and
-maximal CPU frequency. We measure on an idle system, when another arithmetic
-kernel runs or when heavy disk IO is performed. We let the system load threads
-run on all of the system's CPU. Separate measurements for core cycles, bus
-cycles, gettimeofday(), times (user time)
+\section{Performance Counters}
+We used `coreduo::UNHALTED\_CORE\_CYCLES' for measuring time. For the operation
+count, we used the follwing definitions for operation: 
+\begin{description}
+\item[SinglePrecisionFlop] SSE single precision operations.
+\\{\footnotesize
+`core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_SINGLE'\\
++2*`core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_SINGLE'}
+\item[DoublePrecisionFlop] SSE double precision operations.
+\\{\footnotesize
+`core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:SCALAR\_DOUBLE'\\
++2*`core::SSE\_COMP\_INSTRUCTIONS\_RETIRED:PACKED\_DOUBLE'}
+\item[CompInstr] Computational instructions retired. Counts SSE instructions
+and x87 instructions. Used for x87 code. 
+\\{\footnotesize `coreduo::FP\_COMP\_OPSEXE'}
+\item[SSEFlop] SSE operations, sum of SinglePrecisionFlop and
+DoublePrecisionFlop
+\end{description}
 
-We estimate the execution time for one iteration. We take the time for the
-highest iteration count where we can still get measurement runs without any
-interrupts. This time is divided by the respective iteration count.
+We used two variants of measuring the memory transfer volume. The {\bf MemBus}
+variant uses 64*`core::BUS\_TRANS\_MEM', which measures the transfers on the
+system bus. The {\bf MemL2} variant uses the counters for the L2 cache line
+allocation and eviction, namely
+64*(`core::L2\_LINES\_IN:SELF'+`core::L2\_M\_LINES\_OUT:SELF'), combined
+with 8*`core::SSE\_PRE\_EXEC:STORES' to take non temporal stores
+into account.
 
-Graphs (idle, disk, arithmetic): 
+We used XUbuntu 11.10, running a Linux 3.0.0-16 kernel in 64 bit mode and GCC
+4.6.1.
 
-\begin{itemize}
-\item X: exp exec time [ms, cycles] Y: rel error V: box plots
-\item X: exp exec time [ms, cycles] Y: ints V: box plots
-\item X: exp exec time [ms, cycles] Y: task sw V: box plots
-\end{itemize}
+\section{Performance and Bandwidth Ceilings}
+For the Core architecture, one double precision addition and multiplication can
+be issued every cycle. The latencies are 3 cycles for
+the addition and 5 cycles for the multiplication. \cite{inteloptimize} 
 
-\subsection{Experiment 2}
-Investigate the effects of task switches on a memory intensive kernel. Repeat
-experiment 1 with both a memory load and write kernel
+The throughput and latencies of the packed SSE instructions are equal to those
+of the x87 instructions. Thus with the x87 instruction set the theoretical
+ceiling is 1 flop/cycle for pure additions and multiplications. With the SSE
+instruction set the ceiling is 2 flop/cycle.
 
-\subsection{Experiment 3}
-Measure the influences of shared memory bandwidth on the runtime. Depending on
-the system architecture, we expect to measure shared bandwidth effects. We
-measure a memory load and a memory write kernel. We measure on idle system and
-while running memory load and write kernel on the other CPUs. Buffer sizes are
-larger than cache size. Measure core cycles. Measure at min and max frequency.
-Buffer size chosen such that execution time is around half a scheduling time
-segment.
+It should be possible to use the multiplier and the adder at the same time, so
+if there is an equal number of additions and multiplications it should be
+possible to reach 4 flop/cycle.
 
-One plot per kernel combination (load/load, load/write, write/load, write/write)
-\begin{itemize}
-\item X: cpu map Y: time[cycles]
-\end{itemize}
+We used the same micro benchmarks for addition and multiplication as for the
+Yonah architecture. 
 
+For the mixed instruction set a different workload is used. Due to the latencies
+we always have to keep 5 multiplications and 3 additions in flight. This is
+achieved by the following code:
 
-\subsection{Experiment 4}
-Unfortunately, even on a very lightly loaded system, any task can be executed on
-any other core. Caused by the shared memory bandwidth, this could affect short
-running kernels, and result in wrong measurement results of a whole measurement
-series. We show this by starting two memory intensive, short running kernels
-simultaneously. Solution: introduce sleeps between measurement runs, to make
-sure they are independently measured.
-
-with and without sleep: X: measurement number Y: time[cycles]
-
-\subsection{Experiment 5}
-For long running measurements, it is sufficient to make sure that the average
-system load is low. The side effects of code running on other kernels will be
-smoothed out. This is shown on various average loads (none, 1 2 3 5 10 20 40 50
-75 100)
-
-X: system load Y: rel error
-X: system load Y: variance
-
-We measure using the following counters:
-- core cycles
-- bus cycles
-- gettimeofday()
-- times(): user time
-
-We measure the following kernels:
-+- arithmetic:add
-*- mem: load
-*- mem: write
-
-We measure at 
-*+- max frequency
-+- min frequency
-
-We measure use the following kernels to generate system load
-+- arithmetic: add
-*- mem: load
-*- mem: write
-+- io: file 
-- io: network
-- io: graphics
-
-We measure at different load levels (*+none, 25, 50, 75, *+100)
-
-Measure at different load switch durations (0.1,1,5,10,15,50,100 ms)
-
-We measure with any core combination.
-same core / +core2
-core *+0 *+1 *+2 *+3
+\begin{lstlisting}
+#define MULTIPLICATIONS 5
+#define ADDITIONS 3
+double mulR[MULTIPLICATIONS];
+double addR[ADDITIONS];
+...
+#define MUL for (int h = 0; h < MULTIPLICATIONS; h++)\
+				mulR[h] *= base;
+#define ADD for (int h = 0; h < ADDITIONS; h++)\
+				addR[h] += 1;
+for (long i = 0; i < iterations; i++) {
+	for (int p = 0; p < UNROLL; p++) {
+		MUL ADD ADD MUL ADD ADD MUL ADD
+	}
+}
+\end{lstlisting}
 
 
+Optimizing the value for UNROLL and DLP in the range of 1 to 19 we found the
+following results:
 
-\section{Measuring Memory Traffic}
-\begin{itemize}
-\item 0x40000027   LLC\_MISSES
-\item 0x40000040   SSE\_PRE\_EXEC 07h03h SSE\_PRE\_EXEC.L2
-\item 0x40000059   L2\_DBUS\_BUSY\_RD
-\item 0x4000005c   L2\_LINES\_IN  24h
-\item 0x4000006a   L2\_M\_LINES\_OUT  27h
-\item 0x400000cb   SSE\_PRE\_MISS 4Bh 00h/01h/02h
-\item 62h BUS\_DRDY\_CLOCKS
-\end{itemize}
+\begin{center}
+\begin{tabular}{llllr@{.}lr@{.}l}
+\toprule
+Operation&Instruction Set & DLP & UNROLL &  \multicolumn{4}{l}{Performance
+[Flop/Cycle]} \\ \cmidrule{5-8}
+&&&&\multicolumn{2}{l}{Measured}&\multicolumn{2}{l}{Theoretical}\\
+\midrule
+ADD   & x87       &  9 & 15 & 0&998 & 1&0\\
+      & SSEScalar &  9 & 15 & 0&998 & 1&0\\
+      & SSE       &  9 & 17 & 1&996 & 2&0\\
+MUL   & x87       & 10 & 15 & 1&998 & 1&0\\
+      & SSEScalar & 10 & 15 & 0&998 & 1&0\\
+      & SSE       &  9 & 15 & 1&996 & 2&0\\
+Mixed & x87       &  - & 10 & 1&996 & 2&0\\
+      &SSEScalar  &  - &  9 & 1&995 & 2&0\\
+      &SSE        &  - & 11 & 3&991 & 4&0\\
+\bottomrule
+\end{tabular}
+\end{center}
 
-\subsection{Experiments}
-To gain insight into the accuracy and precision of the memory transfer methods,
-we run the addition kernel with an exponentially increasing iteration count. The
-largest iteration count should result in a runtime of about 0.5s. We expect the
-precision to be high for small iteration counts, a peak variance at around 5 ms
-due to the task switches, and an increasing precision for higher iteration
-counts. The accuracy of the minimum should be high for small iteration counts,
-and include a small overhead if multiple task switches occur during the
-measurement.
+In all cases we almost reach the theoretical values.
 
-\subsection{Experiment 1}
-The first series of measurements is about the overhead of task switches on the
-measured memory transfer. We measure an arithmetic kernel and mem load and
-write, with buffer sizes which fit into the cache and which do not fit. We
-measure on an idle system, and with an arithmetic kernel on the other CPUs.
+In our plots we show 2 flop per cycle as balanced scalar ceiling, 4 flops
+per cycle as balanced SSE ceiling and 8 flops per cycle as dual core SSE
+ceiling.
 
-X: iteration count Y: rel error 
-X: iteration count Y: ints
-X: iteration count Y: task switches
+The bandwidth ceiling can be calculated from the parameters of the memory
+subsystem and is 3.46 bytes per cycle (see section
+\ref{sec:resultsIntelCore}).
 
-\subsection{Experiment 2}
-The second measurement series is about the separation of measuring transfer
-volume of different threads. We measure mem load and write with large buffers.
-We measure on an idle system and with mem kernels on the other CPUs. Execution
-time: about .5 s
+We use the same micro benchmarks as for the Yonah architecture. Optimizing loop
+unrolling and stream count resulted in  the following numbers:
 
-X: cpu map Y: rel error
+\begin{center}
+\begin{tabular}{lllr@{.}l}
+\toprule
+Operation & Streams & UNROLL &  \multicolumn{2}{l}{Throughput
+[Byte/Cycle]} \\
+\midrule
+Load  &  1 & 1 & 2&58\\
+Write &  1 & 3 & 1&63\\
+Non Temporal & 1 & 4 & 2&02\\
+\bottomrule
+\end{tabular}
+\end{center}
 
-We measure using the following counters:
-- bus transactions
-- cache misses / writebacks / non-prefetching load/store instructions
+The results reported here were obtained using MemBus, but the results of the
+MemL2 variant are almost identical.
+ 
+In the stream benchmark \cite{stream} the system reaches a copy rate of 3177
+MB/s, which is $2*3434MB/1.8GHz=2.84$ bytes per cycle. Our micro benchmark
+reported a smaller number, but the result is comparable to ours.
 
-We measure the following kernels:
-- arithmetic:add
-- mem: load: small 
-- mem: write: small
-- mem: load: large
-- mem: write: large
+We also measure the random access throughput. A large buffer is allocated and
+randomly accessed. The throughput is 0.455 bytes per cycle. Since a cache line is
+64 bytes, this results in one memory access every $64/0.455=141$ cycles.
 
-We measure at 
-- max frequency
+In our roofline plots we only show the load ceiling (2.2 flops per cycle) and
+the random access ceiling (0.45 bytes per cycle).
 
-We measure use the following kernels to generate system load
-- arithmetic: add
-- mem: load
-- mem: write
-- io: file 
-- io: network
-- io: graphics
+\section{Measurement and Validation}
+The accuracy and precision are very similar to those of the Yonah architecture
+based system. 
 
-We measure at different load levels (none, 25, 50, 75, 100)
+The most notable difference was observed for the measurement results of the
+transfer volume for multi threaded workloads when using MemBus. For the Yonah
+architecture, half of the measurement results showed the transfer volume of both
+threads and the other half only the volume of a single thread. On the Core only
+the volume of a single thread is observed.
 
-Measure at different load switch durations (0.1,1,5,10,15,50,100 ms)
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to
+the Expected Transfer Volume} {core/valTBValues}{MemBus}
+{core/valTBALTValues}{MemL2}
 
-We measure with any core combination.
-same core / +core2
-core 0 1 2 3
+\graphFloatTwo{Core: Error of the Transfer Volume: $\err(\frac{\tau}{\Theta})$}
+{core/valTBError}{MemBus}
+{core/valTBALTError}{MemL2}
+
+\graphFloat{core/valTBALTFlushValues}{Core: MemL2: Memory Transfer during Cache
+Flush after kernel execution}
+
+\graphFloatTwo{Core: Transferred Bytes of the Arithmetic Kernels}
+{core/valTBArithTBValues}{MemBus}
+{core/valTBALTArithTBValues}{MemL2}
+
+\graphFloat{core/valTimeArithValues}{Core: Execution Time of the Arithmetic
+Kernels} 
+\graphFloat{core/valTimeArithError}{Core: Error of the Execution Time of the
+Arithmetic Kernels: $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
+Time})}\right)$}
+
+\graphFloat{core/valTimeMemValues}{Core: Execution Time of the memory kernels} 
+\graphFloat{core/valTimeMemError}{Core: Error of the Execution Time of the
+Memory Intensive Kernels:  $\err\left(\frac{\text{Execution Time}}{\min(\text{Execution
+Time})}\right)$} 
+
+\graphFloat{core/valOpValues}{Core: Operation Count: $\frac{\text{Actual
+Operation Count}}{\text{Expected Operation Count}}$}
+
+\graphFloatTwo{Core: Error of the Transfer Volume with $K=10$:
+$\err\left(\frac{\tau_{10}}{\Theta}\right)$} {core/valTBMinError}{MemBus}
+{core/valTBALTMinError}{MemL2} 
+
+\graphFloat{core/valTimeMemMinError}{Core: Error of the Execution Time with
+$K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeArithMinError}{Core: Error of Execution Time with
+$K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valOpMinError}{Core: Error of Operation Count with
+$K=10$: $\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected
+Operation Count}})$}
+
+\clearpage 
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to the Expected
+Transfer Volume for two Read Kernels running in Parallel (using one Buffer per Kernel)}
+{core/valTBThReadValues}{MemBus} {core/valTBALTThReadValues}{MemL2} 
+
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to the Expected
+Transfer Volume for two Write Kernels running in Parallel (using one Buffer per Kernel)}
+{core/valTBThWriteValues}{MemBus}
+{core/valTBALTThWriteValues}{MemL2} 
+
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to the Expected
+Transfer Volume for two Write Kernels using Streaming Stores running in Parallel (using
+one Buffer per Kernel)} 
+{core/valTBThWriteStreamValues}{MemBus}
+{core/valTBALTThWriteStreamValues}{MemL2}
+
+\graphFloatTwo{Core: Ratio of the Actual Transfer Volume to the Expected
+Transfer Volume for two Triad Kernels running in Parallel (using one Buffer per Kernel)}
+{core/valTBThTriadValues}{MemBus}
+{core/valTBALTThTriadValues}{MemL2} 
+
+\graphFloat{core/valTBThReadPoint}{Core: Distribution of the Results of the Read
+Kernel using MemBus} 
+
+\graphFloat{core/valTBThWritePoint}{Core: Distribution of the Results of the
+Write Kernel using MemBus}
+
+\graphFloat{core/valTBThWriteStreamPoint}{Core: Distribution of the Results of
+the Write Kernel using Streaming Stores measured with the MemBus measurement
+variant}
+
+\graphFloat{core/valTBThTriadPoint}{Core: Distribution of the Results of the
+Triad Kernel using MemBus} 
+
+\graphFloat{core/valTimeThAddArithValues}{Core: Execution Time of two ADD
+Kernels running at the same time}
+
+\graphFloat{core/valTimeThReadMemValues}{Core: Execution Time of two Read
+Kernels running at the same time}
+
+\graphFloat{core/valTimeThWriteMemValues}{Core: Execution Time of two Write
+Kernels running at the same time}
+
+\graphFloat{core/valTimeThTriadMemValues}{Core: Execution Time of two Triad
+Kernels running at the same time}
+
+\graphFloat{core/valOpThValues}{Core: Ratio of the Actual Operation Count to
+the Expected Operation Count for two ADD Kernels running at the same time}
+
+\clearpage
+
+\graphFloatTwo{Core: Error of the Transfer Volume of two Read Kernels running at
+the same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{core/valTBThReadMinError}{MemBus} {core/valTBALTThReadMinError}{MemL2} 
+
+\graphFloatTwo{Core: Error of the Transfer Volume of two Write Kernels running
+at the same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{core/valTBThWriteMinError}{MemBus} {core/valTBALTThWriteMinError}{MemL2} 
+
+\graphFloatTwo{Core: Error of the Transfer Volume of two Write Kernels using
+Streaming Stores running at the same time with $K=10$:
+$\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{core/valTBThWriteStreamMinError}{MemBus}
+{core/valTBALTThWriteStreamMinError}{MemL2}
+
+\graphFloatTwo{Core: Error of the Transfer Volume of two Triad Kernels running
+at the same time with $K=10$: $\err\left(\frac{\tau_{10}}{\Theta}\right)$}
+{core/valTBThTriadMinError}{MemBus} {core/valTBALTThTriadMinError}{MemL2} 
+
+\graphFloat{core/valTimeThReadMemMinError}{Core: Error of the Execution Time of
+two Read Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeThWriteMemMinError}{Core: Error of the Execution Time of
+two Write Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeThWriteStreamMemMinError}{Core: Error of the Execution
+Time of two Write Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeThTriadMemMinError}{Core: Error of the Execution Time of
+two Triad Kernels running at the same time with $K=10$:
+$\err\left(\frac{\text{Execution Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valTimeThAddArithMinError}{Core: Error of the Execution Time of
+two ADD Kernels running at the same time with $K=10$: $\err\left(\frac{\text{Execution
+Time}_{10}}{\min(\text{Execution Time})}\right)$}
+
+\graphFloat{core/valOpThMinError}{Core: Error of the Operation Count of two ADD
+Kernels running at the same time with $K=10$:
+$\err(\frac{\text{Actual Operation Count}_{10}}{\text{Expected Operation Count}})$}
+
+\clearpage
+\section{Experimental Results}
+\subsection{BLAS}
+\graphFloat{core/daxpy}{Core: Roofline Plot of the Vector-Vector Multiplication
+(MemL2, DoublePrecisionFlop)} 
+\graphFloat{core/daxpyWarm}{Core: Roofline Plot of the influence of the
+initial cache state on the Vector-Vector Multiplication (MemL2,
+DoublePrecisionFlop)}
+\graphFloat{core/dgemv}{Core: Roofline Plot of the Matrix-Vector Multiplication
+(MemL2, DoublePrecisionFlop)} 
+\graphFloat{core/dgemvWarm}{Core: Roofline Plot of the Matrix-Vector
+Multiplication (MemL2, DoublePrecisionFlop)}
+\graphFloat{core/mmm}{Core: Roofline Plot of the Matrix-Matrix Multiplication
+(MemL2)}
+\graphFloat{core/MMMwarm}{Core: Roofline Plot of the Matrix-Matrix
+Multiplication with Different Initial Cache States (MemL2)}
+
+\graphFloat{core/MMMwarmInt}{Core: Effect of the Initial Cache State on the
+Operational Intensity for the Matrix-Matrix Multiplication (MemL2)}
+
+\clearpage
+\subsection{FFT}
+\graphFloat{core/fft}{Core: Roofline Plot of four FFT implementations (MemL2)}
+\graphFloat{core/FFTwarm}{Core: Influence of the initial cache state (MemL2)}
 
 
+\subsection{WHT}
+\graphFloat{core/wht}{Core: Roofline Plot WHT (MemL2)}
+\graphFloat{core/whtInt}{Core: Operational Intensity WHT (MemL2)}
 
-\section{Effects Affecting the Measurement of Multiple Quantities}
-While each of the measurements required to produce a roofline plot has it's own
-subtleties, there are some effects affecting multiple measurements, which we
-will discuss in the following sections.
-
-\subsection{Context Switches}
-Unless a special operating system is used, we have to deal with context switches
-during measurement. On current operating systems, a context switch typically
-occurs every 10ms due to the timer interrupt. Following the lines of
-\cite{ComSysProgPersp}, there are two ways to deal with them:
-
-If the execution time of the kernel is small, the operating system will
-eventually execute the whole kernel without interruption. This can be exploited
-using the best k measurement scheme. The kernel is repeatedly executed until the
-k measurements with the smallest execution times show a variation below a
-certain threshold. These executions were apparently not affected by a context
-switch, since a context switch would have increased execution time. The
-HW\_INT\_RCV performance counter could possibly be used as well to detect
-context switches.
-
-If a single execution of the kernel takes longer than the period of time between
-two timer interrupts, it will always be affected by a context switch. In this
-case, the proposed solution is to execute the kernel in a loop until many
-context switches occurred. The effect of the context switches can be compensated
-for by reducing the measured time be a certain factor. The factor depends on the
-actual system.
-
-The linux kernel offers the possibility to count performance events only during
-the time a thread actually executes, omitting events happening during kernel
-execution or while other threads run. This was not treated in the book above,
-and offers interesting new options.
-
-
-
-\subsection{System Load}
-Specially if the measurement includes context switches, the system load has a
-big impact on the measurement result. But due to caching effects, even the k
-best measurement scheme might be affected by the system load. Since we can
-control the system the measurements are performed on, we can control system
-load. But none the less, it should be recorded along with the measurement, in
-case something goes wrong with the measurement system setup.
-
-\subsection{Multi Threading}
-Our kernels and benchmarks will use multi threading. This has to be supported by
-the measurement tool. Since some caches as well as part of the memory bandwidth
-might be shared among different cores, multi threading can have various effects
-on the amount of transferred memory and the available bandwidth.
-
-In case of hyper threading, some functional units of a processor core are shared
-among two threads. This influences the peak performance of the core.
-
-It is possible that the operating system moves a thread from one core to
-another. Since the overhead of a switching the core is large, it is generally
-avoided by the scheduler of the operating system. But it can occur, and we have
-to be prepared for it.
-
-\section{Figures}
+\clearpage
+\newpage
+\phantomsection \label{listoffig}
+\addcontentsline{toc}{chapter}{List of Figures}
 \listoffigures
 
-\section{Bibliography}
+\newpage
+\phantomsection \label{bibiliogr}
+\addcontentsline{toc}{chapter}{Bibiliography}
 \bibliographystyle{abbrv}
 \bibliography{report}
-
 
 \end{document}

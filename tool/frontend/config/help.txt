@@ -13,4 +13,4 @@ Measurement Driver compilation Options:
 
 Multiple options are allowed. If options contradict, the last one takes precedence.
 
-For more help and options run "rmt help". This involves compiling and starting the Measurement Driver.
+For more help and options run "rot help". This involves compiling and starting the Measurement Driver.

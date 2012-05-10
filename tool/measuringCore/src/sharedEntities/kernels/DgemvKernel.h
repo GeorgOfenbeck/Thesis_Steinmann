@@ -19,6 +19,7 @@ public:
 	void initialize();
 	void run();
 	void dispose();
+	void warmCodeCache();
 };
 
 #endif /* DGEMVKERNEL_H_ */

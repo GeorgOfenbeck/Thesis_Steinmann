@@ -17,9 +17,11 @@ public class DividingQuantityCalculator<T extends Quantity<T>, TLeft extends Qua
 
 	@Override
 	protected T combineResult(TLeft leftResult, TRight rightResult) {
-		return Quantity.construct(clazz, leftResult
+		double result = leftResult
 				.getValue()
-				/ rightResult.getValue());
+				/ rightResult.getValue();
+
+		return Quantity.construct(clazz, result);
 	}
 
 	public static <T extends Quantity<T>, TLeft extends Quantity<TLeft>, TRight extends Quantity<TRight>>

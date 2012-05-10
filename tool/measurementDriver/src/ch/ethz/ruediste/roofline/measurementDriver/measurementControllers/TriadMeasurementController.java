@@ -2,6 +2,8 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 
 import java.io.IOException;
 
+import org.apache.commons.configuration.ConfigurationKey;
+
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
@@ -17,12 +19,14 @@ import com.google.inject.Inject;
 public class TriadMeasurementController implements IMeasurementController {
 
 	public String getName() {
-		return "triad";
+		return "triad_freq_tsc";
 	}
 
 	public String getDescription() {
 		return "runs the triad kernel";
 	}
+	
+	
 
 	@Inject
 	QuantityMeasuringService quantityMeasuringService;
@@ -31,38 +35,43 @@ public class TriadMeasurementController implements IMeasurementController {
 	RooflineController rooflineController;
 
 	public void measure(String outputName) throws IOException {
-
+		// initialize the roofline plot
 		rooflineController.setTitle("Triad");
 		rooflineController.addDefaultPeaks();
+		rooflineController.setOutputName("triad_freq_tsc.pdf");
 
 		for (long size = 10000; size < 100000; size += 10000) {
+			// initialize kernel
 			TriadKernel kernel = new TriadKernel();
 			kernel.setBufferSize(size);
 			kernel.setOptimization("-O3");
 
+			// add a roofline point
 			rooflineController
 					.addRooflinePoint("Triad", size,
 							kernel, Operation.CompInstr,
 							MemoryTransferBorder.LlcRamBus);
-			QuantityCalculator<Throughput> calc = quantityMeasuringService
+
+			// create calculators
+			QuantityCalculator<Throughput> throughtputCalculator = quantityMeasuringService
 					.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
-							ClockType.CoreCycles);
+							ClockType.TSC);
+							//ClockType.CoreCycles);
 
-			QuantityMap result = quantityMeasuringService.measureQuantities(
-					kernel, calc);
-
-			Throughput throughput = result.best(calc);
-			QuantityCalculator<OperationCount> calculator = quantityMeasuringService
+			QuantityCalculator<OperationCount> operationCountCalculator = quantityMeasuringService
 					.getOperationCountCalculator(Operation.CompInstr);
-			QuantityMap result1 = quantityMeasuringService.measureQuantities(
-					kernel, calculator);
 
-			OperationCount operations = result1.best(calculator);
+			// perform measurement
+			QuantityMap result = quantityMeasuringService.measureQuantities(
+					kernel, throughtputCalculator, operationCountCalculator);
 
+			// print throughput and operation count
 			System.out.printf("size %d: throughput: %s operations: %s\n", size,
-					throughput, operations);
+					result.best(throughtputCalculator),
+					result.best(operationCountCalculator));
 		}
 
+		// create the PDF of the plot
 		rooflineController.plot();
 	}
 

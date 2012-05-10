@@ -45,8 +45,8 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 		return currentSeries;
 	}
 
-	public void addPoint(String seriesName, RooflinePoint point) {
-		getSeries(seriesName).addPoint(point);
+	public RooflinePoint addPoint(String seriesName, RooflinePoint point) {
+		return getSeries(seriesName).addPoint(point);
 	}
 
 	public void addPoint(RooflinePoint point) {
@@ -148,11 +148,11 @@ public class RooflinePlot extends Plot2D<RooflinePlot> {
 	private Range<Double> combineRanges(Range<Double> definedRange,
 			Range<Double> defaultRange) {
 		double min = definedRange.getMinimum();
-		if (Double.isNaN(min))
+		if (Double.isInfinite(min))
 			min = defaultRange.getMinimum();
 
 		double max = definedRange.getMaximum();
-		if (Double.isNaN(max))
+		if (Double.isInfinite(max))
 			max = defaultRange.getMaximum();
 
 		return Range.between(min, max);

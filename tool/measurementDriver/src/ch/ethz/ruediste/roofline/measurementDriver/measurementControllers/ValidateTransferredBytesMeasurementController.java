@@ -70,10 +70,15 @@ public class ValidateTransferredBytesMeasurementController extends
 
 		measureThreadedMem(outputName, "ThRead", createReadKernelCoordinate(),
 				mtb);
-						measureThreadedMem(outputName, "ThWrite",
-						createWriteKernelCoordinate(false,false), mtb);
-						measureThreadedMem(outputName, "ThTriad",
-						createTriadKernelCoordinate(), mtb);
+
+		measureThreadedMem(outputName, "ThWrite",
+				createWriteKernelCoordinate(false, false), mtb);
+
+		measureThreadedMem(outputName, "ThWriteStream",
+				createWriteKernelCoordinate(true, true), mtb);
+
+		measureThreadedMem(outputName, "ThTriad",
+				createTriadKernelCoordinate(), mtb);
 
 		instantiator.getInstance(MemController.class)
 				.setMemoryTransferBorder(mtb).measure(outputName,
@@ -156,8 +161,8 @@ public class ValidateTransferredBytesMeasurementController extends
 				DistributionPlot plotValues) {
 			plotValues.setOutputName(outputName + "ArithTBValues")
 					.setTitle("Memory Transfer Values").setLog()
-					.setxLabel("expOperationCount").setxUnit("flop")
-					.setyLabel("actualMemTransfer").setyUnit("bytes")
+					.setxLabel("Expected Operation Count").setxUnit("Flop")
+					.setyLabel("Actual Transfer Volume").setyUnit("Bytes")
 					.setKeyPosition(KeyPosition.TopLeft);
 
 		}
@@ -167,8 +172,9 @@ public class ValidateTransferredBytesMeasurementController extends
 				DistributionPlot plotMinValues) {
 			plotMinValues.setOutputName(outputName + "ArithTBMinValues")
 					.setTitle("Memory Transfer Min Values").setLog()
-					.setxLabel("expOperationCount").setxUnit("flop")
-					.setyLabel("actualMemTransfer10").setyUnit("bytes")
+					.setxLabel("Expected Operation Count").setxUnit("Flop")
+					.setyLabel("min10(Actual Transfer Volume)")
+					.setyUnit("Bytes")
 					.setKeyPosition(KeyPosition.TopLeft);
 		}
 
@@ -176,8 +182,8 @@ public class ValidateTransferredBytesMeasurementController extends
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "ArithTBError")
 					.setTitle("Memory Transfer Error").setLogX()
-					.setxLabel("expOperationCount").setxUnit("flop")
-					.setyLabel("error(memTrans/min(memTrans))").setyUnit("%")
+					.setxLabel("Expected Operation Count").setxUnit("Flop")
+					.setyLabel("err(transVol/min(transVol))").setyUnit("%")
 					.setKeyPosition(KeyPosition.TopRight);
 		}
 
@@ -186,8 +192,8 @@ public class ValidateTransferredBytesMeasurementController extends
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "ArithTBError")
 					.setTitle("Memory Transfer Error").setLogX()
-					.setxLabel("expOperationCount").setxUnit("flop")
-					.setyLabel("error(memTrans10/min(memTrans10))")
+					.setxLabel("Expected Operation Count").setxUnit("Flop")
+					.setyLabel("err(min10(memTrans)/min(memTrans))")
 					.setyUnit("%")
 					.setKeyPosition(KeyPosition.TopRight);
 		}
@@ -258,8 +264,8 @@ public class ValidateTransferredBytesMeasurementController extends
 				DistributionPlot plotValues) {
 			plotValues.setOutputName(outputName + "FlushValues")
 					.setTitle("Transferred Bytes Flush Values").setLog()
-					.setxLabel("expMemTransfer").setxUnit("bytes")
-					.setyLabel("flushMemTransfer").setyUnit("bytes")
+					.setxLabel("Expected Transfer Volume").setxUnit("Bytes")
+					.setyLabel("Flush Transfer Volume").setyUnit("Bytes")
 					.setKeyPosition(KeyPosition.TopLeft);
 		}
 
@@ -268,8 +274,9 @@ public class ValidateTransferredBytesMeasurementController extends
 				DistributionPlot plotMinValues) {
 			plotMinValues.setOutputName(outputName + "FlushMinValues")
 					.setTitle("Transferred Bytes Flush Values").setLog()
-					.setxLabel("expMemTransfer").setxUnit("bytes")
-					.setyLabel("flushMemTransfer10").setyUnit("bytes")
+					.setxLabel("Expected Transfer Volume").setxUnit("Bytes")
+					.setyLabel("min10(Flush Transfer Volume)")
+					.setyUnit("Bytes")
 					.setKeyPosition(KeyPosition.TopLeft);
 		}
 
@@ -277,8 +284,8 @@ public class ValidateTransferredBytesMeasurementController extends
 		public void setupErrorPlot(String outputName, DistributionPlot plotError) {
 			plotError.setOutputName(outputName + "FlushError")
 					.setTitle("Transferred Bytes Flush Values").setLogX()
-					.setxLabel("expMemTransfer").setxUnit("bytes")
-					.setyLabel("err(flushMemTrans/min(flushMemTrans)")
+					.setxLabel("Expected Transfer Volume").setxUnit("Bytes")
+					.setyLabel("err(flushTransVol/min(flushTransVol)")
 					.setyUnit("%")
 					.setKeyPosition(KeyPosition.TopLeft);
 		}
@@ -288,8 +295,8 @@ public class ValidateTransferredBytesMeasurementController extends
 				DistributionPlot plotMinError) {
 			plotMinError.setOutputName(outputName + "FlushMinError")
 					.setTitle("Transferred Bytes Flush Values").setLogX()
-					.setxLabel("expMemTransfer").setxUnit("bytes")
-					.setyLabel("err(flushMemTrans10/min(flushMemTrans)")
+					.setxLabel("Expected Transfer Volume").setxUnit("Bytes")
+					.setyLabel("err(min10(flushTransVol)/min(flushTransVol)")
 					.setyUnit("%")
 					.setKeyPosition(KeyPosition.TopLeft);
 		}
@@ -351,7 +358,7 @@ public class ValidateTransferredBytesMeasurementController extends
 					plotSimple.apply(runMap.get(calcs.get(0)).getValue());
 
 					double cur = runMap.get(calcs.get(0)).getValue();
-					if (last != Double.NaN) {
+					if (!Double.isNaN(last)) {
 						if (last > th && cur > th)
 							hh++;
 						if (last > th && cur <= th)
@@ -401,10 +408,13 @@ public class ValidateTransferredBytesMeasurementController extends
 		@Override
 		public void setupValuesPlot(String outputName,
 				DistributionPlot plotValues) {
-			plotValues.setOutputName(outputName + "Values")
-					.setTitle("Transfer Volume").setLog()
-					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
-					.setyLabel("actMemTransfer/expMemTransfer")
+			plotValues
+					.setOutputName(outputName + "Values")
+					.setTitle("Transfer Volume")
+					.setLog()
+					.setxLabel("Expected Transfer Volume")
+					.setxUnit("Bytes")
+					.setyLabel("Transfer Volume Ratio")
 					.setyUnit("1")
 					.setYRange(0.8, 10)
 					.setKeyPosition(KeyPosition.TopRight);
@@ -413,10 +423,14 @@ public class ValidateTransferredBytesMeasurementController extends
 		@Override
 		public void setupMinValuesPlot(String outputName,
 				DistributionPlot plotMinValues) {
-			plotMinValues.setOutputName(outputName + "MinValues")
-					.setTitle("Transfer Volume Min Values").setLog()
-					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
-					.setyLabel("actualMemTransfer10/expMemTransfer")
+			plotMinValues
+					.setOutputName(outputName + "MinValues")
+					.setTitle("Transfer Volume Min Values")
+					.setLog()
+					.setxLabel("Expected Memory Transfer")
+					.setxUnit("Bytes")
+					.setyLabel(
+							"min10(Actual Transfer Volume) / Expected Transfer Volume")
 					.setyUnit("1");
 		}
 
@@ -425,7 +439,7 @@ public class ValidateTransferredBytesMeasurementController extends
 			plotError.setOutputName(outputName + "Error")
 					.setTitle("Transfer Volume Error").setLogX()
 					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
-					.setyLabel("err(actualMemTransfer/expMemTransfer)")
+					.setyLabel("Error")
 					.setyUnit("%")
 					.setKeyPosition(KeyPosition.TopRight);
 		}
@@ -436,7 +450,7 @@ public class ValidateTransferredBytesMeasurementController extends
 			plotMinError.setOutputName(outputName + "MinError")
 					.setTitle("Transfer Volume Min Error").setLogX()
 					.setxLabel("Expected Memory Transfer").setxUnit("Bytes")
-					.setyLabel("err(actualMemTransfer10/expMemTransfer)")
+					.setyLabel("Error")
 					.setKeyPosition(KeyPosition.TopRight)
 					.setyUnit("%");
 		}

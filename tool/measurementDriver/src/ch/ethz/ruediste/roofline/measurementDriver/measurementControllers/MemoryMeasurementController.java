@@ -43,10 +43,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 	public RooflineService rooflineService;
 
 	public void measure(String outputName) throws IOException {
-		System.out.printf("peak tp: %f\n", rooflineService
-				.measurePeakThroughput(PeakAlgorithm.Load,
-						MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles)
-				.getValue());
+		measureRandom();
 
 		Axis<Long> prefetchDistanceAxis = new Axis<Long>(
 				"a1242032-756e-4d56-b0f1-4f9c63e6b2a9", "prefetchDistance");
@@ -58,8 +55,8 @@ public class MemoryMeasurementController implements IMeasurementController {
 
 		space.add(MemoryKernel.memoryOperationAxis,
 				MemoryOperation.MemoryOperation_READ);
-		/*space.add(MemoryKernel.memoryOperationAxis,
-				MemoryOperation.MemoryOperation_WRITE);*/
+		space.add(MemoryKernel.memoryOperationAxis,
+				MemoryOperation.MemoryOperation_WRITE);
 		/*space.add(MemoryKernel.memoryOperationAxis,
 				MemoryOperation.MemoryOperation_RandomRead);*/
 
@@ -75,7 +72,7 @@ public class MemoryMeasurementController implements IMeasurementController {
 				for (PrefetchType type : PrefetchType.values()) {
 					space.add(prefetchTypeAxis, type);
 				}*/
-		for (int i = 1; i <= 2; i++) {
+		for (int i = 1; i <= 3; i++) {
 			space.add(dlpAxis, i);
 		}
 
@@ -83,31 +80,58 @@ public class MemoryMeasurementController implements IMeasurementController {
 			space.add(unrollAxis, i);
 		}
 
-		space.add(bufferSizeAxis, 1024L * 1024L * 10);
+		space.add(bufferSizeAxis, 1024L * 1024L * 5);
 
-		for (Coordinate coordinate : space.getAllPoints(null, optimizationAxis,
-				MemoryKernel.memoryOperationAxis, iterationsAxis)) {
+		for (Coordinate coordinate : space.getAllPoints(
+				MemoryKernel.memoryOperationAxis, optimizationAxis,
+				iterationsAxis, null)) {
 			MemoryKernel kernel = new MemoryKernel();
+
+			if (coordinate.get(MemoryKernel.memoryOperationAxis) == MemoryOperation.MemoryOperation_WRITE)
+				kernel.setUseStreamingOperations(false);
 
 			//kernel.setPrefetchDistance(coordinate.get(prefetchDistanceAxis));
 			//kernel.setPrefetchType(coordinate.get(prefetchTypeAxis));
 
 			kernel.initialize(coordinate);
-			QuantityCalculator<Throughput> calc = quantityMeasuringService.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
-					ClockType.CoreCycles);
-			
-			QuantityMap result = quantityMeasuringService.measureQuantities(kernel, calc);
+			QuantityCalculator<Throughput> calcThrough = quantityMeasuringService
+					.getThroughputCalculator(MemoryTransferBorder.LlcRamBus,
+							ClockType.CoreCycles);
+			QuantityCalculator<TransferredBytes> calcVolume = quantityMeasuringService
+					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
 
-			Throughput throughput = result.best(calc);
-			QuantityCalculator<TransferredBytes> calculator = quantityMeasuringService.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
-			QuantityMap result1 = quantityMeasuringService.measureQuantities(kernel, calculator);
-
-			TransferredBytes transferredBytes = result1.best(calculator);
+			QuantityMap result = quantityMeasuringService.measureQuantities(
+					kernel, calcThrough, calcVolume);
 
 			System.out.printf("%s: throughput: %s Transferred bytes: %s\n",
 					coordinate.toString(),
-					throughput, transferredBytes);
+					result.best(calcThrough), result.best(calcVolume));
 		}
 
+	}
+
+	private void measureRandom() {
+		System.out.printf("peak tp: %f\n", rooflineService
+				.measurePeakThroughput(PeakAlgorithm.RandomLoad,
+						MemoryTransferBorder.LlcRamBus, ClockType.CoreCycles)
+				.getValue());
+
+		MemoryKernel kernel = new MemoryKernel();
+		kernel.setOperation(MemoryOperation.MemoryOperation_RandomRead);
+		kernel.setBufferSize(1024L * 1024L);
+		kernel.setUnroll(50);
+		kernel.setOptimization("-O3");
+
+		QuantityCalculator<Throughput> calcThrough = quantityMeasuringService
+				.getThroughputCalculator(MemoryTransferBorder.LlcRamLines,
+						ClockType.CoreCycles);
+		QuantityCalculator<TransferredBytes> calcVolume = quantityMeasuringService
+				.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamLines);
+
+		QuantityMap result = quantityMeasuringService.measureQuantities(
+				kernel, calcThrough, calcVolume);
+
+		System.out.printf("RANDOM throughput: %s Transferred bytes: %s\n",
+				result.best(calcThrough), result.best(calcVolume));
 	}
 }

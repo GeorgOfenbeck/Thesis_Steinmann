@@ -36,6 +36,11 @@ public class PlotService {
 			.Create(Boolean.class, "showPercentiles",
 					"show the percentiles in roofline plots",
 					true);
+	
+	public final static ConfigurationKey<KeyPosition> keyPositionKey = ConfigurationKey
+			.Create(KeyPosition.class, "keyPosition",
+					"Position of the key in the plots. Overrides any other setting",
+					KeyPosition.Undefined);
 
 	private final static Logger log = Logger.getLogger(PlotService.class);
 
@@ -188,7 +193,11 @@ public class PlotService {
 		preparePlot(output, (Plot<?>) plot);
 
 		// place the legend
-		switch (plot.getKeyPosition()) {
+		KeyPosition keyPosition = plot.getKeyPosition();
+		if (configuration.get(keyPositionKey)!=KeyPosition.Undefined)
+			keyPosition=configuration.get(keyPositionKey);
+		
+		switch (keyPosition) {
 		case BottomLeft:
 			output.println("set key left bottom");
 		break;
@@ -225,11 +234,11 @@ public class PlotService {
 		Double yMax = (Double) plot.getYRange(systemInformation).getMaximum();
 
 		output.printf("set xrange [%s:%s]\n",
-				xMin.isNaN() ? "" : xMin,
-				xMax.isNaN() ? "" : xMax);
+				xMin.isInfinite() ? "" : xMin,
+				xMax.isInfinite() ? "" : xMax);
 		output.printf("set yrange [%s:%s]\n",
-				yMin.isNaN() ? "" : yMin,
-				yMax.isNaN() ? "" : yMax);
+				yMin.isInfinite() ? "" : yMin,
+				yMax.isInfinite() ? "" : yMax);
 
 		output.printf("set xlabel '%s [%s]' font 'Gill Sans, 6'\n",
 				plot.getxLabel(), plot.getxUnit());
@@ -239,6 +248,10 @@ public class PlotService {
 
 	public void plot(DistributionPlot plot) throws ExecuteException,
 			IOException {
+
+		DescriptiveStatistics valueStats = plot.getValueStats();
+		double min = valueStats.getMin();
+		double max = valueStats.getMax();
 
 		log.debug(String
 				.format("entering plot(DistributionPlot) for plot %s. output name is %s",
@@ -254,10 +267,14 @@ public class PlotService {
 					.getStatisticsMap().entrySet()) {
 
 				DescriptiveStatistics statistics = entry.getValue();
-				outputFile.printf("%d %e %e %e %e %e\n", entry.getKey(),
-						statistics.getPercentile(25), statistics.getMin(),
-						statistics.getMax(), statistics.getPercentile(75),
-						statistics.getPercentile(50));
+				double perf = statistics.getPercentile(50);
+				if (isNormal(perf))
+					outputFile.printf("%d %e %e %e %e %e\n", entry.getKey(),
+							getOr(statistics.getPercentile(25), min / 1e10),
+							getOr(statistics.getMin(), min / 1e10),
+							getOr(statistics.getMax(), max * 1e10),
+							getOr(statistics.getPercentile(75), max * 1e10),
+							perf);
 			}
 			outputFile.printf("\n\n");
 		}
@@ -302,8 +319,14 @@ public class PlotService {
 		}
 
 		// show output
-		commandService.runCommand(new File("."), "gnuplot",
-				new String[] { plot.getOutputName() + ".gnuplot" });
+		try {
+			commandService.runCommand(new File("."), "gnuplot",
+					new String[] { plot.getOutputName() + ".gnuplot" });
+		}
+		catch (Throwable e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	public void plot(SeriesPlot plot) throws ExecuteException, IOException {
@@ -355,6 +378,16 @@ public class PlotService {
 				new String[] { plot.getOutputName() + ".gnuplot" });
 	}
 
+	boolean isNormal(double d) {
+		return !Double.isInfinite(d) && !Double.isNaN(d);
+	}
+
+	double getOr(double d, double def) {
+		if (isNormal(d))
+			return d;
+		return def;
+	}
+
 	/**
 	 * plot a roofline plot
 	 */
@@ -366,14 +399,22 @@ public class PlotService {
 		final PrintStream outputFile = new PrintStream(plot.getOutputName()
 				+ ".data");
 
+		double minX = plot.getXRange(systemInformation).getMinimum();
+		double minY = plot.getYRange(systemInformation).getMinimum();
+		double maxX = plot.getXRange(systemInformation).getMaximum();
+		double maxY = plot.getYRange(systemInformation).getMaximum();
+
 		{
 			int i = 0;
 			for (RooflineSeries serie : plot.getAllSeries()) {
-				outputFile.printf("# Median %d\n", i);
+				outputFile.printf("# [Median %d]\n", i);
 				for (RooflinePoint point : serie.getPoints()) {
+					double opInt = point.getMedianOperationalIntensity()
+							.getValue();
+					double perf = point.getMedianPerformance().getValue();
 					outputFile.printf("%e %e\n",
-							point.getMedianOperationalIntensity().getValue(),
-							point.getMedianPerformance().getValue());
+							getOr(opInt, maxX * 2),
+							getOr(perf, maxY * 2));
 				}
 				outputFile.printf("\n\n");
 				i++;
@@ -383,7 +424,7 @@ public class PlotService {
 		{
 			int i = 0;
 			for (RooflineSeries serie : plot.getAllSeries()) {
-				outputFile.printf("# Stats %d\n", i);
+				outputFile.printf("# [Stats %d]\n", i);
 				for (RooflinePoint point : serie.getPoints()) {
 					if (point.getN() > 1) {
 						DescriptiveStatistics opIntStats = point
@@ -392,15 +433,25 @@ public class PlotService {
 						DescriptiveStatistics perfStats = point
 								.getPerformanceStats();
 
-						outputFile.printf("%e %e %e %e %e %e %e %e %e %e \n",
-								opIntStats.getPercentile(50),
-								perfStats.getPercentile(50),
-								opIntStats.getMin(), opIntStats.getMax(),
-								perfStats.getMin(), perfStats.getMax(),
-								opIntStats.getPercentile(25),
-								opIntStats.getPercentile(75),
-								perfStats.getPercentile(25),
-								perfStats.getPercentile(75));
+						double opInt = opIntStats.getPercentile(50);
+						double perf = perfStats.getPercentile(50);
+						if (isNormal(opInt) && isNormal(perf))
+							outputFile
+									.printf("%e %e %e %e %e %e %e %e %e %e \n",
+											opInt,
+											perf,
+											getOr(opIntStats.getMin(), minX / 2),
+											getOr(opIntStats.getMax(), maxX * 2),
+											getOr(perfStats.getMin(), minY / 2),
+											getOr(perfStats.getMax(), minY * 2),
+											getOr(opIntStats.getPercentile(25),
+													minX / 2),
+											getOr(opIntStats.getPercentile(75),
+													maxX * 2),
+											getOr(perfStats.getPercentile(25),
+													minY / 2),
+											getOr(perfStats.getPercentile(75),
+													maxY * 2));
 					}
 				}
 				outputFile.printf("\n\n");
@@ -414,7 +465,9 @@ public class PlotService {
 				// get all points with the problem size
 				List<RooflinePoint> points = new ArrayList<RooflinePoint>();
 				for (RooflineSeries serie : plot.getAllSeries()) {
-					points.add(serie.getPoint(problemSize));
+					RooflinePoint point = serie.getPoint(problemSize);
+					if (point != null)
+						points.add(point);
 				}
 
 				// sort the points by operational intensity or performance
@@ -454,12 +507,17 @@ public class PlotService {
 
 				// output the sorted points to the data file
 				if (plot.getSameSizeConnection() != SameSizeConnection.None) {
-					outputFile.printf("# ProblemSize %d\n", problemSize);
+					outputFile.printf("# [ProblemSize %d]\n", problemSize);
 					for (RooflinePoint point : points)
-						outputFile.printf("%e %e\n",
-								point.getMedianOperationalIntensity()
-										.getValue(),
-								point.getMedianPerformance().getValue());
+					{
+						double opInt = point.getMedianOperationalIntensity()
+								.getValue();
+						double perf = point.getMedianPerformance().getValue();
+						if (isNormal(opInt) && isNormal(perf))
+							outputFile.printf("%e %e\n",
+									opInt,
+									perf);
+					}
 					outputFile.printf("\n\n");
 				}
 			}
@@ -589,7 +647,7 @@ public class PlotService {
 
 				plotLines
 						.add(String
-								.format("'%s.data' index 'Median %d' title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
+								.format("'%s.data' index '[Median %d]' title '%s' with linespoints lw %d lt -1 pt %d lc rgb\"%s\"",
 										plot.getOutputName(), i,
 										series.getName(), lwLine,
 										getPointType(i),
@@ -600,7 +658,7 @@ public class PlotService {
 					// plot min/max
 					plotLines
 							.add(String
-									.format("'%s.data' index 'Stats %d' using 1:2:3:4:5:6 notitle with xyerrorbars lw %d lt -1 lc rgb\"%s\"",
+									.format("'%s.data' index '[Stats %d]' using 1:2:3:4:5:6 notitle with xyerrorbars lw %d lt -1 lc rgb\"%s\"",
 											plot.getOutputName(), i, lwLine,
 											getLineColor(i)));
 				}
@@ -610,7 +668,7 @@ public class PlotService {
 					// plot 25/75 percentile
 					plotLines
 							.add(String
-									.format("'%s.data' index 'Stats %d' using 1:2:7:8:9:10 notitle with boxxyerrorbars lw %d lt -1 lc rgb\"%s\"",
+									.format("'%s.data' index '[Stats %d]' using 1:2:7:8:9:10 notitle with boxxyerrorbars lw %d lt -1 lc rgb\"%s\"",
 											plot.getOutputName(), i, lwLine,
 											getLineColor(i)));
 				}
@@ -629,7 +687,7 @@ public class PlotService {
 				for (long problemSize : plot.getProblemSizes()) {
 					plotLines
 							.add(String
-									.format("'%s.data' index 'ProblemSize %d' notitle with lines lw %d lt 0 lc rgb\"#000000\"",
+									.format("'%s.data' index '[ProblemSize %d]' notitle with lines lw %d lt 0 lc rgb\"#000000\"",
 											plot.getOutputName(), problemSize,
 											lwLine));
 				}
@@ -640,10 +698,15 @@ public class PlotService {
 
 			output.close();
 		}
-
-		// show output
-		commandService.runCommand(new File("."), "gnuplot",
-				new String[] { plot.getOutputName() + ".gnuplot" });
+		try {
+			// show output
+			commandService.runCommand(new File("."), "gnuplot",
+					new String[] { plot.getOutputName() + ".gnuplot" });
+		}
+		catch (Throwable e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -656,10 +719,13 @@ public class PlotService {
 		if (StringUtils.isEmpty(label) && useProblemSizeIfNoLabel)
 			label = Long.toString(point.getProblemSize());
 		if (!StringUtils.isEmpty(label)) {
-			output.printf(
-					"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02 front\n",
-					label, point.getMedianOperationalIntensity().getValue(),
-					point.getMedianPerformance().getValue());
+			double opInt = point.getMedianOperationalIntensity().getValue();
+			double perf = point.getMedianPerformance().getValue();
+			if (isNormal(opInt) && isNormal(perf))
+				output.printf(
+						"set label \"%s\" at first %g,%g center nopoint offset graph 0,0.02 front\n",
+						label, opInt,
+						perf);
 		}
 	}
 

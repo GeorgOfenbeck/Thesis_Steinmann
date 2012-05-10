@@ -10,6 +10,7 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 	public static class DistributionPlotSeries {
 		private final HashMap<Long, DescriptiveStatistics> statisticsMap = new LinkedHashMap<Long, DescriptiveStatistics>();
 		private final String name;
+		public Object getStatisticsMap;
 
 		public DistributionPlotSeries(String name) {
 			super();
@@ -113,7 +114,7 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 	}
 
 	public double getBoxWidth() {
-		if (boxWidth == Double.NaN && isLogX())
+		if (Double.isNaN(boxWidth) && isLogX())
 			return 0.1;
 		return boxWidth;
 	}
@@ -121,5 +122,20 @@ public class DistributionPlot extends Plot2D<DistributionPlot> {
 	public DistributionPlot setBoxWidth(double boxWidth) {
 		this.boxWidth = boxWidth;
 		return This();
+	}
+
+	public DescriptiveStatistics getValueStats() {
+
+		DescriptiveStatistics stats = new DescriptiveStatistics();
+		for (DistributionPlotSeries serie : getAllSeries()) {
+			for (DescriptiveStatistics entry : serie.getStatisticsMap()
+					.values()) {
+				for (double v : entry.getValues()) {
+					if (!Double.isInfinite(v) && !Double.isNaN(v))
+						stats.addValue(v);
+				}
+			}
+		}
+		return stats;
 	}
 }

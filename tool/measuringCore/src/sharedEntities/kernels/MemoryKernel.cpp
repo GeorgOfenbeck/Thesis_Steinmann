@@ -40,7 +40,7 @@ void MemoryKernel::initialize() {
 
 	size_t size = getBufferSize();
 	// allocate buffer pointers
-	if (posix_memalign((void**) (&buffer), CacheLineSize,
+	if (posix_memalign((void**) (&buffer), 4*1024,
 			DLP * UNROLL * size * sizeof(float)) != 0) {
 		throw "could not allocate memory";
 	}
@@ -152,19 +152,23 @@ void MemoryKernel::run() {
 
 #ifdef RMT_MEMORY_OPERATION__MemoryOperation_RandomRead
 			float tempRes=0;
-			long idx=0;
+			unsigned long idx=0;
+			int rand=13;
 			long modulo=bufferSize*DLP*UNROLL;
 			for (int i=0; i<bufferSize; i++){
 				// read the random value at the current index
 				float tmp=buffer[idx];
 				tempRes+=tmp;
 
-				// shift the index to the left to get enough random bits
-				idx=(idx<<10);
+				// xor with random value from buffer
+				void *p=&tmp;
+				idx=idx^(*((int *) p));
+
+				// calculate new random value
+				rand=rand*1103515245+12345;
 
 				// xor with random value
-				void *p=&tmp;
-				idx=idx^(*(long *) p);
+				idx=idx^rand;
 
 				// constrain index to the buffer
 				idx=idx%modulo;

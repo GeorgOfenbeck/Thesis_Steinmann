@@ -6,15 +6,15 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
 import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.QuantityCalculator.QuantityCalculator;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.RooflinePlot.SameSizeConnection;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.TransferredBytes;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.quantities.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.IMeasurementBuilder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
@@ -62,14 +62,21 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		rooflineController.setOutputName(outputName);
 		rooflineController.setTitle("MMM - Warm and Cold Caches");
 		rooflineController.addDefaultPeaks();
-		rooflineController.getPlot().setAutoscaleX(true)
-				.setKeyPosition(KeyPosition.BottomRight);
+		rooflineController
+				.getPlot()
+				//.setAutoscaleX(true)
+				.setKeyPosition(KeyPosition.BottomRight)
+				.setXRange(Double.NEGATIVE_INFINITY, 1000)
+				.setSameSizeConnection(
+						SameSizeConnection.ByOperationalIntensity);
 
-		DistributionPlot plot = new DistributionPlot();
-		plot.setOutputName(outputName + "tb")
+		DistributionPlot plotInt = new DistributionPlot();
+		plotInt.setOutputName(outputName + "Int")
 				.setTitle("MMM - Warm and Cold Caches")
-				.setxLabel("Buffer Size").setxUnit("1")
-				.setyLabel("min10(Memory Transfer)").setyUnit("bytes");
+				.setxLabel("Matrix Size").setxUnit("1")
+				.setyLabel("Operational Intensity").setyUnit("1").setLogY()
+				.setBoxWidth(10).setKeyPosition(KeyPosition.TopRight)
+				.setYRange(Double.NEGATIVE_INFINITY, 10000);
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(warmCodeAxis, false);
@@ -77,51 +84,62 @@ public class MMMWarmMeasurementController implements IMeasurementController {
 		space.add(warmDataAxis, false);
 		space.add(warmDataAxis, true);
 
+		space.add(matrixSizeAxis, 25L);
 		space.add(matrixSizeAxis, 50L);
-		for (long i = 100; i < 700; i += 100)
+		space.add(matrixSizeAxis, 100L);
+		space.add(matrixSizeAxis, 150L);
+		for (long i = 200; i < 700; i += 100)
 			space.add(matrixSizeAxis, i);
 
 		addMklKernel(space);
 
 		configuration.push();
 		for (final Coordinate coordinate : space.getAllPoints(kernelAxis, null)) {
-			if (coordinate.get(matrixSizeAxis) > 500)
+			if (coordinate.get(matrixSizeAxis) > 400)
 				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
 			else
-				configuration.set(QuantityMeasuringService.numberOfRunsKey, 10);
+				configuration
+						.set(QuantityMeasuringService.numberOfRunsKey, 100);
 			KernelBase kernel = coordinate.get(kernelAxis);
 			kernel.initialize(coordinate);
 
 			IMeasurementBuilder builder = getBuilder(coordinate);
-
-			QuantityCalculator<TransferredBytes> calc = quantityMeasuringService
-					.getTransferredBytesCalculator(MemoryTransferBorder.LlcRamBus);
-
-			QuantityMap quantities = quantityMeasuringService
-					.measureQuantities(builder, 10).with("main", calc).get();
-
 			Long matrixSize = coordinate.get(matrixSizeAxis);
 
-			DescriptiveStatistics stats = new DescriptiveStatistics();
-			for (TransferredBytes tb : quantities.get(calc)) {
-				stats.addValue(tb.getValue());
-				if (stats.getN() >= 10) {
-					plot.addValue(kernel.getLabel(), matrixSize,
-							stats.getMin());
-					stats.clear();
-				}
+			QuantityCalculator<Performance> calcPerf = quantityMeasuringService
+					.getPerformanceCalculator(kernel.getSuggestedOperation(),
+							ClockType.CoreCycles);
+
+			QuantityCalculator<OperationalIntensity> calcInt = quantityMeasuringService
+					.getOperationalIntensityCalculator(
+							MemoryTransferBorder.LlcRamLines,
+							kernel.getSuggestedOperation());
+
+			QuantityMap quantities = quantityMeasuringService
+					.measureQuantities(builder)
+					.with("main", calcInt, calcPerf).get();
+
+			for (QuantityMap group : quantities.grouped(10)) {
+				plotInt.addValue(kernel.getLabel(), matrixSize,
+						group.best(calcInt).getValue());
+
+				RooflinePoint point = rooflineController
+						.addRooflinePoint(
+								kernel.getLabel(),
+								new RooflinePoint(
+										matrixSize, group.best(calcInt), group
+												.best(calcPerf)));
+
+				if (kernel.getWarmData() && !kernel.getWarmCode()
+						&& matrixSize < 300)
+					point.setLabel(Long.toString(matrixSize));
 			}
 
-			rooflineController
-					.addRooflinePoint(kernel.getLabel(),
-							matrixSize, builder,
-							kernel.getSuggestedOperation(),
-							MemoryTransferBorder.LlcRamBus);
 		}
 		configuration.pop();
 
 		rooflineController.plot();
-		plotService.plot(plot);
+		plotService.plot(plotInt);
 	}
 
 	/**

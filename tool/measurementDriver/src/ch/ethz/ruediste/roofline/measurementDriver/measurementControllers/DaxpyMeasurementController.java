@@ -3,11 +3,12 @@ package ch.ethz.ruediste.roofline.measurementDriver.measurementControllers;
 import java.io.IOException;
 
 import ch.ethz.ruediste.roofline.measurementDriver.baseClasses.IMeasurementController;
+import ch.ethz.ruediste.roofline.measurementDriver.configuration.Configuration;
 import ch.ethz.ruediste.roofline.measurementDriver.controllers.RooflineController;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.entities.plot.KeyPosition;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.parameterSpace.*;
-import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.measurementDriver.dom.services.*;
+import ch.ethz.ruediste.roofline.measurementDriver.dom.services.QuantityMeasuringService.MemoryTransferBorder;
 import ch.ethz.ruediste.roofline.sharedEntities.Axes;
 import ch.ethz.ruediste.roofline.sharedEntities.kernels.DaxpyKernel;
 
@@ -27,14 +28,17 @@ public class DaxpyMeasurementController implements IMeasurementController {
 	public SystemInfoService systemInfoService;
 
 	@Inject
-	RooflineController rooflineController;
+	public RooflineController rooflineController;
+
+	@Inject
+	public Configuration configuration;
 
 	public void measure(String outputName) throws IOException {
 		rooflineController.setTitle("Vector-Vector Multiplication");
 		rooflineController.setOutputName(outputName);
 		rooflineController.addDefaultPeaks();
 		rooflineController.getPlot().setAutoscaleY(true)
-				.setKeyPosition(KeyPosition.BottomRight);
+				.setKeyPosition(KeyPosition.BottomRight).setAutoscaleX(true);
 
 		ParameterSpace space = new ParameterSpace();
 		space.add(DaxpyKernel.useMklAxis, true);
@@ -51,25 +55,28 @@ public class DaxpyMeasurementController implements IMeasurementController {
 
 	public void addPoints(RooflineController rooflineController,
 			Coordinate coord) {
-		for (long vectorSize = 500; vectorSize <= 20000; vectorSize += 500) {
+		configuration.push();
+
+		for (long vectorSize = 500; vectorSize <= 10000 * 1000; vectorSize *= 2) {
+			if (vectorSize > 1000 * 1000)
+				configuration.set(QuantityMeasuringService.numberOfRunsKey, 1);
+			else
+				configuration
+						.set(QuantityMeasuringService.numberOfRunsKey, 100);
+
 			DaxpyKernel kernel = new DaxpyKernel();
 			kernel.initialize(coord);
 			kernel.setOptimization("-O3");
 			kernel.setVectorSize(vectorSize);
 
 			rooflineController
-					.addRooflinePoint(kernel.getLabelOverride(),
+					.addRooflinePoint(kernel.getLabel(),
 							vectorSize, kernel,
 							kernel.getSuggestedOperation(),
 							MemoryTransferBorder.LlcRamLines);
 
-			/*rooflineController
-					.addRooflinePoint(kernel.getLabel(),
-							Long.toString(vectorSize), kernel,
-							new OperationCount(vectorSize * 2),
-							MemoryTransferBorder.LlcRamBus);*/
-
 		}
+		configuration.pop();
 	}
 
 }
