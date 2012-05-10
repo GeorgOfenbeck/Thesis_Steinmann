@@ -262,6 +262,9 @@ public class SystemInfoService {
 
 		if (isPMUPresent("snb"))
 			return CpuType.SandyBridge;
+		
+		if (isPMUPresent("snb_ep"))
+			return CpuType.SandyBridgeExtreme;
 
 		throw new Error("CPU not supported, available PMUs: "
 				+ getPresentPmuStringList());
@@ -277,6 +280,8 @@ public class SystemInfoService {
 		case Core:
 			return 1024L * 1024L * 4L;
 		case SandyBridge:
+			return 1024L * 1024L * 12L;
+		case SandyBridgeExtreme:
 			return 1024L * 1024L * 12L;
 		}
 
@@ -342,6 +347,7 @@ public class SystemInfoService {
 		case Core:
 			return true;
 		case SandyBridge:
+		case SandyBridgeExtreme:
 			return false;
 		}
 

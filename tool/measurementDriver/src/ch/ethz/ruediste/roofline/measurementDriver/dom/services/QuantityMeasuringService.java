@@ -132,12 +132,14 @@ public class QuantityMeasuringService {
 					OperationCount.class,
 					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_SINGLE",
-					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE");
+					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE",
+					"snb_ep::FP_COMP_OPS_EXE:SSE_FP_SCALAR_SINGLE");
 			QuantityCalculator<OperationCount> packed = createPerfEventQuantityCalculator(
 					OperationCount.class,
 					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE",
-					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE");
+					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE",
+					"snb_ep::FP_COMP_OPS_EXE:SSE_PACKED_SINGLE");
 			return new AddingQuantityCalculator<OperationCount>(
 					scalar,
 					new MultiplyingQuantityCalculator<OperationCount>(packed, 2));
@@ -148,13 +150,37 @@ public class QuantityMeasuringService {
 					OperationCount.class,
 					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_DOUBLE",
-					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE");
+					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE",
+					"snb_ep::FP_COMP_OPS_EXE:SSE_SCALAR_DOUBLE");
 			QuantityCalculator<OperationCount> packed = createPerfEventQuantityCalculator(
 					OperationCount.class,
 					Combination.Sum,
+					"snb_ep::FP_COMP_OPS_EXE:SSE_FP_PACKED_DOUBLE",
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
 					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE");
+			
+			if (systemInfoService.getCpuType() == CpuType.SandyBridgeExtreme) {
+				QuantityCalculator<OperationCount> avx = createPerfEventQuantityCalculator(
+						OperationCount.class,
+						Combination.Sum,
+						"snb_ep::SIMD_FP_256:PACKED_DOUBLE");
+				
+				
+				return 
+						new AddingQuantityCalculator<OperationCount>(
+								new MultiplyingQuantityCalculator<OperationCount>(avx, 4),
+								new AddingQuantityCalculator<OperationCount>(
+										scalar,
+										new MultiplyingQuantityCalculator<OperationCount>(packed, 2)
+										)
+								);
+								
+						
 
+				
+				
+			}
+			else			
 			if (systemInfoService.getCpuType() == CpuType.Yonah) {
 				// the PACKED_DOUBLE counter is buggy on the core duo and includes
 				// the SCALAR_DOUBLE events as well. Compensate
@@ -173,7 +199,8 @@ public class QuantityMeasuringService {
 		case CompInstr:
 			return createPerfEventQuantityCalculator(OperationCount.class,
 					Combination.Sum, "coreduo::FP_COMP_INSTR_RET",
-					"core::FP_COMP_OPS_EXE");
+					"core::FP_COMP_OPS_EXE", //"snb_ep::FP_COMP_OPS_EXE:X87:SSE_FP_PACKED_DOUBLE:SSE_FP_SCALAR_SINGLE:SSE_PACKED_SINGLE:SSE_SCALAR_DOUBLE");
+					"snb_ep::INST_RETIRED");
 
 		default:
 			throw new Error("should not happen");
@@ -197,24 +224,35 @@ public class QuantityMeasuringService {
 					TransferredBytes.class,
 					Combination.Sum,
 					"coreduo::L2_M_LINES_OUT:SELF",
+					"snb_ep::LLC_MISSES",
 					"core::L2_M_LINES_OUT:SELF");
-
+					//snb_ep::LLC_MISSES
+/*
 			TerminalQuantityCalculator<TransferredBytes> streamingStoreCalc = createPerfEventQuantityCalculator(
 					TransferredBytes.class,
 					Combination.Sum,
-					"coreduo::SSE_NTSTORES_RET", "core::SSE_PRE_EXEC:STORES");
-
-			return new AddingQuantityCalculator<TransferredBytes>(
+					"coreduo::SSE_NTSTORES_RET", "core::SSE_PRE_EXEC:STORES", "snb_ep::OFFCORE_RESPONSE_0:UMASK ANY_REQUEST");
+*/
+			return new MultiplyingQuantityCalculator<TransferredBytes>(
+					linesOutCalc, 64);
+			/*return new AddingQuantityCalculator<TransferredBytes>(
 					new MultiplyingQuantityCalculator<TransferredBytes>(
-							linesOutCalc, 64), // lines out, multiplied with line length 
+							linesOutCalc, 64), // lines out, multiplied with line length
+							
 					new MultiplyingQuantityCalculator<TransferredBytes>(
 							streamingStoreCalc, 16)); // add streaming stores multiplied with 16 (two doubles)
-
+				*/			
+/*
+			return new AddingQuantityCalculator<TransferredBytes>(
+					new MultiplyingQuantityCalculator<TransferredBytes>(
+							linesOutCalc, 64)); // lines out, multiplied with line length 
+	*/				
 		case LlcRamLines:
 			TerminalQuantityCalculator<TransferredBytes> linesInCalc = createPerfEventQuantityCalculator(
 					TransferredBytes.class,
 					Combination.Sum,
 					"coreduo::L2_LINES_IN:SELF",
+					"snb_ep::LLC_MISSES",
 					"core::L2_LINES_IN:SELF");
 
 			return new AddingQuantityCalculator<TransferredBytes>(
@@ -226,7 +264,7 @@ public class QuantityMeasuringService {
 			return new MultiplyingQuantityCalculator<TransferredBytes>(
 					createPerfEventQuantityCalculator(
 							TransferredBytes.class, Combination.Sum,
-							"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM"),
+							"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM", "snb_ep::MEM_UOP_RETIRED:ANY_LOADS"),
 					64);
 
 		default:
@@ -244,7 +282,9 @@ public class QuantityMeasuringService {
 			return createPerfEventQuantityCalculator(Time.class,
 					Combination.Max,
 					"core::UNHALTED_CORE_CYCLES",
+					"snb_ep::UNHALTED_CORE_CYCLES",
 					"coreduo::UNHALTED_CORE_CYCLES");
+					
 		case ReferenceCycles:
 			return createPerfEventQuantityCalculator(Time.class,
 					Combination.Max, "perf::PERF_COUNT_HW_BUS_CYCLES");
