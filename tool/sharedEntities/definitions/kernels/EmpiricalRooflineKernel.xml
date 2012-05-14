@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<derivedClass
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../shared.xsd"
+	baseType="KernelBase"
+	cSuffix="Data"
+	comment="kernel used in the sample of the introduction">
+	<field name="flops" type="long" comment="floating point operation performed"/>
+	<field name="transfered_bytes" type="long" comment="bytes required by the code"/>
+	<field name="dummy" type="int" comment="to trick the compiler"/>
+</derivedClass>
