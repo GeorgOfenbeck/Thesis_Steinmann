@@ -280,7 +280,8 @@ public class SystemInfoService {
 		case Core:
 			return 1024L * 1024L * 4L;
 		case SandyBridge:
-			return 1024L * 1024L * 12L;
+			return 1024L * 1024L * 4L; //this is for my notebook
+									   //2DO: read these values from cpuinfo since they are not fixed for one architecture
 		case SandyBridgeExtreme:
 			return 1024L * 1024L * 12L;
 		}

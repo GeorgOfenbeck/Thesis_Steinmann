@@ -133,12 +133,15 @@ public class QuantityMeasuringService {
 					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_SINGLE",
 					"core::SIMD_COMP_INST_RETIRED:SCALAR_SINGLE",
+					"snb::FP_COMP_OPS_EXE:SSE_FP_SCALAR_SINGLE",
 					"snb_ep::FP_COMP_OPS_EXE:SSE_FP_SCALAR_SINGLE");
+			
 			QuantityCalculator<OperationCount> packed = createPerfEventQuantityCalculator(
 					OperationCount.class,
 					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_SINGLE",
 					"core::SIMD_COMP_INST_RETIRED:PACKED_SINGLE",
+					"snb::FP_COMP_OPS_EXE:SSE_PACKED_SINGLE",
 					"snb_ep::FP_COMP_OPS_EXE:SSE_PACKED_SINGLE");
 			return new AddingQuantityCalculator<OperationCount>(
 					scalar,
@@ -151,19 +154,23 @@ public class QuantityMeasuringService {
 					Combination.Sum,
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:SCALAR_DOUBLE",
 					"core::SIMD_COMP_INST_RETIRED:SCALAR_DOUBLE",
+					"snb::FP_COMP_OPS_EXE:SSE_SCALAR_DOUBLE",
 					"snb_ep::FP_COMP_OPS_EXE:SSE_SCALAR_DOUBLE");
 			QuantityCalculator<OperationCount> packed = createPerfEventQuantityCalculator(
 					OperationCount.class,
 					Combination.Sum,
 					"snb_ep::FP_COMP_OPS_EXE:SSE_FP_PACKED_DOUBLE",
+					"snb::FP_COMP_OPS_EXE:SSE_FP_PACKED_DOUBLE",
 					"coreduo::SSE_COMP_INSTRUCTIONS_RETIRED:PACKED_DOUBLE",
 					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE");
 			
-			if (systemInfoService.getCpuType() == CpuType.SandyBridgeExtreme) {
+			if (systemInfoService.getCpuType() == CpuType.SandyBridgeExtreme ||
+					systemInfoService.getCpuType() == CpuType.SandyBridge) {
 				QuantityCalculator<OperationCount> avx = createPerfEventQuantityCalculator(
 						OperationCount.class,
 						Combination.Sum,
-						"snb_ep::SIMD_FP_256:PACKED_DOUBLE");
+						"snb_ep::SIMD_FP_256:PACKED_DOUBLE",
+						"snb::SIMD_FP_256:PACKED_DOUBLE");
 				
 				
 				return 
@@ -200,6 +207,7 @@ public class QuantityMeasuringService {
 			return createPerfEventQuantityCalculator(OperationCount.class,
 					Combination.Sum, "coreduo::FP_COMP_INSTR_RET",
 					"core::FP_COMP_OPS_EXE", //"snb_ep::FP_COMP_OPS_EXE:X87:SSE_FP_PACKED_DOUBLE:SSE_FP_SCALAR_SINGLE:SSE_PACKED_SINGLE:SSE_SCALAR_DOUBLE");
+					"snb::INST_RETIRED",
 					"snb_ep::INST_RETIRED");
 
 		default:
@@ -225,6 +233,7 @@ public class QuantityMeasuringService {
 					Combination.Sum,
 					"coreduo::L2_M_LINES_OUT:SELF",
 					"snb_ep::LLC_MISSES",
+					"snb::LLC_MISSES",
 					"core::L2_M_LINES_OUT:SELF");
 					//snb_ep::LLC_MISSES
 /*
@@ -253,6 +262,7 @@ public class QuantityMeasuringService {
 					Combination.Sum,
 					"coreduo::L2_LINES_IN:SELF",
 					"snb_ep::LLC_MISSES",
+					"snb::LLC_MISSES",
 					"core::L2_LINES_IN:SELF");
 
 			return new AddingQuantityCalculator<TransferredBytes>(
@@ -264,7 +274,10 @@ public class QuantityMeasuringService {
 			return new MultiplyingQuantityCalculator<TransferredBytes>(
 					createPerfEventQuantityCalculator(
 							TransferredBytes.class, Combination.Sum,
-							"core::BUS_TRANS_MEM", "coreduo::BUS_TRANS_MEM", "snb_ep::MEM_UOP_RETIRED:ANY_LOADS"),
+							"core::BUS_TRANS_MEM", 
+							"coreduo::BUS_TRANS_MEM",
+							"snb::MEM_UOP_RETIRED:ANY_LOADS",
+							"snb_ep::MEM_UOP_RETIRED:ANY_LOADS"),
 					64);
 
 		default:
@@ -283,6 +296,7 @@ public class QuantityMeasuringService {
 					Combination.Max,
 					"core::UNHALTED_CORE_CYCLES",
 					"snb_ep::UNHALTED_CORE_CYCLES",
+					"snb::UNHALTED_CORE_CYCLES",
 					"coreduo::UNHALTED_CORE_CYCLES");
 					
 		case ReferenceCycles:

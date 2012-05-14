@@ -245,6 +245,11 @@ public class RooflineController {
 		//addPeakPerformance("ADD", PeakAlgorithm.Add, InstructionSet.SSE);
 		//addPeakPerformance("MUL", PeakAlgorithm.Mul, InstructionSet.SSE);
 		break;
+		case SandyBridge: //2DO - replace by measured results 
+			plot.addPeakPerformance("Balanced Scalar", new Performance(2));
+			plot.addPeakPerformance("AVX", new Performance(8));
+			plot.addPeakPerformance("2*AVX", new Performance(16));
+			break;
 		case SandyBridgeExtreme:
 			plot.addPeakPerformance("Balanced Scalar", new Performance(2));
 			plot.addPeakPerformance("AVX", new Performance(8));
@@ -267,10 +272,18 @@ public class RooflineController {
 			addPeakThroughput("MemRand", PeakAlgorithm.RandomLoad,
 					MemoryTransferBorder.LlcRamBus);
 		break;
+		
+		
+		//GO: Sandybridge doesnt work yet - Operational Intensity is wrong
+		case SandyBridge:
+			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
+					MemoryTransferBorder.LlcRamBus);
+			break;				
 		case SandyBridgeExtreme:
 			addPeakThroughput("MemLoad", PeakAlgorithm.Load,
 					MemoryTransferBorder.LlcRamBus);
 			break;
+			
 		
 		}
 	}
