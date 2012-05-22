@@ -145,7 +145,7 @@ public class QuantityMeasuringService {
 					"snb_ep::FP_COMP_OPS_EXE:SSE_PACKED_SINGLE");
 			return new AddingQuantityCalculator<OperationCount>(
 					scalar,
-					new MultiplyingQuantityCalculator<OperationCount>(packed, 2));
+					new MultiplyingQuantityCalculator<OperationCount>(packed, 4));
 		}
 
 		case DoublePrecisionFlop: {
