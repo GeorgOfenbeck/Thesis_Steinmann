@@ -265,6 +265,9 @@ public class SystemInfoService {
 		
 		if (isPMUPresent("snb_ep"))
 			return CpuType.SandyBridgeExtreme;
+		
+		if (isPMUPresent("ivb"))
+			return CpuType.IvyBridge;
 
 		throw new Error("CPU not supported, available PMUs: "
 				+ getPresentPmuStringList());
@@ -284,6 +287,8 @@ public class SystemInfoService {
 									   //2DO: read these values from cpuinfo since they are not fixed for one architecture
 		case SandyBridgeExtreme:
 			return 1024L * 1024L * 12L;
+		case IvyBridge:
+			return 1024L * 1024L * 8;
 		}
 
 		throw new Error("CPU not supported. CpuType: " + getCpuType());
@@ -349,6 +354,7 @@ public class SystemInfoService {
 			return true;
 		case SandyBridge:
 		case SandyBridgeExtreme:
+		case IvyBridge:
 			return false;
 		}
 

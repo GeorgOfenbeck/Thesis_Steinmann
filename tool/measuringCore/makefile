@@ -8,6 +8,7 @@ LIBS=-lpfm -lstdc++
 
 # command for the compiler
 GCC=ccache gcc
+#GCC= icc
 
 # compilation flags
 CFLAGS=-Wall -ggdb

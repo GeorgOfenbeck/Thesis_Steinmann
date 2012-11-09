@@ -165,7 +165,8 @@ public class QuantityMeasuringService {
 					"core::SIMD_COMP_INST_RETIRED:PACKED_DOUBLE");
 			
 			if (systemInfoService.getCpuType() == CpuType.SandyBridgeExtreme ||
-					systemInfoService.getCpuType() == CpuType.SandyBridge) {
+					systemInfoService.getCpuType() == CpuType.SandyBridge ||
+					systemInfoService.getCpuType() == CpuType.IvyBridge) {
 				QuantityCalculator<OperationCount> avx = createPerfEventQuantityCalculator(
 						OperationCount.class,
 						Combination.Sum,
