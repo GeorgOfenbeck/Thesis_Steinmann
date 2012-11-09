@@ -296,6 +296,7 @@ public class QuantityMeasuringService {
 			return createPerfEventQuantityCalculator(Time.class,
 					Combination.Max,
 					"core::UNHALTED_CORE_CYCLES",
+					"ivb::CPU_CLK_UNHALTED",
 					"snb_ep::UNHALTED_CORE_CYCLES",
 					"snb::UNHALTED_CORE_CYCLES",
 					"coreduo::UNHALTED_CORE_CYCLES");
