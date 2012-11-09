@@ -4,9 +4,8 @@
  *  Created on: Feb 20, 2012
  *      Author: ruedi
  */
-
 #include "SpiralSKernel.h"
-#include "SpiralS_generated.cpp" 
+#include "SpiralS_generated.cpp"
 std::vector<std::pair<void*, long> > SpiralSKernel::getBuffers() {
 	std::vector<std::pair<void*, long> > result;
 	result.push_back(std::make_pair(x,getVectorSize()*sizeof(double)));
@@ -31,6 +30,11 @@ void SpiralSKernel::initialize() {
 	if (posix_memalign((void**) (&x), 4*1024, size* sizeof(double)) != 0) {
 			throw "could not allocate memory";
 		}
+        if (posix_memalign((void**) (&y), 4*1024, size* sizeof(double)) != 0) {
+                        throw "could not allocate memory";
+                }
+	dummy.input = x;
+	dummy.output = y;
 	// initialize factors
 	alpha=drand48();
 
@@ -44,7 +48,7 @@ void SpiralSKernel::initialize() {
 }
 
 void SpiralSKernel::run() {
-	fft(x);
+	staged(&dummy);
 	/*
 	 void cblas_daxpy(const MKL_INT N, const double alpha, const double *X,
 	 const MKL_INT incX, double *Y, const MKL_INT incY);
