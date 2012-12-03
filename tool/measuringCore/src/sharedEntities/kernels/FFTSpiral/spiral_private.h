@@ -20,14 +20,14 @@
 #include <xmmintrin.h>
 #include <emmintrin.h>
 
-#define SPIRAL_MALLOC(size)     malloc(size)
+#define SPIRAL_MALLOC(size)	malloc(size)
 #define __INLINE  static inline
 
-#define SPIRAL_PRIV(res, name)  static res name
+#define SPIRAL_PRIV(res, name)	static res name
 #ifdef __GNUC__
-#define SPIRAL_ALIGNED(a)       a __attribute__((aligned(16)))
+#define SPIRAL_ALIGNED(a)	a __attribute__((aligned(16)))
 #else
-#define SPIRAL_ALIGNED(a)       __declspec(align(16)) a
+#define SPIRAL_ALIGNED(a)	__declspec(align(16)) a
 #endif
 
 typedef struct {
@@ -81,7 +81,6 @@ typedef struct {
 #define NEG_FLT(a) _mm_sub_pd(C_FLT(0), a)
 
 /* mixed real/integer arithmetic */
-#define SUB_INT_INT(a, b) ((a)-(b))
 #define MUL_INT_FLT(a, b) (MUL_FLT_FLT(C_FLT(a), b))
 #define ADD_INT_FLT(a,b) ADD_FLT_FLT(C_FLT(a), b)
 #define ADD_FLT_INT(a,b) ADD_FLT_FLT(a, C_FLT(b))
@@ -148,7 +147,7 @@ __INLINE __m128d MUL_CPXN_CPX(__m128d x, __m128d y) {
 }
 
 #define SPIRAL_PI    3.14159265358979323846
-
+/*
 extern double cos(double);
 extern double sin(double);
 
@@ -157,7 +156,7 @@ __INLINE FLT SINPI_FLT(FLT a) { double aa = ((double*)&a)[0]; return C_FLT(sin(S
 
 __INLINE float cospi(double a) { return cos(SPIRAL_PI*a); }
 __INLINE float sinpi(double a) { return sin(SPIRAL_PI*a); }
-
+*/
 /* for RDFT */
 #define v_lo2(a, b) (_mm_shuffle_pd(a, b, _MM_SHUFFLE2(0,0)))
 #define v_hi2(a, b) (_mm_shuffle_pd(a, b, _MM_SHUFFLE2(1,1)))
@@ -174,80 +173,70 @@ __INLINE float sinpi(double a) { return sin(SPIRAL_PI*a); }
 extern "C" {
 #endif
 
-extern  SPIRAL_ALIGNED(__m128 D962[32]);
-
-extern  SPIRAL_ALIGNED(__m128 D963[32]);
-
-extern  SPIRAL_ALIGNED(__m128 D964[64]);
-
-extern  SPIRAL_ALIGNED(__m128 D965[128]);
-
-extern  SPIRAL_ALIGNED(__m128 D966[128]);
-
-extern  SPIRAL_ALIGNED(__m128 D967[256]);
-
-extern  SPIRAL_ALIGNED(__m128 D968[512]);
-
-extern  SPIRAL_ALIGNED(__m128 D969[1024]);
-
-extern  SPIRAL_ALIGNED(__m128 D970[64]);
-
-extern  SPIRAL_ALIGNED(__m128 D971[2048]);
-
-extern  SPIRAL_ALIGNED(__m128 D972[4096]);
-
-extern  SPIRAL_ALIGNED(__m128 D973[512]);
-
-extern  SPIRAL_ALIGNED(__m128 D974[4096]);
-
-extern  SPIRAL_ALIGNED(__m128 D975[32]);
-
-extern  SPIRAL_ALIGNED(__m128 D976[32]);
-
-extern  SPIRAL_ALIGNED(__m128 D977[64]);
-
-extern  SPIRAL_ALIGNED(__m128 D978[128]);
-
-extern  SPIRAL_ALIGNED(__m128 D979[128]);
-
-extern  SPIRAL_ALIGNED(__m128 D980[256]);
-
-extern  SPIRAL_ALIGNED(__m128 D981[512]);
-
-extern  SPIRAL_ALIGNED(__m128 D982[1024]);
-
-extern  SPIRAL_ALIGNED(__m128 D983[64]);
-
-extern  SPIRAL_ALIGNED(__m128 D984[2048]);
-
-extern  SPIRAL_ALIGNED(__m128 D985[4096]);
-
-extern  SPIRAL_ALIGNED(__m128 D986[512]);
-
-extern  SPIRAL_ALIGNED(__m128 D987[4096]);
-
-extern  SPIRAL_ALIGNED(FLT D989[210]);
-
-extern  SPIRAL_ALIGNED(FLT D992[378]);
-
-extern  SPIRAL_ALIGNED(FLT D996[882]);
-
-extern  SPIRAL_ALIGNED(FLT D1003[1890]);
-
-extern  SPIRAL_ALIGNED(FLT D1010[2046]);
-
-extern  SPIRAL_ALIGNED(FLT D1011[1778]);
-
-extern  SPIRAL_ALIGNED(FLT D1012[210]);
-
-extern  SPIRAL_ALIGNED(FLT D1018[7154]);
-
-extern  SPIRAL_ALIGNED(FLT D1040[2046]);
-
-extern  SPIRAL_ALIGNED(FLT D1041[1778]);
-
-extern  SPIRAL_ALIGNED(FLT D1042[210]);
-
+extern  float D267[128];
+       
+extern  float D268[256];
+       
+extern  float D269[512];
+       
+extern  float D270[1024];
+       
+extern  float D271[2048];
+       
+extern  float D272[4096];
+       
+extern  float D273[8192];
+       
+extern  float D274[16384];
+       
+extern  float D275[128];
+       
+extern  float D276[256];
+       
+extern  float D277[512];
+       
+extern  float D278[1024];
+       
+extern  float D279[2048];
+       
+extern  float D280[4096];
+       
+extern  float D281[8192];
+       
+extern  float D282[16384];
+       
+extern  double D283[128];
+       
+extern  double D284[256];
+       
+extern  double D285[512];
+       
+extern  double D286[1024];
+       
+extern  double D287[2048];
+       
+extern  double D288[4096];
+       
+extern  double D289[8192];
+       
+extern  double D290[16384];
+       
+extern  double D291[128];
+       
+extern  double D292[256];
+       
+extern  double D293[512];
+       
+extern  double D294[1024];
+       
+extern  double D295[2048];
+       
+extern  double D296[4096];
+       
+extern  double D297[8192];
+       
+extern  double D298[16384];
+       
 
 #ifdef __cplusplus
 }
