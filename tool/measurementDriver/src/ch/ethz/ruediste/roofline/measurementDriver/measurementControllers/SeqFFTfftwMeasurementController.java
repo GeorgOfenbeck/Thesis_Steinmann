@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 
 import com.google.inject.Inject;
 
@@ -59,13 +60,17 @@ public class SeqFFTfftwMeasurementController implements IMeasurementController {
 			workload.setKernel(kernel);
 			workload.setMeasurerSet(set);
 	
-			MeasurementResult result = measurementService.measure(measurement, 10);
+			MeasurementResult result = measurementService.measure(measurement, 100);
 	
-			System.out.println("size = \t" + size);
-			for (TscMeasurerOutput output : result.getMeasurerOutputs(measurer)) {
-				System.out.println(output.getTics());
+			long min = Long.MAX_VALUE;
+			//System.out.println("size = \t" + size);
+			for (TscMeasurerOutput output : result.getMeasurerOutputs(measurer)) {							
+				if ( min > output.getTics().longValue() )
+					min = output.getTics().longValue();
+					
+				//System.out.println(output.getTics());
 			}
-			System.out.println();
+			System.out.println(min);
 		}
 		
 	}
